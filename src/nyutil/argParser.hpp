@@ -4,7 +4,7 @@
 #include <vector>
 #include <functional>
 
-namespace util
+namespace nyutil
 {
 
 //argParser

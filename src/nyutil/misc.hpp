@@ -7,7 +7,7 @@
 #include <sstream>
 #include <cmath>
 
-namespace util
+namespace nyutil
 {
 
 template<class... T> void unused(T&&...)

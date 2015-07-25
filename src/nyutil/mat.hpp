@@ -1,9 +1,9 @@
 #pragma once
 
-#include <util/vec.hpp>
-#include <util/refVec.hpp>
+#include <nyutil/vec.hpp>
+#include <nyutil/refVec.hpp>
 
-namespace util
+namespace nyutil
 {
 
 template<size_t rows, size_t cols, class prec> class mat;

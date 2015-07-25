@@ -1,7 +1,8 @@
-#include <util/module.hpp>
+#include <nyutil/module.hpp>
+
 #include <dlfcn.h>
 
-namespace util
+namespace nyutil
 {
 
 //proxies

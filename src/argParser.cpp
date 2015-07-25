@@ -1,9 +1,9 @@
-#include <util/argParser.hpp>
-#include <util/misc.hpp>
+#include <nyutil/argParser.hpp>
+#include <nyutil/misc.hpp>
 
 #include <iostream>
 
-namespace util
+namespace nyutil
 {
 
 void defaultMalformedToken(const std::string& str)

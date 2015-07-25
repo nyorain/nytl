@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-namespace util
+namespace nyutil
 {
 
 template<size_t dim, class T> class vec;

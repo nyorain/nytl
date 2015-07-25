@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace util
+namespace nyutil
 {
 
 class module;

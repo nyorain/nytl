@@ -1,6 +1,6 @@
 #pragma once
 
-#include <util/nonCopyable.hpp>
+#include <nyutil/nonCopyable.hpp>
 
 #include <functional>
 #include <vector>
@@ -8,9 +8,9 @@
 #include <utility>
 
 
-namespace util
+namespace nyutil
 {
-	
+
 class connection;
 template < class > class callback;
 
@@ -38,7 +38,7 @@ public:
     connection& operator=(const connection&& mover) noexcept { callback_ = mover.callback_; onlyOnce_ = mover.onlyOnce_; return *this; } //for callback
 
     bool onlyOnce() const { return onlyOnce_; };
-    void setOnlyOnce(bool s = 1){ onlyOnce_ = 1; }
+    void setOnlyOnce(bool s = 1){ onlyOnce_ = s; }
 
     void destroy(){ callback_.remove(*this); } //will delete this object implicitly
 };

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace util
+namespace nyutil
 {
 
 //nonCopyable

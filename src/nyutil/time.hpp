@@ -3,7 +3,7 @@
 #include <chrono>
 #include <ratio>
 
-namespace util
+namespace nyutil
 {
 
 class timePoint;

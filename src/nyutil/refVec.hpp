@@ -1,10 +1,10 @@
 #pragma once
 
-#include <util/vec.hpp>
+#include <nyutil/vec.hpp>
 
 #include <functional>
 
-namespace util
+namespace nyutil
 {
 
 template<size_t dim, class T> class refVec;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <util/time.hpp>
+#include <nyutil/time.hpp>
 
 #include <thread>
 #include <mutex>
@@ -9,7 +9,7 @@
 #include <queue>
 #include <functional>
 
-namespace util
+namespace nyutil
 {
 
 //threadSafeObj//////////////////////////////////////////////////////

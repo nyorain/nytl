@@ -1,11 +1,11 @@
 #pragma once
 
-#include <util/vec.hpp>
-#include <util/rect.hpp>
+#include <nyutil/vec.hpp>
+#include <nyutil/rect.hpp>
 
 #include <vector>
 
-namespace util
+namespace nyutil
 {
 
 class region

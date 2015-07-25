@@ -1,10 +1,10 @@
 #pragma once
 
-#include <util/vec.hpp>
+#include <nyutil/vec.hpp>
 
 #include <vector>
 
-namespace util
+namespace nyutil
 {
 //rect
 template<size_t dim, class prec> class rect;
@@ -88,9 +88,9 @@ public:
 	vec<2, prec> bottomRight() const { return position + size; }
 
 	const prec& left() const { return position.x; }
-	const prec& right() const { return position.x + size.x; }
+	const prec right() const { return position.x + size.x; }
 	const prec& top() const { return position.y; }
-	const prec& bottom() const { return position.y + size.y; }
+	const prec bottom() const { return position.y + size.y; }
 
     prec& left() { return position.x; }
 	prec& top() { return position.y; }
