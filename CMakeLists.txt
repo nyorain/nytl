@@ -4,6 +4,8 @@ PROJECT(project_nyutil)
 set(NYUTIL_VMAJOR 0)
 set(NYUTIL_VMINOR 1)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/CMake)
+
 include_directories(src)
 add_subdirectory(src)
 
