@@ -27,9 +27,9 @@ module::module()
 }
 
 //moduleLoader
-module* moduleLoader::load(const std::string& modName)
+module* moduleLoader::loadModule(const std::string& modName)
 {
-    void* handle = dlopen(modName.c_str(), RTLD_LAZY | RTLD_GLOBAL );
+    void* handle = dlopen(modName.c_str(), RTLD_NOW);
     if(!handle)
         return nullptr;
 
@@ -43,7 +43,7 @@ module* moduleLoader::load(const std::string& modName)
         ret->handle_ = handle;
         if(!ret->onLoad(*this))
         {
-            unload(*ret);
+            unloadModule(*ret);
             ret = nullptr;
         }
     }
@@ -55,7 +55,7 @@ module* moduleLoader::load(const std::string& modName)
     return ret;
 }
 
-void moduleLoader::unload(module& mod)
+void moduleLoader::unloadModule(module& mod)
 {
     mod.onUnload();
     if(mod.handle_) dlclose(mod.handle_);

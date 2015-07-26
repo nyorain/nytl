@@ -20,12 +20,10 @@ private:
 
 public:
     module();
+    virtual ~module(){}
 
     virtual bool onLoad(moduleLoader& loader) = 0;
-    virtual void onUnload() = 0;
-
-    virtual unsigned int getVersion() const = 0;
-    virtual unsigned int getTypeID() const = 0;
+    virtual void onUnload(){};
 
     static module* getObject() { return module_; };
 };
@@ -34,8 +32,10 @@ public:
 class moduleLoader
 {
 public:
-    module* load(const std::string& modName);
-    void unload(module& mod);
+    virtual ~moduleLoader(){}
+
+    virtual module* loadModule(const std::string& modName);
+    virtual void unloadModule(module& mod);
 };
 
 }
