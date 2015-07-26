@@ -6,4 +6,4 @@ Name: nyutil
 Description: c++11 util functions and classes
 Version: @NYUTIL_VMAJOR@.@NYUTIL_VMINOR@
 Libs: -L${libdir} -lnyutil
-Cflags: -I${includedir}/nyutil
+Cflags: -I${includedir}

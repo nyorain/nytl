@@ -1,7 +1,7 @@
 #fpic
 set (CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
-add_library(nyutil STATIC 
+add_library(nyutil SHARED
 	thread.cpp 
 	misc.cpp 
 	argParser.cpp
