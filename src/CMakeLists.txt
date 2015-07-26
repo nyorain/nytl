@@ -18,5 +18,5 @@ target_link_libraries(nyutil
 	${DL_LIBRARY}
 )
 
-install(DIRECTORY nyutil DESTINATION include/nyutil)
+install(DIRECTORY nyutil DESTINATION include)
 install(TARGETS nyutil DESTINATION lib)
