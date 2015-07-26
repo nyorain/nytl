@@ -6,4 +6,4 @@ add_library(nyutil STATIC
 target_compile_features(nyutil PRIVATE cxx_range_for)
 
 install(DIRECTORY nyutil DESTINATION include/nyutil)
-install(LIBRARY nyutil DESTINATION lib)
+install(TARGETS nyutil DESTINATION lib)
