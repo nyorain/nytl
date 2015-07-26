@@ -4,7 +4,7 @@ PROJECT(nyutil)
 set(NYUTIL_VMAJOR 0)
 set(NYUTIL_VMINOR 1)
 
-include_directories(src/nyutil)
+include_directories(src)
 add_subdirectory(src)
 
 #pkg-config
