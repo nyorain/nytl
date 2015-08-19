@@ -1,7 +1,6 @@
 #pragma once
 
 #include <nyutil/nonCopyable.hpp>
-#include <nyutil/slist.hpp>
 
 #include <functional>
 #include <vector>
@@ -9,7 +8,6 @@
 #include <utility>
 #include <mutex>
 #include <memory>
-
 
 namespace nyutil
 {
