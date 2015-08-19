@@ -6,105 +6,152 @@
 #include <mutex>
 #include <condition_variable>
 #include <vector>
+#include <deque>
 #include <queue>
+#include <future>
 #include <functional>
 
 namespace nyutil
 {
+
+using mtxGuard = std::lock_guard<std::mutex>;
+using mtxLock = std::unique_lock<std::mutex>;
 
 //threadSafeObj//////////////////////////////////////////////////////
 class threadSafeObj
 {
 protected:
     mutable std::mutex mutex_;
-    mutable std::mutex lockMutex_;
-    mutable bool locked_ = 0;
-    mutable std::thread::id ownerID_;
 
 public:
     threadSafeObj() = default;
 
-    virtual void lock() const
-    {
-        std::unique_lock<std::mutex> lck(lockMutex_);
-        if(!ownedByMe())
-        {
-            lck.unlock();
-            mutex_.lock();
-            lck.lock();
-            locked_ = 1;
-            ownerID_ = std::this_thread::get_id();
-        }
-    }
+    void lock() const { mutex_.lock(); }
+    bool try_lock() const { return mutex_.try_lock(); }
+    void unlock() const { mutex_.unlock(); }
+};
 
-    virtual bool tryLock() const
-    {
-        std::unique_lock<std::mutex> lck(lockMutex_);
-        if(!ownedByMe())
-        {
-            bool suc = mutex_.try_lock();
+//msgThread
+template <typename Msg>
+class msgThread
+{
+protected:
+    std::deque<Msg> msgs_ {};
+    std::condition_variable msgCv_ {};
+    std::mutex msgMtx_ {};
+    std::thread thread_ {};
+    std::atomic<bool> exit_{0};
+    std::function<bool(const Msg&)> msgCallback_{};
 
-            if(suc)
+    void run()
+    {
+        while(1)
+        {
+            Msg msg{};
+
             {
-                locked_ = 1;
-                ownerID_ = std::this_thread::get_id();
-                return 1;
+                mtxLock lck(msgMtx_);
+                while(msgs_.empty() && !exit_.load())
+                    msgCv_.wait(lck);
+
+                if(exit_.load())
+                    return;
+
+                msg = std::move(msgs_.front());
+                msgs_.pop_front();
+            }
+
+            if(!msgCallback_(msg))
+            {
+                exit_.store(1);
+                return;
             }
         }
-        return 0;
     }
 
-    virtual void unlock() const
+public:
+    msgThread(std::function<bool(const Msg&)> msgCB) : thread_(&msgThread::run, this), msgCallback_(msgCB)
     {
-        std::unique_lock<std::mutex> lck(lockMutex_);
-        if(ownedByMe())
-        {
-            mutex_.unlock();
-            locked_ = 0;
-            ownerID_ = std::thread::id();
-        }
     }
 
-    bool isLocked() const { return locked_; };
-    bool ownedByMe() const { return (locked_ && (std::this_thread::get_id() == ownerID_)); };
-};
+    virtual ~msgThread()
+    {
+        if(!exit_.load())
+        {
+            exit_.store(true);
+            msgCv_.notify_one();
+        }
 
+        thread_.join();
+    }
 
-///////////////////////////////////////////////////////////
-class threadpool;
+    bool sendMessage(const Msg& msg)
+    {
+        {
+            mtxGuard lck(msgMtx_);
+            msgs_.push_back(msg);
+        }
 
-class taskBase
-{
-public:
-    taskBase(timePoint p = now()) : point(p) {}
-    taskBase(timeDuration d) : point(d.then()) {}
+        msgCv_.notify_one();
+        return exit_.load();
+    }
 
-    virtual ~taskBase(){}
+    bool sendMessage(Msg&& msg)
+    {
+        {
+            mtxGuard lck(msgMtx_);
+            msgs_.emplace_back(std::move(msg));
+        }
 
-    timePoint point;
+        msgCv_.notify_one();
+        return exit_.load();
+    }
 
-    bool operator > (const taskBase& other) const { return (point > other.point); }
-    bool operator < (const taskBase& other) const { return (point < other.point); }
-
-    virtual void operator()(){};
-    virtual void operator()(threadpool& pool){ (*this)(); }
-};
-
-//task///////////////////////////////////////////////////////////
-class task : public taskBase
-{
-public:
-    std::function<void()> func;
-
-    task(std::function<void()> f, timeDuration d) : taskBase(d), func(f) {}
-    task(std::function<void()> f = std::function<void()>(), timePoint t = now()) : taskBase(t), func(f) {}
-
-    virtual void operator()(){ func(); }
+    bool running() const { return exit_.load(); }
 };
 
 //threadpool///////////////////////////////////////////////////////
 class threadpool
 {
+protected:
+    //taskBase
+    struct task
+    {
+        virtual ~task() = default;
+
+        timePoint point;
+        virtual void operator()() = 0;
+    };
+
+    //template impl
+    template<typename Ret> struct taskImpl : public task
+    {
+        std::function<Ret()> func;
+        std::promise<Ret> promise;
+
+        virtual void operator()() override
+        {
+            try
+            {
+                promise.set_value(func());
+            }
+            catch(...)
+            {
+                promise.set_exception(std::current_exception());
+            }
+
+        }
+    };
+
+    //compare for pq
+    struct taskGreater
+    {
+        bool operator()(task* a, task* b) const
+        {
+            return a->point > b->point;
+        }
+    };
+
 protected:
     bool exiting_ : 1;
     bool finish_ : 1;
@@ -112,75 +159,66 @@ protected:
 
     std::vector<std::thread> threads_;
 
-    std::priority_queue<taskBase*, std::vector<taskBase*>, std::greater<taskBase*>> tasks_;
-    std::condition_variable cv_;
+    std::priority_queue<task*, std::vector<task*>, taskGreater> tasks_;
+    std::condition_variable cvAdd_;
     std::condition_variable cvDone_;
     std::mutex mtx_;
 
-    //////////////////////////////////////////
-    void threadFunc(size_t id)
-    {
-        std::unique_lock<std::mutex> lck(mtx_);
-        taskBase* topTask = nullptr;
-
-        while(!exiting_)
-        {
-            if(tasks_.empty())cv_.wait(lck, [this]{ return (this->exiting_ || !this->tasks_.empty()); });
-            if(exiting_)
-            {
-                return;
-            }
-
-            topTask = tasks_.top();
-            tasks_.pop();
-
-            while(topTask->point.isInFuture())
-            {
-                cv_.wait_for(lck, topTask->point.timeFromNow());
-
-                if(exiting_)
-                {
-                    if(!finish_)
-                        return;
-                }
-
-                if(topTask->point > tasks_.top()->point) //kleiner == before, x > y -> x nach y
-                {
-                    tasks_.push(topTask);
-                    topTask = tasks_.top();
-                    tasks_.pop();
-                }
-            }
-
-            lck.unlock();
-            (*topTask)(*this);
-            lck.lock();
-
-            delete topTask;
-            topTask = nullptr;
-
-            if(finish_)
-            {
-                if(tasks_.empty()) cvDone_.notify_all();
-            }
-        }
-    }
+    void threadFunc(size_t id);
 
 public:
-    /////////////////////
-    threadpool(size_t count): exiting_(0), finish_(0), takeTasks_(1)
+    threadpool();
+    threadpool(size_t count);
+    ~threadpool();
+
+    template<typename F> auto addTask(F func, timeDuration td) -> std::future<typename std::result_of<F()>::type>;
+    template<typename F> auto addTask(F func, timePoint tp = now()) -> std::future<typename std::result_of<F()>::type>;
+
+    void waitForFinish(bool noNewTasks = 0);
+    size_t taskCount() const;
+    size_t size() const;
+};
+
+//specialization void
+template<> struct threadpool::taskImpl<void> : public task
+{
+    std::function<void()> func;
+    std::promise<void> promise;
+
+    virtual void operator()() override
     {
-        for(size_t i(0); i < count; i++)
+        try
         {
-            threads_.push_back(std::thread(&threadpool::threadFunc, this, i));
+            func();
+            promise.set_value();
+        }
+        catch(...)
+        {
+            promise.set_exception(std::current_exception());
         }
     }
+};
 
-    //////////////////////
-    ~threadpool()
+//impl//////////////////////////////////////////////////
+threadpool::threadpool() : exiting_(0), finish_(0), takeTasks_(1)
+{
+    for(size_t i(0); i < std::thread::hardware_concurrency(); i++)
     {
-    std::unique_lock<std::mutex> lck(mtx_);
+        threads_.push_back(std::thread(&threadpool::threadFunc, this, i));
+    }
+}
 
+threadpool::threadpool(size_t count) : exiting_(0), finish_(0), takeTasks_(1)
+{
+    for(size_t i(0); i < count; i++)
+    {
+        threads_.push_back(std::thread(&threadpool::threadFunc, this, i));
+    }
+}
+
+threadpool::~threadpool()
+{
+    mtxLock lck(mtx_);
     while(!tasks_.empty())
     {
         delete tasks_.top();
@@ -189,7 +227,7 @@ public:
 
     exiting_ = 1;
     takeTasks_ = 0;
-    cv_.notify_all();
+    cvAdd_.notify_all();
 
     for(unsigned int i(0); i < threads_.size(); i++)
     {
@@ -202,55 +240,129 @@ public:
     }
 
     threads_.clear();
-    }
+}
 
-    //////////////////////////////
-    void addTask(taskBase* t)
+template <typename F> auto threadpool::addTask(F func, timeDuration time) -> std::future<typename std::result_of<F()>::type>
+{
+    auto t = new taskImpl<typename std::result_of<F()>::type>();
+    t->point = time.then();
+    t->func = func;
+
+    auto fut = t->promise.get_future();
+
     {
-        std::unique_lock<std::mutex> lck(mtx_);
-
-        if(!takeTasks_ || !t || exiting_)
-            return;
-
+        mtxGuard lck(mtx_);
         tasks_.push(t);
-        cv_.notify_one();
     }
 
-    /////////////////////////////
-    void waitForFinish(bool noNewTasks = 0)
+    cvAdd_.notify_one();
+    return fut;
+}
+
+template <typename F> auto threadpool::addTask(F func, timePoint point) -> std::future<typename std::result_of<F()>::type>
+{
+    auto t = new taskImpl<typename std::result_of<F()>::type>();
+    t->point = point;
+    t->func = func;
+
+    auto fut = t->promise.get_future();
+
     {
-        std::unique_lock<std::mutex> lck(mtx_);
-        finish_ = 1;
-
-        if(noNewTasks)
-            takeTasks_ = 0;
-
-        while(1)
-        {
-            cvDone_.wait(lck);
-            if(tasks_.empty())
-                break;
-        }
-
-
-        exiting_ = 1;
-        cv_.notify_all();
-
-        for(unsigned int i(0); i < threads_.size(); i++)
-        {
-            lck.unlock();
-
-            if(threads_[i].joinable())
-                threads_[i].join();
-
-            lck.lock();
-        }
-
-        threads_.clear();
+        mtxGuard lck(mtx_);
+        tasks_.push(t);
     }
 
-    ////////////////////////////
-    size_t taskCount() const { return tasks_.size(); }
-};
+    cvAdd_.notify_one();
+    return fut;
+}
+
+void threadpool::threadFunc(size_t id)
+{
+    std::unique_lock<std::mutex> lck(mtx_);
+
+    while(!exiting_)
+    {
+        if(tasks_.empty())cvAdd_.wait(lck, [this]{ return (this->exiting_ || !this->tasks_.empty()); });
+        if(exiting_)
+        {
+            return;
+        }
+
+        auto topTask = tasks_.top();
+        tasks_.pop();
+
+        while(topTask->point.isInFuture())
+        {
+            cvAdd_.wait_for(lck, topTask->point.timeFromNow());
+
+            if(exiting_)
+            {
+                if(!finish_)
+                    return;
+            }
+
+            if(topTask->point > tasks_.top()->point) //kleiner == before, x > y -> x nach y
+            {
+                tasks_.push(topTask);
+                topTask = tasks_.top();
+                tasks_.pop();
+            }
+        }
+
+        lck.unlock();
+        (*topTask)();
+
+        delete topTask;
+        topTask = nullptr;
+
+        lck.lock();
+        if(finish_ && tasks_.empty())
+        {
+            cvDone_.notify_all();
+        }
+   }
+}
+
+void threadpool::waitForFinish(bool noNewTasks)
+{
+    std::unique_lock<std::mutex> lck(mtx_);
+    finish_ = 1;
+
+    if(noNewTasks)
+        takeTasks_ = 0;
+
+    while(1)
+    {
+        cvDone_.wait(lck);
+        if(tasks_.empty())
+            break;
+    }
+
+
+    exiting_ = 1;
+    cvAdd_.notify_all();
+
+    for(unsigned int i(0); i < threads_.size(); i++)
+    {
+        lck.unlock();
+
+        if(threads_[i].joinable())
+            threads_[i].join();
+
+        lck.lock();
+    }
+
+    threads_.clear();
+}
+
+size_t threadpool::taskCount() const
+{
+    return tasks_.size();
+}
+
+size_t threadpool::size() const
+{
+    return threads_.size();
+}
 
 }

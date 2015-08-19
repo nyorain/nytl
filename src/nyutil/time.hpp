@@ -15,6 +15,8 @@ typedef std::chrono::duration<double,std::ratio<1,1>> seconds;
 typedef std::chrono::duration<double,std::ratio<60,1>> minutes;
 typedef std::chrono::duration<double,std::ratio<3600,1>> hours;
 
+using namespace std::literals::chrono_literals;
+
 class timeDuration : public std::chrono::high_resolution_clock::duration
 {
 protected:

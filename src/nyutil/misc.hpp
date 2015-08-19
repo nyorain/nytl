@@ -15,7 +15,10 @@ template<class... T> void unused(T&&...)
 
 template<class U, class V, class ...t> std::function<U(t...)> memberCallback(U (V::*func)(t ...), V* obj)
 {
-    return std::bind(func, obj);
+    return ([=](t ... params)
+    {
+        return (obj->*func)(params ...);
+    });
 }
 
 template<class U, class V, class ...t> std::function<U(t...)> memberCallback(U (V::*func)(t ...), V& obj)

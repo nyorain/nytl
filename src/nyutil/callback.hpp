@@ -1,24 +1,35 @@
 #pragma once
 
 #include <nyutil/nonCopyable.hpp>
+#include <nyutil/slist.hpp>
 
 #include <functional>
 #include <vector>
 #include <algorithm>
 #include <utility>
+#include <mutex>
+#include <memory>
 
 
 namespace nyutil
 {
 
 class connection;
+class slot;
 template < class > class callback;
 
-//class callbackBase//////////////////////////////////////
+//class callback should be thread safe
+//atm implemented using expensive mutexes etc., should change to lock free containers (deque/queue) later on
+
+//callbackBase//////////////////////////////////////
 class callbackBase
 {
-public:
+
+friend class connection;
+
+protected:
     virtual void remove(const connection& con) = 0;
+    virtual void destroyed(const connection& con) = 0;
 };
 
 //connection//////////////////////////////////////////
@@ -26,32 +37,60 @@ class connection : public nonCopyable
 {
 protected:
     template<class T> friend class callback;
-
-    callbackBase& callback_;
-    bool onlyOnce_ = 0;
+    callbackBase* callback_ { nullptr };
 
 public:
-    connection(callbackBase& call, bool onlyOnce = 0) : callback_(call), onlyOnce_(onlyOnce) {}
-    virtual ~connection(){}
+    connection(callbackBase& call) : callback_(&call) {}
+    ~connection(){ if(callback_) callback_->destroyed(*this); }
 
-    connection(const connection&& mover) noexcept : callback_(mover.callback_), onlyOnce_(mover.onlyOnce_) {} //for callback
-    connection& operator=(const connection&& mover) noexcept { callback_ = mover.callback_; onlyOnce_ = mover.onlyOnce_; return *this; } //for callback
-
-    bool onlyOnce() const { return onlyOnce_; };
-    void setOnlyOnce(bool s = 1){ onlyOnce_ = s; }
-
-    void destroy(){ callback_.remove(*this); } //will delete this object implicitly
+    void destroy(){ if(callback_) callback_->remove(*this); callback_ = nullptr; }
+    bool connected() const { return (callback_ != nullptr); }
 };
 
-
-
 //callback////////////////////////////////////////////
-template <class  Ret, class ... Args> class callback<Ret(Args...)> : public callbackBase
+template <class  Ret, class ... Args> class callback<Ret(Args...)> final : public callbackBase
 {
 protected:
-    std::vector< std::pair<connection, std::function<Ret(Args ...)>> > callbacks_;
+    struct callbackSlot
+    {
+        connection* con;
+        std::function<Ret(Args ...)> func;
+    };
+
+protected:
+    std::vector<callbackSlot> slots_;
+    std::mutex mtx_; //too expensive for callback
+
+    //removes a callback identified by its connection. Functions (std::function) can't be compared => we need connections
+    virtual void remove(const connection& con) override
+    {
+        std::lock_guard<std::mutex> lck(mtx_);
+        for(auto it = slots_.cbegin(); it != slots_.cend(); ++it)
+        {
+            if(it->con == &con)
+                slots_.erase(it);
+        }
+    };
+
+    virtual void destroyed(const connection& con) override
+    {
+        std::lock_guard<std::mutex> lck(mtx_);
+        for(auto it = slots_.begin(); it != slots_.end(); ++it)
+        {
+            if(it->con == &con)
+            {
+                it->con = nullptr;
+                return;
+            }
+        }
+
+    };
 
 public:
+    ~callback()
+    {
+        clear();
+    }
 
     //adds an callback by += operator
     callback<Ret(Args...)>& operator+=(const std::function<Ret(Args...)>& func)
@@ -69,50 +108,40 @@ public:
     };
 
     //adds new callback and return connection for removing of the callback
-    connection& add(const std::function<Ret(Args ...)>& func, bool onlyOnce = 0)
+    std::unique_ptr<connection> add(const std::function<Ret(Args ...)>& func)
     {
-        connection conn(*this, onlyOnce);
+        auto c = std::make_unique<connection>(*this);
 
-        callbacks_.push_back(std::make_pair(std::move(conn), func));
+        std::lock_guard<std::mutex> lck(mtx_);
+        slots_.emplace_back();
 
-        return callbacks_.back().first;
-    };
+        slots_.back().con = c.get();
+        slots_.back().func = func;
 
-    //removes a callback identified by its connection. Functions (std::function) can't be compared => we need connections
-    void remove(const connection& con)
-    {
-        for(unsigned int i(0); i < callbacks_.size(); i++)
-        {
-            if(&callbacks_[i].first == &con)
-            {
-                callbacks_.erase(callbacks_.begin() + i);
-                return;
-            }
-        }
+        return c;
     };
 
     //calls the callback
     std::vector<Ret> call(Args ... a)
     {
+        std::lock_guard<std::mutex> lck(mtx_);
         std::vector<Ret> ret;
-        for(unsigned int i(0); i < callbacks_.size(); i++)
-        {
-            ret.push_back(callbacks_[i].second(a ...));
-            if(callbacks_[i].first.onlyOnce())
-                remove(callbacks_[i].first);
-        }
+        ret.reserve(slots_.size());
+
+        for(auto& s : slots_)
+            ret.push_back(s.func(a ...));
+
         return ret;
     };
 
     //clears all registered callbacks and connections
     void clear()
     {
-        for(unsigned int i(0); i < callbacks_.size(); i++)
-        {
-            callbacks_[i].first.wasRemoved();
-        }
+        std::lock_guard<std::mutex> lck(mtx_);
+        for(auto& s : slots_)
+            if(s.con) s.con->callback_ = nullptr;
 
-        callbacks_.clear();
+        slots_.clear();
     }
 
     std::vector<Ret> operator() (Args... a)
@@ -123,18 +152,62 @@ public:
 
 
 //callback specialization for void because callback cant return a <void>-vector/////////////////////////////////
-template< class ... Args> class callback<void(Args...)> : public callbackBase
+//callback////////////////////////////////////////////
+template <class ... Args> class callback<void(Args...)> final : public callbackBase
 {
 protected:
-    std::vector< std::pair<connection, std::function<void(Args ...)>> > callbacks_;
+    struct callbackSlot
+    {
+        connection* con;
+        std::function<void(Args ...)> func;
+    };
+
+protected:
+    std::vector<callbackSlot> slots_;
+    std::mutex mtx_; //too expensive for callback
+
+    //removes a callback identified by its connection. Functions (std::function) can't be compared => we need connections
+    virtual void remove(const connection& con) override
+    {
+        std::lock_guard<std::mutex> lck(mtx_);
+        for(auto it = slots_.cbegin(); it != slots_.cend(); ++it)
+        {
+            if(it->con == &con)
+            {
+                slots_.erase(it);
+                return;
+            }
+        }
+    };
+
+    virtual void destroyed(const connection& con) override
+    {
+        std::lock_guard<std::mutex> lck(mtx_);
+        for(auto it = slots_.begin(); it != slots_.end(); ++it)
+        {
+            if(it->con == &con)
+            {
+                it->con = nullptr;
+                return;
+            }
+        }
+
+    };
 
 public:
+    ~callback()
+    {
+        clear();
+    }
+
+    //adds an callback by += operator
     callback<void(Args...)>& operator+=(const std::function<void(Args...)>& func)
     {
         add(func);
         return *this;
     };
 
+    //clears all callbacks and sets one new callback
     callback<void(Args...)>& operator=(const std::function<void(Args...)>& func)
     {
         clear();
@@ -142,44 +215,37 @@ public:
         return *this;
     };
 
-    connection& add(const std::function<void(Args...)>& func, bool onlyOnce = 0)
+    //adds new callback and voidurn connection for removing of the callback
+    std::unique_ptr<connection> add(const std::function<void(Args ...)>& func)
     {
-        connection conn(*this, onlyOnce);
+        auto c = std::make_unique<connection>(*this);
 
-        callbacks_.push_back(std::make_pair(std::move(conn), func));
-        return callbacks_.back().first;
+        std::lock_guard<std::mutex> lck(mtx_);
+        slots_.emplace_back();
+
+        slots_.back().con = c.get();
+        slots_.back().func = func;
+
+        return c;
     };
 
-    void remove(const connection& con)
-    {
-        for(unsigned int i(0); i < callbacks_.size(); i++)
-        {
-            if(&callbacks_[i].first == &con)
-            {
-                callbacks_.erase(callbacks_.begin() + i);
-                return;
-            }
-        }
-    };
-
+    //calls the callback
     void call(Args ... a)
     {
-        for(unsigned int i(0); i < callbacks_.size(); i++)
-        {
-            callbacks_[i].second(a ...);
-            if(callbacks_[i].first.onlyOnce())
-                remove(callbacks_[i].first);
-        }
+        std::lock_guard<std::mutex> lck(mtx_);
+
+        for(auto& s : slots_)
+            s.func(a ...);
     };
 
+    //clears all registered callbacks and connections
     void clear()
     {
-        for(unsigned int i(0); i < callbacks_.size(); i++)
-        {
-            callbacks_[i].first.wasRemoved();
-        }
+        std::lock_guard<std::mutex> lck(mtx_);
+        for(auto& s : slots_)
+            if(s.con) s.con->callback_ = nullptr;
 
-        callbacks_.clear();
+        slots_.clear();
     }
 
     void operator() (Args... a)
