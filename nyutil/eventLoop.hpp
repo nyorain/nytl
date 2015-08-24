@@ -6,6 +6,7 @@
 #include <uv.h>
 #include <vector>
 #include <memory>
+#include <iostream> //dont.
 
 namespace nyutil
 {
@@ -19,17 +20,17 @@ protected:
     bool owned_ {0};
 
 public:
-    eventLoop();
-    ~eventLoop();
+    inline eventLoop();
+    inline ~eventLoop();
 
-    void run(); //runs until stop is called
-    void runOnce(); //blocks for next event
-    void runNowait(); //does not block
+    inline void run(); //runs until stop is called
+    inline void runOnce(); //blocks for next event
+    inline void runNowait(); //does not block
 
-    void stop();
+    inline void stop();
 
-    uv_loop_t& uvLoop() { return *loop_; };
-    const uv_loop_t& uvLoop() const { return *loop_; };
+    inline uv_loop_t& uvLoop() { return *loop_; };
+    inline const uv_loop_t& uvLoop() const { return *loop_; };
 };
 
 eventLoop::eventLoop()
@@ -85,9 +86,9 @@ public:
     virtual const uv_handle_t& uvHandle() const = 0;
 
     virtual void enable(bool enabled) = 0;
-    virtual bool enabled() const;
+    inline virtual bool enabled() const;
 
-    eventLoop& getLoop() const { return *static_cast<eventLoop* const>(uvHandle().loop->data); }
+    inline eventLoop& getLoop() const { return *static_cast<eventLoop* const>(uvHandle().loop->data); }
 };
 
 bool eventSource::enabled() const
@@ -105,16 +106,16 @@ protected:
     uv_idle_t handle_;
 
 public:
-    idleEventSource(eventLoop& loop, bool enable = 1);
-    ~idleEventSource();
+    inline idleEventSource(eventLoop& loop, bool enable = 1);
+    inline ~idleEventSource();
 
-    virtual void enable(bool enbl) override;
+    inline virtual void enable(bool enbl) override;
 
-    uv_idle_t& uvIdle() { return handle_; }
-    const uv_idle_t& uvIdle() const { return handle_; }
+    inline uv_idle_t& uvIdle() { return handle_; }
+    inline const uv_idle_t& uvIdle() const { return handle_; }
 
-    virtual uv_handle_t& uvHandle() override { return (uv_handle_t&)handle_; }
-    virtual const uv_handle_t& uvHandle() const override { return (uv_handle_t&)handle_; }
+    inline virtual uv_handle_t& uvHandle() override { return (uv_handle_t&)handle_; }
+    inline virtual const uv_handle_t& uvHandle() const override { return (uv_handle_t&)handle_; }
 
     //callback
     callback<void()> onNotify {};
@@ -146,8 +147,8 @@ void idleEventSource::enable(bool enbl)
 class streamEventSource : public eventSource
 {
 protected:
-    static void cbAlloc(uv_handle_t* handle, size_t size, uv_buf_t* buffer);
-    static void cbRead(uv_stream_t* stream, ssize_t read, const uv_buf_t* buf);
+    inline static void cbAlloc(uv_handle_t* handle, size_t size, uv_buf_t* buffer);
+    inline static void cbRead(uv_stream_t* stream, ssize_t read, const uv_buf_t* buf);
 
 public:
     streamEventSource() = default;
@@ -156,8 +157,8 @@ public:
     virtual uv_stream_t& uvStream() = 0;
     virtual const uv_stream_t& uvStream() const = 0;
 
-    virtual uv_handle_t& uvHandle() override { return (uv_handle_t&)uvStream(); }
-    virtual const uv_handle_t& uvHandle() const override { return (uv_handle_t&)uvStream(); }
+    inline virtual uv_handle_t& uvHandle() override { return (uv_handle_t&)uvStream(); }
+    inline virtual const uv_handle_t& uvHandle() const override { return (uv_handle_t&)uvStream(); }
 
     //callback
     callback<void(const std::string&)> onRead;
@@ -195,16 +196,16 @@ protected:
     uv_pipe_t handle_;
 
 public:
-    pipeEventSource(eventLoop& loop, uv_file file, bool enbld = 1);
-    ~pipeEventSource();
+    inline pipeEventSource(eventLoop& loop, uv_file file, bool enbld = 1);
+    inline ~pipeEventSource();
 
-    virtual void enable(bool enbl = 1) override;
+    inline virtual void enable(bool enbl = 1) override;
 
-    uv_pipe_t& uvPipe() { return handle_; }
-    const uv_pipe_t& uvPipe() const { return handle_; }
+    inline uv_pipe_t& uvPipe() { return handle_; }
+    inline const uv_pipe_t& uvPipe() const { return handle_; }
 
-    virtual uv_stream_t& uvStream() override { return (uv_stream_t&)handle_; };
-    virtual const uv_stream_t& uvStream() const override { return (uv_stream_t&)handle_; };
+    inline virtual uv_stream_t& uvStream() override { return (uv_stream_t&)handle_; };
+    inline virtual const uv_stream_t& uvStream() const override { return (uv_stream_t&)handle_; };
 };
 
 pipeEventSource::pipeEventSource(eventLoop& loop, uv_file file, bool enbld)
@@ -242,19 +243,19 @@ protected:
     bool repeat_;
 
 public:
-    timerEventSource(eventLoop& loop, timeDuration time, bool repeat, bool enbl = 1);
-    ~timerEventSource();
+    inline timerEventSource(eventLoop& loop, timeDuration time, bool repeat, bool enbl = 1);
+    inline ~timerEventSource();
 
     //setInterval();
     //getInterval();
 
-    uv_timer_t& uvTimer() { return handle_; }
-    const uv_timer_t& uvTimer() const { return handle_; }
+    inline uv_timer_t& uvTimer() { return handle_; }
+    inline const uv_timer_t& uvTimer() const { return handle_; }
 
-    virtual uv_handle_t& uvHandle() override { return (uv_handle_t&)handle_; }
-    virtual const uv_handle_t& uvHandle() const override { return (uv_handle_t&)handle_; }
+    inline virtual uv_handle_t& uvHandle() override { return (uv_handle_t&)handle_; }
+    inline virtual const uv_handle_t& uvHandle() const override { return (uv_handle_t&)handle_; }
 
-    virtual void enable(bool enbl) override;
+    inline virtual void enable(bool enbl) override;
 
     //callback
     callback<void()> onNotify;
@@ -291,16 +292,16 @@ protected:
     int mask_;
 
 public:
-    pollEventSource(eventLoop& loop, int fd, int mask = UV_READABLE, bool enbl = 1);
-    ~pollEventSource();
+    inline pollEventSource(eventLoop& loop, int fd, int mask = UV_READABLE, bool enbl = 1);
+    inline ~pollEventSource();
 
-    uv_poll_t& uvPoll() { return handle_; }
-    const uv_poll_t& uvPoll() const { return handle_; }
+    inline uv_poll_t& uvPoll() { return handle_; }
+    inline const uv_poll_t& uvPoll() const { return handle_; }
 
-    virtual void enable(bool enbl) override;
+    inline virtual void enable(bool enbl) override;
 
-    virtual uv_handle_t& uvHandle() override { return (uv_handle_t&) handle_; }
-    virtual const uv_handle_t& uvHandle() const override { return (uv_handle_t&) handle_; }
+    inline virtual uv_handle_t& uvHandle() override { return (uv_handle_t&) handle_; }
+    inline virtual const uv_handle_t& uvHandle() const override { return (uv_handle_t&) handle_; }
 
     //callback
     callback<void(int, int)> onNotify;

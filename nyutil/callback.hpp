@@ -8,6 +8,7 @@
 #include <utility>
 #include <mutex>
 #include <memory>
+#include <type_traits>
 
 namespace nyutil
 {
@@ -57,12 +58,12 @@ protected:
 
 protected:
     std::vector<callbackSlot> slots_;
-    std::mutex mtx_; //too expensive for callback
+    std::recursive_mutex mtx_; //too expensive for callback
 
     //removes a callback identified by its connection. Functions (std::function) can't be compared => we need connections
     virtual void remove(const connection& con) override
     {
-        std::lock_guard<std::mutex> lck(mtx_);
+        std::lock_guard<std::recursive_mutex> lck(mtx_);
         for(auto it = slots_.cbegin(); it != slots_.cend(); ++it)
         {
             if(it->con == &con)
@@ -72,7 +73,7 @@ protected:
 
     virtual void destroyed(const connection& con) override
     {
-        std::lock_guard<std::mutex> lck(mtx_);
+        std::lock_guard<std::recursive_mutex> lck(mtx_);
         for(auto it = slots_.begin(); it != slots_.end(); ++it)
         {
             if(it->con == &con)
@@ -110,7 +111,7 @@ public:
     {
         auto c = std::make_unique<connection>(*this);
 
-        std::lock_guard<std::mutex> lck(mtx_);
+        std::lock_guard<std::recursive_mutex> lck(mtx_);
         slots_.emplace_back();
 
         slots_.back().con = c.get();
@@ -122,7 +123,7 @@ public:
     //calls the callback
     std::vector<Ret> call(Args ... a)
     {
-        std::lock_guard<std::mutex> lck(mtx_);
+        std::lock_guard<std::recursive_mutex> lck(mtx_);
         std::vector<Ret> ret;
         ret.reserve(slots_.size());
 
@@ -135,7 +136,7 @@ public:
     //clears all registered callbacks and connections
     void clear()
     {
-        std::lock_guard<std::mutex> lck(mtx_);
+        std::lock_guard<std::recursive_mutex> lck(mtx_);
         for(auto& s : slots_)
             if(s.con) s.con->callback_ = nullptr;
 
@@ -162,12 +163,12 @@ protected:
 
 protected:
     std::vector<callbackSlot> slots_;
-    std::mutex mtx_; //too expensive for callback
+    std::recursive_mutex mtx_; //too expensive for callback
 
     //removes a callback identified by its connection. Functions (std::function) can't be compared => we need connections
     virtual void remove(const connection& con) override
     {
-        std::lock_guard<std::mutex> lck(mtx_);
+        std::lock_guard<std::recursive_mutex> lck(mtx_);
         for(auto it = slots_.cbegin(); it != slots_.cend(); ++it)
         {
             if(it->con == &con)
@@ -180,7 +181,7 @@ protected:
 
     virtual void destroyed(const connection& con) override
     {
-        std::lock_guard<std::mutex> lck(mtx_);
+        std::lock_guard<std::recursive_mutex> lck(mtx_);
         for(auto it = slots_.begin(); it != slots_.end(); ++it)
         {
             if(it->con == &con)
@@ -218,7 +219,7 @@ public:
     {
         auto c = std::make_unique<connection>(*this);
 
-        std::lock_guard<std::mutex> lck(mtx_);
+        std::lock_guard<std::recursive_mutex> lck(mtx_);
         slots_.emplace_back();
 
         slots_.back().con = c.get();
@@ -230,7 +231,7 @@ public:
     //calls the callback
     void call(Args ... a)
     {
-        std::lock_guard<std::mutex> lck(mtx_);
+        std::lock_guard<std::recursive_mutex> lck(mtx_);
 
         for(auto& s : slots_)
             s.func(a ...);
@@ -239,7 +240,7 @@ public:
     //clears all registered callbacks and connections
     void clear()
     {
-        std::lock_guard<std::mutex> lck(mtx_);
+        std::lock_guard<std::recursive_mutex> lck(mtx_);
         for(auto& s : slots_)
             if(s.con) s.con->callback_ = nullptr;
 
@@ -251,5 +252,48 @@ public:
         call(a ...);
     }
 };
+
+/* //todo
+//base helper class watachable - better name?
+class watchable
+{
+protected:
+    callback<void()> destructionCallback_;
+
+public:
+    ~watchable()
+    {
+        destructionCallback_();
+    }
+
+    auto onDestruction(std::function<void()> func){ return destructionCallback_.add(func); }
+};
+
+//ref//////////////////////////////////////////////
+//move, copy semntcs
+template <typename T, typename B = typename std::conditional<std::is_base_of<watchable, T>::value, watchable, T>::type, std::unique_ptr<connection> (B::*Func)(std::function<void()>) = &B::onDestruction>
+class watcherRef
+{
+protected:
+    T* ref_;
+    std::unique_ptr<connection> conn_ {nullptr};
+
+public:
+    ~watcherRef()
+    {
+        if(conn_) conn_->destroy();
+    }
+
+    T* get() const { return ref_; }
+    void set(T& nref)
+    {
+        ref_ = &nref;
+        conn_ = (nref.*Func)([=]{
+            ref_ = nullptr;
+            conn_.reset();
+        });
+    }
+};
+*/
 
 }

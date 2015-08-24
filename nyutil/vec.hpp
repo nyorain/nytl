@@ -47,8 +47,13 @@ public:
     T data[dim];
 
     vec() = default;
+    ~vec() = default;
+
     vec(const vec<dim, T>& other) = default;
     vec<dim, T>& operator=(const vec<dim, T>& other) = default;
+
+    vec(vec<dim, T>&& other) = default;
+    vec<dim, T>& operator=(vec<dim, T>&& other) = default;
 
     T& operator[](size_t i){ return data[i]; }
     const T& operator[](size_t i) const { return data[i]; }
@@ -57,20 +62,22 @@ public:
     template <size_t odim, class ot> vec<dim,T>& operator -=(const vec<odim, ot>& other){ for(size_t i = 0; i < std::min(odim, dim); i++) data[i] -= other[i];  return *this; }
     template <size_t odim, class ot> vec<dim,T>& operator *=(const vec<odim, ot>& other){ for(size_t i = 0; i < std::min(odim, dim); i++) data[i] *= other[i];  return *this; }
     template <size_t odim, class ot> vec<dim,T>& operator /=(const vec<odim, ot>& other){ for(size_t i = 0; i < std::min(odim, dim); i++) data[i] /= other[i];  return *this; }
+    template <size_t odim, class ot> vec<dim,T>& operator %=(const vec<odim, ot>& other){ for(size_t i = 0; i < std::min(odim, dim); i++) data[i] %= other[i];  return *this; }
 
-    template <class ot> vec<dim,T>& operator +=(const ot& other){ for(size_t i = 0; i < dim; i++) data[i] += other;  return *this; }
-    template <class ot> vec<dim,T>& operator -=(const ot& other){ for(size_t i = 0; i < dim; i++) data[i] -= other;  return *this; }
-    template <class ot> vec<dim,T>& operator *=(const ot& other){ for(size_t i = 0; i < dim; i++) data[i] *= other;  return *this; }
-    template <class ot> vec<dim,T>& operator /=(const ot& other){ for(size_t i = 0; i < dim; i++) data[i] /= other;  return *this; }
+    template <class ot> vec<dim,T>& operator +=(const ot& other){ for(auto& val : data) val += other;  return *this; }
+    template <class ot> vec<dim,T>& operator -=(const ot& other){ for(auto& val : data) val -= other;  return *this; }
+    template <class ot> vec<dim,T>& operator *=(const ot& other){ for(auto& val : data) val *= other;  return *this; }
+    template <class ot> vec<dim,T>& operator /=(const ot& other){ for(auto& val : data) val /= other;  return *this; }
+    template <class ot> vec<dim,T>& operator %=(const ot& other){ for(auto& val : data) val %= other;  return *this; }
 
-    vec<dim, T> operator-() const { return (*this * -1); }
+    vec<dim, T> operator-() const { vec<dim,T> ret(*this); for(size_t i(0); i < dim; i++) ret[i] -= data[i]; return ret; }
 
-    template <class ot> operator vec<dim, ot>() const { return vec<dim,ot>(*this); }
+    template <class ot> operator vec<dim, ot>() const { vec<dim, ot> ret; for(size_t i(0); i < dim; i++) ret[i] = data[i]; return ret; }
     template <size_t odim, class ot> operator vec<odim, ot>() const { vec<odim, ot> ret; for(size_t i(0); i < std::min(odim, dim); i++) ret[i] = data[i]; return ret; }
 
-    void allTo(const T& value){ for(size_t i = 0; i < dim; i++)(*this)[i] = value; }
+    void setAllTo(const T& value){ for(auto& val : data)val = value; }
 
-    size_t size() const { return dim; }
+    constexpr size_t size() const { return dim; }
 };
 
 //operators
@@ -92,6 +99,7 @@ template<size_t dim, class T> std::ostream& operator<<(std::ostream& os, const v
 }
 
 
+//+/////////////////////////////////////////
 template<size_t dim, class Ta, class Tb> vec<dim, Ta> operator+(vec<dim, Ta> mvec, const Tb& other)
 {
     mvec += other;
@@ -104,15 +112,21 @@ template<size_t dim, class Ta, class Tb> vec<dim, Tb> operator+(const Ta& other,
     return mvec;
 }
 
-template<size_t dima, class Ta, size_t dimb, class Tb> vec<dima, Ta> operator+(vec<dima, Ta> a, const vec<dimb,Tb>& b)
+template<size_t dima, class Ta, size_t dimb, class Tb, class = std::enable_if_t<(dima >= dimb)>> vec<dima, Ta> operator+(vec<dima, Ta> a, const vec<dimb,Tb>& b)
 {
     a += b;
     return a;
 }
 
+template<size_t dima, class Ta, size_t dimb, class Tb, class = std::enable_if_t<(dimb > dima)>> vec<dimb, Tb> operator+(const vec<dima, Ta>& a, vec<dimb,Tb> b)
+{
+    b += a;
+    return b;
+}
 
 
 
+//-//////////////////////////
 template<size_t dim, class Ta, class Tb> vec<dim, Ta> operator-(vec<dim, Ta> mvec, const Tb& other)
 {
     mvec -= other;
@@ -129,16 +143,22 @@ template<size_t dim, class Ta, class Tb> vec<dim, Tb> operator-(const Ta& other,
     return mvec;
 }
 
-template<size_t dima, class Ta, size_t dimb, class Tb> vec<dima, Ta> operator-(vec<dima, Ta> a, const vec<dimb,Tb>& b)
+template<size_t dima, class Ta, size_t dimb, class Tb, class = std::enable_if_t<(dima >= dimb)>> vec<dima, Ta> operator-(vec<dima, Ta> a, const vec<dimb,Tb>& b)
 {
     a -= b;
     return a;
 }
 
+template<size_t dima, class Ta, size_t dimb, class Tb, class = std::enable_if_t<(dimb > dima)>> vec<dimb, Tb> operator-(const vec<dima, Ta>& a, const vec<dimb,Tb>& b)
+{
+    vec<dimb, Tb> ret(a);
+    ret -= b;
+    return ret;
+}
 
 
 
-
+//*////////////////////////////////////////
 template<size_t dim, class Ta, class Tb> vec<dim, Ta> operator*(vec<dim, Ta> mvec, const Tb& other)
 {
     mvec *= other;
@@ -152,15 +172,22 @@ template<size_t dim, class Ta, class Tb> vec<dim, Tb> operator*(const Ta& other,
     return mvec;
 }
 
-template<size_t dima, class Ta, size_t dimb, class Tb> vec<dima, Ta> operator*(vec<dima, Ta> a, const vec<dimb,Tb>& b)
+template<size_t dima, class Ta, size_t dimb, class Tb, class = std::enable_if_t<(dima >= dimb)>> vec<dima, Ta> operator*(vec<dima, Ta> a, const vec<dimb,Tb>& b)
 {
     a *= b;
     return a;
 }
 
+template<size_t dima, class Ta, size_t dimb, class Tb, class = std::enable_if_t<(dimb > dima)>> vec<dimb, Tb> operator*(const vec<dima, Ta>& a, vec<dimb,Tb> b)
+{
+    b *= a;
+    return b;
+}
 
 
 
+
+//\//////////////////////////////////////////////////////////
 template<size_t dim, class Ta, class Tb> vec<dim, Ta> operator/(vec<dim, Ta> mvec, const Tb& other)
 {
     mvec /= other;
@@ -178,14 +205,21 @@ template<size_t dim, class Ta, class Tb> vec<dim, Tb> operator/(const Ta& other,
     return mvec;
 }
 
-template<size_t dima, class Ta, size_t dimb, class Tb> vec<dima, Ta> operator/(vec<dima, Ta> a, const vec<dimb,Tb>& b)
+template<size_t dima, class Ta, size_t dimb, class Tb, class = std::enable_if_t<(dima >= dimb)>> vec<dima, Ta> operator/(vec<dima, Ta> a, const vec<dimb,Tb>& b)
 {
     a /= b;
     return a;
 }
 
+template<size_t dima, class Ta, size_t dimb, class Tb, class = std::enable_if_t<(dimb > dima)>> vec<dimb, Tb> operator/(const vec<dima, Ta>& a, const vec<dimb,Tb>& b)
+{
+    vec<dimb, Tb> ret(a);
+    ret /= b;
+    return ret;
+}
 
 
+//%////////////////////////////////////////////////////////////
 template<size_t dim, class T> vec<dim, T> operator%(vec<dim, T> mvec, const T& other)
 {
     mvec %= other;
@@ -203,15 +237,22 @@ template<size_t dim, class T, class O> vec<dim, T> operator%(const T& other,vec<
     return mvec;
 }
 
-template<size_t dima, class Ta, size_t dimb, class Tb> vec<dima, Ta> operator%(vec<dima, Ta> a, const vec<dimb,Tb>& b)
+template<size_t dima, class Ta, size_t dimb, class Tb, class = std::enable_if_t<(dima >= dimb)>> vec<dima, Ta> operator%(vec<dima, Ta> a, const vec<dimb,Tb>& b)
 {
     a %= b;
     return a;
 }
 
+template<size_t dima, class Ta, size_t dimb, class Tb, class = std::enable_if_t<(dimb > dima)>> vec<dimb, Tb> operator%(const vec<dima, Ta>& a, const vec<dimb,Tb>& b)
+{
+    vec<dimb, Tb> ret(a);
+    ret %= b;
+    return ret;
+}
 
 
-template<size_t dim, class Ta, class Tb> bool operator==(vec<dim, Ta> a, vec<dim, Tb> b)
+//equal/////////////////////////////////////////////////////////////////////////
+template<size_t dim, class Ta, class Tb> bool operator==(const vec<dim, Ta>& a, const vec<dim, Tb>& b)
 {
     for(unsigned int i(0); i < dim; i++)
     {
@@ -222,7 +263,7 @@ template<size_t dim, class Ta, class Tb> bool operator==(vec<dim, Ta> a, vec<dim
     return true;
 }
 
-template<size_t dim, class Ta, class Tb> bool operator!=(vec<dim, Ta> a, vec<dim, Tb> b)
+template<size_t dim, class Ta, class Tb> bool operator!=(const vec<dim, Ta>& a, const vec<dim, Tb>& b)
 {
     for(unsigned int i(0); i < dim; i++)
     {
@@ -244,8 +285,13 @@ public:
  	T y;
 
 	vec(T a = T(), T b = T()) : x(a), y(b) {}
+	~vec() = default;
+
 	vec(const vec<2,T>& other) = default;
 	vec<2, T>& operator=(const vec<2, T>& other) = default;
+
+    vec(vec<2,T>&& other) = default;
+    vec<2, T>& operator=(vec<2, T>&& other) = default;
 
 	T& operator[](size_t i){ if(i == 0) return x; return y; }
 	const T& operator[](size_t i) const { if(i == 0) return x; return y; }
@@ -262,14 +308,14 @@ public:
 	vec<2,T>& operator /=(const T& other){ for(size_t i = 0; i < 2; i++) (*this)[i] /= other;  return *this; }
 	vec<2,T>& operator %=(const T& other){ for(size_t i = 0; i < 2; i++) (*this)[i] %= other;  return *this; }
 
-	vec<2, T> operator-() const { return (*this * -1); }
+	vec<2, T> operator-() const { return vec<2,T>(-x, -y); }
 
 	template <class ot> operator vec<2, ot>() const { return vec<2,ot>(x, y); }
-	template <size_t odim, class ot> operator vec<odim, ot>() const{ vec<odim, ot> ret; if(odim > 0) ret[0] = x; if(odim > 1) ret[1] = x; return ret; }
+	template <size_t odim, class ot> operator vec<odim, ot>() const { vec<odim, ot> ret; if(odim > 0) ret[0] = x; if(odim > 1) ret[1] = x; return ret; }
 
-	void allTo(const T& value){ x = value; y = value; }
+	void setAllTo(const T& value){ x = value; y = value; }
 
-	size_t size() const { return 2; }
+	constexpr size_t size() const { return 2; }
 };
 
 
@@ -284,8 +330,13 @@ public:
     T z;
 
 	vec(T a = T(), T b = T(), T c = T()) : x(a), y(b), z(c) {}
+	~vec() = default;
+
 	vec(const vec<3,T>& other) = default;
     vec<3, T>& operator=(const vec<3, T>& other) = default;
+
+    vec(vec<3,T>&& other) = default;
+    vec<3, T>& operator=(vec<3, T>&& other) = default;
 
 	T& operator[](size_t i){ if(i == 0) return x; if(i == 1) return y; return z; }
 	const T& operator[](size_t i) const { if(i == 0) return x; if(i == 1) return y; return z; }
@@ -301,7 +352,7 @@ public:
     vec<3,T>& operator *=(const T& other){ for(size_t i = 0; i < 3; i++) (*this)[i] *= other;  return *this; }
     vec<3,T>& operator %=(const T& other){ for(size_t i = 0; i < 3; i++) (*this)[i] %= other;  return *this; }
 
-	vec<2, T> operator-() const { return (*this * -1); }
+	vec<3, T> operator-() const { return vec<3, T>(-x, -y, -z); }
 
     template <class ot> operator vec<3, ot>() const { return vec<3,ot>(x, y, z); }
     template <size_t odim, class ot> operator vec<odim, ot>() const{ vec<odim, ot> ret; if(odim > 0) ret[0] = x; if(odim > 1) ret[1] = x; if(odim > 2) ret[2] = z; return ret; }
@@ -313,7 +364,7 @@ public:
     vec2<T> yz() const { return vec2<T>(y,z); }
     vec2<T> xz() const { return vec2<T>(x,z); }
 
-    size_t size() const { return 3; }
+    constexpr size_t size() const { return 3; }
 };
 
 
@@ -330,8 +381,13 @@ public:
     T w;
 
 	vec(T a = T(), T b = T(), T c = T(), T d = T()) : x(a), y(b), z(c), w(d) {}
+	~vec() = default;
+
 	vec(const vec<4,T>& other) = default;
     vec<4, T>& operator=(const vec<4, T>& other) = default;
+
+    vec(vec<4,T>&& other) = default;
+    vec<4, T>& operator=(vec<4, T>&& other) = default;
 
     T& operator[](size_t i){ if(i == 0) return x; if(i == 1) return y; if(i == 2)return z; return w; }
 	const T& operator[](size_t i) const { if(i == 0) return x; if(i == 1) return y; if(i == 2)return z; return w; }
@@ -348,7 +404,7 @@ public:
     vec<4,T>& operator /=(const T& other){ for(size_t i = 0; i < 4; i++) (*this)[i] /= other;  return *this; }
     vec<4,T>& operator %=(const T& other){ for(size_t i = 0; i < 4; i++) (*this)[i] %= other;  return *this; }
 
-	vec<4, T> operator-() const { return (*this * -1); }
+	vec<4, T> operator-() const { return vec<4, T>(-x, -y, -z, -w); }
 
     void allTo(const T& value){ x = value; y = value; z = value; w = value; }
 
@@ -368,7 +424,7 @@ public:
     vec3<T> xzw() const { return vec3<T>(x,z,w); }
     vec3<T> yzw() const { return vec3<T>(y,z,w); }
 
-    size_t size() const { return 4; }
+    constexpr size_t size() const { return 4; }
 };
 
 ////functions

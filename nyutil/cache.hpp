@@ -6,6 +6,11 @@
 namespace nyutil
 {
 
+//if a multicacher object is copied, both object will have pointers to the SAME cache objects.
+//so everytime a cache is changed, a new cache object has to be allocated and stored, that is why the cache pointer objects are const
+//you should not modify cache that is already stored, because it can be stored in multiple cachers
+//{done because copying of multicacher objects will prob. happen often, while cache changing should not happen that often}
+
 //cache
 class cache
 {
@@ -22,9 +27,18 @@ class multiCacher
 template<unsigned int id> friend class cacheAccessor;
 
 protected:
-	mutable std::vector<std::unique_ptr<cache>> cache_; //unordered_map with ids?
+	mutable std::vector<std::shared_ptr<const cache>> cache_; //unordered_map with ids?
 
-	cache* getCache(unsigned int id) const
+	multiCacher() = default;
+	~multiCacher() = default;
+
+	multiCacher(const multiCacher& other) : cache_(other.cache_) {}
+	multiCacher(multiCacher&& other) : cache_(std::move(other.cache_)) {}
+
+	multiCacher& operator=(const multiCacher& other) { cache_ = other.cache_; return *this; }
+	multiCacher& operator=(multiCacher&& other) { cache_ = std::move(other.cache_); return *this; }
+
+	const cache* getCache(unsigned int id) const //use std::shared_ptr ?
 	{
         for(auto& ch : cache_)
         {
@@ -35,7 +49,7 @@ protected:
         return nullptr;
 	}
 
-	void store(std::unique_ptr<cache> c, unsigned int id) const
+	void store(std::shared_ptr<const cache> c, unsigned int id) const
 	{
         for(auto& ch : cache_)
         {
@@ -62,6 +76,11 @@ protected:
 
         return 0;
 	}
+
+	void invalidate() const
+	{
+        cache_.clear();
+	}
 };
 
 //cache access
@@ -69,7 +88,7 @@ protected:
 template<unsigned int id> class cacheAccessor
 {
 protected:
-	void storeCache(const multiCacher& cacher, std::unique_ptr<cache> obj)
+	void storeCache(const multiCacher& cacher, std::shared_ptr<const cache> obj)
 	{
         cacher.store(std::move(obj), id);
 	}
@@ -77,7 +96,7 @@ protected:
 	{
         return cacher.reset(id);
 	}
-	cache* getCache(const multiCacher& cacher)
+	const cache* getCache(const multiCacher& cacher)
 	{
         return cacher.getCache(id);
 	}

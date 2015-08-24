@@ -164,19 +164,19 @@ protected:
     std::condition_variable cvDone_;
     std::mutex mtx_;
 
-    void threadFunc(size_t id);
+    inline void threadFunc(size_t id);
 
 public:
-    threadpool();
-    threadpool(size_t count);
-    ~threadpool();
+    inline threadpool();
+    inline threadpool(size_t count);
+    inline ~threadpool();
 
     template<typename F> auto addTask(F func, timeDuration td) -> std::future<typename std::result_of<F()>::type>;
     template<typename F> auto addTask(F func, timePoint tp = now()) -> std::future<typename std::result_of<F()>::type>;
 
-    void waitForFinish(bool noNewTasks = 0);
-    size_t taskCount() const;
-    size_t size() const;
+    inline void waitForFinish(bool noNewTasks = 0);
+    inline size_t taskCount() const;
+    inline size_t size() const;
 };
 
 //specialization void
