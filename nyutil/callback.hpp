@@ -15,41 +15,67 @@ namespace nyutil
 {
 
 class connection;
+class connectionRef;
 class slot;
 template <class> class callback;
 template <class> class tsafeCallback;
 
 //class callback should be thread safe
 //atm implemented using expensive mutexes etc., should change to lock free containers (deque/queue) later on
-
+//when cheap implementation found, tsafe callback and callback sohuld be merged into one threadsafe callback class
 
 //callbackBase//////////////////////////////////////
 class callbackBase
 {
 
 friend class connection;
+friend class connectionRef;
 
 protected:
     virtual void remove(const connection& con) = 0;
+    virtual void removeRef(const connectionRef& con) = 0;
     virtual void destroyed(const connection& con) = 0;
 };
 
 
 //connection//////////////////////////////////////////
-class connection : public nonCopyable
+class connection : public nonMoveable
 {
 protected:
     template<class T> friend class callback;
-    callbackBase* callback_ { nullptr };
+    template<class T> friend class tsafeCallback;
 
+    callbackBase* callback_ {nullptr};
+
+    explicit connection(callbackBase& call) : callback_(&call) {}
 public:
-    connection(callbackBase& call) : callback_(&call) {}
     ~connection(){ if(callback_) callback_->destroyed(*this); }
 
     void destroy(){ if(callback_) callback_->remove(*this); callback_ = nullptr; }
     bool connected() const { return (callback_ != nullptr); }
 };
 
+//connectionRef for destroying a connection inside a callback////////////////////7
+class connectionRef
+{
+protected:
+    template<class T> friend class callback;
+    template<class T> friend class tsafeCallback;
+
+    mutable callbackBase* callback_ {nullptr};
+    size_t id_;
+
+    explicit connectionRef(callbackBase& call, size_t id) : callback_(&call), id_(id) {}
+public:
+    ~connectionRef() = default;
+
+    connectionRef(const connectionRef& other) = default;
+    connectionRef& operator=(const connectionRef& other) = default;
+    //move would be the same
+
+    void destroy() const { if(callback_) callback_->removeRef(*this); callback_ = nullptr; }
+    bool connected() const { return (callback_ != nullptr); }
+};
 
 
 //threadsafe-callback////////////////////////////////////////////
@@ -59,7 +85,7 @@ protected:
     struct callbackSlot
     {
         connection* con;
-        std::function<Ret(Args ...)> func;
+        std::function<Ret(const connectionRef&, Args ...)> func;
     };
 
 protected:
@@ -77,6 +103,15 @@ protected:
         }
     };
 
+    //remove ref
+    virtual void removeRef(const connectionRef& con) override
+    {
+        std::lock_guard<std::recursive_mutex> lck(mtx_);
+        slots_.erase(slots_.begin() + con.id_);
+    }
+
+    //a connection which is destructed call this function
+    //callback slot remains valid
     virtual void destroyed(const connection& con) override
     {
         std::lock_guard<std::recursive_mutex> lck(mtx_);
@@ -98,14 +133,14 @@ public:
     }
 
     //adds an callback by += operator
-    tsafeCallback<Ret(Args...)>& operator+=(compFunc<Ret(Args ...)> func)
+    tsafeCallback<Ret(Args...)>& operator+=(compFunc<Ret(const connectionRef&, Args ...)> func)
     {
         add(func);
         return *this;
     };
 
     //clears all callbacks and sets one new callback
-    tsafeCallback<Ret(Args...)>& operator=(compFunc<Ret(Args ...)> func)
+    tsafeCallback<Ret(Args...)>& operator=(compFunc<Ret(const connectionRef&, Args ...)> func)
     {
         clear();
         add(func);
@@ -113,9 +148,9 @@ public:
     };
 
     //adds new callback and return connection for removing of the callback
-    std::unique_ptr<connection> add(compFunc<Ret(Args ...)> func)
+    std::unique_ptr<connection> add(compFunc<Ret(const connectionRef&, Args ...)> func)
     {
-        auto c = std::make_unique<connection>(*this);
+        auto c = std::unique_ptr<connection>(new connection(*this));
 
         std::lock_guard<std::recursive_mutex> lck(mtx_);
         slots_.emplace_back();
@@ -130,11 +165,14 @@ public:
     std::vector<Ret> call(Args ... a)
     {
         std::lock_guard<std::recursive_mutex> lck(mtx_);
+
+        auto vec = slots_; //if called functions manipulate callback
+
         std::vector<Ret> ret;
         ret.reserve(slots_.size());
 
-        for(auto& s : slots_)
-            ret.push_back(s.func(a ...));
+        for(size_t i(0); i < slots_.size(); i++)
+            ret.push_back(slots_[i].func(connectionRef(*this, i), a ...));
 
         return ret;
     };
@@ -164,14 +202,13 @@ protected:
     struct callbackSlot
     {
         connection* con;
-        std::function<void(Args ...)> func;
+        std::function<void(const connectionRef&, Args ...)> func;
     };
 
 protected:
     std::vector<callbackSlot> slots_;
-    std::recursive_mutex mtx_; //too expensive for callback
+    std::recursive_mutex mtx_;
 
-    //removes a callback identified by its connection. Functions (std::function) can't be compared => we need connections
     virtual void remove(const connection& con) override
     {
         std::lock_guard<std::recursive_mutex> lck(mtx_);
@@ -184,6 +221,12 @@ protected:
             }
         }
     };
+
+    virtual void removeRef(const connectionRef& con) override
+    {
+        std::lock_guard<std::recursive_mutex> lck(mtx_);
+        slots_.erase(slots_.begin() + con.id_);
+    }
 
     virtual void destroyed(const connection& con) override
     {
@@ -206,14 +249,14 @@ public:
     }
 
     //adds an callback by += operator
-    tsafeCallback<void(Args...)>& operator+=(compFunc<void(Args ...)> func)
+    tsafeCallback<void(Args...)>& operator+=(compFunc<void(const connectionRef&, Args ...)> func)
     {
         add(func);
         return *this;
     };
 
     //clears all callbacks and sets one new callback
-    tsafeCallback<void(Args...)>& operator=(compFunc<void(Args ...)> func)
+    tsafeCallback<void(Args...)>& operator=(compFunc<void(const connectionRef&, Args ...)> func)
     {
         clear();
         add(func);
@@ -221,9 +264,9 @@ public:
     };
 
     //adds new callback and voidurn connection for removing of the callback
-    std::unique_ptr<connection> add(compFunc<void(Args ...)> func)
+    std::unique_ptr<connection> add(compFunc<void(const connectionRef&, Args ...)> func)
     {
-        auto c = std::make_unique<connection>(*this);
+        auto c = std::unique_ptr<connection>(new connection(*this));
 
         std::lock_guard<std::recursive_mutex> lck(mtx_);
         slots_.emplace_back();
@@ -238,9 +281,10 @@ public:
     void call(Args ... a)
     {
         std::lock_guard<std::recursive_mutex> lck(mtx_);
+        auto vec = slots_; //if called functions manipulate callback
 
-        for(auto& s : slots_)
-            s.func(a ...);
+        for(size_t i(0); i < slots_.size(); i++)
+            slots_[i].func(connectionRef(*this, i), a ...);
     };
 
     //clears all registered callbacks and connections
@@ -272,13 +316,12 @@ protected:
     struct callbackSlot
     {
         connection* con;
-        std::function<Ret(Args ...)> func;
+        std::function<Ret(const connectionRef&, Args ...)> func;
     };
 
 protected:
     std::vector<callbackSlot> slots_;
 
-    //removes a callback identified by its connection. Functions (std::function) can't be compared => we need connections
     virtual void remove(const connection& con) override
     {
         for(auto it = slots_.cbegin(); it != slots_.cend(); ++it)
@@ -287,6 +330,11 @@ protected:
                 slots_.erase(it);
         }
     };
+
+    virtual void removeRef(const connectionRef& con) override
+    {
+        slots_.erase(slots_.begin() + con.id_);
+    }
 
     virtual void destroyed(const connection& con) override
     {
@@ -308,14 +356,14 @@ public:
     }
 
     //adds an callback by += operator
-    callback<Ret(Args...)>& operator+=(compFunc<Ret(Args ...)> func)
+    callback<Ret(Args...)>& operator+=(compFunc<Ret(const connectionRef&, Args ...)> func)
     {
         add(func);
         return *this;
     };
 
     //clears all callbacks and sets one new callback
-    callback<Ret(Args...)>& operator=(compFunc<Ret(Args ...)> func)
+    callback<Ret(Args...)>& operator=(compFunc<Ret(const connectionRef&, Args ...)> func)
     {
         clear();
         add(func);
@@ -323,9 +371,9 @@ public:
     };
 
     //adds new callback and return connection for removing of the callback
-    std::unique_ptr<connection> add(compFunc<Ret(Args ...)> func)
+    std::unique_ptr<connection> add(compFunc<Ret(const connectionRef&, Args ...)> func)
     {
-        auto c = std::make_unique<connection>(*this);
+        auto c = std::unique_ptr<connection>(new connection(*this));
 
         slots_.emplace_back();
 
@@ -338,11 +386,13 @@ public:
     //calls the callback
     std::vector<Ret> call(Args ... a)
     {
+        auto vec = slots_; //if called functions manipulate callback
+
         std::vector<Ret> ret;
         ret.reserve(slots_.size());
 
-        for(auto& s : slots_)
-            ret.push_back(s.func(a ...));
+        for(size_t i(0); i < slots_.size(); i++)
+            ret.push_back(slots_[i].func(connectionRef(*this, i), a ...));
 
         return ret;
     };
@@ -371,7 +421,7 @@ protected:
     struct callbackSlot
     {
         connection* con;
-        std::function<void(Args ...)> func;
+        std::function<void(const connectionRef&, Args ...)> func;
     };
 
 protected:
@@ -389,6 +439,11 @@ protected:
             }
         }
     };
+
+    virtual void removeRef(const connectionRef& con) override
+    {
+        slots_.erase(slots_.begin() + con.id_);
+    }
 
     virtual void destroyed(const connection& con) override
     {
@@ -410,14 +465,14 @@ public:
     }
 
     //adds an callback by += operator
-    callback<void(Args...)>& operator+=(compFunc<void(Args ...)> func)
+    callback<void(Args...)>& operator+=(compFunc<void(const connectionRef&, Args ...)> func)
     {
         add(func);
         return *this;
     };
 
     //clears all callbacks and sets one new callback
-    callback<void(Args...)>& operator=(compFunc<void(Args ...)> func)
+    callback<void(Args...)>& operator=(compFunc<void(const connectionRef&, Args ...)> func)
     {
         clear();
         add(func);
@@ -425,9 +480,9 @@ public:
     };
 
     //adds new callback and voidurn connection for removing of the callback
-    std::unique_ptr<connection> add(compFunc<void(Args ...)> func)
+    std::unique_ptr<connection> add(compFunc<void(const connectionRef&, Args ...)> func)
     {
-        auto c = std::make_unique<connection>(*this);
+        auto c = std::unique_ptr<connection>(new connection(*this));
 
         slots_.emplace_back();
 
@@ -440,8 +495,10 @@ public:
     //calls the callback
     void call(Args ... a)
     {
-        for(auto& s : slots_)
-            s.func(a ...);
+        auto vec = slots_; //if called functions manipulate callback
+
+        for(size_t i(0); i < slots_.size(); i++)
+            slots_[i].func(connectionRef(*this, i), a ...);
     };
 
     //clears all registered callbacks and connections
