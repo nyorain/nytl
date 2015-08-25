@@ -6,9 +6,6 @@
 #include <algorithm>
 #include <sstream>
 #include <cmath>
-#include <type_traits>
-#include <typeinfo>
-#include <utility>
 
 namespace nyutil
 {
@@ -102,11 +99,10 @@ template<class A, class B> std::vector<B> copyVector(const std::vector<A>& a)
 
 template<class A, class B> std::vector<B> copyVectorLike(const A& a)
 {
-    std::vector<B> ret;
-    for(unsigned int i(0); i < a.size(); i++)
+    std::vector<B> ret(a.size());
+    for(auto& val : a)
     {
-        const B tmp = (B) a[i];
-        ret.push_back(tmp);
+        ret.push_back(val);
     }
     return ret;
 }
@@ -129,201 +125,6 @@ inline int randomInt(int low, int high)
 {
     return (int) low + rand() % (high - low);
 }
-
-//compFunc
-//experimental::tuple::apply
-//http://en.cppreference.com/w/cpp/experimental/apply
-
-template <class F, class Tuple, std::size_t... I>
-constexpr decltype(auto) apply_impl( F&& f, Tuple&& t, std::index_sequence<I...> )
-{
-    //return std::invoke(std::forward<F>(f), std::get<I>(std::forward<Tuple>(t))...);
-    return f(std::get<I>(std::forward<Tuple>(t))...);
-}
-
-template <class F, class Tuple>
-constexpr decltype(auto) apply(F&& f, Tuple&& t)
-{
-    return apply_impl(std::forward<F>(f), std::forward<Tuple>(t),
-        std::make_index_sequence<std::tuple_size<std::decay_t<Tuple>>{}>{});
-}
-
-//eraseFirst
-template<typename tup> struct eraseFirst;
-
-template<typename Head, typename ... Tail>
-struct eraseFirst<std::tuple<Head, Tail...>>
-{
-    using type = std::tuple<Tail...>;
-};
-
-//seqPrepend
-template<typename seq, size_t prep> struct seqPrepend;
-
-template<size_t... idx, size_t prep>
-struct seqPrepend<std::index_sequence<idx...>, prep>
-{
-    using type = std::index_sequence<prep, idx...>;
-};
-
-//seqAppend
-//seqPrepend
-template<typename seq, size_t ap> struct seqAppend;
-
-template<size_t... idx, size_t ap>
-struct seqAppend<std::index_sequence<idx...>, ap>
-{
-    using type = std::index_sequence<idx..., ap>;
-};
-
-//match
-template<typename A, typename B, typename Cond = void>
-struct match : std::false_type
-{
-};
-
-template<typename A, typename B>
-struct match<A, B, typename std::enable_if<std::is_convertible<A, B>::value>::type> : public std::true_type {};
-
-//find
-template<typename orgTup, typename newTup, size_t idx = 0> struct findMap;
-
-template<typename... orgArgs, typename... newArgs, size_t idx>
-struct findMap<std::tuple<orgArgs...>, std::tuple<newArgs...>, idx>
-{
-    using orgTuple = std::tuple<orgArgs...>;
-    using newTuple = std::tuple<newArgs...>;
-
-    constexpr static const bool value = match<typename std::tuple_element<0, orgTuple>::type, typename std::tuple_element<0, newTuple>::type>::value;
-    typedef typename std::conditional<
-        value,  //condition
-        typename seqPrepend< //matches
-            typename findMap<
-                typename eraseFirst<orgTuple>::type,
-                typename eraseFirst<newTuple>::type,
-                idx + 1
-            >::type,
-            idx
-        >::type,
-        typename findMap< //dont matches
-            typename eraseFirst<orgTuple>::type,
-            newTuple,
-            idx + 1
-        >::type
-    >::type type;
-};
-
-template<typename... OrgLeft, size_t idx>
-struct findMap<std::tuple<OrgLeft...>, std::tuple<>, idx>
-{
-    using type = std::index_sequence<>;
-};
-
-template<size_t idx>
-struct findMap<std::tuple<>, std::tuple<>, idx>
-{
-    using type = std::index_sequence<>;
-};
-
-template<typename... NewLeft, size_t idx>
-struct findMap<std::tuple<>, std::tuple<NewLeft...>, idx>
-{
-    using type = std::index_sequence<>;
-
-    //ERROR. Should NEVER happen!
-    //how to show error if this is used, but only IF it is used (std::confitional must still work)?
-};
-
-//map
-template<typename orgTup, typename newTup, typename seq = typename findMap<orgTup, newTup>::type> struct mapTuple;
-
-template<typename... orgArgs, typename... newArgs, size_t... idx>
-struct mapTuple<std::tuple<orgArgs...>, std::tuple<newArgs...>, std::index_sequence<idx...>>
-{
-    using newTup = std::tuple<newArgs...>;
-    using orgTup = std::tuple<orgArgs...>;
-    using seq = std::index_sequence<idx...>;
-
-    newTup map(orgArgs... args) const noexcept
-    {
-        orgTup org(args...);
-        newTup ret(std::get<idx>(org)...);
-
-        return ret;
-    }
-};
-
-//sequenceSize
-template<typename seq> struct sequenceSize;
-
-template<size_t... idx>
-struct sequenceSize<std::index_sequence<idx...>>
-{
-    constexpr static const size_t value = sizeof...(idx);
-};
-
-
-//compFunc
-//todo: void spec
-template<typename> class compatibleFunction;
-
-//general
-template<typename RetOrg, typename... ArgsOrg>
-class compatibleFunction<RetOrg(ArgsOrg...)>
-{
-protected:
-    std::function<RetOrg(ArgsOrg...)> func_ {};
-
-public:
-    template<typename RetNew, typename... ArgsNew>
-    compatibleFunction(std::function<RetNew(ArgsNew...)> func) noexcept
-    {
-        using orgArgsT = std::tuple<ArgsOrg...>;
-        using newArgsT = std::tuple<ArgsNew...>;
-        using mapT = mapTuple<orgArgsT, newArgsT>;
-
-        static_assert(std::is_convertible<RetOrg, RetNew>::value, "Return types are not compatible");
-        static_assert(sequenceSize<typename mapT::seq>::value == sizeof...(ArgsNew) , "Arguments are not compatible");
-
-        mapT argMap;
-
-        func_ = [=](ArgsOrg... args) -> RetOrg {
-                return static_cast<RetOrg>(apply(func, argMap.map(args...)));
-            };
-    }
-
-    RetOrg call(ArgsOrg... args) const { return func_(args...); }
-    RetOrg operator()(ArgsOrg... args) const { return func_(args...); }
-};
-
-//void ret
-template<typename... ArgsOrg>
-class compatibleFunction<void(ArgsOrg...)>
-{
-protected:
-    std::function<void(ArgsOrg...)> func_ {};
-
-public:
-    template<typename RetNew, typename... ArgsNew>
-    compatibleFunction(std::function<RetNew(ArgsNew...)> func) noexcept
-    {
-        using orgArgsT = std::tuple<ArgsOrg...>;
-        using newArgsT = std::tuple<ArgsNew...>;
-        using mapT = mapTuple<orgArgsT, newArgsT>;
-
-        static_assert(sequenceSize<typename mapT::seq>::value == sizeof...(ArgsNew) , "Arguments are not compatible");
-        mapT argMap;
-
-        func_ = [=](ArgsOrg... args) -> void {
-                apply(func, argMap.map(args...));
-            };
-    }
-
-    void call(ArgsOrg... args) const { func_(args...); }
-    void operator()(ArgsOrg... args) const { func_(args...); }
-};
-
-template<typename Sig> using compFunc = compatibleFunction<Sig>;
 
 }
 
