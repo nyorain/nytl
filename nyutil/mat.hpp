@@ -3,6 +3,10 @@
 #include <nyutil/vec.hpp>
 #include <nyutil/refVec.hpp>
 
+#include <ostream>
+#include <iomanip>
+#include <cmath>
+
 namespace nyutil
 {
 
@@ -122,19 +126,22 @@ typedef mat43<short> mat43s;
 typedef mat43<unsigned short> mat43us;
 
 
-template<size_t n> squareMat<n, int> identityMat()
-{
-	squareMat<n, int> ret;
-	for(size_t i(0); i < n; i++)ret[i][i] = 1;
-	return ret;
-}
-
-
 template<size_t rows, size_t cols, class prec> class mat
 {
 public:
 	vec<rows, vec<cols, prec>> data;
 
+public:
+	mat() = default;
+	~mat() = default;
+
+	mat(const mat<rows, cols, prec>& other) = default;
+	mat(mat<rows, cols, prec>&& other) = default;
+
+	mat& operator=(const mat<rows, cols, prec>& other) = default;
+	mat& operator=(mat<rows, cols, prec>&& other) = default;
+
+    //operator
 	vec<cols, prec>& operator[](size_t i){ return data[i]; }
 	const vec<cols, prec>& operator[](size_t i) const { return data[i]; }
 
@@ -150,20 +157,15 @@ public:
 	prec* ptr(){ prec* ret = (prec*) data.data; }
 	prec* newPtr(){ prec* ret = new prec[rows * cols]; for(size_t r(0); r < rows; r++)for(size_t c(0); c < cols; c++) ret[r * cols + c] = data[r][c]; }
 
-    template <size_t ocols, size_t orows, class oprec> mat<rows, cols, prec>& operator +=(const mat<orows, ocols, oprec>& other){}
-   	template <size_t ocols, size_t orows, class oprec> mat<rows, cols, prec>& operator -=(const mat<orows, ocols, oprec>& other){}
-   	template <size_t ocols, size_t orows, class oprec> mat<rows, cols, prec>& operator *=(const mat<orows, ocols, oprec>& other){}
-    template <size_t ocols, size_t orows, class oprec> mat<rows, cols, prec>& operator /=(const mat<orows, ocols, oprec>& other){}
+    mat<rows, cols, prec>& operator +=(const mat<rows, cols, prec>& other){}
+   	mat<rows, cols, prec>& operator -=(const mat<rows, cols, prec>& other){}
+    mat<rows, cols, prec>& operator *=(const mat<cols, rows, prec>& other){ auto od = data; for(size_t r(0); r < rows; r++) for(size_t c(0); c < cols; c++) data[r][c] = weight(od[r] * other.col(c)); return *this; }
+    mat<rows, cols, prec>& operator /=(const mat<cols, rows, prec>& other){}
 
-    template <size_t odim, class ot> mat<rows, cols, prec>& operator +=(const vec<odim, ot>& other){}
-   	template <size_t odim, class ot> mat<rows, cols, prec>& operator -=(const vec<odim, ot>& other){}
-    template <size_t odim, class ot> mat<rows, cols, prec>& operator *=(const vec<odim, ot>& other){}
-    template <size_t odim, class ot> mat<rows, cols, prec>& operator /=(const vec<odim, ot>& other){}
-
-   	template <class ot> mat<rows, cols, prec>& operator +=(const ot& other){  }
-  	template <class ot> mat<rows, cols, prec>& operator -=(const ot& other){  }
-    template <class ot> mat<rows, cols, prec>& operator *=(const ot& other){  }
-    template <class ot> mat<rows, cols, prec>& operator /=(const ot& other){  }
+   	mat<rows, cols, prec>& operator +=(const prec& other){  }
+  	mat<rows, cols, prec>& operator -=(const prec& other){  }
+    mat<rows, cols, prec>& operator *=(const prec& other){  }
+    mat<rows, cols, prec>& operator /=(const prec& other){  }
 
     mat<cols, rows, prec> flip() const { mat<cols, rows, prec> ret; for(size_t r(0); r < rows; r++) for(size_t c(0); c < cols; c++) ret[c][r] = data[r][c];  return ret; }
 
@@ -174,6 +176,106 @@ public:
     template<size_t orows, size_t ocols, class oprec> operator mat<orows, ocols, oprec>() const { mat<orows, ocols, oprec> ret; for(size_t r(0); r < std::min(orows, rows); r++) for(size_t c(0); c < std::min(ocols, cols); c++) ret[r][c] = data[r][c];  return ret; }
 };
 
-//operators
-
+//identityMat
+template<size_t dim, typename prec = float> constexpr squareMat<dim, prec> identityMat()
+{
+	squareMat<dim, prec> ret;
+	for(size_t i(0); i < dim; i++) ret[i][i] = prec(1);
+	return ret;
 }
+
+//operators
+//ostream//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+constexpr const unsigned int cDWidth = 6;
+unsigned int getNumberOfDigits(double i)
+{
+    if((i < 10 && i > 0) || i == 0) return 1;
+    else if(i > -10 && i < 0) return 2;
+    return i > 0 ? (unsigned int) std::log10((double) i) + 1 : (unsigned int) std::log((double) -i) + 2;
+}
+
+template<size_t rows, size_t cols, class prec> std::ostream& operator<<(std::ostream& os, const mat<rows, cols, prec>& obj)
+{
+    auto org = os.precision();
+    os << "{" << "\n";
+
+    for(unsigned int i(0); i < rows; i++)
+    {
+        os << "  " << "(";
+        for(unsigned int o(0); o < cols; o++)
+        {
+            os << std::setw(cDWidth) << /*std::setprecision(cDWidth - getNumberOfDigits(obj[i][o]) - 1) <<*/ obj[i][o];
+            if(o != cols - 1)
+                os << ", ";
+        }
+
+        os << ")" << "\n";
+    }
+
+    os << "}";
+    os.precision(org);
+
+    return os;
+}
+
+//+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template<size_t rows, size_t cols, typename prec> mat<rows, cols, prec> operator+(mat<rows, cols, prec> ma, const prec& other)
+{
+    ma *= other;
+    return ma;
+}
+
+
+//-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template<size_t rows, size_t cols, typename prec> mat<rows, cols, prec> operator-(mat<rows, cols, prec> ma, const prec& other)
+{
+    ma -= other;
+    return ma;
+}
+
+
+//*////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//mat and value
+template<size_t rows, size_t cols, typename prec> mat<rows, cols, prec> operator*(mat<rows, cols, prec> ma, const prec& other)
+{
+    ma *= other;
+    return ma;
+}
+
+template<size_t rows, size_t cols, typename prec> mat<rows, cols, prec> operator*(const prec& other, mat<rows, cols, prec> ma)
+{
+    ma *= other;
+    return ma;
+}
+
+//mat and mat
+template<size_t rows, size_t cols, typename prec> mat<rows, cols, prec> operator*(mat<rows, cols, prec> ma, const mat<cols, rows, prec>& other)
+{
+    ma *= other;
+    return ma;
+}
+
+//mat and vector
+template<size_t dim, typename prec> vec<dim, prec> operator*(const squareMat<dim, prec>& ma, const vec<dim, prec>& v)
+{
+    vec<dim, prec> ret = v;
+
+    for(size_t i(0); i < dim; i++)
+        ret[i] = weight(ma.row(i) * v);
+
+    return ret;
+}
+
+template<size_t dim, typename prec> vec<dim, prec> operator*(const vec<dim, prec>& v, const squareMat<dim, prec>& ma)
+{
+    return (ma * v);
+}
+
+//\/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template<size_t rows, size_t cols, typename prec> mat<rows, cols, prec> operator/(mat<rows, cols, prec> ma, const prec& other)
+{
+    ma /= other;
+    return ma;
+}
+
+} //nyutil
