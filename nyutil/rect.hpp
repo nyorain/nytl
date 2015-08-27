@@ -96,7 +96,7 @@ public:
 	prec& top() { return position.y; }
 
 	const prec& width() const { return size.x; }
-	const prec& height() const { return size.x; }
+	const prec& height() const { return size.y; }
 
     prec& width() { return size.x; }
 	prec& height() { return size.x; }

@@ -9,8 +9,7 @@
 namespace nyutil
 {
 
-constexpr const double cPi = 3.141; //todo
-constexpr const double cDeg = cPi / 180.0;
+constexpr const double cDeg = M_PI / 180.0;
 
 template<size_t dim, typename prec = float> class transformable; //only for 2d, todo: 3d
 template<size_t dim, typename prec = float> class transform;
@@ -39,17 +38,14 @@ protected:
 	    float rotCos = std::cos(rotation_ * cDeg);
 	    float rotSin = std::sin(rotation_ * cDeg);
 
-
 	    matrix_[0][0] = scale_.x * rotCos;
 	    matrix_[0][1] = scale_.x * rotSin;
         matrix_[0][2] = -(origin_.x * matrix_[0][0]) - (origin_.y * matrix_[0][1]) + position_.x;
-        //matrix_[0][2] = position_.x;
 	    matrix_[1][0] = -scale_.x * rotSin;
 	    matrix_[1][1] = scale_.y * rotCos;
 	    matrix_[1][2] = -(origin_.x * matrix_[1][0]) - (origin_.y * matrix_[1][1]) + position_.y;
-	    //matrix_[1][2] = position_.y;
 
-/*
+	    /*
         pMat posMat = identityMat<dim + 1, prec>();
         posMat[0][2] = position_.x;
         posMat[1][2] = position_.y;
@@ -65,9 +61,10 @@ protected:
         scaleMat[1][1] = scale_.y;
 
         matrix_ = posMat * rotMat * scaleMat;
+        */
 
         matValid_ = 1;
-        */
+
 	}
 
 public:
@@ -115,6 +112,10 @@ public:
     const pVec& getScale() const { return scale_; }
     const pVec& getOrigin() const { return origin_; }
 
+    //apply
+    pVec apply(const pVec& org) const { return pVec(vec3f(org.x, org.y, 1.f) * getMatrix()); }
+    pRect apply(const pRect& org) const { return pRect(apply(org.position), apply(org.size)); }
+
     //getMatrix
     const pMat& getMatrix() const { if(!matValid_) bakeMat(); return matrix_; }
 };
@@ -156,12 +157,15 @@ public:
     const pVec& getScale() const { return transform_.getScale(); }
     const pVec& getOrigin() const { return transform_.getOrigin(); }
 
+    void copyTransform(const pTrans& trans) { transform_ = trans; }
+    void copyTransform(const transformable<dim, prec>& trans) { transform_ = trans.transform_; }
+
     //todo
     const pMat& getTransformMatrix() const { return transform_.getMatrix(); }
     const pTrans& getTransform() const { return transform_; }
 
 	virtual pRect getExtents() const = 0;
-	pRect getTransformedExtents() const { return getExtents() * transform_; }
+	pRect getTransformedExtents() const { return transform_.apply(getExtents()); }
 };
 
 }

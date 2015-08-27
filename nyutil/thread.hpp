@@ -21,7 +21,7 @@ using mtxLock = std::unique_lock<std::mutex>;
 class threadSafeObj
 {
 protected:
-    mutable std::mutex mutex_;
+    mutable std::recursive_mutex mutex_;
 
 public:
     threadSafeObj() = default;

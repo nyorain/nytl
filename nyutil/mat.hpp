@@ -187,7 +187,7 @@ template<size_t dim, typename prec = float> constexpr squareMat<dim, prec> ident
 //operators
 //ostream//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 constexpr const unsigned int cDWidth = 6;
-unsigned int getNumberOfDigits(double i)
+constexpr unsigned int getNumberOfDigits(double i)
 {
     if((i < 10 && i > 0) || i == 0) return 1;
     else if(i > -10 && i < 0) return 2;

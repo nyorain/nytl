@@ -18,7 +18,7 @@ protected:
 
 public:
     std::unique_ptr<T> clone() const { return std::make_unique<T>(*(static_cast<const T*>(this))); }
-    T cloneOnStack() const { return T(*(static_cast<const T*>(this))); }
+    //T cloneOnStack() const { return T(*(static_cast<const T*>(this))); } //needed?
 };
 
 //derive cloneable
@@ -32,7 +32,7 @@ protected:
 
 public:
     std::unique_ptr<Base> clone() const { return std::make_unique<Derived>(*(static_cast<const Derived*>(this))); } //virtual&override?
-    Derived cloneOnStack() const { return Derived(*(static_cast<const Derived*>(this))); }
+    //Derived cloneOnStack() const { return Derived(*(static_cast<const Derived*>(this))); } //needed?
 };
 
 }
