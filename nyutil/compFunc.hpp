@@ -121,7 +121,7 @@ struct tupleMap<std::tuple<orgArgs...>, std::tuple<newArgs...>, std::index_seque
     using orgTup = std::tuple<orgArgs...>;
     using seq = std::index_sequence<idx...>;
 
-    constexpr newTup map(orgArgs&&... args) const noexcept
+    static constexpr newTup map(orgArgs&&... args) noexcept
     {
         orgTup org(std::forward<orgArgs>(args)...);
         newTup ret(std::forward<decltype(std::get<idx>(org))>(std::get<idx>(org))...);
@@ -178,7 +178,7 @@ public:
     template<typename Sig> compatibleFunction<RetOrg(ArgsOrg...)>& operator=(const compatibleFunction<Sig>& other) noexcept { set(other.func_); return *this; }
 
     //set
-    template<typename F> void set(F&& func) noexcept
+    template<typename F> void set(F func) noexcept
     {
         using orgArgsT = std::tuple<ArgsOrg...>;
         using newTraits = function_traits<F>;
@@ -189,10 +189,8 @@ public:
         static_assert(std::is_convertible<RetOrg, newRet>::value, "Return types are not compatible");
         static_assert(tmp::seqSize<typename mapT::seq>::value == newTraits::arg_size, "Arguments are not compatible");
 
-        mapT argMap;
-
         func_ = [=](ArgsOrg&&... args) -> RetOrg {
-                return static_cast<RetOrg>(apply(func, argMap.map(std::forward<ArgsOrg>(args)...)));
+                return static_cast<RetOrg>(apply(func, mapT::map(std::forward<ArgsOrg>(args)...)));
             };
     }
 
@@ -220,14 +218,14 @@ public:
     compatibleFunction(F func) noexcept { set(func); }
 
     compatibleFunction(const compatibleFunction<void(ArgsOrg...)>& other) noexcept : func_(other.func_) {}
-    template<typename Sig> compatibleFunction(const compatibleFunction<Sig>& other) noexcept { set(other.func_); }
+    template<typename Sig> compatibleFunction(const compatibleFunction<Sig>& other) noexcept { set(other.function()); }
 
     //assignement
     template<typename F, typename = typename std::enable_if<is_callable<F>::value>::type>
     compatibleFunction<void(ArgsOrg...)>& operator=(F func) noexcept { set(func); return *this; }
 
     compatibleFunction<void(ArgsOrg...)>& operator=(const compatibleFunction<void(ArgsOrg...)>& other) noexcept { func_ = other.func_; return *this; }
-    template<typename Sig> compatibleFunction<void(ArgsOrg...)>& operator=(const compatibleFunction<Sig>& other) noexcept { set(other.func_); return *this; }
+    template<typename Sig> compatibleFunction<void(ArgsOrg...)>& operator=(const compatibleFunction<Sig>& other) noexcept { set(other.function()); return *this; }
 
     //set
     template<typename F>
@@ -238,11 +236,10 @@ public:
         using newArgsT = typename newTraits::arg_tuple;
         using mapT = tupleMap<orgArgsT, newArgsT>;
 
-        static_assert(tmp::seqSize<typename mapT::seq>::value == newTraits::arg_size, "Arguments are not compatible");
-        mapT argMap;
+        static_assert(tmp::seqSize<typename mapT::seq>::value == newTraits::arg_size, "Your function arguments are not compatible");
 
         func_ = [=](ArgsOrg&&... args) -> void {
-                apply(func, argMap.map(std::forward<ArgsOrg>(args)...));
+                apply(func, mapT::map(std::forward<ArgsOrg>(args)...));
             };
     }
 

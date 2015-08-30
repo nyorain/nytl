@@ -6,7 +6,6 @@
 #include <uv.h>
 #include <vector>
 #include <memory>
-#include <iostream> //dont.
 
 namespace nyutil
 {

@@ -13,7 +13,7 @@ namespace nyutil
 template<class... T> void unused(T&&...)
 { }
 
-template<class U, class V, class ...t> std::function<U(t...)> memberCallback(U (V::*func)(t ...), V* obj)
+template<class U, class V, class ...t> auto memberCallback(U (V::*func)(t ...), V* obj)
 {
     return ([=](t ... params)
     {
@@ -21,19 +21,13 @@ template<class U, class V, class ...t> std::function<U(t...)> memberCallback(U (
     });
 }
 
-template<class U, class V, class ...t> std::function<U(t...)> memberCallback(U (V::*func)(t ...), V& obj)
+template<class U, class V, class ...t> auto memberCallback(U (V::*func)(t ...), V& obj)
 {
-    return std::bind(func, &obj);
-}
-
-template<class U, class ... t, class ... o> std::function<U(t..., o...)> addParameters(std::function<U(t ...)> func)
-{
-    return ([func](t ... params, o ... unused) -> U
+    return ([=](t ... params)
     {
-        return (func(params ...));
+        return (obj.*func)(params ...);
     });
 }
-
 
 template<class ... Args> void printVars(std::ostream& out, Args ... args)
 {

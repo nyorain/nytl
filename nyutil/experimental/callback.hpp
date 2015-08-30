@@ -2,6 +2,7 @@
 
 #include <nyutil/nonCopyable.hpp>
 #include <nyutil/compFunc.hpp>
+#include <nyutil/callback.hpp>
 
 #include <functional>
 #include <vector>
@@ -14,75 +15,8 @@
 namespace nyutil
 {
 
-class connection;
-class connectionRef;
-class slot;
-template <class> class callback;
-template <class> class tsafeCallback;
-
-//class callback should be thread safe
-//atm implemented using expensive mutexes etc., should change to lock free containers (deque/queue) later on
-//when cheap implementation found, tsafe callback and callback sohuld be merged into one threadsafe callback class
-
-//callbackBase//////////////////////////////////////
-class callbackBase
-{
-
-friend class connection;
-friend class connectionRef;
-
-protected:
-    virtual void remove(const connection& con) = 0;
-    virtual void removeRef(const connectionRef& con) = 0;
-    virtual void destroyed(const connection& con) = 0;
-};
-
-
-//connection//////////////////////////////////////////
-class connection : public nonMoveable
-{
-protected:
-    template<class T> friend class callback;
-    template<class T> friend class tsafeCallback;
-
-    callbackBase* callback_ {nullptr};
-
-    explicit connection(callbackBase& call) : callback_(&call) {}
-public:
-    ~connection(){ if(callback_) callback_->destroyed(*this); }
-
-    void destroy(){ if(callback_) callback_->remove(*this); callback_ = nullptr; }
-    bool connected() const { return (callback_ != nullptr); }
-};
-
-//connectionRef for destroying a connection inside a callback////////////////////7
-class connectionRef
-{
-protected:
-    template<class T> friend class callback;
-    template<class T> friend class tsafeCallback;
-
-    mutable callbackBase* callback_ {nullptr};
-    size_t id_;
-
-    explicit connectionRef(callbackBase& call, size_t id) : callback_(&call), id_(id) {}
-public:
-    ~connectionRef() = default;
-
-    connectionRef(const connectionRef& other) = default;
-    connectionRef& operator=(const connectionRef& other) = default;
-    //move would be the same
-
-    void destroy() const { if(callback_) callback_->removeRef(*this); callback_ = nullptr; }
-    bool connected() const { return (callback_ != nullptr); }
-};
-
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//non-threadsafe callback/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-template <class  Ret, class ... Args> class callback<Ret(Args...)> final : public callbackBase
+//threadsafe-callback////////////////////////////////////////////
+template <class  Ret, class ... Args> class tsafeCallback<Ret(Args...)> final : public callbackBase
 {
 protected:
     struct callbackSlot
@@ -93,9 +27,12 @@ protected:
 
 protected:
     std::vector<callbackSlot> slots_;
+    std::recursive_mutex mtx_; //too expensive for callback
 
+    //removes a callback identified by its connection. Functions (std::function) can't be compared => we need connections
     virtual void remove(const connection& con) override
     {
+        std::lock_guard<std::recursive_mutex> lck(mtx_);
         for(auto it = slots_.cbegin(); it != slots_.cend(); ++it)
         {
             if(it->con == &con)
@@ -103,13 +40,18 @@ protected:
         }
     };
 
+    //remove ref
     virtual void removeRef(const connectionRef& con) override
     {
+        std::lock_guard<std::recursive_mutex> lck(mtx_);
         slots_.erase(slots_.begin() + con.id_);
     }
 
+    //a connection which is destructed call this function
+    //callback slot remains valid
     virtual void destroyed(const connection& con) override
     {
+        std::lock_guard<std::recursive_mutex> lck(mtx_);
         for(auto it = slots_.begin(); it != slots_.end(); ++it)
         {
             if(it->con == &con)
@@ -122,20 +64,20 @@ protected:
     };
 
 public:
-    ~callback()
+    ~tsafeCallback()
     {
         clear();
     }
 
     //adds an callback by += operator
-    callback<Ret(Args...)>& operator+=(compFunc<Ret(const connectionRef&, Args ...)> func)
+    tsafeCallback<Ret(Args...)>& operator+=(compFunc<Ret(const connectionRef&, Args ...)> func)
     {
         add(func);
         return *this;
     };
 
     //clears all callbacks and sets one new callback
-    callback<Ret(Args...)>& operator=(compFunc<Ret(const connectionRef&, Args ...)> func)
+    tsafeCallback<Ret(Args...)>& operator=(compFunc<Ret(const connectionRef&, Args ...)> func)
     {
         clear();
         add(func);
@@ -147,6 +89,7 @@ public:
     {
         auto c = std::unique_ptr<connection>(new connection(*this));
 
+        std::lock_guard<std::recursive_mutex> lck(mtx_);
         slots_.emplace_back();
 
         slots_.back().con = c.get();
@@ -158,6 +101,8 @@ public:
     //calls the callback
     std::vector<Ret> call(Args ... a)
     {
+        std::lock_guard<std::recursive_mutex> lck(mtx_);
+
         auto vec = slots_; //if called functions manipulate callback
 
         std::vector<Ret> ret;
@@ -172,6 +117,7 @@ public:
     //clears all registered callbacks and connections
     void clear()
     {
+        std::lock_guard<std::recursive_mutex> lck(mtx_);
         for(auto& s : slots_)
             if(s.con) s.con->callback_ = nullptr;
 
@@ -187,7 +133,7 @@ public:
 
 //callback specialization for void because callback cant return a <void>-vector/////////////////////////////////
 //callback////////////////////////////////////////////
-template <class ... Args> class callback<void(Args...)> final : public callbackBase
+template <class ... Args> class tsafeCallback<void(Args...)> final : public callbackBase
 {
 protected:
     struct callbackSlot
@@ -198,10 +144,11 @@ protected:
 
 protected:
     std::vector<callbackSlot> slots_;
+    std::recursive_mutex mtx_;
 
-    //removes a callback identified by its connection. Functions (std::function) can't be compared => we need connections
     virtual void remove(const connection& con) override
     {
+        std::lock_guard<std::recursive_mutex> lck(mtx_);
         for(auto it = slots_.cbegin(); it != slots_.cend(); ++it)
         {
             if(it->con == &con)
@@ -214,11 +161,13 @@ protected:
 
     virtual void removeRef(const connectionRef& con) override
     {
+        std::lock_guard<std::recursive_mutex> lck(mtx_);
         slots_.erase(slots_.begin() + con.id_);
     }
 
     virtual void destroyed(const connection& con) override
     {
+        std::lock_guard<std::recursive_mutex> lck(mtx_);
         for(auto it = slots_.begin(); it != slots_.end(); ++it)
         {
             if(it->con == &con)
@@ -231,20 +180,20 @@ protected:
     };
 
 public:
-    ~callback()
+    ~tsafeCallback()
     {
         clear();
     }
 
     //adds an callback by += operator
-    callback<void(Args...)>& operator+=(compFunc<void(const connectionRef&, Args ...)> func)
+    tsafeCallback<void(Args...)>& operator+=(compFunc<void(const connectionRef&, Args ...)> func)
     {
         add(func);
         return *this;
     };
 
     //clears all callbacks and sets one new callback
-    callback<void(Args...)>& operator=(compFunc<void(const connectionRef&, Args ...)> func)
+    tsafeCallback<void(Args...)>& operator=(compFunc<void(const connectionRef&, Args ...)> func)
     {
         clear();
         add(func);
@@ -256,6 +205,7 @@ public:
     {
         auto c = std::unique_ptr<connection>(new connection(*this));
 
+        std::lock_guard<std::recursive_mutex> lck(mtx_);
         slots_.emplace_back();
 
         slots_.back().con = c.get();
@@ -267,6 +217,7 @@ public:
     //calls the callback
     void call(Args ... a)
     {
+        std::lock_guard<std::recursive_mutex> lck(mtx_);
         auto vec = slots_; //if called functions manipulate callback
 
         for(size_t i(0); i < slots_.size(); i++)
@@ -276,6 +227,7 @@ public:
     //clears all registered callbacks and connections
     void clear()
     {
+        std::lock_guard<std::recursive_mutex> lck(mtx_);
         for(auto& s : slots_)
             if(s.con) s.con->callback_ = nullptr;
 
@@ -288,53 +240,5 @@ public:
     }
 };
 
-
-
-//todo
-//watcher classes as alternative to smart pointers
-//before you use a object you can check if it is alive
-//if an object dies it will signal all its watchers, so they know
-/*
-//base helper class watachable - better name?
-class watchable
-{
-protected:
-    callback<void()> destructionCallback_;
-
-public:
-    ~watchable()
-    {
-        destructionCallback_();
-    }
-
-    auto onDestruction(std::function<void()> func){ return destructionCallback_.add(func); }
-};
-
-//ref//////////////////////////////////////////////
-//move, copy semntcs
-template <typename T, typename B = typename std::conditional<std::is_base_of<watchable, T>::value, watchable, T>::type, std::unique_ptr<connection> (B::*Func)(std::function<void()>) = &B::onDestruction>
-class watcherRef
-{
-protected:
-    T* ref_;
-    std::unique_ptr<connection> conn_ {nullptr};
-
-public:
-    ~watcherRef()
-    {
-        if(conn_) conn_->destroy();
-    }
-
-    T* get() const { return ref_; }
-    void set(T& nref)
-    {
-        ref_ = &nref;
-        conn_ = (nref.*Func)([=]{
-            ref_ = nullptr;
-            conn_.reset();
-        });
-    }
-};
-*/
 
 }
