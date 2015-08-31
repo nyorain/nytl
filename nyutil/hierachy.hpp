@@ -18,8 +18,8 @@ private:
 protected:
     virtual void addChild(T& child)
     {
-        if(!child.valid() || child.getParent() != this)
-            throw std::logic_error("hierachyNode::addChild: invalid child");
+        //if(child.getParent() != this || !child.valid())
+        //    throw std::logic_error("hierachyNode::addChild: invalid child");
 
         children_.push_back(&child);
     }
@@ -40,8 +40,8 @@ protected:
     hierachyNode() = default;
     void create(T& parent) //can be used to reparent the object
     {
-        if(!parent.valid())
-            throw std::logic_error("hierachyNode::create: invalid parent");
+        //if(!parent.valid())
+        //    throw std::logic_error("hierachyNode::create: invalid parent");
 
         if(parent_)
         {

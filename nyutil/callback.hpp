@@ -5,11 +5,9 @@
 
 #include <functional>
 #include <vector>
-#include <algorithm>
 #include <utility>
-#include <mutex>
 #include <memory>
-#include <type_traits>
+#include <atomic>
 
 namespace nyutil
 {
@@ -32,49 +30,58 @@ friend class connection;
 friend class connectionRef;
 
 protected:
-    virtual void remove(const connection& con) = 0;
-    virtual void removeRef(const connectionRef& con) = 0;
-    virtual void destroyed(const connection& con) = 0;
+    virtual void remove(size_t id) = 0;
 };
 
+//connectionData
+struct connectionData
+{
+    connectionData(size_t i) : id(i) {}
+    std::atomic<size_t> id {0}; //if id == 0, the connection is not connected
+};
 
 //connection//////////////////////////////////////////
-class connection : public nonMoveable
+class connection
 {
 protected:
     template<class T> friend class callback;
     template<class T> friend class tsafeCallback;
 
     callbackBase* callback_ {nullptr};
+    std::shared_ptr<connectionData> data_ {nullptr};
 
-    explicit connection(callbackBase& call) : callback_(&call) {}
+    explicit connection(callbackBase& call, std::shared_ptr<connectionData> data) : callback_(&call), data_(data) {}
 public:
-    ~connection(){ if(callback_) callback_->destroyed(*this); }
+    ~connection(){}
 
-    void destroy(){ if(callback_) callback_->remove(*this); callback_ = nullptr; }
-    bool connected() const { return (callback_ != nullptr); }
+    connection(const connection&) = default;
+    connection& operator=(const connection&) = default;
+
+    void destroy(){ if(callback_ && connected()) callback_->remove(data_->id); callback_ = nullptr; }
+    bool connected() const { return data_->id.load() != 0; }
 };
 
-//connectionRef for destroying a connection inside a callback////////////////////7
+//connectionRef for destroying a connection inside a callback/////////////////////
+//exactly the same class, only used for this purpose to be able to use it in compFunc without overriding a connection parameter
+
 class connectionRef
 {
 protected:
     template<class T> friend class callback;
     template<class T> friend class tsafeCallback;
 
-    mutable callbackBase* callback_ {nullptr};
-    size_t id_;
+    callbackBase* callback_ {nullptr};
+    std::shared_ptr<connectionData> data_ {nullptr};
 
-    explicit connectionRef(callbackBase& call, size_t id) : callback_(&call), id_(id) {}
+    explicit connectionRef(callbackBase& call, std::shared_ptr<connectionData> data) : callback_(&call), data_(data) {}
 public:
     ~connectionRef() = default;
 
     connectionRef(const connectionRef& other) = default;
     connectionRef& operator=(const connectionRef& other) = default;
-    //move would be the same
 
-    void destroy() const { if(callback_) callback_->removeRef(*this); callback_ = nullptr; }
-    bool connected() const { return (callback_ != nullptr); }
+    void destroy(){ if(callback_ && connected()) callback_->remove(data_->id); callback_ = nullptr; }
+    bool connected() const { return data_->id.load() != 0; }
 };
 
 
@@ -87,38 +94,29 @@ template <class  Ret, class ... Args> class callback<Ret(Args...)> final : publi
 protected:
     struct callbackSlot
     {
-        connection* con;
+        std::shared_ptr<connectionData> data;
         std::function<Ret(const connectionRef&, Args ...)> func;
     };
 
 protected:
+    size_t highestID_ {0};
     std::vector<callbackSlot> slots_;
 
-    virtual void remove(const connection& con) override
+    virtual void remove(size_t id) override
     {
+        if(id == 0)
+            return;
+
         for(auto it = slots_.cbegin(); it != slots_.cend(); ++it)
         {
-            if(it->con == &con)
-                slots_.erase(it);
-        }
-    };
-
-    virtual void removeRef(const connectionRef& con) override
-    {
-        slots_.erase(slots_.begin() + con.id_);
-    }
-
-    virtual void destroyed(const connection& con) override
-    {
-        for(auto it = slots_.begin(); it != slots_.end(); ++it)
-        {
-            if(it->con == &con)
+            if(it->data->id == id)
             {
-                it->con = nullptr;
+                it->data->id.store(0);
+                slots_.erase(it);
                 return;
             }
-        }
 
+        }
     };
 
 public:
@@ -143,16 +141,15 @@ public:
     };
 
     //adds new callback and return connection for removing of the callback
-    std::unique_ptr<connection> add(compFunc<Ret(const connectionRef&, Args ...)> func)
+    connection add(compFunc<Ret(const connectionRef&, Args ...)> func)
     {
-        auto c = std::unique_ptr<connection>(new connection(*this));
-
         slots_.emplace_back();
 
-        slots_.back().con = c.get();
+        auto ptr = std::make_shared<connectionData>(++highestID_);
+        slots_.back().data = ptr;
         slots_.back().func = func.function();
 
-        return c;
+        return connection(*this, ptr);
     };
 
     //calls the callback
@@ -163,8 +160,8 @@ public:
         std::vector<Ret> ret;
         ret.reserve(slots_.size());
 
-        for(size_t i(0); i < slots_.size(); i++)
-            ret.push_back(slots_[i].func(connectionRef(*this, i), a ...));
+        for(auto& slot : vec)
+            ret.push_back(slot.func(connectionRef(*this, slot.data), a ...));
 
         return ret;
     };
@@ -172,9 +169,6 @@ public:
     //clears all registered callbacks and connections
     void clear()
     {
-        for(auto& s : slots_)
-            if(s.con) s.con->callback_ = nullptr;
-
         slots_.clear();
     }
 
@@ -192,42 +186,29 @@ template <class ... Args> class callback<void(Args...)> final : public callbackB
 protected:
     struct callbackSlot
     {
-        connection* con;
+        std::shared_ptr<connectionData> data;
         std::function<void(const connectionRef&, Args ...)> func;
     };
 
 protected:
+    size_t highestID {0};
     std::vector<callbackSlot> slots_;
 
     //removes a callback identified by its connection. Functions (std::function) can't be compared => we need connections
-    virtual void remove(const connection& con) override
+    virtual void remove(size_t id) override
     {
+        if(id == 0)
+            return;
+
         for(auto it = slots_.cbegin(); it != slots_.cend(); ++it)
         {
-            if(it->con == &con)
+            if(it->data->id == id)
             {
+                it->data->id.store(0);
                 slots_.erase(it);
                 return;
             }
         }
-    };
-
-    virtual void removeRef(const connectionRef& con) override
-    {
-        slots_.erase(slots_.begin() + con.id_);
-    }
-
-    virtual void destroyed(const connection& con) override
-    {
-        for(auto it = slots_.begin(); it != slots_.end(); ++it)
-        {
-            if(it->con == &con)
-            {
-                it->con = nullptr;
-                return;
-            }
-        }
-
     };
 
 public:
@@ -252,16 +233,15 @@ public:
     };
 
     //adds new callback and voidurn connection for removing of the callback
-    std::unique_ptr<connection> add(compFunc<void(const connectionRef&, Args ...)> func)
+    connection add(compFunc<void(const connectionRef&, Args ...)> func)
     {
-        auto c = std::unique_ptr<connection>(new connection(*this));
-
         slots_.emplace_back();
 
-        slots_.back().con = c.get();
+        auto ptr = std::make_shared<connectionData>(++highestID);
+        slots_.back().data = ptr;
         slots_.back().func = func.function();
 
-        return c;
+        return connection(*this, ptr);
     };
 
     //calls the callback
@@ -269,16 +249,13 @@ public:
     {
         auto vec = slots_; //if called functions manipulate callback
 
-        for(size_t i(0); i < slots_.size(); i++)
-            slots_[i].func(connectionRef(*this, i), a ...);
+        for(auto& slot : vec)
+            slot.func(connectionRef(*this, slot.data), a ...);
     };
 
     //clears all registered callbacks and connections
     void clear()
     {
-        for(auto& s : slots_)
-            if(s.con) s.con->callback_ = nullptr;
-
         slots_.clear();
     }
 
