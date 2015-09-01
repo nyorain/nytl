@@ -154,8 +154,9 @@ public:
 	refVec<cols, prec> col(size_t i){ refVec<rows, prec> ret; for(size_t r(0); r < rows; r++)ret.data[r] = &data[r][i]; return ret; }
 	vec<cols, prec> col(size_t i) const { vec<rows, prec> ret; for(size_t r(0); r < rows; r++)ret[r] = data[r][i]; return ret; }
 
-	prec* ptr(){ prec* ret = (prec*) data.data; }
-	prec* newPtr(){ prec* ret = new prec[rows * cols]; for(size_t r(0); r < rows; r++)for(size_t c(0); c < cols; c++) ret[r * cols + c] = data[r][c]; }
+	const prec* ptr() const { return (prec*)&data; }
+	prec* ptr() { return (prec*)&data; }
+	prec* newPtr() const { prec* ret = new prec[rows * cols]; for(size_t r(0); r < rows; r++)for(size_t c(0); c < cols; c++) ret[r * cols + c] = data[r][c]; }
 
     mat<rows, cols, prec>& operator +=(const mat<rows, cols, prec>& other){}
    	mat<rows, cols, prec>& operator -=(const mat<rows, cols, prec>& other){}
