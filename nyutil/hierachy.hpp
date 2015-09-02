@@ -11,6 +11,8 @@ namespace nyutil
 template <typename T>
 class hierachyNode : public nonMoveable
 {
+friend T;
+
 private:
 	T* parent_ {nullptr};
 	std::vector<T*> children_;
@@ -18,7 +20,7 @@ private:
 protected:
     virtual void addChild(T& child)
     {
-        //if(child.getParent() != this || !child.valid())
+        //if(child.getParent() != this)
         //    throw std::logic_error("hierachyNode::addChild: invalid child");
 
         children_.push_back(&child);
@@ -38,16 +40,21 @@ protected:
 	}
 
     hierachyNode() = default;
-    void create(T& parent) //can be used to reparent the object
+    void create(T& parent)
     {
         //if(!parent.valid())
         //    throw std::logic_error("hierachyNode::create: invalid parent");
 
-        if(parent_)
-        {
-            parent_->removeChild(static_cast<T&>(*this));
-            parent_ = nullptr;
-        }
+        parent_ = &parent;
+        parent_->addChild((static_cast<T&>(*this)));
+    }
+
+    virtual void reparent(T& parent)
+    {
+        //if(!parent.valid())
+        //    throw std::logic_error("hierachyNode::create: invalid parent");
+
+        if(parent_) parent_->removeChild(static_cast<T&>(*this));
 
         parent_ = &parent;
         parent_->addChild((static_cast<T&>(*this)));
@@ -70,7 +77,7 @@ public:
 	    parent_ = nullptr;
     }
 
-	virtual T* getParent() const { return parent_; }
+	virtual T* getParent() const { return parent_; } //virtual to make it convariant
     virtual bool valid() const { return parent_ != nullptr; }
 
 	std::vector<T*> getChildren() const { return children_; } //virtual?
