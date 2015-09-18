@@ -252,7 +252,7 @@ public:
 };
 
 //typedef compFunc
-template<typename Sig> using compFunc = compatibleFunction<Sig>;
+template<typename Signature> using compFunc = compatibleFunction<Signature>;
 
 
 }

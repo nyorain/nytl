@@ -11,8 +11,6 @@ namespace nyutil
 template <typename T>
 class hierachyNode : public nonMoveable
 {
-friend T;
-
 private:
 	T* parent_ {nullptr};
 	std::vector<T*> children_;
@@ -51,8 +49,8 @@ protected:
 
     virtual void reparent(T& parent)
     {
-        //if(!parent.valid())
-        //    throw std::logic_error("hierachyNode::create: invalid parent");
+        if(!parent.valid())
+            throw std::logic_error("hierachyNode::reparent: invalid parent");
 
         if(parent_) parent_->removeChild(static_cast<T&>(*this));
 
@@ -62,8 +60,8 @@ protected:
 
 public:
     hierachyNode(T& parent){ create(parent); }
-
 	virtual ~hierachyNode(){ destroy(); }
+
 	virtual void destroy()
 	{
 	    for(auto* c : children_)

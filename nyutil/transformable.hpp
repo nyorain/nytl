@@ -9,7 +9,8 @@
 namespace nyutil
 {
 
-constexpr const double cDeg = M_PI / 180.0;
+constexpr const double cPi = 3.14159265359;
+constexpr const double cDeg = cPi / 180.0;
 
 template<size_t dim, typename prec = float> class transformable; //only for 2d, todo: 3d
 template<size_t dim, typename prec = float> class transform;
