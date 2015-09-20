@@ -13,15 +13,15 @@ namespace nyutil
 template<class... T> void unused(T&&...)
 { }
 
-template<class U, class V, class ...t> auto memberCallback(U (V::*func)(t ...), V* obj)
+template<class U, class V, class ...t> std::function<U(t...)> memberCallback(U (V::*func)(t ...), V* obj) //auto vs function?
 {
-    return ([=](t ... params)
+    return ([func, obj](t ... params)
     {
         return (obj->*func)(params ...);
     });
 }
 
-template<class U, class V, class ...t> auto memberCallback(U (V::*func)(t ...), V& obj)
+template<class U, class V, class ...t> std::function<U(t...)> memberCallback(U (V::*func)(t ...), V& obj)
 {
     return ([=](t ... params)
     {
@@ -91,12 +91,15 @@ template<class A, class B> std::vector<B> copyVector(const std::vector<A>& a)
 
 
 
-template<class A, class B> std::vector<B> copyVectorLike(const A& a)
+template<class B, class A> std::vector<B> copyVectorLike(const A& a)
 {
     std::vector<B> ret(a.size());
+
+    size_t i = 0;
     for(auto& val : a)
     {
-        ret.push_back(val);
+        ret[i] = val;
+        i++;
     }
     return ret;
 }
@@ -119,6 +122,55 @@ inline int randomInt(int low, int high)
 {
     return (int) low + rand() % (high - low);
 }
+
+
+/*
+//construct iterator
+template<size_t dim, typename T> typename vec<dim, T>::iterator constructIterator(vec<dim, T>& ref, bool end)
+{
+    if(end) return vec<dim, T>::iterator((ref.back() + 1));
+    else return vec<dim, T>::iterator(ref.front());
+}
+
+template<size_t dim, typename T> typename vec<dim, T&>::iterator constructIterator(vec<dim, T&>& ref, bool end)
+{
+    if(end) return vec<dim, T>::iterator(ref, dim);
+    else return vec<dim, T>::iterator(ref, 0);
+}
+
+//asRef
+template<typename T> constexpr T& asRef(T& data)
+{
+    return data;
+}
+
+template<typename T> constexpr T& asRef(T* data)
+{
+    return *data;
+}
+
+//tuple prepend
+template<typename tup, typename prep> struct tuplePrepend;
+
+template<typename... tup, typename prep>
+struct tuplePrepend<std::tuple<tup...>, prep>
+{
+    using type = std::tuple<prep, tup...>;
+};
+
+//typeTuple
+template<typename T, size_t size> struct typeTuple
+{
+    using type = typename tuplePrepend<typename typeTuple<T, size - 1>::type, T>::type;
+};
+
+template<typename T> struct typeTuple<T, 1>
+{
+    using type = std::tuple<T>;
+};
+*/
+
+
 
 }
 

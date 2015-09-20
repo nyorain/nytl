@@ -2,6 +2,7 @@
 
 #include <ostream>
 #include <cmath>
+#include <nyutil/deprecated/vec_iterator.hpp>
 
 namespace nyutil
 {
@@ -9,9 +10,9 @@ namespace nyutil
 template<size_t dim, typename T> class vec;
 
 //typedefs
-template<typename T> using vec2 = vec<2, T>;
-template<typename T> using vec3 = vec<3, T>;
-template<typename T> using vec4 = vec<4, T>;
+template<typename T = float> using vec2 = vec<2, T>;
+template<typename T = float> using vec3 = vec<3, T>;
+template<typename T = float> using vec4 = vec<4, T>;
 
 typedef vec2<float> vec2f;
 typedef vec2<int> vec2i;
@@ -40,6 +41,34 @@ typedef vec4<unsigned char> vec4uc;
 typedef vec4<long> vec4l;
 typedef vec4<unsigned long> vec4ul;
 
+//tmp for vec constructor
+template<typename tup, typename prep> struct tuplePrepend;
+
+template<typename... tup, typename prep>
+struct tuplePrepend<std::tuple<tup...>, prep>
+{
+    using type = std::tuple<prep, tup...>;
+};
+
+//typeTuple
+template<typename T, size_t size> struct typeTuple
+{
+    using type = typename tuplePrepend<typename typeTuple<T, size - 1>::type, T>::type;
+};
+
+template<typename T> struct typeTuple<T, 1>
+{
+    using type = std::tuple<T>;
+};
+
+//raw
+template<typename T> struct rawT
+{
+    using type = typename std::remove_reference<T>::type;
+};
+
+template<typename T> using raw = typename rawT<T>::type;
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //vec default
 template<size_t dimension, typename T> class vec
@@ -56,8 +85,8 @@ public:
     using const_iterator = const_pointer;
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
-    using size_type = size_t;
-    using difference_type = ptrdiff_t;
+    using size_type = std::size_t;
+    using difference_type = std::ptrdiff_t;
 
     using vec_type = vec<dimension, value_type>;
 
@@ -71,6 +100,9 @@ public:
     value_type data_[dim];
 
 public:
+    template<typename... Args, typename = typename std::enable_if<std::is_convertible<std::tuple<Args...>, typename typeTuple<value_type, dim>::type>::value>::type>
+    vec(Args&&... args) noexcept : data_{std::forward<Args>(args)...} {}
+
     vec() noexcept = default;
     ~vec() noexcept = default;
 
@@ -104,7 +136,9 @@ public:
     template<typename ot> vec_type& operator <<=(const ot& other){ for(auto& val : *this) val <<= other; return *this; }
 
     vec_type operator-() const { vec_type ret(*this); for(size_t i(0); i < dim; i++) ret[i] -= (*this)[i]; return ret; }
-    template <size_t odim, typename ot> operator vec<odim, ot>() const { vec<odim, ot> ret; ret.fill(ot()); for(size_t i(0); i < std::min(odim, dim); i++) ret[i] = (*this)[i]; return ret; }
+
+    template <size_t odim, typename ot, typename = typename std::enable_if<!std::is_reference<ot>::value>::type>
+    operator vec<odim, ot>() const { vec<odim, ot> ret; ret.fill(ot()); for(size_t i(0); i < std::min(odim, dim); i++) ret[i] = (*this)[i]; return ret; }
 
     //stl norm stuff, std::array
     const_pointer data() const noexcept { return data_; }
@@ -125,8 +159,8 @@ public:
     const_reverse_iterator crbegin() const noexcept { return const_reverse_iterator(cend()); }
 
     reverse_iterator rend() noexcept { return reverse_iterator(begin()); }
-    const_reverse_iterator rend() const noexcept { return const_reverse_iterator(begin()); }
-    const_reverse_iterator crend() const noexcept { return const_reverse_iterator(begin()); }
+    const_reverse_iterator rend() const noexcept { return const_reverse_iterator(cbegin()); }
+    const_reverse_iterator crend() const noexcept { return const_reverse_iterator(cbegin()); }
 
     reference operator[](size_type i){ return data_[i]; }
     const_reference operator[](size_type i) const { return data_[i]; }
@@ -141,10 +175,8 @@ public:
     const_reference back() const noexcept { return data_[dim - 1]; }
 };
 
-//invalid specialization - therefore not specified
-template<typename T> class vec<0, T>;
-
 //operators//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//stream: todo, istream check for correct type (?)
 template<size_t dim, typename T> std::ostream& operator<<(std::ostream& os, const vec<dim, T>& obj)
 {
     const char* c = "";
@@ -154,12 +186,22 @@ template<size_t dim, typename T> std::ostream& operator<<(std::ostream& os, cons
     for(unsigned int i(0); i < dim; i++)
     {
         os << c << obj[i];
-        c = ";";
+        c = "; ";
     }
 
     os << ")";
 
     return os;
+}
+
+template<size_t dim, typename T> std::istream& operator>>(std::istream& is, vec<dim, T>& obj)
+{
+    for(unsigned int i(0); i < dim; i++)
+    {
+        is >> obj[i];
+    }
+
+    return is;
 }
 
 
@@ -176,18 +218,17 @@ template<size_t dim, typename T, typename O> vec<dim, T> operator+(const O& othe
     return mvec;
 }
 
-template<size_t dima, typename Ta, size_t dimb, typename Tb, typename = std::enable_if_t<(dima >= dimb)>> vec<dima, Ta> operator+(vec<dima, Ta> a, const vec<dimb,Tb>& b)
+template<size_t dima, typename Ta, size_t dimb, typename Tb, typename = typename std::enable_if<(dima >= dimb)>::type> vec<dima, Ta> operator+(vec<dima, Ta> a, const vec<dimb,Tb>& b)
 {
     a += b;
     return a;
 }
 
-template<size_t dima, typename Ta, size_t dimb, typename Tb, typename = std::enable_if_t<(dimb > dima)>> vec<dimb, Tb> operator+(const vec<dima, Ta>& a, vec<dimb,Tb> b)
+template<size_t dima, typename Ta, size_t dimb, typename Tb, typename = typename std::enable_if<(dimb > dima)>::type> vec<dimb, Tb> operator+(const vec<dima, Ta>& a, vec<dimb,Tb> b)
 {
     b += a;
     return b;
 }
-
 
 
 //-//////////////////////////
@@ -207,13 +248,13 @@ template<size_t dim, typename T, typename O> vec<dim, T> operator-(const O& othe
     return mvec;
 }
 
-template<size_t dima, typename Ta, size_t dimb, typename Tb, typename = std::enable_if_t<(dima >= dimb)>> vec<dima, Ta> operator-(vec<dima, Ta> a, const vec<dimb,Tb>& b)
+template<size_t dima, typename Ta, size_t dimb, typename Tb, typename = typename std::enable_if<(dima >= dimb)>::type> vec<dima, Ta> operator-(vec<dima, Ta> a, const vec<dimb,Tb>& b)
 {
     a -= b;
     return a;
 }
 
-template<size_t dima, typename Ta, size_t dimb, typename Tb, typename = std::enable_if_t<(dimb > dima)>> vec<dimb, Tb> operator-(const vec<dima, Ta>& a, const vec<dimb,Tb>& b)
+template<size_t dima, typename Ta, size_t dimb, typename Tb, typename = typename std::enable_if<(dimb > dima)>::type> vec<dimb, Tb> operator-(const vec<dima, Ta>& a, const vec<dimb,Tb>& b)
 {
     vec<dimb, Tb> ret(a);
     ret -= b;
@@ -236,13 +277,13 @@ template<size_t dim, typename T, typename O> vec<dim, T> operator*(const O& othe
     return mvec;
 }
 
-template<size_t dima, typename Ta, size_t dimb, typename Tb, typename = std::enable_if_t<(dima >= dimb)>> vec<dima, Ta> operator*(vec<dima, Ta> a, const vec<dimb,Tb>& b)
+template<size_t dima, typename Ta, size_t dimb, typename Tb, typename = typename std::enable_if<(dima >= dimb)>::type> vec<dima, Ta> operator*(vec<dima, Ta> a, const vec<dimb,Tb>& b)
 {
     a *= b;
     return a;
 }
 
-template<size_t dima, typename Ta, size_t dimb, typename Tb, typename = std::enable_if_t<(dimb > dima)>> vec<dimb, Tb> operator*(const vec<dima, Ta>& a, vec<dimb,Tb> b)
+template<size_t dima, typename Ta, size_t dimb, typename Tb, typename = typename std::enable_if<(dimb > dima)>::type> vec<dimb, Tb> operator*(const vec<dima, Ta>& a, vec<dimb,Tb> b)
 {
     b *= a;
     return b;
@@ -269,13 +310,13 @@ template<size_t dim, typename T, typename O> vec<dim, T> operator/(const O& othe
     return mvec;
 }
 
-template<size_t dima, typename Ta, size_t dimb, typename Tb, typename = std::enable_if_t<(dima >= dimb)>> vec<dima, Ta> operator/(vec<dima, Ta> a, const vec<dimb,Tb>& b)
+template<size_t dima, typename Ta, size_t dimb, typename Tb, typename = typename std::enable_if<(dima >= dimb)>::type> vec<dima, Ta> operator/(vec<dima, Ta> a, const vec<dimb,Tb>& b)
 {
     a /= b;
     return a;
 }
 
-template<size_t dima, typename Ta, size_t dimb, typename Tb, typename = std::enable_if_t<(dimb > dima)>> vec<dimb, Tb> operator/(const vec<dima, Ta>& a, const vec<dimb,Tb>& b)
+template<size_t dima, typename Ta, size_t dimb, typename Tb, typename = typename std::enable_if<(dimb > dima)>::type> vec<dimb, Tb> operator/(const vec<dima, Ta>& a, const vec<dimb,Tb>& b)
 {
     vec<dimb, Tb> ret(a);
     ret /= b;
@@ -301,13 +342,13 @@ template<size_t dim, typename T, typename O> vec<dim, T> operator%(const O& othe
     return mvec;
 }
 
-template<size_t dima, typename Ta, size_t dimb, typename Tb, typename = std::enable_if_t<(dima >= dimb)>> vec<dima, Ta> operator%(vec<dima, Ta> a, const vec<dimb,Tb>& b)
+template<size_t dima, typename Ta, size_t dimb, typename Tb, typename = typename std::enable_if<(dima >= dimb)>::type> vec<dima, Ta> operator%(vec<dima, Ta> a, const vec<dimb,Tb>& b)
 {
     a %= b;
     return a;
 }
 
-template<size_t dima, typename Ta, size_t dimb, typename Tb, typename = std::enable_if_t<(dimb > dima)>> vec<dimb, Tb> operator%(const vec<dima, Ta>& a, const vec<dimb,Tb>& b)
+template<size_t dima, typename Ta, size_t dimb, typename Tb, typename = typename std::enable_if<(dimb > dima)>::type> vec<dimb, Tb> operator%(const vec<dima, Ta>& a, const vec<dimb,Tb>& b)
 {
     vec<dimb, Tb> ret(a);
     ret %= b;
@@ -346,18 +387,18 @@ template<typename T> class vec<2, T>
 {
 public:
     using value_type = T;
-    static constexpr size_t dim = 2;
+    constexpr static size_t dim = 2;
 
     using reference = value_type&;
     using const_reference = const value_type&;
     using pointer = value_type*;
     using const_pointer = const value_type*;
     using iterator = pointer;
-    using const_iterator = const_pointer;
+    using const_iterator =  const_pointer;
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
-    using size_type = size_t;
-    using difference_type = ptrdiff_t;
+    using size_type = std::size_t;
+    using difference_type = std::ptrdiff_t;
 
     using vec_type = vec<dim, value_type>;
 
@@ -387,11 +428,11 @@ public:
 
     //operator
     template <size_t odim, typename ot> vec_type& operator +=(const vec<odim, ot>& other){ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] += other[i];  return *this; }
-    template <size_t odim, typename ot> vec_type& operator -=(const vec<odim, ot>& other){ for(size_t i = 0; i < std::min(odim, size_t(dim)); i++) (*this)[i] -= other[i];  return *this; }
+    template <size_t odim, typename ot> vec_type& operator -=(const vec<odim, ot>& other){ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] -= other[i];  return *this; }
     template <size_t odim, typename ot> vec_type& operator *=(const vec<odim, ot>& other){ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] *= other[i];  return *this; }
     template <size_t odim, typename ot> vec_type& operator /=(const vec<odim, ot>& other){ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] /= other[i];  return *this; }
     template <size_t odim, typename ot> vec_type& operator %=(const vec<odim, ot>& other){ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] %= other[i];  return *this; }
-    template <size_t odim, typename ot> vec_type& operator |=(const vec<odim, ot>& other){ for(size_t i = 0; i < std::min(odim, size_t(dim)); i++) (*this)[i] |= other[i];  return *this; }
+    template <size_t odim, typename ot> vec_type& operator |=(const vec<odim, ot>& other){ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] |= other[i];  return *this; }
     template <size_t odim, typename ot> vec_type& operator ^=(const vec<odim, ot>& other){ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] ^= other[i];  return *this; }
     template <size_t odim, typename ot> vec_type& operator &=(const vec<odim, ot>& other){ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] &= other[i];  return *this; }
 
@@ -405,7 +446,9 @@ public:
     template<typename ot> vec_type& operator &=(const ot& other){ for(auto& val : *this) val &= other;  return *this; }
 
     vec_type operator-() const { vec_type ret(-x, -y); }
-    template <size_t odim, typename ot> operator vec<odim, ot>() const { vec<odim, ot> ret; ret.fill(ot()); for(size_t i(0); i < std::min(odim, dim); i++) ret[i] = (*this)[i]; return ret; }
+
+    template <size_t odim, typename ot, typename = typename std::enable_if<!std::is_reference<ot>::value>::type>
+    operator vec<odim, ot>() const { vec<odim, ot> ret; ret.fill(ot()); for(size_t i(0); i < std::min(odim, dim); i++) ret[i] = (*this)[i]; return ret; }
 
     //stl norm stuff, std::array
     const_pointer data() const noexcept { return &x; }
@@ -426,8 +469,8 @@ public:
     const_reverse_iterator crbegin() const noexcept { return const_reverse_iterator(cend()); }
 
     reverse_iterator rend() noexcept { return reverse_iterator(begin()); }
-    const_reverse_iterator rend() const noexcept { return const_reverse_iterator(begin()); }
-    const_reverse_iterator crend() const noexcept { return const_reverse_iterator(begin()); }
+    const_reverse_iterator rend() const noexcept { return const_reverse_iterator(cbegin()); }
+    const_reverse_iterator crend() const noexcept { return const_reverse_iterator(cbegin()); }
 
     reference operator[](size_type i){ return *(data() + i); }
     const_reference operator[](size_type i) const { return *(data() + i); }
@@ -441,7 +484,6 @@ public:
     reference back() noexcept { return y; }
     const_reference back() const noexcept { return y; }
 };
-
 
 
 /////////////////////////////////////
@@ -461,7 +503,7 @@ public:
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
     using size_type = size_t;
-    using difference_type = ptrdiff_t;
+    using difference_type = std::ptrdiff_t;
 
     using vec_type = vec<dim, value_type>;
 
@@ -508,7 +550,9 @@ public:
     template<typename ot> vec_type& operator &=(const ot& other){ for(auto& val : *this) val &= other;  return *this; }
 
     vec_type operator-() const { vec_type ret(-x, -y, -z); }
-    template <size_t odim, typename ot> operator vec<odim, ot>() const { vec<odim, ot> ret; ret.fill(ot()); for(size_t i(0); i < std::min(odim, dim); i++) ret[i] = (*this)[i]; return ret; }
+
+    template <size_t odim, typename ot, typename = typename std::enable_if<!std::is_reference<ot>::value>::type>
+    operator vec<odim, ot>() const { vec<odim, ot> ret; ret.fill(ot()); for(size_t i(0); i < std::min(odim, dim); i++) ret[i] = (*this)[i]; return ret; }
 
     //stl norm stuff, std::array
     const_pointer data() const noexcept { return &x; }
@@ -529,11 +573,11 @@ public:
     const_reverse_iterator crbegin() const noexcept { return const_reverse_iterator(cend()); }
 
     reverse_iterator rend() noexcept { return reverse_iterator(begin()); }
-    const_reverse_iterator rend() const noexcept { return const_reverse_iterator(begin()); }
-    const_reverse_iterator crend() const noexcept { return const_reverse_iterator(begin()); }
+    const_reverse_iterator rend() const noexcept { return const_reverse_iterator(cbegin()); }
+    const_reverse_iterator crend() const noexcept { return const_reverse_iterator(cbegin()); }
 
-    reference operator[](size_type i){ return data() + i; }
-    const_reference operator[](size_type i) const { return data() + i; }
+    reference operator[](size_type i){ return *(data() + i); }
+    const_reference operator[](size_type i) const { return *(data() + i); }
 
     reference at(size_type i){ if(i > dim || i < 0) throw std::out_of_range("nyutil::vec::at: out of range"); return data() + i; }
     const_reference at(size_type i) const { if(i > dim || i < 0) throw std::out_of_range("nyutil::vec::at: out of range"); return data() + i; }
@@ -546,8 +590,8 @@ public:
 
     //custom
     vec2<value_type> xy() const noexcept { return vec2<value_type>(x,y); }
-    vec2<value_type> yz() const { return vec2<value_type>(y,z); }
-    vec2<value_type> xz() const { return vec2<value_type>(x,z); }
+    vec2<value_type> yz() const noexcept { return vec2<value_type>(y,z); }
+    vec2<value_type> xz() const noexcept { return vec2<value_type>(x,z); }
 };
 
 
@@ -569,7 +613,7 @@ public:
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
     using size_type = size_t;
-    using difference_type = ptrdiff_t;
+    using difference_type = std::ptrdiff_t;
 
     using vec_type = vec<dim, value_type>;
 
@@ -617,7 +661,9 @@ public:
     template<typename ot> vec_type& operator &=(const ot& other){ for(auto& val : *this) val &= other;  return *this; }
 
     vec_type operator-() const { vec_type ret(-x, -y, -z, -w); }
-    template <size_t odim, typename ot> operator vec<odim, ot>() const { vec<odim, ot> ret; ret.fill(ot()); for(size_t i(0); i < std::min(odim, dim); i++) ret[i] = (*this)[i]; return ret; }
+
+    template <size_t odim, typename ot, typename = typename std::enable_if<!std::is_reference<ot>::value>::type>
+    operator vec<odim, ot>() const { vec<odim, ot> ret; ret.fill(ot()); for(size_t i(0); i < std::min(odim, dim); i++) ret[i] = (*this)[i]; return ret; }
 
     //stl norm stuff, std::array
     const_pointer data() const noexcept { return &x; }
@@ -638,11 +684,11 @@ public:
     const_reverse_iterator crbegin() const noexcept { return const_reverse_iterator(cend()); }
 
     reverse_iterator rend() noexcept { return reverse_iterator(begin()); }
-    const_reverse_iterator rend() const noexcept { return const_reverse_iterator(begin()); }
-    const_reverse_iterator crend() const noexcept { return const_reverse_iterator(begin()); }
+    const_reverse_iterator rend() const noexcept { return const_reverse_iterator(cbegin()); }
+    const_reverse_iterator crend() const noexcept { return const_reverse_iterator(cbegin()); }
 
-    reference operator[](size_type i){ return data() + i; }
-    const_reference operator[](size_type i) const { return data() + i; }
+    reference operator[](size_type i){ return *(data() + i); }
+    const_reference operator[](size_type i) const { return *(data() + i); }
 
     reference at(size_type i){ if(i > dim || i < 0) throw std::out_of_range("nyutil::vec::at: out of range"); return data() + i; }
     const_reference at(size_type i) const { if(i > dim || i < 0) throw std::out_of_range("nyutil::vec::at: out of range"); return data() + i; }
@@ -654,18 +700,35 @@ public:
     const_reference back() const noexcept { return w; }
 
     //custom
-    vec2<T> xy() const { return vec2<T>(x,y); }
-    vec2<T> xz() const { return vec2<T>(x,z); }
-    vec2<T> xw() const { return vec2<T>(x,w); }
-    vec2<T> yz() const { return vec2<T>(y,z); }
-    vec2<T> yw() const { return vec2<T>(y,w); }
-    vec2<T> zw() const { return vec2<T>(z,w); }
+    vec2<T> xy() const noexcept { return vec2<T>(x,y); }
+    vec2<T> xz() const noexcept { return vec2<T>(x,z); }
+    vec2<T> xw() const noexcept { return vec2<T>(x,w); }
+    vec2<T> yz() const noexcept { return vec2<T>(y,z); }
+    vec2<T> yw() const noexcept { return vec2<T>(y,w); }
+    vec2<T> zw() const noexcept { return vec2<T>(z,w); }
 
-    vec3<T> xyz() const { return vec3<T>(x,y,z); }
-    vec3<T> xyw() const { return vec3<T>(x,y,w); }
-    vec3<T> xzw() const { return vec3<T>(x,z,w); }
-    vec3<T> yzw() const { return vec3<T>(y,z,w); }
+    vec3<T> xyz() const noexcept { return vec3<T>(x,y,z); }
+    vec3<T> xyw() const noexcept { return vec3<T>(x,y,w); }
+    vec3<T> xzw() const noexcept { return vec3<T>(x,z,w); }
+    vec3<T> yzw() const noexcept { return vec3<T>(y,z,w); }
 };
+
+
+//dim for std::min mostly
+template<size_t dim, typename T> constexpr size_t vec<dim, T>::dim;
+template<typename T> constexpr size_t vec<2, T>::dim;
+template<typename T> constexpr size_t vec<3, T>::dim;
+template<typename T> constexpr size_t vec<4, T>::dim;
+
+//invalid specialization - therefore not specified
+template<typename T> class vec<0, T>;
+
+//include <nyutil/refVec.hpp>
+template<size_t dim, typename T> class vec<dim, T&>;
+template<typename T> class vec<2, T&>;
+template<typename T> class vec<3, T&>;
+template<typename T> class vec<4, T&>;
+
 
 ////functions
 ////one
@@ -754,9 +817,10 @@ template<size_t dim, typename prec> bool allValuesGreaterOrEqual(const vec<dim, 
 }
 
 //weight
-template<size_t dim, typename prec> prec weight(const vec<dim, prec>& v)
+template<size_t dim, typename prec>
+raw<prec> weight(const vec<dim, prec>& v)
 {
-    prec ret;
+    raw<prec> ret{};
     for(size_t i(0); i < dim; i++)
         ret += v[i];
 
@@ -764,15 +828,22 @@ template<size_t dim, typename prec> prec weight(const vec<dim, prec>& v)
 }
 
 //utility
-template<size_t dim, typename prec> auto abs(const vec<dim, prec>& v) -> decltype(std::sqrt(prec()))
+template<size_t dim, typename prec>
+auto abs(const vec<dim, prec>& v) -> decltype(std::sqrt(raw<prec>{}))
 {
-    prec val;
+    raw<prec> val{};
     for(size_t i(0); i < dim; i++)
     {
         val += v[i] * v[i];
     }
 
     return std::sqrt(val);
+}
+
+template<size_t dim, typename Ta, typename Tb>
+raw<Ta> dot(const vec<dim, Ta>& veca, const vec<dim, Tb>& vecb)
+{
+    return weight(veca * vecb);
 }
 
 }

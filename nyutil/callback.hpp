@@ -52,18 +52,21 @@ protected:
 
     explicit connection(callbackBase& call, std::shared_ptr<connectionData> data) : callback_(&call), data_(data) {}
 public:
-    ~connection(){}
+    connection() = default;
+    ~connection() = default;
 
     connection(const connection&) = default;
     connection& operator=(const connection&) = default;
 
+    connection(connection&&) = default;
+    connection& operator=(connection&&) = default;
+
     void destroy(){ if(callback_ && connected()) callback_->remove(data_->id); callback_ = nullptr; }
-    bool connected() const { return data_->id.load() != 0; }
+    bool connected() const { return (callback_) && (data_) && (data_->id.load() != 0); }
 };
 
 //connectionRef for destroying a connection inside a callback/////////////////////
 //exactly the same class, only used for this purpose to be able to use it in compFunc without overriding a connection parameter
-
 class connectionRef
 {
 protected:
@@ -80,10 +83,12 @@ public:
     connectionRef(const connectionRef& other) = default;
     connectionRef& operator=(const connectionRef& other) = default;
 
+    connectionRef(connectionRef&& other) = default;
+    connectionRef& operator=(connectionRef&& other) = default;
+
     void destroy(){ if(callback_ && connected()) callback_->remove(data_->id); callback_ = nullptr; }
     bool connected() const { return data_->id.load() != 0; }
 };
-
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -271,47 +276,5 @@ public:
 //watcher classes as alternative to smart pointers
 //before you use a object you can check if it is alive
 //if an object dies it will signal all its watchers, so they know
-/*
-//base helper class watachable - better name?
-class watchable
-{
-protected:
-    callback<void()> destructionCallback_;
-
-public:
-    ~watchable()
-    {
-        destructionCallback_();
-    }
-
-    auto onDestruction(std::function<void()> func){ return destructionCallback_.add(func); }
-};
-
-//ref//////////////////////////////////////////////
-//move, copy semntcs
-template <typename T, typename B = typename std::conditional<std::is_base_of<watchable, T>::value, watchable, T>::type, std::unique_ptr<connection> (B::*Func)(std::function<void()>) = &B::onDestruction>
-class watcherRef
-{
-protected:
-    T* ref_;
-    std::unique_ptr<connection> conn_ {nullptr};
-
-public:
-    ~watcherRef()
-    {
-        if(conn_) conn_->destroy();
-    }
-
-    T* get() const { return ref_; }
-    void set(T& nref)
-    {
-        ref_ = &nref;
-        conn_ = (nref.*Func)([=]{
-            ref_ = nullptr;
-            conn_.reset();
-        });
-    }
-};
-*/
 
 }

@@ -78,7 +78,7 @@ class function_traits<Ret(C::*)(Args...) const> : public function_traits<Ret(Arg
 };
 
 //functor, class
-template<typename F> struct function_traits : public function_traits<decltype(&F::operator())>
+template<typename F> class function_traits : public function_traits<decltype(&F::operator())>
 {
 };
 
