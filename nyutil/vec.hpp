@@ -2,7 +2,6 @@
 
 #include <ostream>
 #include <cmath>
-#include <nyutil/deprecated/vec_iterator.hpp>
 
 namespace nyutil
 {
@@ -165,8 +164,8 @@ public:
     reference operator[](size_type i){ return data_[i]; }
     const_reference operator[](size_type i) const { return data_[i]; }
 
-    reference at(size_type i){ if(i > dim || i < 0) throw std::out_of_range("nyutil::vec::at: out of range"); return data_[i]; }
-    const_reference at(size_type i) const { if(i > dim || i < 0) throw std::out_of_range("nyutil::vec::at: out of range"); return data_[i]; }
+    reference at(size_type i){ if(i >= dim || i < 0) throw std::out_of_range("nyutil::vec::at: out of range"); return data_[i]; }
+    const_reference at(size_type i) const { if(i >= dim || i < 0) throw std::out_of_range("nyutil::vec::at: out of range"); return data_[i]; }
 
     reference front() noexcept { return data_[0]; }
     const_reference front() const noexcept { return data_[0]; }
@@ -475,8 +474,8 @@ public:
     reference operator[](size_type i){ return *(data() + i); }
     const_reference operator[](size_type i) const { return *(data() + i); }
 
-    reference at(size_type i){ if(i > dim || i < 0) throw std::out_of_range("nyutil::vec::at: out of range"); return *(data() + i); }
-    const_reference at(size_type i) const { if(i > dim || i < 0) throw std::out_of_range("nyutil::vec::at: out of range"); return *(data() + i); }
+    reference at(size_type i){ if(i >= dim || i < 0) throw std::out_of_range("nyutil::vec::at: out of range"); return *(data() + i); }
+    const_reference at(size_type i) const { if(i >= dim || i < 0) throw std::out_of_range("nyutil::vec::at: out of range"); return *(data() + i); }
 
     reference front() noexcept { return x; }
     const_reference front() const noexcept { return x; }
@@ -579,8 +578,8 @@ public:
     reference operator[](size_type i){ return *(data() + i); }
     const_reference operator[](size_type i) const { return *(data() + i); }
 
-    reference at(size_type i){ if(i > dim || i < 0) throw std::out_of_range("nyutil::vec::at: out of range"); return data() + i; }
-    const_reference at(size_type i) const { if(i > dim || i < 0) throw std::out_of_range("nyutil::vec::at: out of range"); return data() + i; }
+    reference at(size_type i){ if(i >= dim || i < 0) throw std::out_of_range("nyutil::vec::at: out of range"); return data() + i; }
+    const_reference at(size_type i) const { if(i >= dim || i < 0) throw std::out_of_range("nyutil::vec::at: out of range"); return data() + i; }
 
     reference front() noexcept { return x; }
     const_reference front() const noexcept { return x; }
@@ -690,8 +689,8 @@ public:
     reference operator[](size_type i){ return *(data() + i); }
     const_reference operator[](size_type i) const { return *(data() + i); }
 
-    reference at(size_type i){ if(i > dim || i < 0) throw std::out_of_range("nyutil::vec::at: out of range"); return data() + i; }
-    const_reference at(size_type i) const { if(i > dim || i < 0) throw std::out_of_range("nyutil::vec::at: out of range"); return data() + i; }
+    reference at(size_type i){ if(i >= dim || i < 0) throw std::out_of_range("nyutil::vec::at: out of range"); return data() + i; }
+    const_reference at(size_type i) const { if(i >= dim || i < 0) throw std::out_of_range("nyutil::vec::at: out of range"); return data() + i; }
 
     reference front() noexcept { return x; }
     const_reference front() const noexcept { return x; }

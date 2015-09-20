@@ -2,6 +2,7 @@
 
 #include <nyutil/vec.hpp>
 #include <nyutil/refVec.hpp>
+#include <nyutil/compFunc.hpp>
 
 #include <ostream>
 #include <iomanip>
@@ -126,55 +127,87 @@ typedef mat43<short> mat43s;
 typedef mat43<unsigned short> mat43us;
 
 
+//makeRefVec
+
+template<typename seq> struct makeRefVec;
+template<size_t... idx> struct makeRefVec<std::index_sequence<idx...>>
+{
+    template<size_t rows, size_t cols, class prec>
+    refVec<sizeof...(idx), prec> constexpr operator()(vec<rows, vec<cols, prec>>& v, size_t i) const
+    {
+        return refVec<sizeof...(idx), prec>(v[idx][i]...);
+    }
+};
+
+
+//mat class
 template<size_t rows, size_t cols, class prec> class mat
 {
 public:
-	vec<rows, vec<cols, prec>> data;
+    using value_type = prec;
+    using reference = value_type&;
+    using const_reference = const value_type&;
+    using pointer = value_type*;
+    using const_pointer = const value_type*;
+    using iterator = pointer;
+    using const_iterator = const_pointer;
+    using reverse_iterator = std::reverse_iterator<iterator>;
+    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+    using size_type = std::size_t;
+    using difference_type = std::ptrdiff_t;
+
+    using mat_type = mat<rows, cols, prec>;
+
+    static constexpr bool squared = (rows == cols);
+    static constexpr size_type size = rows * cols;
+
+public:
+	vec<rows, vec<cols, prec>> data_;
 
 public:
 	mat() = default;
 	~mat() = default;
 
-	mat(const mat<rows, cols, prec>& other) = default;
-	mat(mat<rows, cols, prec>&& other) = default;
+	mat(const mat_type& other) = default;
+	mat(mat_type&& other) = default;
 
-	mat& operator=(const mat<rows, cols, prec>& other) = default;
-	mat& operator=(mat<rows, cols, prec>&& other) = default;
+	mat_type& operator=(const mat_type& other) = default;
+	mat_type& operator=(mat_type&& other) = default;
 
     //operator
-	vec<cols, prec>& operator[](size_t i){ return data[i]; }
-	const vec<cols, prec>& operator[](size_t i) const { return data[i]; }
+	vec<cols, prec>& operator[](size_t i){ return data_[i]; }
+	const vec<cols, prec>& operator[](size_t i) const { return data_[i]; }
 
-	prec& at(size_t row, size_t col){ return data[row][col]; }
-	const prec& at(size_t row, size_t col) const { return data[row][col]; }
+	prec& at(size_t row, size_t col){ if(row >= rows || row < 0 || col >= cols || col < 0)throw std::out_of_range("nyutil::mat::at: out of range"); return data_[row][col]; }
+	const prec& at(size_t row, size_t col) const { return data_[row][col]; }
 
-	vec<cols, prec>& row(size_t i){ return data[i]; }
-	const vec<cols, prec>& row(size_t i) const { return data[i]; }
+	vec<cols, prec>& row(size_t i){ return data_[i]; }
+	const vec<cols, prec>& row(size_t i) const { return data_[i]; }
 
-	refVec<cols, prec> col(size_t i){ refVec<rows, prec> ret; for(size_t r(0); r < rows; r++)ret.data[r] = &data[r][i]; return ret; }
-	vec<cols, prec> col(size_t i) const { vec<rows, prec> ret; for(size_t r(0); r < rows; r++)ret[r] = data[r][i]; return ret; }
+	refVec<cols, prec> col(size_t i){ constexpr makeRefVec<std::make_index_sequence<rows>> a{}; return a(data_, i); }
+	vec<cols, prec> col(size_t i) const { vec<rows, prec> ret; for(size_t r(0); r < rows; r++)ret[r] = data_[r][i]; return ret; }
 
-	const prec* ptr() const { return (prec*)&data; }
-	prec* ptr() { return (prec*)&data; }
-	prec* newPtr() const { prec* ret = new prec[rows * cols]; for(size_t r(0); r < rows; r++)for(size_t c(0); c < cols; c++) ret[r * cols + c] = data[r][c]; }
+	const prec* ptr() const { return (prec*)&data_; }
+	prec* ptr() { return (prec*)&data_; }
+	prec* newPtr() const { prec* ret = new prec[rows * cols]; for(size_t r(0); r < rows; r++)for(size_t c(0); c < cols; c++) ret[r * cols + c] = data_[r][c]; }
 
-    mat<rows, cols, prec>& operator +=(const mat<rows, cols, prec>& other){}
-   	mat<rows, cols, prec>& operator -=(const mat<rows, cols, prec>& other){}
-    mat<rows, cols, prec>& operator *=(const mat<cols, rows, prec>& other){ auto od = data; for(size_t r(0); r < rows; r++) for(size_t c(0); c < cols; c++) data[r][c] = weight(od[r] * other.col(c)); return *this; }
-    mat<rows, cols, prec>& operator /=(const mat<cols, rows, prec>& other){}
+    template<size_t orows, size_t ocols, class oprec> mat<rows, cols, prec>& operator +=(const mat<orows, ocols, oprec>& other){ data_ += other.data_; return *this; }
+   	mat<rows, cols, prec>& operator -=(const mat<rows, cols, prec>& other){ return *this; }
+    mat<rows, cols, prec>& operator *=(const mat<cols, rows, prec>& other){ auto od = data_; for(size_t r(0); r < rows; r++) for(size_t c(0); c < cols; c++) data_[r][c] = weight(od[r] * other.col(c)); return *this; }
+    mat<rows, cols, prec>& operator /=(const mat<cols, rows, prec>& other){ return *this; }
 
    	mat<rows, cols, prec>& operator +=(const prec& other){  }
   	mat<rows, cols, prec>& operator -=(const prec& other){  }
     mat<rows, cols, prec>& operator *=(const prec& other){  }
     mat<rows, cols, prec>& operator /=(const prec& other){  }
 
-    mat<cols, rows, prec> flip() const { mat<cols, rows, prec> ret; for(size_t r(0); r < rows; r++) for(size_t c(0); c < cols; c++) ret[c][r] = data[r][c];  return ret; }
+    mat<cols, rows, prec> flip() const { mat<cols, rows, prec> ret; for(size_t r(0); r < rows; r++) for(size_t c(0); c < cols; c++) ret[c][r] = data_[r][c];  return ret; }
 
     bool isInvertable() const { return 0; }
 	mat<cols, rows, prec> inverse() const { mat<cols, rows, prec> ret; return ret; }
 
-    template<class oprec> operator mat<rows, cols, oprec>() const { mat<rows, cols, oprec> ret; for(size_t r(0); r < rows; r++) for(size_t c(0); c < cols; c++) ret[r][c] = data[r][c];  return ret; }
-    template<size_t orows, size_t ocols, class oprec> operator mat<orows, ocols, oprec>() const { mat<orows, ocols, oprec> ret; for(size_t r(0); r < std::min(orows, rows); r++) for(size_t c(0); c < std::min(ocols, cols); c++) ret[r][c] = data[r][c];  return ret; }
+    template<class oprec> operator mat<rows, cols, oprec>() const { mat<rows, cols, oprec> ret; for(size_t r(0); r < rows; r++) for(size_t c(0); c < cols; c++) ret[r][c] = data_[r][c];  return ret; }
+    template<size_t orows, size_t ocols, class oprec> operator mat<orows, ocols, oprec>() const { mat<orows, ocols, oprec> ret; for(size_t r(0); r < std::min(orows, rows); r++) for(size_t c(0); c < std::min(ocols, cols); c++) ret[r][c] = data_[r][c];  return ret; }
 };
 
 //identityMat
@@ -222,8 +255,16 @@ template<size_t rows, size_t cols, class prec> std::ostream& operator<<(std::ost
 //+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<size_t rows, size_t cols, typename prec> mat<rows, cols, prec> operator+(mat<rows, cols, prec> ma, const prec& other)
 {
-    ma *= other;
+    ma += other;
     return ma;
+}
+
+template<size_t rowsA, size_t colsA, typename precA, size_t rowsB, size_t colsB, typename precB>
+mat<std::max(rowsA, rowsB), std::max(colsA, colsB), precA> operator+(const mat<rowsA, colsA, precA>& ma, const mat<rowsB, colsB, precB>& mb)
+{
+    mat<std::max(rowsA, rowsB), std::max(colsA, colsB), precA> ret(ma);
+    ret += mb;
+    return ret;
 }
 
 

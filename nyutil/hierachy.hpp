@@ -3,7 +3,6 @@
 #include <nyutil/nonCopyable.hpp>
 
 #include <vector>
-#include <stdexcept>
 
 namespace nyutil
 {
@@ -18,9 +17,6 @@ private:
 protected:
     virtual void addChild(T& child)
     {
-        //if(child.getParent() != this)
-        //    throw std::logic_error("hierachyNode::addChild: invalid child");
-
         children_.push_back(&child);
     }
 
@@ -40,18 +36,12 @@ protected:
     hierachyNode() = default;
     void create(T& parent)
     {
-        //if(!parent.valid())
-        //    throw std::logic_error("hierachyNode::create: invalid parent");
-
         parent_ = &parent;
         parent_->addChild((static_cast<T&>(*this)));
     }
 
     virtual void reparent(T& parent)
     {
-        if(!parent.valid())
-            throw std::logic_error("hierachyNode::reparent: invalid parent");
-
         if(parent_) parent_->removeChild(static_cast<T&>(*this));
 
         parent_ = &parent;
@@ -76,7 +66,7 @@ public:
     }
 
 	virtual T* getParent() const { return parent_; } //virtual to make it convariant
-    virtual bool valid() const { return parent_ != nullptr; }
+    virtual bool valid() const { return (parent_ != nullptr) && parent_->valid(); }
 
 	std::vector<T*> getChildren() const { return children_; } //virtual?
 	size_t getChildrenSize() const { return children_.size(); }

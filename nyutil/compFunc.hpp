@@ -1,6 +1,7 @@
 #pragma once
 
 #include <nyutil/function_traits.hpp>
+#include <nyutil/tmp.hpp>
 
 #include <type_traits>
 #include <utility>
