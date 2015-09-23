@@ -149,9 +149,9 @@ public:
     const_iterator begin() const noexcept { return data_; }
     const_iterator cbegin() const noexcept { return data_; }
 
-    iterator end() noexcept { return *this + dim; }
-    const_iterator end() const noexcept { return *this + dim; }
-    const_iterator cend() const noexcept { return *this + dim; }
+    iterator end() noexcept { return begin() + dim; }
+    const_iterator end() const noexcept { return begin() + dim; }
+    const_iterator cend() const noexcept { return begin() + dim; }
 
     reverse_iterator rbegin() noexcept { return reverse_iterator(end()); }
     const_reverse_iterator rbegin() const noexcept { return const_reverse_iterator(cend()); }
@@ -820,8 +820,8 @@ template<size_t dim, typename prec>
 raw<prec> weight(const vec<dim, prec>& v)
 {
     raw<prec> ret{};
-    for(size_t i(0); i < dim; i++)
-        ret += v[i];
+    for(auto& val : v)
+        ret += val;
 
     return ret;
 }

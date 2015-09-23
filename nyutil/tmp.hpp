@@ -95,16 +95,5 @@ struct seq_prepend<T<I, Body...>, Prepend>
 
 template<typename T, typename T::value_type Prepend> using seq_prepend_t = typename seq_prepend<T, Prepend>::type;
 
-//seq_size//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-template<typename T> struct seq_size;
-
-template<typename I, template<typename, I...> class T, I... idx>
-struct seq_size<T<I, idx...>>
-{
-    constexpr static size_t value = sizeof...(idx);
-};
-
-template<typename T> constexpr static size_t seq_size_v = seq_size<T>::value;
-
 }
 
