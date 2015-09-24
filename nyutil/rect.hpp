@@ -50,15 +50,22 @@ public:
 	vec<dim, prec> position;
 	vec<dim, prec> size;
 
-	rect(vec<dim, prec> pposition = vec<dim, prec>(), vec<dim, prec> psize = vec<dim, prec>()) : position(pposition), size(psize) {}
-	rect(const rect<dim, prec>& other): position(other.position), size(other.size) {}
-	template<size_t odim, class oprec> rect(const vec<odim, oprec>& other) : position(other.position), size(other.size) {}
+public:
+	rect(vec<dim, prec> pposition = vec<dim, prec>(), vec<dim, prec> psize = vec<dim, prec>()) noexcept : position(pposition), size(psize) {}
+    ~rect() noexcept = default;
 
+    rect(const rect<dim, prec>& other) noexcept = default;
+	rect& operator=(const rect<dim, prec>& other) noexcept = default;
+
+    rect(rect<dim, prec>&& other) noexcept = default;
+	rect& operator=(rect<dim, prec>&& other) noexcept = default;
+
+    //
 	bool intersects(const rect<dim, prec>& other) const { return(allValuesLess(other.position, position + size) && allValuesLess(position, other.position + other.size));  }
 	bool contains(const vec<dim, prec>& other) const { return(allValuesLess(position, other) && allValuesLess(other, position + size)); }
 	bool contains(const rect<dim, prec>& other) const { return(allValuesLess(position, other.position) && allValuesLess(other.position + other.size, position + size)); }
 
-	vec<dim, double> center() const { return (double)(position + size) / 2.d; };
+	vec<dim, double> center() const { return (double)(position + (size / 2.d)); };
 
 	template<size_t odim, class oprec> operator rect<odim, oprec>() const { return rect<odim, oprec>(position, size); }
 };
@@ -70,17 +77,24 @@ public:
 	vec<2, prec> position;
 	vec<2, prec> size;
 
-	rect(vec2<prec> pposition, vec2<prec> psize = vec2<prec>()) : position(pposition), size(psize) {}
-	rect(prec x = prec(), prec y = prec(), prec width = prec(), prec height = prec()) : position(x,y), size(width,height) {}
+public:
+	rect(vec2<prec> pposition, vec2<prec> psize = vec2<prec>()) noexcept : position(pposition), size(psize) {}
+	rect(prec x = prec(), prec y = prec(), prec width = prec(), prec height = prec()) noexcept : position(x,y), size(width,height) {}
 
-	rect(const rect2<prec>& other): position(other.position), size(other.size) {}
-	template<size_t odim, class oprec> rect(const vec<odim, oprec>& other) : position(other.position), size(other.size) {}
+	~rect() noexcept = default;
 
+	rect(const rect2<prec>& other) noexcept = default;
+	rect& operator=(const rect2<prec>& other) noexcept = default;
+
+    rect(rect2<prec>&& other) noexcept = default;
+	rect& operator=(rect2<prec>&& other) noexcept = default;
+
+    //
 	bool intersects(const rect2<prec>& other) const { return(allValuesLess(other.position, position + size) && allValuesLess(position, other.position + other.size));  }
 	bool contains(const vec2<prec>& other) const { return(allValuesLess(position, other) && allValuesLess(other, position + size)); }
 	bool contains(const rect<2, prec>& other) const { return(allValuesLess(position, other.position) && allValuesLess(other.position + other.size, position + size)); }
 
-	vec<2, double> center() const { return (double)(position + size) / 2.d; };
+	vec<2, double> center() const { return (double)(position + (size / 2.d)); };
 
     vec<2, prec> topLeft() const { return position; }
 	vec<2, prec> topRight() const { return position + vec<2, prec>(size.x, 0); }
@@ -101,31 +115,91 @@ public:
     prec& width() { return size.x; }
 	prec& height() { return size.x; }
 
-	std::vector<rect<2, prec>> subtract(const rect<2, prec>& other){ return rectSubtract(*this, other); };
-
 	template<size_t odim, class oprec> operator rect<odim, oprec>() const { return rect<odim, oprec>(position, size); }
 };
 
-template<class prec> std::vector<rect<2, prec>> rectSubtract(rect<2, prec>& sub, const rect<2, prec>& other)
+//util
+//todo: subtract in any dimension
+template<class prec> std::vector<rect<2, prec>> subtract(const rect<2, prec>& sub, const rect<2, prec>& other)
 {
-    //todo: all
-
+    //todo
     std::vector<rect<2, prec>> ret;
+    if(!sub.contains(other)) return ret;
 
-/*
-    if(sub.left() < other.left() < sub.right())
+
+    if(sub.left() < other.left() && other.left() < sub.right()) //rect on the left
     {
-        ret.left() = sub.left();
-        ret.top() = sub.top();
-        ret.width() = other.left() - sub.left();
-        ret.height() = sub.bottom() - other.bottom();
+        rect<2, prec> r;
+        r.position = sub.position;
+        r.size.x = other.position.x - sub.position.x;
+        r.size.y = sub.size.y;
 
-        sub.left() = other.left();
-        sub.width() = other.top() - sub.top();
+        ret.push_back(r);
     }
-*/
+
+    if(sub.top() < other.top() && other.top() < sub.bottom()) //rect on top
+    {
+        rect<2, prec> r;
+        r.position.x = std::max(sub.position.x, other.position.x);
+        r.position.y = sub.position.y;
+        r.size.x = sub.right() - r.position.x;
+        r.size.y = other.top() - sub.top();
+
+        ret.push_back(r);
+    }
+
+    if(other.right() < sub.right()) //rect on the right
+    {
+        rect<2, prec> r;
+        r.position = other.topRight();
+        r.size.x = sub.right() - other.right();
+        r.size.y = sub.bottom() - r.top();
+
+        ret.push_back(r);
+    }
+
+    if(other.bottom() < sub.bottom()) //rect on bottom
+    {
+        rect<2, prec> r;
+        r.position = other.bottomLeft();
+        r.size.x = other.size.x;
+        r.size.y = sub.bottom() - other.bottom();
+
+        ret.push_back(r);
+    }
 
     return ret;
 }
+//operator
+//stream: todo, istream check for correct type (?)
+template<size_t dim, typename T> std::ostream& operator<<(std::ostream& os, const rect<dim, T>& obj)
+{
+    os << "rect{\n\t" << obj.position << ";\n\t" << obj.size << "\n}" << std::endl;
+    return os;
+}
+
+//external
+//use them?
+/*
+template<size_t dim, typename prec> bool intersects(const rect<dim, prec>& recta, const rect<dim, prec>& rectb)
+{
+    return(allValuesLess(recta.position, rectb.position + rectb.size) && allValuesLess(rectb.position, recta.position + recta.size));
+}
+
+template<size_t dim, typename prec> bool contains(const rect<dim, prec>& recta, const rect<dim, prec>& rectb)
+{
+    return(allValuesLess(recta.position, rectb.position) && allValuesLess(rectb.position + rectb.size, recta.position + size));
+}
+
+template<size_t dim, typename prec> bool contains(const rect<dim, prec>& recta, const vec<dim, prec>& veca)
+{
+    return(allValuesLess(recta.position, veca) && allValuesLess(veca, recta.position + recta.size));
+}
+
+template<size_t dim, typename prec> vec<dim, prec> center(const rect<dim, prec>& recta)
+{
+    return vec<dim, prec>(recta.position + (recta.size / 2));
+}
+*/
 
 }

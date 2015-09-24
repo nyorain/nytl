@@ -120,7 +120,9 @@ public:
 
     mat<rows, cols, prec>& operator *=(const prec& other){ for(auto& val : *this) val *= other; }
 
-    bool invertable() const { }
+    //invert - todo
+    bool invertable() const { return 0; }
+    std::enable_if<is_squared, bool> invert() const { return invertable(); }
 
     //convert
     template<typename oprec> operator mat<rows, cols, oprec>() const { mat<rows, cols, oprec> ret; for(size_t r(0); r < rows; r++) for(size_t c(0); c < cols; c++) ret[r][c] = data_[r][c];  return ret; }
@@ -291,6 +293,72 @@ template<size_t dim, typename prec = float> constexpr squareMat<dim, prec> ident
 	return ret;
 }
 
+//mat utility
+template<size_t rows, size_t cols, typename prec> bool mat_ref(mat<rows, cols, prec>& ma)
+{
+    for(size_t k = 0; k < std::min(rows, cols); ++k)
+    {
+        size_t iMax = 0;
+        prec iMaxValue = prec();
+
+        for(size_t r = k; r < rows; ++r)
+        {
+            if(std::abs(ma[r][k]) > iMaxValue)
+            {
+                iMaxValue = std::abs(ma[r][k]);
+                iMax = r;
+            }
+        }
+
+        if(ma[iMax][k] == 0) //singular matrix
+            return 0;
+
+        std::swap(ma[k], ma[iMax]);
+
+        for(size_t r = k + 1; r < rows; ++r)
+        {
+            for(size_t c = k + 1; c < cols; ++c)
+            {
+                ma[r][c] = ma[r][c] - ma[k][c] * (ma[r][k] / ma[k][k]);
+            }
+
+            ma[r][k] = 0;
+        }
+    }
+
+    return 1;
+}
+
+template<size_t rows, size_t cols, typename prec> bool mat_rref(mat<rows, cols, prec>& ma)
+{
+    if(!mat_ref(ma))
+        return 0;
+
+    for(int k = rows - 1; k >= 0; --k)
+    {
+        size_t leadingIndex = 0;
+        for(; leadingIndex < cols; ++leadingIndex)
+            if(ma[k][leadingIndex] != 0)
+                break;
+
+        if(leadingIndex == cols)
+        {
+            std::cout << "empty row\n";
+            return 0;
+        }
+
+        prec fac = ma[k][leadingIndex];
+        ma[k] /= fac;
+
+        for(size_t r = 0; r < (size_t)k; ++r)
+        {
+            ma[r] -= ma[r][leadingIndex] * ma[k];
+        }
+    }
+
+    return 1;
+}
+
 //operators
 //ostream//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 constexpr const unsigned int cDWidth = 6;
@@ -311,7 +379,7 @@ template<size_t rows, size_t cols, class prec> std::ostream& operator<<(std::ost
         os << "  " << "(";
         for(unsigned int o(0); o < cols; o++)
         {
-            os << std::setw(cDWidth) << /*std::setprecision(cDWidth - getNumberOfDigits(obj[i][o]) - 1) <<*/ obj[i][o];
+            os << std::setw(cDWidth) << std::setprecision(cDWidth - getNumberOfDigits(obj[i][o]) - 1) << obj[i][o];
             if(o != cols - 1)
                 os << ", ";
         }
@@ -326,25 +394,19 @@ template<size_t rows, size_t cols, class prec> std::ostream& operator<<(std::ost
 }
 
 //+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-template<size_t rows, size_t cols, typename prec> mat<rows, cols, prec> operator+(mat<rows, cols, prec> ma, const prec& other)
+template<size_t rows, size_t cols, typename prec>
+mat<rows, cols, prec> operator+(mat<rows, cols, prec> ma, const mat<rows, cols, prec>& mb)
 {
-    ma += other;
+    ma += mb;
     return ma;
-}
-
-template<size_t rowsA, size_t colsA, typename precA, size_t rowsB, size_t colsB, typename precB>
-mat<std::max(rowsA, rowsB), std::max(colsA, colsB), precA> operator+(const mat<rowsA, colsA, precA>& ma, const mat<rowsB, colsB, precB>& mb)
-{
-    mat<std::max(rowsA, rowsB), std::max(colsA, colsB), precA> ret(ma);
-    ret += mb;
-    return ret;
 }
 
 
 //-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-template<size_t rows, size_t cols, typename prec> mat<rows, cols, prec> operator-(mat<rows, cols, prec> ma, const prec& other)
+template<size_t rows, size_t cols, typename prec> mat<rows, cols, prec>
+operator-(mat<rows, cols, prec> ma, const mat<rows, cols, prec>& mb)
 {
-    ma -= other;
+    ma -= mb;
     return ma;
 }
 
@@ -365,10 +427,15 @@ template<size_t rows, size_t cols, typename prec> mat<rows, cols, prec> operator
 
 //mat and mat
 template<size_t rowsA, size_t colsA, size_t colsB, typename prec> mat<rowsA, colsB, prec>
-operator*(mat<rowsA, colsA, prec> ma, const mat<colsA, colsB, prec>& other)
+operator*(const mat<rowsA, colsA, prec>& ma, const mat<colsA, colsB, prec>& mb)
 {
-    ma *= other;
-    return ma;
+    mat<rowsA, colsB, prec> ret;
+
+    for(size_t r(0); r < rowsA; ++r)
+        for(size_t c(0); c < colsB; ++c)
+            ret[r][c] = weight(ma.row(r) * mb.col(c));
+
+    return ret;
 }
 
 //mat and vector
@@ -389,5 +456,6 @@ vec<rows, prec> operator*(const vec<cols, prec>& v, const mat<rows, cols, prec>&
 {
     return (ma * v);
 }
+
 
 } //nyutil

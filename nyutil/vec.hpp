@@ -729,7 +729,35 @@ template<typename T> class vec<3, T&>;
 template<typename T> class vec<4, T&>;
 
 
-////functions
+////utility functions
+template<size_t dim, typename prec>
+raw<prec> weight(const vec<dim, prec>& v)
+{
+    raw<prec> ret{};
+    for(auto& val : v)
+        ret += val;
+
+    return ret;
+}
+
+template<size_t dim, typename prec>
+auto abs(const vec<dim, prec>& v) -> decltype(std::sqrt(raw<prec>{}))
+{
+    raw<prec> val{};
+    for(size_t i(0); i < dim; i++)
+    {
+        val += v[i] * v[i];
+    }
+
+    return std::sqrt(val);
+}
+
+template<size_t dim, typename Ta, typename Tb>
+raw<Ta> dot(const vec<dim, Ta>& veca, const vec<dim, Tb>& vecb)
+{
+    return weight(veca * vecb);
+}
+
 ////one
 template<size_t dim, typename prec> bool oneValueLess(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
 {
@@ -813,36 +841,6 @@ template<size_t dim, typename prec> bool allValuesGreaterOrEqual(const vec<dim, 
 			return 0;
 	}
 	return 1;
-}
-
-//weight
-template<size_t dim, typename prec>
-raw<prec> weight(const vec<dim, prec>& v)
-{
-    raw<prec> ret{};
-    for(auto& val : v)
-        ret += val;
-
-    return ret;
-}
-
-//utility
-template<size_t dim, typename prec>
-auto abs(const vec<dim, prec>& v) -> decltype(std::sqrt(raw<prec>{}))
-{
-    raw<prec> val{};
-    for(size_t i(0); i < dim; i++)
-    {
-        val += v[i] * v[i];
-    }
-
-    return std::sqrt(val);
-}
-
-template<size_t dim, typename Ta, typename Tb>
-raw<Ta> dot(const vec<dim, Ta>& veca, const vec<dim, Tb>& vecb)
-{
-    return weight(veca * vecb);
 }
 
 }
