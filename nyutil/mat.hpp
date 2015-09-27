@@ -288,7 +288,7 @@ typedef mat43<unsigned short> mat43us;
 //identityMat
 template<size_t dim, typename prec = float> constexpr squareMat<dim, prec> identityMat()
 {
-	squareMat<dim, prec> ret;
+	squareMat<dim, prec> ret{};
 	for(size_t i(0); i < dim; i++) ret[i][i] = prec(1);
 	return ret;
 }

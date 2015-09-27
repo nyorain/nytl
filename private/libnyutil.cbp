@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="libnyutil" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="/mnt/sda5/Programming/linux/lib/nyutil" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="/mnt/sda5/Programming/linux/lib" />
+				<Option object_output="obj/Debug/" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-fPIC" />
+					<Add option="-g" />
+				</Compiler>
+				<Linker>
+					<Add library="uv" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="/mnt/sda5/Programming/linux/lib/nyutil" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="obj/Release/" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-Wall" />
+					<Add option="-fPIC" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-fPIC" />
+			<Add directory="../src" />
+		</Compiler>
+		<Unit filename="../nyutil/animation.hpp" />
+		<Unit filename="../nyutil/cache.hpp" />
+		<Unit filename="../nyutil/callback.hpp" />
+		<Unit filename="../nyutil/compFunc.hpp" />
+		<Unit filename="../nyutil/compatibility.hpp" />
+		<Unit filename="../nyutil/eventLoop.hpp" />
+		<Unit filename="../nyutil/experimental/argParser.hpp" />
+		<Unit filename="../nyutil/experimental/callback.hpp" />
+		<Unit filename="../nyutil/experimental/cloneable.hpp" />
+		<Unit filename="../nyutil/experimental/slist.hpp" />
+		<Unit filename="../nyutil/fdstream.hpp" />
+		<Unit filename="../nyutil/function_traits.hpp" />
+		<Unit filename="../nyutil/hierachy.hpp" />
+		<Unit filename="../nyutil/mat.hpp" />
+		<Unit filename="../nyutil/misc.hpp" />
+		<Unit filename="../nyutil/nonCopyable.hpp" />
+		<Unit filename="../nyutil/nyutil.hpp" />
+		<Unit filename="../nyutil/rect.hpp" />
+		<Unit filename="../nyutil/refVec.hpp" />
+		<Unit filename="../nyutil/region.hpp" />
+		<Unit filename="../nyutil/thread.hpp" />
+		<Unit filename="../nyutil/time.hpp" />
+		<Unit filename="../nyutil/tmp.hpp" />
+		<Unit filename="../nyutil/transformable.hpp" />
+		<Unit filename="../nyutil/vec.hpp" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<lib_finder disable_auto="1" />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

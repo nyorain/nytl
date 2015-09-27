@@ -1,0 +1,67 @@
+# depslib dependency file v1.0
+1437777897 source:/mnt/sda5/Programming/projects/nyutil/src/misc.cpp
+
+1439771326 source:/mnt/sda5/Programming/projects/nyutil/src/thread.cpp
+	<nyutil/thread.hpp>
+
+1439158920 source:/mnt/sda5/Programming/projects/nyutil/src/argParser.cpp
+	<nyutil/argParser.hpp>
+	<nyutil/misc.hpp>
+	<iostream>
+
+1439763809 /mnt/sda5/Programming/projects/nyutil/src/nyutil/argParser.hpp
+	<string>
+	<vector>
+	<functional>
+
+1438030058 /mnt/sda5/Programming/projects/nyutil/src/nyutil/misc.hpp
+	<string>
+	<vector>
+	<functional>
+	<algorithm>
+	<sstream>
+	<cmath>
+
+1437864737 source:/mnt/sda5/Programming/projects/nyutil/src/module.cpp
+	<nyutil/module.hpp>
+	<dlfcn.h>
+
+1437864608 /mnt/sda5/Programming/projects/nyutil/src/nyutil/module.hpp
+	<string>
+
+1439943083 /mnt/sda5/Programming/projects/nyutil/src/nyutil/thread.hpp
+	<nyutil/time.hpp>
+	<thread>
+	<mutex>
+	<condition_variable>
+	<vector>
+	<deque>
+	<queue>
+	<future>
+	<functional>
+
+1439161318 /mnt/sda5/Programming/projects/nyutil/src/nyutil/time.hpp
+	<chrono>
+	<ratio>
+
+1439256052 source:/mnt/sda5/Programming/projects/nyutil/src/eventLoop.cpp
+	<nyutil/eventLoop.hpp>
+
+1439255885 /mnt/sda5/Programming/projects/nyutil/src/nyutil/eventLoop.hpp
+	<nyutil/callback.hpp>
+	<nyutil/time.hpp>
+	<uv.h>
+	<vector>
+	<memory>
+
+1439297624 /mnt/sda5/Programming/projects/nyutil/src/nyutil/callback.hpp
+	<nyutil/nonCopyable.hpp>
+	<functional>
+	<vector>
+	<algorithm>
+	<utility>
+	<atomic>
+	<memory>
+
+1437849839 /mnt/sda5/Programming/projects/nyutil/src/nyutil/nonCopyable.hpp
+
