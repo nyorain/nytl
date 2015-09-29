@@ -141,21 +141,27 @@ protected:
 	void bakeMat() const
 	{
 	    //todo
-	    float rotSinA = std::sin(rotation_[0] * cDeg);
-        float rotCosA = std::cos(rotation_[0] * cDeg);
+	    float sinA = std::sin(rotation_[0] * cDeg);
+        float cosA = std::cos(rotation_[0] * cDeg);
 
-        float rotSinB = std::sin(rotation_[1] * cDeg);
-        float rotCosB = std::cos(rotation_[1] * cDeg);
+        float sinB = std::sin(rotation_[1] * cDeg);
+        float cosB = std::cos(rotation_[1] * cDeg);
 
-        float rotSinC = std::sin(rotation_[2] * cDeg);
-        float rotCosC = std::cos(rotation_[2] * cDeg);
+        float sinC = std::sin(rotation_[2] * cDeg);
+        float cosC = std::cos(rotation_[2] * cDeg);
 
-	    matrix_[0][0] = scale_.x * rotCos;
-	    matrix_[0][1] = scale_.x * rotSin;
-        matrix_[0][2] = -(origin_.x * matrix_[0][0]) - (origin_.y * matrix_[0][1]) + position_.x;
-	    matrix_[1][0] = -scale_.x * rotSin;
-	    matrix_[1][1] = scale_.y * rotCos;
-	    matrix_[1][2] = -(origin_.x * matrix_[1][0]) - (origin_.y * matrix_[1][1]) + position_.y;
+        //todo: pre-calculate this
+        mat_type trMatrix(cosB * cosC, cosC * sinA * sinB - cosA * sinC, cosA * cosC * sinB + sinA * sinC, position_[0],
+                         cosB * sinC, cosA * cosC + sinA * sinB * sinC, -cosC * sinA + cosA * sinB * sinC, position_[1],
+                         -sinB,       cosB * sinA,                      cosA * cosB,                     , position_[2],
+                         0,           0,                                0,                                 1);
+
+        mat_type sMatrix(scale_[0], 0, 0, 0,
+                         0, scale_[1], 0, 0,
+                         0, 0, scale_[2], 0,
+                         0, 0, 0, scale_[3]);
+
+        matrix_ = trMatrix * sMatrix;
 
         matValid_ = 1;
 	}
