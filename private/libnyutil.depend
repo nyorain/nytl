@@ -65,3 +65,11 @@
 
 1437849839 /mnt/sda5/Programming/projects/nyutil/src/nyutil/nonCopyable.hpp
 
+1443550369 source:a:\programming\projects\nyutil\private\test.cpp
+	<nyutil/typemap.hpp>
+	<string>
+	<iostream>
+
+1443549506 a:\programming\projects\nyutil\nyutil\typemap.hpp
+	<map>
+
