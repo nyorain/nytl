@@ -67,6 +67,7 @@
 		<Unit filename="../nyutil/time.hpp" />
 		<Unit filename="../nyutil/tmp.hpp" />
 		<Unit filename="../nyutil/transformable.hpp" />
+		<Unit filename="../nyutil/typemap.hpp" />
 		<Unit filename="../nyutil/vec.hpp" />
 		<Extensions>
 			<code_completion />
