@@ -73,8 +73,10 @@
 
 1437849839 /mnt/sda5/Programming/projects/nyutil/src/nyutil/nonCopyable.hpp
 
-1443550369 source:a:\programming\projects\nyutil\private\test.cpp
-	<nyutil/typemap.hpp>
+1443871759 source:a:\programming\projects\nyutil\private\test.cpp
+	<nyutil/vec.hpp>
+	<nyutil/transformable.hpp>
+	<nyutil/system.hpp>
 	<string>
 	<iostream>
 
@@ -141,4 +143,61 @@
 1443114264 /mnt/sda5/Programming/projects/nyutil/nyutil/rect.hpp
 	<nyutil/vec.hpp>
 	<vector>
+
+1443829070 a:\programming\projects\nyutil\nyutil\vec.hpp
+	<nyutil/tmp.hpp>
+	<nyutil/constants.hpp>
+	<ostream>
+	<cmath>
+	<type_traits>
+
+1443820994 a:\programming\projects\nyutil\nyutil\tmp.hpp
+	<utility>
+
+1443826123 a:\programming\projects\nyutil\nyutil\constants.hpp
+
+1443826039 a:\programming\projects\nyutil\nyutil\transformable.hpp
+	<nyutil/mat.hpp>
+	<nyutil/vec.hpp>
+	<nyutil/rect.hpp>
+	<nyutil/constants.hpp>
+	<cmath>
+
+1443821403 a:\programming\projects\nyutil\nyutil\mat.hpp
+	<nyutil/vec.hpp>
+	<nyutil/refVec.hpp>
+	<nyutil/compFunc.hpp>
+	<nyutil/misc.hpp>
+	<iomanip>
+	<memory>
+	<cmath>
+	<tuple>
+
+1443820245 a:\programming\projects\nyutil\nyutil\refvec.hpp
+	<nyutil/vec.hpp>
+
+1443035658 a:\programming\projects\nyutil\nyutil\compfunc.hpp
+	<nyutil/function_traits.hpp>
+	<nyutil/tmp.hpp>
+	<type_traits>
+	<utility>
+	<tuple>
+	<functional>
+
+1442767626 a:\programming\projects\nyutil\nyutil\function_traits.hpp
+	<tuple>
+
+1442767605 a:\programming\projects\nyutil\nyutil\misc.hpp
+	<string>
+	<vector>
+	<functional>
+	<algorithm>
+	<sstream>
+	<cmath>
+
+1443117864 a:\programming\projects\nyutil\nyutil\rect.hpp
+	<nyutil/vec.hpp>
+	<vector>
+
+1443872220 a:\programming\projects\nyutil\nyutil\system.hpp
 

@@ -44,7 +44,9 @@ eventLoop::eventLoop()
 eventLoop::~eventLoop()
 {
     stop();
-    uv_loop_close(loop_);
+    run();
+
+    //uv_loop_close(loop_);
 
     if(owned_)
         delete loop_;

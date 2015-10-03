@@ -8,6 +8,7 @@
 namespace nyutil
 {
 
+//todo: template? dim and prec?
 class region
 {
 protected:
@@ -29,64 +30,64 @@ public:
     region& operator=(region&& other) noexcept = default;
 
     //
-	void add(const rect2i& r){ rects_.push_back(r); cacheNeedsUpdate_ = 1; };
-	void add(int x, int y, int width, int height){ rects_.push_back(rect2i(x,y,width,height)); cacheNeedsUpdate_ = 1; };
-	void add(const region& r){ rects_.insert(rects_.end(), r.rects_.begin(), r.rects_.end()); cacheNeedsUpdate_ = 1; }
+	inline void add(const rect2i& r){ rects_.push_back(r); cacheNeedsUpdate_ = 1; };
+	inline void add(int x, int y, int width, int height){ rects_.push_back(rect2i(x,y,width,height)); cacheNeedsUpdate_ = 1; };
+	inline void add(const region& r){ rects_.insert(rects_.end(), r.rects_.begin(), r.rects_.end()); cacheNeedsUpdate_ = 1; }
 
     //todo
-	void subtract(const rect2i& r){ cacheNeedsUpdate_ = 1; };
-	void subtract(int x, int y, int width, int height){ subtract(rect2i(x,y,width,height)); };
-	void subtract(const region& r){ cacheNeedsUpdate_ = 1; };
+	inline void subtract(const rect2i& r){ cacheNeedsUpdate_ = 1; };
+	inline void subtract(int x, int y, int width, int height){ subtract(rect2i(x,y,width,height)); };
+	inline void subtract(const region& r){ cacheNeedsUpdate_ = 1; };
 
-	bool contains(const vec2f& point) const { return 0; };
-	bool contains(const rect2f& point) const { return 0; };
-	bool contains(const region& point) const { return 0; };
+	inline bool contains(const vec2f& point) const { return 0; };
+	inline bool contains(const rect2f& point) const { return 0; };
+	inline bool contains(const region& point) const { return 0; };
 
-	bool intersects(const rect2f& other) const { return 0; };
-	bool intersects(const region& other) const { return 0; };
+	inline bool intersects(const rect2f& other) const { return 0; };
+	inline bool intersects(const region& other) const { return 0; };
 
 	//operator
-	region& operator|=(const rect2i& r){ add(r); return *this; }
-	region& operator|=(const region& r){ add(r); return *this; }
+	inline region& operator|=(const rect2i& r){ add(r); return *this; }
+	inline region& operator|=(const region& r){ add(r); return *this; }
 
-    region& operator&=(const rect2i& r){ /*todo*/ return *this; }
-	region& operator&=(const region& r){ /*todo*/ return *this; }
+    inline region& operator&=(const rect2i& r){ /*todo*/ return *this; }
+	inline region& operator&=(const region& r){ /*todo*/ return *this; }
 
-    region& operator^=(const rect2i& r){ /*todo*/ return *this; }
-	region& operator^=(const region& r){ /*todo*/ return *this; }
+    inline region& operator^=(const rect2i& r){ /*todo*/ return *this; }
+	inline region& operator^=(const region& r){ /*todo*/ return *this; }
 
 	//
-	rect2i extents() const { if(cacheNeedsUpdate_)bakeCache(); return extents_; }
+	inline rect2i extents() const { if(cacheNeedsUpdate_)bakeCache(); return extents_; }
 };
 
 //operators
 //move needed because it is a expression, not an identifier
-region operator|(region a, const region& b)
+inline region operator|(region a, const region& b)
 {
     return std::move(a |= b);
 }
 
-region operator|(region a, const rect2i& b)
+inline region operator|(region a, const rect2i& b)
 {
     return std::move(a |= b);
 }
 
-region operator&(region a, const region& b)
+inline region operator&(region a, const region& b)
 {
     return std::move(a &= b);
 }
 
-region operator&(region a, const rect2i& b)
+inline region operator&(region a, const rect2i& b)
 {
     return std::move(a &= b);
 }
 
-region operator^(region a, const region& b)
+inline region operator^(region a, const region& b)
 {
     return std::move(a ^= b);
 }
 
-region operator^(region a, const rect2i& b)
+inline region operator^(region a, const rect2i& b)
 {
     return std::move(a ^= b);
 }

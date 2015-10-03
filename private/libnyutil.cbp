@@ -58,6 +58,7 @@
 		<Unit filename="../nyutil/rect.hpp" />
 		<Unit filename="../nyutil/refVec.hpp" />
 		<Unit filename="../nyutil/region.hpp" />
+		<Unit filename="../nyutil/system.hpp" />
 		<Unit filename="../nyutil/thread.hpp" />
 		<Unit filename="../nyutil/time.hpp" />
 		<Unit filename="../nyutil/tmp.hpp" />
