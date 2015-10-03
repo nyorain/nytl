@@ -5,7 +5,6 @@
 #include <nyutil/compFunc.hpp>
 #include <nyutil/misc.hpp>
 
-#include <ostream>
 #include <iomanip>
 #include <memory>
 #include <cmath>
@@ -86,7 +85,7 @@ public:
 	vec<rows, vec<cols, prec>> data_;
 
 public:
-    template<typename... Args, typename = typename std::enable_if<std::is_convertible<std::tuple<Args...>, typename typeTuple<value_type, mat_size>::type>::value>::type>
+    template<typename... Args, typename = typename std::enable_if<std::is_convertible<std::tuple<Args...>, typename type_tuple<value_type, mat_size>::type>::value>::type>
     mat(Args&&... args) noexcept { constexpr detail::initMatData<std::make_index_sequence<rows * cols>> a{}; a(data_, args...); }
 
 	mat() noexcept = default;
@@ -98,7 +97,7 @@ public:
 	mat_type& operator=(const mat_type& other) noexcept = default;
 	mat_type& operator=(mat_type&& other) noexcept = default;
 
-    template<typename... Args, typename = typename std::enable_if<std::is_convertible<std::tuple<Args...>, typename typeTuple<value_type, mat_size>::type>::value>::type>
+    template<typename... Args, typename = typename std::enable_if<std::is_convertible<std::tuple<Args...>, typename type_tuple<value_type, mat_size>::type>::value>::type>
     void init(Args&&... args) { constexpr detail::initMatData<std::make_index_sequence<rows * cols>> a{}; a(data_, args...); }
 
     //access
@@ -343,7 +342,7 @@ template<size_t rows, size_t cols, typename prec> bool mat_rref(mat<rows, cols, 
 
         if(leadingIndex == cols)
         {
-            std::cout << "empty row\n";
+            //std::cout << "empty row\n";
             return 0;
         }
 

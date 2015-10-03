@@ -43,9 +43,9 @@ struct tuple_prepend<T<Body...>, Prepend>
 template<typename T, typename Prepend> using tuple_prepend_t = typename tuple_prepend<T, Prepend>::type;
 
 //type_tuple///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-template<typename T, size_t size, template<typename...> class Tuple = std::tuple> struct type_tuple
+template<typename T, std::size_t size, template<typename...> class Tuple = std::tuple> struct type_tuple
 {
-    using type = typename tuplePrepend<typename typeTuple<T, size - 1>::type, T>::type;
+    using type = typename tuple_prepend<typename type_tuple<T, size - 1>::type, T>::type;
 };
 
 template<typename T, template<typename...> class Tuple> struct type_tuple<T, 1, Tuple>
@@ -53,7 +53,7 @@ template<typename T, template<typename...> class Tuple> struct type_tuple<T, 1, 
     using type = Tuple<T>;
 };
 
-template<typename T, size_t size, template<typename...> class Tuple = std::tuple> using type_tuple_t = typename type_tuple<T, size, Tuple>::type;
+template<typename T, std::size_t size, template<typename...> class Tuple = std::tuple> using type_tuple_t = typename type_tuple<T, size, Tuple>::type;
 
 
 

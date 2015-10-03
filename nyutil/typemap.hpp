@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <algorithm>
 
 namespace nyutil
 {
@@ -35,7 +36,8 @@ public:
     template<typename T>
     unsigned int registerType(const Identifier& id){ types_[id] = new typeImpl<T>(); return types_.size(); }
 
-    Base* createObject(const Identifier& id){ return types_[id]->create(); } //todo: check for existence
+    Base* createObject(const Identifier& id) const { auto it = types_.find(id); if(it != types_.end()) return it->second->create(); return nullptr; }
+    bool typeExists(const Identifier& id) const { return types_.find(id) != types_.end(); }
 };
 
 //registerFunc

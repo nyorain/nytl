@@ -3,37 +3,23 @@
 #include <nyutil/mat.hpp>
 #include <nyutil/vec.hpp>
 #include <nyutil/rect.hpp>
+#include <nyutil/constants.hpp>
 
 #include <cmath>
 
 namespace nyutil
 {
 
-//math constants
-constexpr const double cPi = 3.14159265359;
-constexpr const double cDeg = cPi / 180.0;
 
 //typedefs
 template<size_t dim, typename prec = float> class transformable; //only for 2d, todo: 3d
 template<size_t dim, typename prec = float> class transform;
 
-template<typename prec> using transformable2 = transformable<2, prec>;
-template<typename prec> using transformable3 = transformable<3, prec>;
-using transformable2f = transformable2<float>;
-using transformable2d = transformable2<double>;
-using transformable2i = transformable2<int>;
-using transformable3f = transformable3<float>;
-using transformable3d = transformable3<double>;
-using transformable3i = transformable3<int>;
+using transformable2 = transformable<2, float>;
+using transformable3 = transformable<3, float>;
 
-template<typename prec> using transform2 = transform<2, prec>;
-template<typename prec> using transform3 = transform<3, prec>;
-using transform2f = transform2<float>;
-using transform2d = transform2<double>;
-using transform2i = transform2<int>;
-using transform3f = transform3<float>;
-using transform3d = transform3<double>;
-using transform3i = transform3<int>;
+using transform2 = transform<2, float>;
+using transform3 = transform<3, float>;
 
 //transform
 //2
@@ -152,9 +138,9 @@ protected:
 
         //todo: pre-calculate this
         mat_type trMatrix(cosB * cosC, cosC * sinA * sinB - cosA * sinC, cosA * cosC * sinB + sinA * sinC, position_[0],
-                         cosB * sinC, cosA * cosC + sinA * sinB * sinC, -cosC * sinA + cosA * sinB * sinC, position_[1],
-                         -sinB,       cosB * sinA,                      cosA * cosB,                     , position_[2],
-                         0,           0,                                0,                                 1);
+                          cosB * sinC, cosA * cosC + sinA * sinB * sinC, -cosC * sinA + cosA * sinB * sinC, position_[1],
+                          -sinB,       cosB * sinA,                      cosA * cosB,                       position_[2],
+                          0,           0,                                0,                                 1);
 
         mat_type sMatrix(scale_[0], 0, 0, 0,
                          0, scale_[1], 0, 0,

@@ -1,10 +1,15 @@
 #pragma once
 
+#include <nyutil/tmp.hpp>
+#include <nyutil/constants.hpp>
+
 #include <ostream>
 #include <cmath>
+#include <type_traits>
 
 namespace nyutil
 {
+
 
 template<size_t dim, typename T> class vec;
 
@@ -39,26 +44,6 @@ typedef vec4<char> vec4c;
 typedef vec4<unsigned char> vec4uc;
 typedef vec4<long> vec4l;
 typedef vec4<unsigned long> vec4ul;
-
-//tmp for vec constructor
-template<typename tup, typename prep> struct tuplePrepend;
-
-template<typename... tup, typename prep>
-struct tuplePrepend<std::tuple<tup...>, prep>
-{
-    using type = std::tuple<prep, tup...>;
-};
-
-//typeTuple
-template<typename T, size_t size> struct typeTuple
-{
-    using type = typename tuplePrepend<typename typeTuple<T, size - 1>::type, T>::type;
-};
-
-template<typename T> struct typeTuple<T, 1>
-{
-    using type = std::tuple<T>;
-};
 
 //raw
 template<typename T> struct rawT
@@ -99,7 +84,7 @@ public:
     value_type data_[dim];
 
 public:
-    template<typename... Args, typename = typename std::enable_if<std::is_convertible<std::tuple<Args...>, typename typeTuple<value_type, dim>::type>::value>::type>
+    template<typename... Args, typename = typename std::enable_if<std::is_convertible<std::tuple<Args...>, typename type_tuple<value_type, dim>::type>::value>::type>
     vec(Args&&... args) noexcept : data_{std::forward<Args>(args)...} {}
 
     vec() noexcept = default;
@@ -401,8 +386,6 @@ public:
 
     using vec_type = vec<dim, value_type>;
 
-    void doo(){ std::cout << std::min(size_t(5), dim) << std::endl; }
-
 public:
     constexpr size_t size() const noexcept { return dim; }
     constexpr size_t length() const noexcept { return dim; }
@@ -444,7 +427,7 @@ public:
     template<typename ot> vec_type& operator ^=(const ot& other){ for(auto& val : *this) val ^= other;  return *this; }
     template<typename ot> vec_type& operator &=(const ot& other){ for(auto& val : *this) val &= other;  return *this; }
 
-    vec_type operator-() const { vec_type ret(-x, -y); }
+    vec_type operator-() const { return vec_type(-x, -y); }
 
     template <size_t odim, typename ot, typename = typename std::enable_if<!std::is_reference<ot>::value>::type>
     operator vec<odim, ot>() const { vec<odim, ot> ret; ret.fill(ot()); for(size_t i(0); i < std::min(odim, dim); i++) ret[i] = (*this)[i]; return ret; }
@@ -758,6 +741,14 @@ raw<Ta> dot(const vec<dim, Ta>& veca, const vec<dim, Tb>& vecb)
     return weight(veca * vecb);
 }
 
+template<size_t dim, typename Ta, typename Tb>
+raw<Ta> angle(const vec<dim, Ta>& veca, const vec<dim, Tb>& vecb)
+{
+    return std::acos(weight(veca * vecb) / (abs(veca) * abs(vecb)));
+}
+
+
+//less/more
 ////one
 template<size_t dim, typename prec> bool oneValueLess(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
 {

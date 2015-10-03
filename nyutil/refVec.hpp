@@ -139,7 +139,7 @@ public:
     pointer data_[dim];
 
 public:
-    template<typename... Args, typename = typename std::enable_if<std::is_convertible<std::tuple<Args...>, typename typeTuple<value_type, dim>::type>::value>::type>
+    template<typename... Args, typename = typename std::enable_if<std::is_convertible<std::tuple<Args...>, typename type_tuple<value_type, dim>::type>::value>::type>
     vec(Args&&... args) : data_{std::forward<Args>(&args)...} {}
     ~vec() noexcept = default;
 

@@ -18,11 +18,11 @@ public:
 
 //cache derive helper class
 template<typename Derived, unsigned int id, bool copyable = 1>
-class cacheBase : public base
+class cacheBase : public cache
 {
 public:
     virtual unsigned int cacheID() const override { return id; }
-    virtual std::unique_ptr<cache> cacheClone() const override { return new Dervied(static_cast<Derived&>(*this)); }
+    virtual std::unique_ptr<cache> cacheClone() const override { return new Derived(static_cast<Derived&>(*this)); }
 };
 
 //multiCacher
@@ -38,17 +38,17 @@ protected:
 	multiCacher() noexcept = default;
 	~multiCacher() noexcept = default;
 
-	multiCacher(const multiCacher& other) : cache_() { for(auto& c : other.cache_) cache_.push_back(c.cacheClone()); } //sth. with reserve for perfomrance?
+	multiCacher(const multiCacher& other) : cache_() { for(auto& c : other.cache_) cache_.push_back(c->cacheClone()); } //sth. with reserve for perfomrance?
 	multiCacher(multiCacher&& other) noexcept : cache_(std::move(other.cache_)) {}
 
-	multiCacher& operator=(const multiCacher& other) { cache_.clear(); for(auto& c : other.cache_) cache_.push_back(c.cacheClone()); return *this; }
+	multiCacher& operator=(const multiCacher& other) { cache_.clear(); for(auto& c : other.cache_) cache_.push_back(c->cacheClone()); return *this; }
 	multiCacher& operator=(multiCacher&& other) noexcept { cache_ = std::move(other.cache_); return *this; }
 
 	const cache* getCache(unsigned int id) const
 	{
         for(auto& ch : cache_)
         {
-            if(ch->getID() == id)
+            if(ch->cacheID() == id)
                 return ch.get();
         }
 
@@ -96,7 +96,8 @@ template<unsigned int id> class cacheAccessor
 protected:
 	void storeCache(const multiCacher& cacher, std::unique_ptr<cache> obj)
 	{
-        cacher.store(std::move(obj), id);
+	    //if(id != obj->cacheID()) ERROR
+        cacher.store(std::move(obj));
 	}
 	bool resetCache(const multiCacher& cacher) //returns if existing cache was reset
 	{

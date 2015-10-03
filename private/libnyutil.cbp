@@ -41,6 +41,7 @@
 		<Unit filename="../nyutil/callback.hpp" />
 		<Unit filename="../nyutil/compFunc.hpp" />
 		<Unit filename="../nyutil/compatibility.hpp" />
+		<Unit filename="../nyutil/constants.hpp" />
 		<Unit filename="../nyutil/eventLoop.hpp" />
 		<Unit filename="../nyutil/experimental/argParser.hpp" />
 		<Unit filename="../nyutil/experimental/callback.hpp" />
@@ -49,6 +50,7 @@
 		<Unit filename="../nyutil/fdstream.hpp" />
 		<Unit filename="../nyutil/function_traits.hpp" />
 		<Unit filename="../nyutil/hierachy.hpp" />
+		<Unit filename="../nyutil/line.hpp" />
 		<Unit filename="../nyutil/mat.hpp" />
 		<Unit filename="../nyutil/misc.hpp" />
 		<Unit filename="../nyutil/nonCopyable.hpp" />
@@ -60,6 +62,7 @@
 		<Unit filename="../nyutil/time.hpp" />
 		<Unit filename="../nyutil/tmp.hpp" />
 		<Unit filename="../nyutil/transformable.hpp" />
+		<Unit filename="../nyutil/triangle.hpp" />
 		<Unit filename="../nyutil/typemap.hpp" />
 		<Unit filename="../nyutil/vec.hpp" />
 		<Unit filename="test.cpp" />
