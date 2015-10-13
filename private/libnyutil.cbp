@@ -13,6 +13,7 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
+					<Add option="-std=c++11" />
 					<Add option="-Wall" />
 					<Add option="-g" />
 				</Compiler>
@@ -33,39 +34,100 @@
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-Winvalid-pch" />
 			<Add directory="../src" />
 			<Add directory=".." />
+			<Add directory="C:/Program Files/libuv/include" />
 		</Compiler>
-		<Unit filename="../nyutil/animation.hpp" />
-		<Unit filename="../nyutil/cache.hpp" />
-		<Unit filename="../nyutil/callback.hpp" />
-		<Unit filename="../nyutil/compFunc.hpp" />
-		<Unit filename="../nyutil/compatibility.hpp" />
-		<Unit filename="../nyutil/constants.hpp" />
-		<Unit filename="../nyutil/eventLoop.hpp" />
+		<Unit filename="../nyutil/animation.hpp">
+			<Option compile="1" />
+		</Unit>
+		<Unit filename="../nyutil/cache.hpp">
+			<Option compile="1" />
+		</Unit>
+		<Unit filename="../nyutil/callback.hpp">
+			<Option compile="1" />
+		</Unit>
+		<Unit filename="../nyutil/compFunc.hpp">
+			<Option compile="1" />
+		</Unit>
+		<Unit filename="../nyutil/compatibility.hpp">
+			<Option compile="1" />
+		</Unit>
+		<Unit filename="../nyutil/constants.hpp">
+			<Option compile="1" />
+		</Unit>
+		<Unit filename="../nyutil/eventLoop.hpp">
+			<Option compile="1" />
+		</Unit>
 		<Unit filename="../nyutil/experimental/argParser.hpp" />
 		<Unit filename="../nyutil/experimental/callback.hpp" />
 		<Unit filename="../nyutil/experimental/cloneable.hpp" />
 		<Unit filename="../nyutil/experimental/slist.hpp" />
-		<Unit filename="../nyutil/fdstream.hpp" />
-		<Unit filename="../nyutil/function_traits.hpp" />
-		<Unit filename="../nyutil/hierachy.hpp" />
-		<Unit filename="../nyutil/line.hpp" />
-		<Unit filename="../nyutil/mat.hpp" />
-		<Unit filename="../nyutil/misc.hpp" />
-		<Unit filename="../nyutil/nonCopyable.hpp" />
-		<Unit filename="../nyutil/nyutil.hpp" />
-		<Unit filename="../nyutil/rect.hpp" />
-		<Unit filename="../nyutil/refVec.hpp" />
-		<Unit filename="../nyutil/region.hpp" />
-		<Unit filename="../nyutil/system.hpp" />
-		<Unit filename="../nyutil/thread.hpp" />
-		<Unit filename="../nyutil/time.hpp" />
-		<Unit filename="../nyutil/tmp.hpp" />
-		<Unit filename="../nyutil/transformable.hpp" />
-		<Unit filename="../nyutil/triangle.hpp" />
-		<Unit filename="../nyutil/typemap.hpp" />
-		<Unit filename="../nyutil/vec.hpp" />
+		<Unit filename="../nyutil/fdstream.hpp">
+			<Option compile="1" />
+		</Unit>
+		<Unit filename="../nyutil/function_traits.hpp">
+			<Option compile="1" />
+		</Unit>
+		<Unit filename="../nyutil/hierachy.hpp">
+			<Option compile="1" />
+		</Unit>
+		<Unit filename="../nyutil/integer_sequence.hpp">
+			<Option compile="1" />
+		</Unit>
+		<Unit filename="../nyutil/line.hpp">
+			<Option compile="1" />
+		</Unit>
+		<Unit filename="../nyutil/make_unique.hpp">
+			<Option compile="1" />
+		</Unit>
+		<Unit filename="../nyutil/mat.hpp">
+			<Option compile="1" />
+		</Unit>
+		<Unit filename="../nyutil/misc.hpp">
+			<Option compile="1" />
+		</Unit>
+		<Unit filename="../nyutil/nonCopyable.hpp">
+			<Option compile="1" />
+		</Unit>
+		<Unit filename="../nyutil/nyutil.hpp">
+			<Option compile="1" />
+			<Option weight="0" />
+		</Unit>
+		<Unit filename="../nyutil/rect.hpp">
+			<Option compile="1" />
+		</Unit>
+		<Unit filename="../nyutil/refVec.hpp">
+			<Option compile="1" />
+		</Unit>
+		<Unit filename="../nyutil/region.hpp">
+			<Option compile="1" />
+		</Unit>
+		<Unit filename="../nyutil/system.hpp">
+			<Option compile="1" />
+		</Unit>
+		<Unit filename="../nyutil/thread.hpp">
+			<Option compile="1" />
+		</Unit>
+		<Unit filename="../nyutil/time.hpp">
+			<Option compile="1" />
+		</Unit>
+		<Unit filename="../nyutil/tmp.hpp">
+			<Option compile="1" />
+		</Unit>
+		<Unit filename="../nyutil/transformable.hpp">
+			<Option compile="1" />
+		</Unit>
+		<Unit filename="../nyutil/triangle.hpp">
+			<Option compile="1" />
+		</Unit>
+		<Unit filename="../nyutil/typemap.hpp">
+			<Option compile="1" />
+		</Unit>
+		<Unit filename="../nyutil/vec.hpp">
+			<Option compile="1" />
+		</Unit>
 		<Unit filename="test.cpp" />
 		<Extensions>
 			<code_completion />

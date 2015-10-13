@@ -2,6 +2,7 @@
 
 #include <nyutil/function_traits.hpp>
 #include <nyutil/tmp.hpp>
+#include <nyutil/integer_sequence.hpp>
 
 #include <type_traits>
 #include <utility>
@@ -10,51 +11,6 @@
 
 namespace nyutil
 {
-
-//todo: use tmp nyutil header
-
-namespace tmp
-{
-
-//eraseFirst
-template<typename tup> struct eraseFirst;
-
-template<typename Head, typename ... Tail>
-struct eraseFirst<std::tuple<Head, Tail...>>
-{
-    using type = std::tuple<Tail...>;
-};
-
-//seqPrepend
-template<typename seq, size_t prep> struct seqPrepend;
-
-template<size_t... idx, size_t prep>
-struct seqPrepend<std::index_sequence<idx...>, prep>
-{
-    using type = std::index_sequence<prep, idx...>;
-};
-
-//seqAppend
-//seqPrepend
-template<typename seq, size_t ap> struct seqAppend;
-
-template<size_t... idx, size_t ap>
-struct seqAppend<std::index_sequence<idx...>, ap>
-{
-    using type = std::index_sequence<idx..., ap>;
-};
-
-//sequenceSize
-template<typename seq> struct seqSize;
-
-template<size_t... idx>
-struct seqSize<std::index_sequence<idx...>>
-{
-    constexpr static const size_t value = sizeof...(idx);
-};
-
-
-}
 
 
 //tupleMap
@@ -72,16 +28,16 @@ struct tupleMapImpl<std::tuple<orgArgs...>, std::tuple<newArgs...>, idx>
     constexpr static const bool value = std::is_convertible<typename std::tuple_element<0, orgTuple>::type, typename std::tuple_element<0, newTuple>::type>::value;
     typedef typename std::conditional<
         value,  //condition
-        typename tmp::seqPrepend< //matches
+        typename seq_prepend< //matches
             typename tupleMapImpl<
-                typename tmp::eraseFirst<orgTuple>::type,
-                typename tmp::eraseFirst<newTuple>::type,
+                typename tuple_erase_first<orgTuple>::type,
+                typename tuple_erase_first<newTuple>::type,
                 idx + 1
             >::type,
             idx
         >::type,
         typename tupleMapImpl< //dont matches
-            typename tmp::eraseFirst<orgTuple>::type,
+            typename tuple_erase_first<orgTuple>::type,
             newTuple,
             idx + 1
         >::type
@@ -91,19 +47,19 @@ struct tupleMapImpl<std::tuple<orgArgs...>, std::tuple<newArgs...>, idx>
 template<typename... OrgLeft, size_t idx>
 struct tupleMapImpl<std::tuple<OrgLeft...>, std::tuple<>, idx>
 {
-    using type = std::index_sequence<>;
+    using type = index_sequence<>;
 };
 
 template<size_t idx>
 struct tupleMapImpl<std::tuple<>, std::tuple<>, idx>
 {
-    using type = std::index_sequence<>;
+    using type = index_sequence<>;
 };
 
 template<typename... NewLeft, size_t idx>
 struct tupleMapImpl<std::tuple<>, std::tuple<NewLeft...>, idx>
 {
-    using type = std::index_sequence<>;
+    using type = index_sequence<>;
 
     //ERROR. Should NEVER happen!
     //how to show error if this is used, but only IF it is used (std::confitional must still work)?
@@ -116,11 +72,11 @@ struct tupleMapImpl<std::tuple<>, std::tuple<NewLeft...>, idx>
 template<typename orgTup, typename newTup, typename seq = typename detail::tupleMapImpl<orgTup, newTup>::type> struct tupleMap;
 
 template<typename... orgArgs, typename... newArgs, size_t... idx>
-struct tupleMap<std::tuple<orgArgs...>, std::tuple<newArgs...>, std::index_sequence<idx...>>
+struct tupleMap<std::tuple<orgArgs...>, std::tuple<newArgs...>, index_sequence<idx...>>
 {
     using newTup = std::tuple<newArgs...>;
     using orgTup = std::tuple<orgArgs...>;
-    using seq = std::index_sequence<idx...>;
+    using seq = index_sequence<idx...>;
 
     static constexpr newTup map(orgArgs&&... args) noexcept
     {
@@ -135,17 +91,18 @@ struct tupleMap<std::tuple<orgArgs...>, std::tuple<newArgs...>, std::index_seque
 //experimental::tuple::apply example implementation
 //http://en.cppreference.com/w/cpp/experimental/apply
 template <class F, class Tuple, std::size_t... I>
-constexpr decltype(auto) apply_impl( F&& f, Tuple&& t, std::index_sequence<I...> )
+constexpr auto apply_impl( F&& f, Tuple&& t, index_sequence<I...> ) -> decltype(f(std::get<I>(std::forward<Tuple>(t))...))
 {
     //return std::invoke(std::forward<F>(f), std::get<I>(std::forward<Tuple>(t))...);
     return f(std::get<I>(std::forward<Tuple>(t))...);
 }
 
 template <class F, class Tuple>
-constexpr decltype(auto) apply(F&& f, Tuple&& t)
+constexpr auto apply(F&& f, Tuple&& t) -> decltype(apply_impl(std::forward<F>(f), std::forward<Tuple>(t),
+        make_index_sequence<std::tuple_size<typename std::decay<Tuple>::type>{}>{}))
 {
     return apply_impl(std::forward<F>(f), std::forward<Tuple>(t),
-        std::make_index_sequence<std::tuple_size<std::decay_t<Tuple>>{}>{});
+        make_index_sequence<std::tuple_size<typename std::decay<Tuple>::type>{}>{});
 }
 
 
@@ -188,7 +145,7 @@ public:
         using mapT = tupleMap<orgArgsT, newArgsT>;
 
         static_assert(std::is_convertible<RetOrg, newRet>::value, "Return types are not compatible");
-        static_assert(tmp::seqSize<typename mapT::seq>::value == newTraits::arg_size, "Arguments are not compatible");
+        static_assert(mapT::seq::size() == newTraits::arg_size, "Arguments are not compatible");
 
         func_ = [=](ArgsOrg&&... args) -> RetOrg {
                 return static_cast<RetOrg>(apply(func, mapT::map(std::forward<ArgsOrg>(args)...)));
@@ -237,7 +194,7 @@ public:
         using newArgsT = typename newTraits::arg_tuple;
         using mapT = tupleMap<orgArgsT, newArgsT>;
 
-        static_assert(tmp::seqSize<typename mapT::seq>::value == newTraits::arg_size, "Your function arguments are not compatible");
+        static_assert(mapT::seq::size() == newTraits::arg_size, "Your function arguments are not compatible");
 
         func_ = [=](ArgsOrg&&... args) -> void {
                 apply(func, mapT::map(std::forward<ArgsOrg>(args)...));

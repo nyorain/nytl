@@ -37,7 +37,6 @@ template<class A, class B> void performOperation(operation o, A& a, const B& b)
         a /= b;
         return;
     default:
-        std::cout << "warning: invalid operation type" << std::endl;
         return;
     }
 }

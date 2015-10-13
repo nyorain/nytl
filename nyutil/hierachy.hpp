@@ -69,7 +69,7 @@ public:
     virtual bool valid() const { return (parent_ != nullptr) && parent_->valid(); }
 
 	std::vector<T*> getChildren() const { return children_; } //virtual?
-	size_t getChildrenSize() const { return children_.size(); }
+	std::size_t getChildrenSize() const { return children_.size(); }
 };
 
 

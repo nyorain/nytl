@@ -31,14 +31,12 @@ protected:
     };
 
 protected:
-    std::map<Identifier, const typeBase*> types_;
+    std::map<Identifier, const typeBase> types_;
 
 public:
     ~typemap(){ for(auto& val : types_) delete val.second; }
 
-    template<typename T>
-    unsigned int registerType(const Identifier& id){ types_[id] = new typeImpl<T>(); return types_.size(); }
-
+    template<typename T> std::size_t registerType(const Identifier& id) { types_[id] = new typeImpl<T>(); return types_.size(); }
     Base* createObject(const Identifier& id) const { auto it = types_.find(id); if(it != types_.end()) return it->second->create(); return nullptr; }
     bool typeExists(const Identifier& id) const { return types_.find(id) != types_.end(); }
     const std::type_info& getTypeInfo(const Identifier& id) const { if(typeExists(id)) return types_[id].getTypeInfo(); return std::type_info{}; }

@@ -3,7 +3,9 @@
 #include <chrono>
 #include <ratio>
 
+#if __cplusplus >= 201402L
 using namespace std::literals::chrono_literals;
+#endif //c++14
 
 namespace nyutil
 {

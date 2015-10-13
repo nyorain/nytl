@@ -124,9 +124,9 @@ constexpr bool is64Bit()
 {
     #ifdef NYUTIL_OS_64
         return 1;
+    #else
+        return 0;
     #endif // NYUTIL_OS_64
-
-    return 0;
 }
 
 }

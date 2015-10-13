@@ -4,6 +4,7 @@
 #include <nyutil/refVec.hpp>
 #include <nyutil/compFunc.hpp>
 #include <nyutil/misc.hpp>
+#include <nyutil/integer_sequence.hpp>
 
 #include <iomanip>
 #include <memory>
@@ -18,7 +19,7 @@ namespace detail
 
 //makeRefVec
 template<typename seq> struct makeRefVec;
-template<size_t... idx> struct makeRefVec<std::index_sequence<idx...>>
+template<size_t... idx> struct makeRefVec<index_sequence<idx...>>
 {
     template<size_t rows, size_t cols, typename prec>
     refVec<sizeof...(idx), prec> constexpr operator()(vec<rows, vec<cols, prec>>& v, size_t i) const
@@ -29,7 +30,7 @@ template<size_t... idx> struct makeRefVec<std::index_sequence<idx...>>
 
 //initMat
 template<typename seq> struct initMatData;
-template<size_t... idx> struct initMatData<std::index_sequence<idx...>>
+template<size_t... idx> struct initMatData<index_sequence<idx...>>
 {
     template<size_t rows, size_t cols, typename prec, typename... Args>
     void constexpr operator()(vec<rows, vec<cols, prec>>& v, Args... args) const
@@ -42,7 +43,7 @@ template<size_t... idx> struct initMatData<std::index_sequence<idx...>>
 
 //copyMatData
 template<typename seq> struct copyMatData;
-template<size_t... idx> struct copyMatData<std::index_sequence<idx...>>
+template<size_t... idx> struct copyMatData<index_sequence<idx...>>
 {
     template<size_t rows, size_t cols, typename prec>
     std::unique_ptr<prec[]> constexpr operator()(const vec<rows, vec<cols, prec>>& v) const
@@ -86,7 +87,7 @@ public:
 
 public:
     template<typename... Args, typename = typename std::enable_if<std::is_convertible<std::tuple<Args...>, typename type_tuple<value_type, mat_size>::type>::value>::type>
-    mat(Args&&... args) noexcept { constexpr detail::initMatData<std::make_index_sequence<rows * cols>> a{}; a(data_, args...); }
+    mat(Args&&... args) noexcept { constexpr detail::initMatData<make_index_sequence<rows * cols>> a{}; a(data_, args...); }
 
 	mat() noexcept = default;
 	~mat() noexcept = default;
@@ -98,19 +99,19 @@ public:
 	mat_type& operator=(mat_type&& other) noexcept = default;
 
     template<typename... Args, typename = typename std::enable_if<std::is_convertible<std::tuple<Args...>, typename type_tuple<value_type, mat_size>::type>::value>::type>
-    void init(Args&&... args) { constexpr detail::initMatData<std::make_index_sequence<rows * cols>> a{}; a(data_, args...); }
+    void init(Args&&... args) { constexpr detail::initMatData<make_index_sequence<rows * cols>> a{}; a(data_, args...); }
 
     //access
 	vec<cols, prec>& row(size_t i){ return data_[i]; }
 	const vec<cols, prec>& row(size_t i) const { return data_[i]; }
 
-	refVec<cols, prec> col(size_t i){ constexpr detail::makeRefVec<std::make_index_sequence<rows>> a{}; return a(data_, i); }
+	refVec<cols, prec> col(size_t i){ constexpr detail::makeRefVec<make_index_sequence<rows>> a{}; return a(data_, i); }
 	vec<cols, prec> col(size_t i) const { vec<rows, prec> ret; for(size_t r(0); r < rows; r++)ret[r] = data_[r][i]; return ret; }
 
     //data
     pointer data(){ return (prec*)&data_; }
 	const_pointer data() const { return (prec*)&data_; }
-	std::unique_ptr<prec[]> copyData() const { constexpr detail::copyMatData<std::make_index_sequence<rows * cols>> a{}; return a(data_); }
+	std::unique_ptr<prec[]> copyData() const { constexpr detail::copyMatData<make_index_sequence<rows * cols>> a{}; return a(data_); }
 
     //math operators
     mat_type& operator +=(const mat<rows, cols, prec>& other){ data_ += other.data_; return *this; }
@@ -363,9 +364,9 @@ template<size_t rows, size_t cols, typename prec> bool mat_rref(mat<rows, cols, 
 constexpr const unsigned int cDWidth = 6;
 constexpr unsigned int getNumberOfDigits(double i)
 {
-    if((i < 10 && i > 0) || i == 0) return 1;
-    else if(i > -10 && i < 0) return 2;
-    return i > 0 ? (unsigned int) std::log10((double) i) + 1 : (unsigned int) std::log((double) -i) + 2;
+    return ((i < 10 && i > 0) || i == 0) ? 1 :
+    (i > -10 && i < 0) ? 2 :
+    (i > 0) ? (unsigned int) std::log10((double) i) + 1 : (unsigned int) std::log((double) -i) + 2;
 }
 
 template<size_t rows, size_t cols, class prec> std::ostream& operator<<(std::ostream& os, const mat<rows, cols, prec>& obj)
