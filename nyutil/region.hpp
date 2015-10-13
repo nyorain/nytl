@@ -2,20 +2,33 @@
 
 #include <nyutil/vec.hpp>
 #include <nyutil/rect.hpp>
+#include <nyutil/triangle.hpp>
+#include <nyutil/line.hpp>
 
 #include <vector>
 
 namespace nyutil
 {
 
-//todo: template? dim and prec?
+//todo: template? dim?
+template<typename prec>
 class region
 {
+template<typename T> friend class region;
+
+public:
+    using value_type = prec;
+    using vec_type = vec2<prec>;
+    using rect_type = rect2<prec>;
+    using triangle_type = triangle2<prec>;
+    using region_type = region<prec>;
+    using line_type = line2<prec>;
+
 protected:
     mutable bool cacheNeedsUpdate_ {0};
-	mutable rect2ui extents_ {}; //cache
+	mutable rect_type extents_ {}; //cache
 
-	std::vector<rect2i> rects_ {};
+	std::vector<triangle_type> triangles_ {};
 
 	void bakeCache() const { /*todo*/ cacheNeedsUpdate_ = 0; }
 
@@ -23,71 +36,107 @@ public:
     region() noexcept = default;
     ~region() noexcept = default;
 
-    region(const region& other) = default;
-    region& operator=(const region& other) = default;
+    region(const region_type& other) = default;
+    region& operator=(const region_type& other) = default;
 
-    region(region&& other) noexcept = default;
-    region& operator=(region&& other) noexcept = default;
+    region(region_type&& other) noexcept = default;
+    region& operator=(region_type&& other) noexcept = default;
 
     //
-	inline void add(const rect2i& r){ rects_.push_back(r); cacheNeedsUpdate_ = 1; };
-	inline void add(int x, int y, int width, int height){ rects_.push_back(rect2i(x,y,width,height)); cacheNeedsUpdate_ = 1; };
-	inline void add(const region& r){ rects_.insert(rects_.end(), r.rects_.begin(), r.rects_.end()); cacheNeedsUpdate_ = 1; }
+	void add(const triangle_type& t){ triangles_.push_back(t); cacheNeedsUpdate_ = 1; };
+	void add(const rect_type& r){ auto spl = split(r); triangles_.push_back(spl[0]); triangles_.push_back(spl[1]); cacheNeedsUpdate_ = 1; };
+	void add(value_type x, value_type y, value_type width, value_type height){ add(rect_type(x,y,width,height)); };
+	void add(const region_type& r){ triangles_.insert(triangles_.end(), r.triangles_.begin(), r.triangles_.end()); cacheNeedsUpdate_ = 1; }
 
     //todo
-	inline void subtract(const rect2i& r){ cacheNeedsUpdate_ = 1; };
-	inline void subtract(int x, int y, int width, int height){ subtract(rect2i(x,y,width,height)); };
-	inline void subtract(const region& r){ cacheNeedsUpdate_ = 1; };
+	void subtract(const rect_type& r){ cacheNeedsUpdate_ = 1; };
+	void subtract(value_type x, value_type y, value_type width, value_type height){ subtract(rect_type(x,y,width,height)); };
+	void subtract(const region_type& r){ cacheNeedsUpdate_ = 1; };
 
-	inline bool contains(const vec2f& point) const { return 0; };
-	inline bool contains(const rect2f& point) const { return 0; };
-	inline bool contains(const region& point) const { return 0; };
+	bool contains(const vec_type& point) const { return 0; };
+	bool contains(const rect_type& r) const { return 0; };
+	bool contains(const region_type& r) const { return 0; };
+	bool contains(const line_type& l) const { return 0; };
 
-	inline bool intersects(const rect2f& other) const { return 0; };
-	inline bool intersects(const region& other) const { return 0; };
+	bool intersects(const triangle_type& r) const { return 0; };
+	bool intersects(const rect_type& r) const { return 0; };
+	bool intersects(const region_type& r) const { return 0; };
+	bool intersects(const line_type& r) const { return 0; };
 
 	//operator
-	inline region& operator|=(const rect2i& r){ add(r); return *this; }
-	inline region& operator|=(const region& r){ add(r); return *this; }
+	region& operator|=(const triangle_type& t){ add(t); return *this; }
+	region& operator|=(const rect_type& r){ add(r); return *this; }
+	region& operator|=(const region_type& r){ add(r); return *this; }
 
-    inline region& operator&=(const rect2i& r){ /*todo*/ return *this; }
-	inline region& operator&=(const region& r){ /*todo*/ return *this; }
+    region& operator&=(const triangle_type& t){ /*todo*/ return *this; }
+    region& operator&=(const rect_type& r){ /*todo*/ return *this; }
+	region& operator&=(const region_type& r){ /*todo*/ return *this; }
 
-    inline region& operator^=(const rect2i& r){ /*todo*/ return *this; }
-	inline region& operator^=(const region& r){ /*todo*/ return *this; }
+    region& operator^=(const triangle_type& t){ /*todo*/ return *this; }
+    region& operator^=(const rect_type& r){ /*todo*/ return *this; }
+	region& operator^=(const region_type& r){ /*todo*/ return *this; }
 
 	//
-	inline rect2i extents() const { if(cacheNeedsUpdate_)bakeCache(); return extents_; }
+	rect_type extents() const { if(cacheNeedsUpdate_)bakeCache(); return extents_; }
+	const std::vector<triangle_type>& getTriangles() const { return triangles_; }
+
+	template<typename oprec>
+	operator region<oprec>() const { region<oprec> ret; ret.triangles_.insert(ret.triangles_.end(), triangles_.begin(), triangles_.end()); return ret; }
 };
 
 //operators
 //move needed because it is a expression, not an identifier
-inline region operator|(region a, const region& b)
+template<typename prec>
+region<prec> operator|(region<prec> a, const region<prec>& b)
 {
     return std::move(a |= b);
 }
 
-inline region operator|(region a, const rect2i& b)
+template<typename prec>
+region<prec> operator|(region<prec> a, const rect2<prec>& b)
 {
     return std::move(a |= b);
 }
 
-inline region operator&(region a, const region& b)
+template<typename prec>
+region<prec> operator|(region<prec> a, const triangle2<prec>& b)
+{
+    return std::move(a |= b);
+}
+
+template<typename prec>
+region<prec> operator&(region<prec> a, const region<prec>& b)
 {
     return std::move(a &= b);
 }
 
-inline region operator&(region a, const rect2i& b)
+template<typename prec>
+region<prec> operator&(region<prec> a, const rect2<prec>& b)
 {
     return std::move(a &= b);
 }
 
-inline region operator^(region a, const region& b)
+template<typename prec>
+region<prec> operator&(region<prec> a, const triangle2<prec>& b)
+{
+    return std::move(a &= b);
+}
+
+
+template<typename prec>
+region<prec> operator^(region<prec> a, const region<prec>& b)
 {
     return std::move(a ^= b);
 }
 
-inline region operator^(region a, const rect2i& b)
+template<typename prec>
+region<prec> operator^(region<prec> a, const rect2<prec>& b)
+{
+    return std::move(a ^= b);
+}
+
+template<typename prec>
+region<prec> operator^(region<prec> a, const triangle2<prec>& b)
 {
     return std::move(a ^= b);
 }

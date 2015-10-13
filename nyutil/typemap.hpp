@@ -2,6 +2,7 @@
 
 #include <map>
 #include <algorithm>
+#include <typeinfo>
 
 namespace nyutil
 {
@@ -16,6 +17,7 @@ protected:
     public:
         virtual ~typeBase() = default;
         virtual Base* create() const = 0;
+        virtual const std::type_info& getTypeInfo() const = 0;
     };
 
     //impl
@@ -25,6 +27,7 @@ protected:
     public:
         virtual ~typeImpl() = default;
         virtual Base* create() const override { return new T(); }
+        virtual const std::type_info& getTypeInfo() const override { return typeid(T); };
     };
 
 protected:
@@ -38,6 +41,7 @@ public:
 
     Base* createObject(const Identifier& id) const { auto it = types_.find(id); if(it != types_.end()) return it->second->create(); return nullptr; }
     bool typeExists(const Identifier& id) const { return types_.find(id) != types_.end(); }
+    const std::type_info& getTypeInfo(const Identifier& id) const { if(typeExists(id)) return types_[id].getTypeInfo(); return std::type_info{}; }
 };
 
 //registerFunc

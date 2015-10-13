@@ -11,14 +11,14 @@
 	<nyutil/misc.hpp>
 	<iostream>
 
-1439297624 
+1443117864 
 
 1439763809 /mnt/sda5/Programming/projects/nyutil/src/nyutil/argParser.hpp
 	<string>
 	<vector>
 	<functional>
 
-1439943083 l>
+1443035658 l>
 
 1438030058 /mnt/sda5/Programming/projects/nyutil/src/nyutil/misc.hpp
 	<string>
@@ -73,33 +73,49 @@
 
 1437849839 /mnt/sda5/Programming/projects/nyutil/src/nyutil/nonCopyable.hpp
 
-1443871759 source:a:\programming\projects\nyutil\private\test.cpp
+1444688327 source:a:\programming\projects\nyutil\private\test.cpp
 	<nyutil/vec.hpp>
 	<nyutil/transformable.hpp>
 	<nyutil/system.hpp>
+	<nyutil/cache.hpp>
+	<nyutil/triangle.hpp>
+	<nyutil/region.hpp>
 	<string>
 	<iostream>
 
 1443549506 a:\programming\projects\nyutil\nyutil\typemap.hpp
 	<map>
 
-1443817773 source:/mnt/sda5/Programming/projects/nyutil/private/test.cpp
+1444585544 source:/mnt/sda5/Programming/projects/nyutil/private/test.cpp
 	<nyutil/vec.hpp>
 	<nyutil/transformable.hpp>
 	<string>
 	<iostream>
+	<nyutil/vec.hpp>
+	<nyutil/transformable.hpp>
+	<nyutil/system.hpp>
+	<string>
+	<iostream>
 
-1443822431 /mnt/sda5/Programming/projects/nyutil/nyutil/vec.hpp
+1444585568 /mnt/sda5/Programming/projects/nyutil/nyutil/vec.hpp
+	<nyutil/tmp.hpp>
+	<nyutil/constants.hpp>
+	<ostream>
+	<cmath>
+	<type_traits>
 	<nyutil/tmp.hpp>
 	<nyutil/constants.hpp>
 	<ostream>
 	<cmath>
 	<type_traits>
 
+1443829070 ts>
+
 1443817394 /mnt/sda5/Programming/projects/nyutil/nyutil/tmp.hpp
 	<utility>
+	<utility>
 
-1443822417 /mnt/sda5/Programming/projects/nyutil/nyutil/constants.hpp
+1444584652 /mnt/sda5/Programming/projects/nyutil/nyutil/constants.hpp
 
 1443822439 /mnt/sda5/Programming/projects/nyutil/nyutil/transformable.hpp
 	<nyutil/mat.hpp>
@@ -107,8 +123,23 @@
 	<nyutil/rect.hpp>
 	<nyutil/constants.hpp>
 	<cmath>
+	<nyutil/mat.hpp>
+	<nyutil/vec.hpp>
+	<nyutil/rect.hpp>
+	<nyutil/constants.hpp>
+	<cmath>
+
+1443826039 nstants.hpp>
 
 1443817803 /mnt/sda5/Programming/projects/nyutil/nyutil/mat.hpp
+	<nyutil/vec.hpp>
+	<nyutil/refVec.hpp>
+	<nyutil/compFunc.hpp>
+	<nyutil/misc.hpp>
+	<iomanip>
+	<memory>
+	<cmath>
+	<tuple>
 	<nyutil/vec.hpp>
 	<nyutil/refVec.hpp>
 	<nyutil/compFunc.hpp>
@@ -120,8 +151,17 @@
 
 1443816645 /mnt/sda5/Programming/projects/nyutil/nyutil/refVec.hpp
 	<nyutil/vec.hpp>
+	<nyutil/vec.hpp>
+
+1443820245 c.hpp>
 
 1443032058 /mnt/sda5/Programming/projects/nyutil/nyutil/compFunc.hpp
+	<nyutil/function_traits.hpp>
+	<nyutil/tmp.hpp>
+	<type_traits>
+	<utility>
+	<tuple>
+	<functional>
 	<nyutil/function_traits.hpp>
 	<nyutil/tmp.hpp>
 	<type_traits>
@@ -131,8 +171,15 @@
 
 1442764026 /mnt/sda5/Programming/projects/nyutil/nyutil/function_traits.hpp
 	<tuple>
+	<tuple>
 
 1442764005 /mnt/sda5/Programming/projects/nyutil/nyutil/misc.hpp
+	<string>
+	<vector>
+	<functional>
+	<algorithm>
+	<sstream>
+	<cmath>
 	<string>
 	<vector>
 	<functional>
@@ -143,8 +190,10 @@
 1443114264 /mnt/sda5/Programming/projects/nyutil/nyutil/rect.hpp
 	<nyutil/vec.hpp>
 	<vector>
+	<nyutil/vec.hpp>
+	<vector>
 
-1443829070 a:\programming\projects\nyutil\nyutil\vec.hpp
+1444687634 a:\programming\projects\nyutil\nyutil\vec.hpp
 	<nyutil/tmp.hpp>
 	<nyutil/constants.hpp>
 	<ostream>
@@ -154,7 +203,7 @@
 1443820994 a:\programming\projects\nyutil\nyutil\tmp.hpp
 	<utility>
 
-1443826123 a:\programming\projects\nyutil\nyutil\constants.hpp
+1444686898 a:\programming\projects\nyutil\nyutil\constants.hpp
 
 1443826039 a:\programming\projects\nyutil\nyutil\transformable.hpp
 	<nyutil/mat.hpp>
@@ -195,9 +244,32 @@
 	<sstream>
 	<cmath>
 
-1443117864 a:\programming\projects\nyutil\nyutil\rect.hpp
+1444688402 a:\programming\projects\nyutil\nyutil\rect.hpp
 	<nyutil/vec.hpp>
+	<nyutil/triangle.hpp>
 	<vector>
 
-1443872220 a:\programming\projects\nyutil\nyutil\system.hpp
+1444687603 a:\programming\projects\nyutil\nyutil\system.hpp
+	"TargetConditionals.h"
+
+1444511619 /mnt/sda5/Programming/projects/nyutil/nyutil/system.hpp
+	"TargetConditionals.h"
+
+1444688415 a:\programming\projects\nyutil\nyutil\triangle.hpp
+	<nyutil/vec.hpp>
+	<nyutil/line.hpp>
+
+1444688390 a:\programming\projects\nyutil\nyutil\line.hpp
+	<nyutil/vec.hpp>
+
+1443819045 a:\programming\projects\nyutil\nyutil\cache.hpp
+	<vector>
+	<memory>
+
+1444688379 a:\programming\projects\nyutil\nyutil\region.hpp
+	<nyutil/vec.hpp>
+	<nyutil/rect.hpp>
+	<nyutil/triangle.hpp>
+	<nyutil/line.hpp>
+	<vector>
 

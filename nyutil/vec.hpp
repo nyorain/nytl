@@ -26,6 +26,7 @@ typedef vec2<char> vec2c;
 typedef vec2<unsigned char> vec2uc;
 typedef vec2<long> vec2l;
 typedef vec2<unsigned long> vec2ul;
+typedef vec2<bool> vec2b;
 
 typedef vec3<float> vec3f;
 typedef vec3<int> vec3i;
@@ -35,6 +36,7 @@ typedef vec3<char> vec3c;
 typedef vec3<unsigned char> vec3uc;
 typedef vec3<long> vec3l;
 typedef vec3<unsigned long> vec3ul;
+typedef vec3<bool> vec3b;
 
 typedef vec4<float> vec4f;
 typedef vec4<int> vec4i;
@@ -44,6 +46,7 @@ typedef vec4<char> vec4c;
 typedef vec4<unsigned char> vec4uc;
 typedef vec4<long> vec4l;
 typedef vec4<unsigned long> vec4ul;
+typedef vec4<bool> vec4b;
 
 //raw
 template<typename T> struct rawT
@@ -76,7 +79,6 @@ public:
 
 public:
     constexpr size_t size() const noexcept { return dim; }
-    constexpr size_t length() const noexcept { return dim; }
     constexpr size_t max_size() const noexcept { return dim; }
     constexpr bool empty() const noexcept { return dim == 0; }
 
@@ -388,7 +390,6 @@ public:
 
 public:
     constexpr size_t size() const noexcept { return dim; }
-    constexpr size_t length() const noexcept { return dim; }
     constexpr size_t max_size() const noexcept { return dim; }
     constexpr bool empty() const noexcept { return dim == 0; }
 
@@ -491,7 +492,6 @@ public:
 
 public:
     constexpr size_t size() const noexcept { return dim; }
-    constexpr size_t length() const noexcept { return dim; }
     constexpr size_t max_size() const noexcept { return dim; }
     constexpr bool empty() const noexcept { return dim == 0; }
 
@@ -601,7 +601,6 @@ public:
 
 public:
     constexpr size_t size() const noexcept { return dim; }
-    constexpr size_t length() const noexcept { return dim; }
     constexpr size_t max_size() const noexcept { return dim; }
     constexpr bool empty() const noexcept { return dim == 0; }
 
@@ -724,7 +723,7 @@ raw<prec> weight(const vec<dim, prec>& v)
 }
 
 template<size_t dim, typename prec>
-auto abs(const vec<dim, prec>& v) -> decltype(std::sqrt(raw<prec>{}))
+auto length(const vec<dim, prec>& v) -> decltype(std::sqrt(raw<prec>{}))
 {
     raw<prec> val{};
     for(size_t i(0); i < dim; i++)
@@ -741,16 +740,59 @@ raw<Ta> dot(const vec<dim, Ta>& veca, const vec<dim, Tb>& vecb)
     return weight(veca * vecb);
 }
 
+template<typename Ta, typename Tb>
+auto cross(const vec<3, Ta>& veca, const vec<3, Tb>& vecb) -> vec<3, decltype(veca[0] * vecb[0])>
+{
+    return vec<3, Ta>(veca[2]*veca[3] - veca[3]*vecb[2], veca[3]*veca[1] - veca[1]*vecb[3], veca[1]*veca[2] - veca[2]*vecb[1]);
+}
+
 template<size_t dim, typename Ta, typename Tb>
 raw<Ta> angle(const vec<dim, Ta>& veca, const vec<dim, Tb>& vecb)
 {
-    return std::acos(weight(veca * vecb) / (abs(veca) * abs(vecb)));
+    return std::acos(weight(veca * vecb) / (length(veca) * length(vecb)));
 }
 
+template<size_t dim, typename Ta>
+vec<dim, Ta> normalize(const vec<dim, Ta>& veca)
+{
+    return veca / weight(veca);
+}
+
+template<typename Ta, typename Tb>
+raw<Ta> cangle(const vec<2, Ta>& veca, const vec<2, Tb>& vecb)
+{
+    auto val = atan2(veca.y, veca.x) - atan2(vecb.y, vecb.x);
+    if(val < 0) return (2*cPi) + val;
+    return val;
+}
+
+template<typename Ta, typename Tb>
+raw<Ta> cangle(const vec<3, Ta>& veca, const vec<3, Tb>& vecb) //todo
+{
+    auto val = std::atan2(length(cross(veca, vecb)), dot(veca, vecb));
+    if(val < 0) return (2*cPi) + val;
+    return val;
+}
+
+//boolvec
+template<size_t dim>
+bool any(const vec<dim, bool>& v)
+{
+    for(auto val : v) if(val) return 1;
+    return 0;
+}
+
+template<size_t dim>
+bool all(const vec<dim, bool>& v)
+{
+    for(auto val : v) if(!val) return 0;
+    return 1;
+}
 
 //less/more
 ////one
-template<size_t dim, typename prec> bool oneValueLess(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
+template<size_t dim, typename prec>
+bool anyValueLess(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
 {
 	for(size_t i(0); i < dim; i++)
 	{
@@ -760,7 +802,19 @@ template<size_t dim, typename prec> bool oneValueLess(const vec<dim, prec>& veca
 	return 0;
 }
 
-template<size_t dim, typename prec> bool oneValueLessOrEqual(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
+template<size_t dim, typename prec>
+bool anyValueLess(const vec<dim, prec>& veca, const prec& value)
+{
+	for(size_t i(0); i < dim; i++)
+	{
+		if(veca[i] < value)
+			return 1;
+	}
+	return 0;
+}
+
+template<size_t dim, typename prec>
+bool anyValueLessOrEqual(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
 {
 	for(size_t i(0); i < dim; i++)
 	{
@@ -770,7 +824,19 @@ template<size_t dim, typename prec> bool oneValueLessOrEqual(const vec<dim, prec
 	return 0;
 }
 
-template<size_t dim, typename prec> bool oneValueGreater(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
+template<size_t dim, typename prec>
+bool anyValueLessOrEqual(const vec<dim, prec>& veca, const prec& value)
+{
+	for(size_t i(0); i < dim; i++)
+	{
+		if(veca[i] <= value)
+			return 1;
+	}
+	return 0;
+}
+
+template<size_t dim, typename prec>
+bool anyValueGreater(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
 {
 	for(size_t i(0); i < dim; i++)
 	{
@@ -780,7 +846,20 @@ template<size_t dim, typename prec> bool oneValueGreater(const vec<dim, prec>& v
 	return 0;
 }
 
-template<size_t dim, typename prec> bool oneValueGreaterOrEqual(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
+template<size_t dim, typename prec>
+bool anyValueGreater(const vec<dim, prec>& veca, const prec& value)
+{
+	for(size_t i(0); i < dim; i++)
+	{
+		if(veca[i] < value)
+			return 1;
+	}
+	return 0;
+}
+
+
+template<size_t dim, typename prec>
+bool anyValueGreaterOrEqual(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
 {
 	for(size_t i(0); i < dim; i++)
 	{
@@ -790,9 +869,22 @@ template<size_t dim, typename prec> bool oneValueGreaterOrEqual(const vec<dim, p
 	return 0;
 }
 
+template<size_t dim, typename prec>
+bool anyValueGreaterOrEqual(const vec<dim, prec>& veca, const prec& value)
+{
+	for(size_t i(0); i < dim; i++)
+	{
+		if(veca[i] >= value)
+			return 1;
+	}
+	return 0;
+}
+
+
 
 ////all
-template<size_t dim, typename prec> bool allValuesLess(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
+template<size_t dim, typename prec>
+bool allValuesLess(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
 {
 	for(size_t i(0); i < dim; i++)
 	{
@@ -802,7 +894,19 @@ template<size_t dim, typename prec> bool allValuesLess(const vec<dim, prec>& vec
 	return 1;
 }
 
-template<size_t dim, typename prec> bool allValuesLessOrEqual(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
+template<size_t dim, typename prec>
+bool allValuesLess(const vec<dim, prec>& veca, const prec& value)
+{
+	for(size_t i(0); i < dim; i++)
+	{
+		if(veca[i] >= value)
+			return 0;
+	}
+	return 1;
+}
+
+template<size_t dim, typename prec>
+bool allValuesLessOrEqual(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
 {
 	for(size_t i(0); i < dim; i++)
 	{
@@ -812,8 +916,20 @@ template<size_t dim, typename prec> bool allValuesLessOrEqual(const vec<dim, pre
 	return 1;
 }
 
+template<size_t dim, typename prec>
+bool allValuesLessOrEqual(const vec<dim, prec>& veca, const prec& value)
+{
+	for(size_t i(0); i < dim; i++)
+	{
+		if(veca[i] > value)
+			return 0;
+	}
+	return 1;
+}
 
-template<size_t dim, typename prec> bool allValuesGreater(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
+
+template<size_t dim, typename prec>
+bool allValuesGreater(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
 {
 	for(size_t i(0); i < dim; i++)
 	{
@@ -823,12 +939,35 @@ template<size_t dim, typename prec> bool allValuesGreater(const vec<dim, prec>& 
 	return 1;
 }
 
+template<size_t dim, typename prec>
+bool allValuesGreater(const vec<dim, prec>& veca, const prec& value)
+{
+	for(size_t i(0); i < dim; i++)
+	{
+		if(veca[i] <= value)
+			return 0;
+	}
+	return 1;
+}
 
-template<size_t dim, typename prec> bool allValuesGreaterOrEqual(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
+
+template<size_t dim, typename prec>
+bool allValuesGreaterOrEqual(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
 {
 	for(size_t i(0); i < dim; i++)
     {
 		if(veca[i] < vecb[i])
+			return 0;
+	}
+	return 1;
+}
+
+template<size_t dim, typename prec>
+bool allValuesGreaterOrEqual(const vec<dim, prec>& veca, const prec& value)
+{
+	for(size_t i(0); i < dim; i++)
+    {
+		if(veca[i] < value)
 			return 0;
 	}
 	return 1;

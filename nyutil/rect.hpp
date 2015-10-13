@@ -1,6 +1,7 @@
 #pragma once
 
 #include <nyutil/vec.hpp>
+#include <nyutil/triangle.hpp>
 
 #include <vector>
 
@@ -115,7 +116,9 @@ public:
     prec& width() { return size.x; }
 	prec& height() { return size.x; }
 
-	template<size_t odim, class oprec> operator rect<odim, oprec>() const { return rect<odim, oprec>(position, size); }
+    //conversion
+	template<size_t odim, class oprec>
+	operator rect<odim, oprec>() const { return rect<odim, oprec>(position, size); }
 };
 
 //util
@@ -170,6 +173,14 @@ template<class prec> std::vector<rect<2, prec>> subtract(const rect<2, prec>& su
 
     return ret;
 }
+
+template<size_t dim, typename prec>
+vec<2, triangle<dim, prec>> split(const rect<dim, prec>& r)
+{
+    return vec<2, triangle<dim, prec>>({r.topLeft(), r.topRight(), r.bottomRight()},
+                                       {r.topLeft(), r.bottomLeft(), r.bottomRight()});
+}
+
 //operator
 //stream: todo, istream check for correct type (?)
 template<size_t dim, typename T> std::ostream& operator<<(std::ostream& os, const rect<dim, T>& obj)
@@ -177,29 +188,5 @@ template<size_t dim, typename T> std::ostream& operator<<(std::ostream& os, cons
     os << "rect{\n\t" << obj.position << ";\n\t" << obj.size << "\n}" << std::endl;
     return os;
 }
-
-//external
-//use them?
-/*
-template<size_t dim, typename prec> bool intersects(const rect<dim, prec>& recta, const rect<dim, prec>& rectb)
-{
-    return(allValuesLess(recta.position, rectb.position + rectb.size) && allValuesLess(rectb.position, recta.position + recta.size));
-}
-
-template<size_t dim, typename prec> bool contains(const rect<dim, prec>& recta, const rect<dim, prec>& rectb)
-{
-    return(allValuesLess(recta.position, rectb.position) && allValuesLess(rectb.position + rectb.size, recta.position + size));
-}
-
-template<size_t dim, typename prec> bool contains(const rect<dim, prec>& recta, const vec<dim, prec>& veca)
-{
-    return(allValuesLess(recta.position, veca) && allValuesLess(veca, recta.position + recta.size));
-}
-
-template<size_t dim, typename prec> vec<dim, prec> center(const rect<dim, prec>& recta)
-{
-    return vec<dim, prec>(recta.position + (recta.size / 2));
-}
-*/
 
 }
