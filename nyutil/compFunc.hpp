@@ -28,7 +28,7 @@ struct tupleMapImpl<std::tuple<orgArgs...>, std::tuple<newArgs...>, idx>
     constexpr static const bool value = std::is_convertible<typename std::tuple_element<0, orgTuple>::type, typename std::tuple_element<0, newTuple>::type>::value;
     typedef typename std::conditional<
         value,  //condition
-        typename seq_prepend< //matches
+        typename seq_prepend< //match
             typename tupleMapImpl<
                 typename tuple_erase_first<orgTuple>::type,
                 typename tuple_erase_first<newTuple>::type,
@@ -36,7 +36,7 @@ struct tupleMapImpl<std::tuple<orgArgs...>, std::tuple<newArgs...>, idx>
             >::type,
             idx
         >::type,
-        typename tupleMapImpl< //dont matches
+        typename tupleMapImpl< //no match
             typename tuple_erase_first<orgTuple>::type,
             newTuple,
             idx + 1
@@ -62,7 +62,7 @@ struct tupleMapImpl<std::tuple<>, std::tuple<NewLeft...>, idx>
     using type = index_sequence<>;
 
     //ERROR. Should NEVER happen!
-    //how to show error if this is used, but only IF it is used (std::confitional must still work)?
+    //how to show error if this is used, but only IF it is used (std::conditional must still work)?
 };
 
 }
@@ -80,10 +80,7 @@ struct tupleMap<std::tuple<orgArgs...>, std::tuple<newArgs...>, index_sequence<i
 
     static constexpr newTup map(orgArgs&&... args) noexcept
     {
-        orgTup org(std::forward<orgArgs>(args)...);
-        newTup ret(std::forward<decltype(std::get<idx>(org))>(std::get<idx>(org))...);
-
-        return ret;
+        return newTup(std::forward<decltype(std::get<idx>(orgTup(args...)))>(std::get<idx>(orgTup(args...)))...);
     }
 };
 

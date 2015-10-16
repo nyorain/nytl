@@ -27,6 +27,10 @@ public:
     inline void runNowait(); //does not block
 
     inline void stop();
+    inline bool running()
+    {
+        return uv_loop_alive(loop_);
+    }
 
     inline uv_loop_t& uvLoop() { return *loop_; };
     inline const uv_loop_t& uvLoop() const { return *loop_; };

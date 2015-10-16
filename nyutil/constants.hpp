@@ -18,4 +18,12 @@ prec radians(const prec& deg)
     return deg * cDeg;
 }
 
+#if __cplusplus >= 201402L
+    #define NYUTIL_CPP14_CONSTEXPR constexpr
+#else
+    #define NYUTIL_CPP14_CONSTEXPR
+#endif
+
+
+
 }

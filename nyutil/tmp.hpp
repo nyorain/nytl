@@ -90,7 +90,7 @@ template<typename T, typename T::value_type Prepend> struct seq_prepend;
 template<typename I, template<typename, I...> class T, I... Body, I Prepend>
 struct seq_prepend<T<I, Body...>, Prepend>
 {
-    using type = T<I, Body..., Prepend>;
+    using type = T<I, Prepend, Body...>;
 };
 
 template<typename T, typename T::value_type Prepend> using seq_prepend_t = typename seq_prepend<T, Prepend>::type;

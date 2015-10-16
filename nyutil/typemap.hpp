@@ -1,6 +1,6 @@
 #pragma once
 
-#include <map>
+#include <unordered_map>
 #include <algorithm>
 #include <typeinfo>
 
@@ -31,7 +31,7 @@ protected:
     };
 
 protected:
-    std::map<Identifier, const typeBase> types_;
+    std::unordered_map<Identifier, const typeBase*> types_;
 
 public:
     ~typemap(){ for(auto& val : types_) delete val.second; }

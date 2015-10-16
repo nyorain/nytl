@@ -124,53 +124,6 @@ inline int randomInt(int low, int high)
 }
 
 
-/*
-//construct iterator
-template<size_t dim, typename T> typename vec<dim, T>::iterator constructIterator(vec<dim, T>& ref, bool end)
-{
-    if(end) return vec<dim, T>::iterator((ref.back() + 1));
-    else return vec<dim, T>::iterator(ref.front());
-}
-
-template<size_t dim, typename T> typename vec<dim, T&>::iterator constructIterator(vec<dim, T&>& ref, bool end)
-{
-    if(end) return vec<dim, T>::iterator(ref, dim);
-    else return vec<dim, T>::iterator(ref, 0);
-}
-
-//asRef
-template<typename T> constexpr T& asRef(T& data)
-{
-    return data;
-}
-
-template<typename T> constexpr T& asRef(T* data)
-{
-    return *data;
-}
-
-//tuple prepend
-template<typename tup, typename prep> struct tuplePrepend;
-
-template<typename... tup, typename prep>
-struct tuplePrepend<std::tuple<tup...>, prep>
-{
-    using type = std::tuple<prep, tup...>;
-};
-
-//typeTuple
-template<typename T, size_t size> struct typeTuple
-{
-    using type = typename tuplePrepend<typename typeTuple<T, size - 1>::type, T>::type;
-};
-
-template<typename T> struct typeTuple<T, 1>
-{
-    using type = std::tuple<T>;
-};
-*/
-
-
 
 }
 

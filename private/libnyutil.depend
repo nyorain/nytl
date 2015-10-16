@@ -11,14 +11,14 @@
 	<nyutil/misc.hpp>
 	<iostream>
 
-1443117864 
+1444768028 
 
 1439763809 /mnt/sda5/Programming/projects/nyutil/src/nyutil/argParser.hpp
 	<string>
 	<vector>
 	<functional>
 
-1443035658 l>
+1440636635 l>
 
 1438030058 /mnt/sda5/Programming/projects/nyutil/src/nyutil/misc.hpp
 	<string>
@@ -73,17 +73,18 @@
 
 1437849839 /mnt/sda5/Programming/projects/nyutil/src/nyutil/nonCopyable.hpp
 
-1444768629 source:a:\programming\projects\nyutil\private\test.cpp
-	<nyutil/nyutil.hpp>
+1445017197 source:a:\programming\projects\nyutil\private\test.cpp
+	<nyutil/integer_sequence.hpp>
+	<nyutil/compFunc.hpp>
 	<string>
 	<iostream>
 
-1444767085 a:\programming\projects\nyutil\nyutil\typemap.hpp
-	<map>
+1444841935 a:\programming\projects\nyutil\nyutil\typemap.hpp
+	<unordered_map>
 	<algorithm>
 	<typeinfo>
 
-1444585544 source:/mnt/sda5/Programming/projects/nyutil/private/test.cpp
+1444835137 source:/mnt/sda5/Programming/projects/nyutil/private/test.cpp
 	<nyutil/vec.hpp>
 	<nyutil/transformable.hpp>
 	<string>
@@ -93,8 +94,11 @@
 	<nyutil/system.hpp>
 	<string>
 	<iostream>
+	<nyutil/nyutil.hpp>
+	<string>
+	<iostream>
 
-1444585568 /mnt/sda5/Programming/projects/nyutil/nyutil/vec.hpp
+1444684034 /mnt/sda5/Programming/projects/nyutil/nyutil/vec.hpp
 	<nyutil/tmp.hpp>
 	<nyutil/constants.hpp>
 	<ostream>
@@ -105,16 +109,27 @@
 	<ostream>
 	<cmath>
 	<type_traits>
+	<nyutil/tmp.hpp>
+	<nyutil/constants.hpp>
+	<ostream>
+	<cmath>
+	<type_traits>
 
-1443829070 ts>
+1444687634 ts>
 
 1443817394 /mnt/sda5/Programming/projects/nyutil/nyutil/tmp.hpp
 	<utility>
 	<utility>
+	<utility>
 
-1444584652 /mnt/sda5/Programming/projects/nyutil/nyutil/constants.hpp
+1444683298 /mnt/sda5/Programming/projects/nyutil/nyutil/constants.hpp
 
 1443822439 /mnt/sda5/Programming/projects/nyutil/nyutil/transformable.hpp
+	<nyutil/mat.hpp>
+	<nyutil/vec.hpp>
+	<nyutil/rect.hpp>
+	<nyutil/constants.hpp>
+	<cmath>
 	<nyutil/mat.hpp>
 	<nyutil/vec.hpp>
 	<nyutil/rect.hpp>
@@ -128,7 +143,7 @@
 
 1443826039 nstants.hpp>
 
-1443817803 /mnt/sda5/Programming/projects/nyutil/nyutil/mat.hpp
+1444764188 /mnt/sda5/Programming/projects/nyutil/nyutil/mat.hpp
 	<nyutil/vec.hpp>
 	<nyutil/refVec.hpp>
 	<nyutil/compFunc.hpp>
@@ -141,6 +156,15 @@
 	<nyutil/refVec.hpp>
 	<nyutil/compFunc.hpp>
 	<nyutil/misc.hpp>
+	<iomanip>
+	<memory>
+	<cmath>
+	<tuple>
+	<nyutil/vec.hpp>
+	<nyutil/refVec.hpp>
+	<nyutil/compFunc.hpp>
+	<nyutil/misc.hpp>
+	<nyutil/integer_sequence.hpp>
 	<iomanip>
 	<memory>
 	<cmath>
@@ -149,10 +173,11 @@
 1443816645 /mnt/sda5/Programming/projects/nyutil/nyutil/refVec.hpp
 	<nyutil/vec.hpp>
 	<nyutil/vec.hpp>
+	<nyutil/vec.hpp>
 
 1443820245 c.hpp>
 
-1443032058 /mnt/sda5/Programming/projects/nyutil/nyutil/compFunc.hpp
+1444764130 /mnt/sda5/Programming/projects/nyutil/nyutil/compFunc.hpp
 	<nyutil/function_traits.hpp>
 	<nyutil/tmp.hpp>
 	<type_traits>
@@ -161,12 +186,20 @@
 	<functional>
 	<nyutil/function_traits.hpp>
 	<nyutil/tmp.hpp>
+	<type_traits>
+	<utility>
+	<tuple>
+	<functional>
+	<nyutil/function_traits.hpp>
+	<nyutil/tmp.hpp>
+	<nyutil/integer_sequence.hpp>
 	<type_traits>
 	<utility>
 	<tuple>
 	<functional>
 
 1442764026 /mnt/sda5/Programming/projects/nyutil/nyutil/function_traits.hpp
+	<tuple>
 	<tuple>
 	<tuple>
 
@@ -183,11 +216,20 @@
 	<algorithm>
 	<sstream>
 	<cmath>
+	<string>
+	<vector>
+	<functional>
+	<algorithm>
+	<sstream>
+	<cmath>
 
-1443114264 /mnt/sda5/Programming/projects/nyutil/nyutil/rect.hpp
+1444684802 /mnt/sda5/Programming/projects/nyutil/nyutil/rect.hpp
 	<nyutil/vec.hpp>
 	<vector>
 	<nyutil/vec.hpp>
+	<vector>
+	<nyutil/vec.hpp>
+	<nyutil/triangle.hpp>
 	<vector>
 
 1444687634 a:\programming\projects\nyutil\nyutil\vec.hpp
@@ -197,10 +239,10 @@
 	<cmath>
 	<type_traits>
 
-1443820994 a:\programming\projects\nyutil\nyutil\tmp.hpp
+1445017293 a:\programming\projects\nyutil\nyutil\tmp.hpp
 	<utility>
 
-1444686898 a:\programming\projects\nyutil\nyutil\constants.hpp
+1445015729 a:\programming\projects\nyutil\nyutil\constants.hpp
 
 1443826039 a:\programming\projects\nyutil\nyutil\transformable.hpp
 	<nyutil/mat.hpp>
@@ -209,7 +251,7 @@
 	<nyutil/constants.hpp>
 	<cmath>
 
-1444767788 a:\programming\projects\nyutil\nyutil\mat.hpp
+1445015683 a:\programming\projects\nyutil\nyutil\mat.hpp
 	<nyutil/vec.hpp>
 	<nyutil/refVec.hpp>
 	<nyutil/compFunc.hpp>
@@ -223,7 +265,7 @@
 1443820245 a:\programming\projects\nyutil\nyutil\refvec.hpp
 	<nyutil/vec.hpp>
 
-1444767730 a:\programming\projects\nyutil\nyutil\compfunc.hpp
+1445017105 a:\programming\projects\nyutil\nyutil\compfunc.hpp
 	<nyutil/function_traits.hpp>
 	<nyutil/tmp.hpp>
 	<nyutil/integer_sequence.hpp>
@@ -235,7 +277,7 @@
 1442767626 a:\programming\projects\nyutil\nyutil\function_traits.hpp
 	<tuple>
 
-1442767605 a:\programming\projects\nyutil\nyutil\misc.hpp
+1445015945 a:\programming\projects\nyutil\nyutil\misc.hpp
 	<string>
 	<vector>
 	<functional>
@@ -251,12 +293,16 @@
 1444687603 a:\programming\projects\nyutil\nyutil\system.hpp
 	"TargetConditionals.h"
 
+1444768562 ditionals.h"
+
 1444511619 /mnt/sda5/Programming/projects/nyutil/nyutil/system.hpp
 	"TargetConditionals.h"
 
 1444688415 a:\programming\projects\nyutil\nyutil\triangle.hpp
 	<nyutil/vec.hpp>
 	<nyutil/line.hpp>
+
+1444688415 ne.hpp>
 
 1444688390 a:\programming\projects\nyutil\nyutil\line.hpp
 	<nyutil/vec.hpp>
@@ -293,6 +339,8 @@
 	<nyutil/transformable.hpp>
 	<nyutil/triangle.hpp>
 
+1444768116 iangle.hpp>
+
 1444767315 a:\programming\projects\nyutil\nyutil\make_unique.hpp
 	<memory>
 	<functional>
@@ -320,6 +368,8 @@
 	<nyutil/vec.hpp>
 	<nyutil/time.hpp>
 	<set>
+
+1444768054 me.hpp>
 
 1444768028 a:\programming\projects\nyutil\nyutil\time.hpp
 	<chrono>
@@ -358,8 +408,8 @@
 	<nyutil/vec.hpp>
 	<nyutil/line.hpp>
 
-1444767085 source:a:\programming\projects\nyutil\nyutil\typemap.hpp
-	<map>
+1444841935 source:a:\programming\projects\nyutil\nyutil\typemap.hpp
+	<unordered_map>
 	<algorithm>
 	<typeinfo>
 
@@ -396,7 +446,7 @@
 	<memory>
 	<functional>
 
-1444767788 source:a:\programming\projects\nyutil\nyutil\mat.hpp
+1445015683 source:a:\programming\projects\nyutil\nyutil\mat.hpp
 	<nyutil/vec.hpp>
 	<nyutil/refVec.hpp>
 	<nyutil/compFunc.hpp>
@@ -407,7 +457,7 @@
 	<cmath>
 	<tuple>
 
-1442767605 source:a:\programming\projects\nyutil\nyutil\misc.hpp
+1445015945 source:a:\programming\projects\nyutil\nyutil\misc.hpp
 	<string>
 	<vector>
 	<functional>
@@ -475,7 +525,7 @@
 	<vector>
 	<functional>
 
-1444767730 source:a:\programming\projects\nyutil\nyutil\compfunc.hpp
+1445017105 source:a:\programming\projects\nyutil\nyutil\compfunc.hpp
 	<nyutil/function_traits.hpp>
 	<nyutil/tmp.hpp>
 	<nyutil/integer_sequence.hpp>
@@ -484,7 +534,7 @@
 	<tuple>
 	<functional>
 
-1444686898 source:a:\programming\projects\nyutil\nyutil\constants.hpp
+1445015729 source:a:\programming\projects\nyutil\nyutil\constants.hpp
 
 1443888797 source:a:\programming\projects\nyutil\nyutil\eventloop.hpp
 	<nyutil/callback.hpp>
@@ -501,6 +551,8 @@
 	<stdint.h>
 	"uv-win.h"
 	"uv-unix.h"
+
+1438809680 "
 
 1438809680 c:\program files\libuv\include\uv-errno.h
 	<errno.h>
@@ -519,6 +571,8 @@
 	<stdint.h>
 	"tree.h"
 	"uv-threadpool.h"
+
+1438809680 pool.h"
 
 1438809680 c:\program files\libuv\include\tree.h
 
@@ -541,4 +595,254 @@
 1444768028 source:a:\programming\projects\nyutil\nyutil\time.hpp
 	<chrono>
 	<ratio>
+
+1444764516 source:/mnt/sda5/Programming/projects/nyutil/nyutil/nyutil.hpp
+	<nyutil/typemap.hpp>
+	<nyutil/vec.hpp>
+	<nyutil/tmp.hpp>
+	<nyutil/make_unique.hpp>
+	<nyutil/cache.hpp>
+	<nyutil/mat.hpp>
+	<nyutil/callback.hpp>
+	<nyutil/hierachy.hpp>
+	<nyutil/line.hpp>
+	<nyutil/mat.hpp>
+	<nyutil/compFunc.hpp>
+	<nyutil/constants.hpp>
+	<nyutil/animation.hpp>
+	<nyutil/fdstream.hpp>
+	<nyutil/refVec.hpp>
+	<nyutil/time.hpp>
+	<nyutil/thread.hpp>
+	<nyutil/transformable.hpp>
+	<nyutil/triangle.hpp>
+
+1444838335 /mnt/sda5/Programming/projects/nyutil/nyutil/typemap.hpp
+	<unordered_map>
+	<algorithm>
+	<typeinfo>
+
+1444763715 /mnt/sda5/Programming/projects/nyutil/nyutil/make_unique.hpp
+	<memory>
+	<functional>
+
+1443815445 /mnt/sda5/Programming/projects/nyutil/nyutil/cache.hpp
+	<vector>
+	<memory>
+
+1444763973 /mnt/sda5/Programming/projects/nyutil/nyutil/integer_sequence.hpp
+	<nyutil/tmp.hpp>
+	<utility>
+
+1442670392 /mnt/sda5/Programming/projects/nyutil/nyutil/callback.hpp
+	<nyutil/nonCopyable.hpp>
+	<nyutil/compFunc.hpp>
+	<functional>
+	<vector>
+	<utility>
+	<memory>
+	<atomic>
+
+1437849839 /mnt/sda5/Programming/projects/nyutil/nyutil/nonCopyable.hpp
+
+1444764764 /mnt/sda5/Programming/projects/nyutil/nyutil/hierachy.hpp
+	<nyutil/nonCopyable.hpp>
+	<vector>
+
+1444684790 /mnt/sda5/Programming/projects/nyutil/nyutil/line.hpp
+	<nyutil/vec.hpp>
+
+1444764454 /mnt/sda5/Programming/projects/nyutil/nyutil/animation.hpp
+	<nyutil/vec.hpp>
+	<nyutil/time.hpp>
+	<set>
+
+1444764428 /mnt/sda5/Programming/projects/nyutil/nyutil/time.hpp
+	<chrono>
+	<ratio>
+
+1439764476 /mnt/sda5/Programming/projects/nyutil/nyutil/fdstream.hpp
+	<algorithm>
+	<iostream>
+	<iterator>
+	<streambuf>
+	<cstddef>
+	<unistd.h>
+
+1440633035 /mnt/sda5/Programming/projects/nyutil/nyutil/thread.hpp
+	<nyutil/time.hpp>
+	<thread>
+	<mutex>
+	<condition_variable>
+	<vector>
+	<deque>
+	<queue>
+	<future>
+	<functional>
+
+1444684815 /mnt/sda5/Programming/projects/nyutil/nyutil/triangle.hpp
+	<nyutil/vec.hpp>
+	<nyutil/line.hpp>
+
+1444764454 source:/mnt/sda5/Programming/projects/nyutil/nyutil/animation.hpp
+	<nyutil/vec.hpp>
+	<nyutil/time.hpp>
+	<set>
+
+1443815445 source:/mnt/sda5/Programming/projects/nyutil/nyutil/cache.hpp
+	<vector>
+	<memory>
+
+1442670392 source:/mnt/sda5/Programming/projects/nyutil/nyutil/callback.hpp
+	<nyutil/nonCopyable.hpp>
+	<nyutil/compFunc.hpp>
+	<functional>
+	<vector>
+	<utility>
+	<memory>
+	<atomic>
+
+1440070376 source:/mnt/sda5/Programming/projects/nyutil/nyutil/compatibility.hpp
+	<vector>
+	<functional>
+
+1444764130 source:/mnt/sda5/Programming/projects/nyutil/nyutil/compFunc.hpp
+	<nyutil/function_traits.hpp>
+	<nyutil/tmp.hpp>
+	<nyutil/integer_sequence.hpp>
+	<type_traits>
+	<utility>
+	<tuple>
+	<functional>
+
+1444683298 source:/mnt/sda5/Programming/projects/nyutil/nyutil/constants.hpp
+
+1443885197 source:/mnt/sda5/Programming/projects/nyutil/nyutil/eventLoop.hpp
+	<nyutil/callback.hpp>
+	<nyutil/time.hpp>
+	<uv.h>
+	<vector>
+	<memory>
+
+1439764476 source:/mnt/sda5/Programming/projects/nyutil/nyutil/fdstream.hpp
+	<algorithm>
+	<iostream>
+	<iterator>
+	<streambuf>
+	<cstddef>
+	<unistd.h>
+
+1442764026 source:/mnt/sda5/Programming/projects/nyutil/nyutil/function_traits.hpp
+	<tuple>
+
+1444764764 source:/mnt/sda5/Programming/projects/nyutil/nyutil/hierachy.hpp
+	<nyutil/nonCopyable.hpp>
+	<vector>
+
+1444763973 source:/mnt/sda5/Programming/projects/nyutil/nyutil/integer_sequence.hpp
+	<nyutil/tmp.hpp>
+	<utility>
+
+1444684790 source:/mnt/sda5/Programming/projects/nyutil/nyutil/line.hpp
+	<nyutil/vec.hpp>
+
+1444763715 source:/mnt/sda5/Programming/projects/nyutil/nyutil/make_unique.hpp
+	<memory>
+	<functional>
+
+1444764188 source:/mnt/sda5/Programming/projects/nyutil/nyutil/mat.hpp
+	<nyutil/vec.hpp>
+	<nyutil/refVec.hpp>
+	<nyutil/compFunc.hpp>
+	<nyutil/misc.hpp>
+	<nyutil/integer_sequence.hpp>
+	<iomanip>
+	<memory>
+	<cmath>
+	<tuple>
+
+1442764005 source:/mnt/sda5/Programming/projects/nyutil/nyutil/misc.hpp
+	<string>
+	<vector>
+	<functional>
+	<algorithm>
+	<sstream>
+	<cmath>
+
+1437849839 source:/mnt/sda5/Programming/projects/nyutil/nyutil/nonCopyable.hpp
+
+1444684802 source:/mnt/sda5/Programming/projects/nyutil/nyutil/rect.hpp
+	<nyutil/vec.hpp>
+	<nyutil/triangle.hpp>
+	<vector>
+
+1443816645 source:/mnt/sda5/Programming/projects/nyutil/nyutil/refVec.hpp
+	<nyutil/vec.hpp>
+
+1444684779 source:/mnt/sda5/Programming/projects/nyutil/nyutil/region.hpp
+	<nyutil/vec.hpp>
+	<nyutil/rect.hpp>
+	<nyutil/triangle.hpp>
+	<nyutil/line.hpp>
+	<vector>
+
+1444764962 source:/mnt/sda5/Programming/projects/nyutil/nyutil/system.hpp
+	"TargetConditionals.h"
+
+1440633035 source:/mnt/sda5/Programming/projects/nyutil/nyutil/thread.hpp
+	<nyutil/time.hpp>
+	<thread>
+	<mutex>
+	<condition_variable>
+	<vector>
+	<deque>
+	<queue>
+	<future>
+	<functional>
+
+1444764428 source:/mnt/sda5/Programming/projects/nyutil/nyutil/time.hpp
+	<chrono>
+	<ratio>
+
+1443817394 source:/mnt/sda5/Programming/projects/nyutil/nyutil/tmp.hpp
+	<utility>
+
+1443822439 source:/mnt/sda5/Programming/projects/nyutil/nyutil/transformable.hpp
+	<nyutil/mat.hpp>
+	<nyutil/vec.hpp>
+	<nyutil/rect.hpp>
+	<nyutil/constants.hpp>
+	<cmath>
+
+1444684815 source:/mnt/sda5/Programming/projects/nyutil/nyutil/triangle.hpp
+	<nyutil/vec.hpp>
+	<nyutil/line.hpp>
+
+1444684034 source:/mnt/sda5/Programming/projects/nyutil/nyutil/vec.hpp
+	<nyutil/tmp.hpp>
+	<nyutil/constants.hpp>
+	<ostream>
+	<cmath>
+	<type_traits>
+
+1444764516 /mnt/sda5/Programming/projects/nyutil/nyutil/nyutil.hpp
+	<nyutil/typemap.hpp>
+	<nyutil/vec.hpp>
+	<nyutil/tmp.hpp>
+	<nyutil/make_unique.hpp>
+	<nyutil/cache.hpp>
+	<nyutil/mat.hpp>
+	<nyutil/callback.hpp>
+	<nyutil/hierachy.hpp>
+	<nyutil/line.hpp>
+	<nyutil/mat.hpp>
+	<nyutil/compFunc.hpp>
+	<nyutil/constants.hpp>
+	<nyutil/animation.hpp>
+	<nyutil/fdstream.hpp>
+	<nyutil/refVec.hpp>
+	<nyutil/time.hpp>
+	<nyutil/thread.hpp>
+	<nyutil/transformable.hpp>
+	<nyutil/triangle.hpp>
 
