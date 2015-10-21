@@ -2,6 +2,6 @@ prefix=@CMAKE_INSTALL_PREFIX@
 includedir=${prefix}/include
 
 Name: nyutil
-Description: c++14 util functions and classes
+Description: c++11 util functions and classes
 Version: @NYUTIL_VMAJOR@.@NYUTIL_VMINOR@
 Cflags: -I${includedir}

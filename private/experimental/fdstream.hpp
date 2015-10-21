@@ -70,11 +70,6 @@ int fdbuf::sync() {
     if (this->pbase() != this->pptr()) {
         std::streamsize size(this->pptr() - this->pbase());
         std::streamsize done(::write(this->fd_, this->outbuf_, size));
-        // The code below assumes that it is success if the stream made
-        // some progress. Depending on the needs it may be more
-        // reasonable to consider it a success only if it managed to
-        // write the entire buffer and, e.g., loop a couple of times
-        // to try achieving this success.
         if (0 < done) {
             std::copy(this->pbase() + done, this->pptr(), this->pbase());
             this->setp(this->pbase(), this->epptr());

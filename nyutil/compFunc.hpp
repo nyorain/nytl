@@ -1,3 +1,27 @@
+/*
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2015 Jan Kelling 
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #pragma once
 
 #include <nyutil/function_traits.hpp>
@@ -8,6 +32,10 @@
 #include <utility>
 #include <tuple>
 #include <functional>
+
+#if __cplusplus >= 201402L
+#include <experimental/tuple>
+#endif //c++14, todo: is this header c++14 standard?
 
 namespace nyutil
 {
@@ -74,19 +102,25 @@ template<typename orgTup, typename newTup, typename seq = typename detail::tuple
 template<typename... orgArgs, typename... newArgs, size_t... idx>
 struct tupleMap<std::tuple<orgArgs...>, std::tuple<newArgs...>, index_sequence<idx...>>
 {
-    using newTup = std::tuple<newArgs...>;
-    using orgTup = std::tuple<orgArgs...>;
+    using newTup = typename std::tuple<newArgs...>;
+    using orgTup = typename std::tuple<orgArgs...>;
     using seq = index_sequence<idx...>;
 
-    static constexpr newTup map(orgArgs&&... args) noexcept
+    static constexpr std::tuple<newArgs...> map(orgArgs&&... args) noexcept
     {
-        return newTup(std::forward<decltype(std::get<idx>(orgTup(args...)))>(std::get<idx>(orgTup(args...)))...);
+        return std::tuple<newArgs...>(std::forward<decltype(std::get<idx>(orgTup(args...)))>(std::get<idx>(orgTup(args...)))...);
     }
 };
 
 
+#if __cplusplus >= 201402L
+using std::experimental::apply;
+#else
 //experimental::tuple::apply example implementation
 //http://en.cppreference.com/w/cpp/experimental/apply
+namespace detail
+{
+
 template <class F, class Tuple, std::size_t... I>
 constexpr auto apply_impl( F&& f, Tuple&& t, index_sequence<I...> ) -> decltype(f(std::get<I>(std::forward<Tuple>(t))...))
 {
@@ -94,13 +128,18 @@ constexpr auto apply_impl( F&& f, Tuple&& t, index_sequence<I...> ) -> decltype(
     return f(std::get<I>(std::forward<Tuple>(t))...);
 }
 
+}
+
 template <class F, class Tuple>
-constexpr auto apply(F&& f, Tuple&& t) -> decltype(apply_impl(std::forward<F>(f), std::forward<Tuple>(t),
+constexpr auto apply(F&& f, Tuple&& t) -> decltype(detail::apply_impl(std::forward<F>(f), std::forward<Tuple>(t),
         make_index_sequence<std::tuple_size<typename std::decay<Tuple>::type>{}>{}))
 {
-    return apply_impl(std::forward<F>(f), std::forward<Tuple>(t),
+    return detail::apply_impl(std::forward<F>(f), std::forward<Tuple>(t),
         make_index_sequence<std::tuple_size<typename std::decay<Tuple>::type>{}>{});
 }
+
+#endif
+
 
 
 
@@ -154,7 +193,7 @@ public:
 
     //call
     RetOrg call(ArgsOrg... args) const { return func_(args...); }
-    //RetOrg operator()(ArgsOrg... args) const { return func_(args...); }
+    RetOrg operator()(ArgsOrg... args) const { return func_(args...); }
 };
 
 //void ret
@@ -203,7 +242,7 @@ public:
 
     //call
     void call(ArgsOrg... args) const { func_(args...); }
-    //void operator()(ArgsOrg... args) const { func_(args...); }
+    void operator()(ArgsOrg... args) const { func_(args...); }
 };
 
 //typedef compFunc

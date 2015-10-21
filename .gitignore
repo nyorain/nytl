@@ -1,7 +1,6 @@
 build/
-.git
+.git/
 obj/
 bin/
 old/
-concepts/
 *.gch
