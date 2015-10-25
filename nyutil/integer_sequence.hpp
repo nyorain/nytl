@@ -1,18 +1,18 @@
 /*
  * The MIT License (MIT)
- * 
- * Copyright (c) 2015 Jan Kelling 
- * 
+ *
+ * Copyright (c) 2015 Jan Kelling
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -53,19 +53,19 @@ namespace detail
 template<typename T, std::size_t highest> class make_integer_sequenceT
 {
 public:
-    using type = typename seq_append<typename make_integer_sequenceT<T, highest - 2>::type, highest - 1>::type;
+    using type = typename seq_merge_renumber<
+        typename make_integer_sequenceT<T, highest / 2>::type,
+        typename make_integer_sequenceT<T, highest - highest / 2>::type
+    >::type;
 };
 
-template<typename T> class make_integer_sequenceT<T, 1>
-{
-public:
-    using type = index_sequence<0>;
-};
+template<typename T> struct make_integer_sequenceT<T, 0> { using type = integer_sequence<T>; };
+template<typename T> struct make_integer_sequenceT<T, 1> { using type = integer_sequence<T, T(0)>; };
 
 }
 
 //make typedefs
-template<typename T, std::size_t highest> using make_integer_sequence = typename detail::make_integer_sequenceT<T, highest>::type;
+template<typename T, T highest> using make_integer_sequence = typename detail::make_integer_sequenceT<T, highest>::type;
 template<std::size_t highest> using make_index_sequence = make_integer_sequence<std::size_t, highest>;
 
 #endif // __cplusplus

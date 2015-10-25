@@ -1,18 +1,18 @@
 /*
  * The MIT License (MIT)
- * 
- * Copyright (c) 2015 Jan Kelling 
- * 
+ *
+ * Copyright (c) 2015 Jan Kelling
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -118,6 +118,39 @@ struct seq_prepend<T<I, Body...>, Prepend>
 };
 
 template<typename T, typename T::value_type Prepend> using seq_prepend_t = typename seq_prepend<T, Prepend>::type;
+
+//seq_merge///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template<typename A, typename B> struct seq_merge;
+template<typename I, template<typename, I...> class T, I... IdxA, I... IdxB>
+struct seq_merge<T<I, IdxA...>, T<I, IdxB...>>
+{
+    using type = T<I, IdxA..., IdxB...>;
+};
+
+template<typename A, typename B> using seq_merge_t = typename seq_merge<A, B>::type;
+
+//seq_merge_renumber////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template<typename A, typename B> struct seq_merge_renumber;
+template<typename I, template<typename, I...> class T, I... IdxA, I... IdxB>
+struct seq_merge_renumber<T<I, IdxA...>, T<I, IdxB...>>
+{
+    using type = T<I, IdxA..., (sizeof...(IdxA) + IdxB)...>;
+};
+
+template<typename A, typename B> using seq_merge_renumber_t = typename seq_merge_renumber<A, B>::type;
+
+//seq_print////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template<typename T> struct seq_print;
+template<typename I, template<typename, I...> class T, I... idx>
+struct seq_print<T<I, idx...>>
+{
+    static std::ostream& print(std::ostream& o)
+    {
+        int dummy[] = {((void) (o << idx << " "), 0)...};
+        ((void)dummy);
+        return o;
+    };
+};
 
 }
 

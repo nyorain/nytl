@@ -1,1 +1,5 @@
-int main(){}
+#include <nyutil/math.hpp>
+
+int main()
+{
+}

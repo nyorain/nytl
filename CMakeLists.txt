@@ -17,11 +17,11 @@ if(DOXYGEN_FOUND)
 		COMMENT "Generating API documentation with Doxygen" VERBATIM)
 endif(DOXYGEN_FOUND)
 
-#pkg-config
-#configure_file( 
-#	"${CMAKE_CURRENT_SOURCE_DIR}/nyutil.pc.in"
-#	"${CMAKE_CURRENT_BINARY_DIR}/nyutil.pc"
-#	@ONLY)
+pkg-config
+configure_file( 
+	"${CMAKE_CURRENT_SOURCE_DIR}/nyutil.pc.in"
+	"${CMAKE_CURRENT_BINARY_DIR}/nyutil.pc"
+	@ONLY)
 
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/nyutil.pc" DESTINATION lib/pkgconfig)
 install(DIRECTORY nyutil DESTINATION include)
