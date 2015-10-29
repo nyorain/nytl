@@ -1,0 +1,12 @@
+//descitpro for a fileType, makes it easy to load/save serialized objects
+
+class fileDescritption
+{
+public:
+	void addSection(section& s);
+	template<typename T> void addSection();
+
+	bool load(istream&, file&); //file -> just a serialzed object
+	bool save(ostream&, file&);
+};
+

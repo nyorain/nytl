@@ -1,60 +1,31 @@
-#include <nyutil/nyutil.hpp>
+#include <nytl/nytl.hpp>
 
 #include <string>
 #include <iostream>
 
-using namespace nyutil;
-
-
-
-class myClass : public multiCache<unsigned int>
-{
-public:
-    int a;
-
-    using multiCache<unsigned int>::invalidateCache;
-};
-
-float getResult(const myClass& mc)
-{
-    class myCache : public cacheBase<myCache>
-    {
-    public:
-        float result;
-    };
-
-    if(mc.getCache(0))
-    {
-        std::cout << "found " << ((myCache*)(mc.getCache(0)))->result << "\n";
-        return ((myCache*)(mc.getCache(0)))->result;
-    }
-
-    myCache result;
-    result.result = mc.a * 22 / 233.3f;
-    mc.storeCache(0, make_unique<myCache>(result));
-
-    std::cout << "computed " << result.result << "\n";
-
-    return result.result;
-}
+using namespace nytl;
 
 int main()
 {
-    myClass c;;
-    c.a = 10;
+    vec3f vv(1, 2, 3);
+    vec4d va(3, 6, 4, 8);
 
-    myClass d;
-    d.a = 7;
+    std::cout << lessThan(vv, va) << std::endl;
 
-    getResult(c);
-    getResult(c);
+    rect2f a({100, 100}, {100, 100});
+    rect2f b({150, 150}, {100, 100});
+    line2f c({0, 0}, {100, 100});
 
-    getResult(d);
-    getResult(d);
-    d.invalidateCache();
+    triangle3f tri;
+    tri.a = {0, 0, 0};
+    tri.b = {100, 0, 100};
+    tri.c = {0, 100, 100};
 
-    getResult(d);
-    getResult(d);
+    //auto vec = symmetricDifference(a, b);
+    //std::cout << dumpContainer(vec) << std::endl;
+    //std::cout << a.topLeft() << " " << b.top() << " " << a.left() << " ";
 
-    seq_print<make_integer_sequence<int, 1300>>::print(std::cout) << "\n";
+    std::cout << degrees(tri.angleA()) << "\n";
+    std::cout << degrees(tri.angleB()) << "\n";
+    std::cout << degrees(tri.angleC()) << "\n";
 }
