@@ -32,10 +32,10 @@ template<std::size_t dim, typename prec> bool intersects(const rect<dim, prec>& 
 {
     //todo: algorithm might be wrong, might have bugs, !important
     if(contains(r1, l2.a) || contains(r1, l2.b)) return 1;
-    if(!l2.isDefinedFor(r1.position[0], 0) || !l2.isDefinedFor(r1.position[0] + r1.size[0], 0)) return 0;
+    if(!l2.definedFor(r1.position[0], 0) || !l2.definedFor(r1.position[0] + r1.size[0], 0)) return 0;
 
-    auto st = l2.getValueAt(r1.position[0]);
-    auto en = l2.getValueAt(r1.position[0] + r1.size[0]);
+    auto st = l2.valueAt(r1.position[0]);
+    auto en = l2.valueAt(r1.position[0] + r1.size[0]);
 
     for(std::size_t i(1); i < dim; ++i)
     {
@@ -73,12 +73,14 @@ template<std::size_t dim, typename prec> bool contains(const rect<dim, prec>& r1
 }
 template<std::size_t dim, typename prec> bool contains(const rect<dim, prec>& r1, const vec<dim, prec>& v2)
 {
-    return all(r1.position < v2) && all(v2 < r1.position + r1.size);
+    return all(r1.position <= v2) && all(v2 <= r1.position + r1.size);
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //operators
+//means: subtract rectb from recta and then return everything that is left from recta.
+//so recta will be splitted into the rectb-part and the not-rectb-part. the not-rectb-part will be returned.
 template<std::size_t dim, class prec>
 std::vector<rect<dim, prec>> difference(const rect<dim, prec>& recta, const rect<dim, prec>& rectb)
 {

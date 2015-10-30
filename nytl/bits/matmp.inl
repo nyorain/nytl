@@ -24,13 +24,16 @@
 
 namespace detail
 {
+using expander = int[];
 
 //makeRefVec
 template<typename seq> struct makeRefVec;
 template<size_t... idx> struct makeRefVec<index_sequence<idx...>>
 {
+    constexpr makeRefVec() = default;
+
     template<size_t rows, size_t cols, typename prec>
-    refVec<sizeof...(idx), prec> constexpr operator()(vec<rows, vec<cols, prec>>& v, size_t i) const
+    constexpr refVec<sizeof...(idx), prec> operator()(vec<rows, vec<cols, prec>>& v, size_t i) const
     {
         return refVec<sizeof...(idx), prec>(v[idx][i]...);
     }
@@ -40,12 +43,12 @@ template<size_t... idx> struct makeRefVec<index_sequence<idx...>>
 template<typename seq> struct initMatData;
 template<size_t... idx> struct initMatData<index_sequence<idx...>>
 {
+    constexpr initMatData() = default;
+
     template<size_t rows, size_t cols, typename prec, typename... Args>
-    void constexpr operator()(vec<rows, vec<cols, prec>>& v, Args... args) const
+    constexpr int operator()(vec<rows, vec<cols, prec>>& v, std::tuple<Args...> args) const
     {
-        std::tuple<Args...> tup(args...);
-        using expander = int[];
-        expander{0, ((v[idx / cols][idx % cols] = std::get<idx>(tup)), 0)... };
+        return expander{0, ((v[idx / cols][idx % cols] = std::get<idx>(args)), 0)... }[0];
     }
 };
 
@@ -53,8 +56,10 @@ template<size_t... idx> struct initMatData<index_sequence<idx...>>
 template<typename seq> struct copyMatData;
 template<size_t... idx> struct copyMatData<index_sequence<idx...>>
 {
+    constexpr copyMatData() = default;
+
     template<size_t rows, size_t cols, typename prec>
-    std::unique_ptr<prec[]> constexpr operator()(const vec<rows, vec<cols, prec>>& v) const
+    constexpr std::unique_ptr<prec[]> operator()(const vec<rows, vec<cols, prec>>& v) const
     {
         return std::unique_ptr<prec[]>(new prec[rows * cols]{v[idx / cols][idx % rows]...});
     }

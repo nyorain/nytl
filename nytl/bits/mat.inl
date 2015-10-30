@@ -24,7 +24,9 @@
 
 
 //identityMat
-template<size_t dim, typename prec = float> NYUTIL_CPP14_CONSTEXPR squareMat<dim, prec> identityMat()
+//can probably be done as c++11 constexpr with tmp
+template<size_t dim, typename prec = float>
+NYUTIL_CPP14_CONSTEXPR squareMat<dim, prec> identityMat()
 {
 	squareMat<dim, prec> ret{};
 	for(size_t i(0); i < dim; i++) ret[i][i] = prec(1);
@@ -32,12 +34,15 @@ template<size_t dim, typename prec = float> NYUTIL_CPP14_CONSTEXPR squareMat<dim
 }
 
 //mat utility
-template<size_t rows, size_t cols, typename prec> bool mat_ref(mat<rows, cols, prec>& ma)
+//todo: more standard functions
+//todo: algorithms not entirely correct, detect 2 fail cases and return them as error code
+template<size_t rows, size_t cols, typename prec>
+NYUTIL_CPP14_CONSTEXPR bool refMat(mat<rows, cols, prec>& ma)
 {
     for(size_t k = 0; k < std::min(rows, cols); ++k)
     {
         size_t iMax = 0;
-        prec iMaxValue = prec();
+        prec iMaxValue {};
 
         for(size_t r = k; r < rows; ++r)
         {
@@ -67,7 +72,8 @@ template<size_t rows, size_t cols, typename prec> bool mat_ref(mat<rows, cols, p
     return 1;
 }
 
-template<size_t rows, size_t cols, typename prec> bool mat_rref(mat<rows, cols, prec>& ma)
+template<size_t rows, size_t cols, typename prec>
+NYUTIL_CPP14_CONSTEXPR bool rrefMat(mat<rows, cols, prec>& ma)
 {
     if(!mat_ref(ma))
         return 0;
@@ -107,7 +113,8 @@ constexpr unsigned int getNumberOfDigits(double i)
     (i > 0) ? (unsigned int) std::log10((double) i) + 1 : (unsigned int) std::log((double) -i) + 2;
 }
 
-template<size_t rows, size_t cols, class prec> std::ostream& operator<<(std::ostream& os, const mat<rows, cols, prec>& obj)
+template<size_t rows, size_t cols, class prec>
+std::ostream& operator<<(std::ostream& os, const mat<rows, cols, prec>& obj)
 {
     auto org = os.precision();
     os << "{" << "\n";
@@ -131,43 +138,42 @@ template<size_t rows, size_t cols, class prec> std::ostream& operator<<(std::ost
     return os;
 }
 
+//todo: more efficiency with wrapper classes for operations
 //+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<size_t rows, size_t cols, typename prec>
-mat<rows, cols, prec> operator+(mat<rows, cols, prec> ma, const mat<rows, cols, prec>& mb)
+constexpr mat<rows, cols, prec> operator+(mat<rows, cols, prec> ma, const mat<rows, cols, prec>& mb)
 {
-    ma += mb;
-    return ma;
+    return std::move(ma += mb);
 }
 
 
 //-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<size_t rows, size_t cols, typename prec> mat<rows, cols, prec>
-operator-(mat<rows, cols, prec> ma, const mat<rows, cols, prec>& mb)
+constexpr operator-(mat<rows, cols, prec> ma, const mat<rows, cols, prec>& mb)
 {
-    ma -= mb;
-    return ma;
+    return std::move(ma -= mb);
 }
 
 
 //*////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //mat and value
-template<size_t rows, size_t cols, typename prec> mat<rows, cols, prec> operator*(mat<rows, cols, prec> ma, const prec& other)
+template<size_t rows, size_t cols, typename prec>
+constexpr mat<rows, cols, prec> operator*(mat<rows, cols, prec> ma, const prec& other)
 {
-    ma *= other;
-    return ma;
+    return std::move(ma *= other);
 }
 
-template<size_t rows, size_t cols, typename prec> mat<rows, cols, prec> operator*(const prec& other, mat<rows, cols, prec> ma)
+template<size_t rows, size_t cols, typename prec>
+constexpr mat<rows, cols, prec> operator*(const prec& other, mat<rows, cols, prec> ma)
 {
-    ma *= other;
-    return ma;
+    return std::move(ma *= other);
 }
 
 //mat and mat
-template<size_t rowsA, size_t colsA, size_t colsB, typename prec> mat<rowsA, colsB, prec>
-operator*(const mat<rowsA, colsA, prec>& ma, const mat<colsA, colsB, prec>& mb)
+template<size_t rowsA, size_t colsA, size_t colsB, typename prec>
+NYUTIL_CPP14_CONSTEXPR mat<rowsA, colsB, prec> operator*(const mat<rowsA, colsA, prec>& ma, const mat<colsA, colsB, prec>& mb)
 {
-    mat<rowsA, colsB, prec> ret;
+    mat<rowsA, colsB, prec> ret {};
 
     for(size_t r(0); r < rowsA; ++r)
         for(size_t c(0); c < colsB; ++c)
@@ -178,9 +184,9 @@ operator*(const mat<rowsA, colsA, prec>& ma, const mat<colsA, colsB, prec>& mb)
 
 //mat and vector
 template<size_t rows, size_t cols, typename prec>
-vec<rows, prec> operator*(const mat<rows, cols, prec>& ma, const vec<cols, prec>& v)
+NYUTIL_CPP14_CONSTEXPR vec<rows, prec> operator*(const mat<rows, cols, prec>& ma, const vec<cols, prec>& v)
 {
-    vec<rows, prec> ret;
+    vec<rows, prec> ret {};
     ret.fill(prec());
 
     for(size_t i(0); i < rows; i++)

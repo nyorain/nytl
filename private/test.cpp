@@ -1,31 +1,37 @@
-#include <nytl/nytl.hpp>
-
 #include <string>
 #include <iostream>
+
+#include <nytl/nytl.hpp>
 
 using namespace nytl;
 
 int main()
 {
-    vec3f vv(1, 2, 3);
-    vec4d va(3, 6, 4, 8);
 
-    std::cout << lessThan(vv, va) << std::endl;
+    region2f r1 {};
+    region2f r2 {};
 
-    rect2f a({100, 100}, {100, 100});
-    rect2f b({150, 150}, {100, 100});
-    line2f c({0, 0}, {100, 100});
+    r1.add({0, 0, 100, 100});
+    r2.add({50, 50, 100, 100});
 
-    triangle3f tri;
-    tri.a = {0, 0, 0};
-    tri.b = {100, 0, 100};
-    tri.c = {0, 100, 100};
+    r1 = r1 | r2;
+    for(auto& rr : r1.getRects())
+        std::cout << rr << "\n";
 
-    //auto vec = symmetricDifference(a, b);
-    //std::cout << dumpContainer(vec) << std::endl;
-    //std::cout << a.topLeft() << " " << b.top() << " " << a.left() << " ";
+    std::cout << r1.getRects().size() << "\n";
+    std::cout << r2.getRects().size() << "\n\n";
 
-    std::cout << degrees(tri.angleA()) << "\n";
-    std::cout << degrees(tri.angleB()) << "\n";
-    std::cout << degrees(tri.angleC()) << "\n";
+    std::cout << contains(r1, vec2f(20, 20)) << "\n";
+    std::cout << contains(r1, vec2f(70, 70)) << "\n";
+    std::cout << contains(r1, vec2f(100, 100)) << "\n";
+    std::cout << contains(r1, vec2f(1, 1)) << "\n";
+    std::cout << contains(r1, vec2f(145, 145)) << "\n";
+/*
+    rect2f r1 {0,0,100,100};
+    rect2f r2 {50,50,100,100};
+
+    std::cout << dumpContainer(difference(r1, r2)) << "\n";
+*/
+
+    //auto v3 = vec2f(100, 100) - vec2f(300, 300);
 }

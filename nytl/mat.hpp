@@ -185,7 +185,7 @@ public:
 
 public:
     template<typename... Args, typename = typename std::enable_if<std::is_convertible<std::tuple<Args...>, typename type_tuple<value_type, mat_size>::type>::value>::type>
-    mat(Args&&... args) noexcept { constexpr detail::initMatData<make_index_sequence<rows * cols>> a{}; a(data_, args...); }
+    mat(Args&&... args) noexcept { constexpr detail::initMatData<make_index_sequence<rows * cols>> a{}; a(data_, std::make_tuple(args...)); }
 
 	mat() noexcept = default;
 	~mat() noexcept = default;
@@ -197,7 +197,7 @@ public:
 	mat_type& operator=(mat_type&& other) noexcept = default;
 
     template<typename... Args, typename = typename std::enable_if<std::is_convertible<std::tuple<Args...>, typename type_tuple<value_type, mat_size>::type>::value>::type>
-    void init(Args&&... args) { constexpr detail::initMatData<make_index_sequence<rows * cols>> a{}; a(data_, args...); }
+    void init(Args&&... args) { constexpr detail::initMatData<make_index_sequence<rows * cols>> a{}; a(data_, std::make_tuple(args...)); }
 
     //access
 	vec<cols, prec>& row(size_t i){ return data_[i]; }

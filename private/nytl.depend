@@ -854,10 +854,10 @@
 	<nyutil/constants.hpp>
 	<cmath>
 
-1446151207 source:a:\programming\projects\nytl\private\test.cpp
-	<nytl/nytl.hpp>
+1446170467 source:a:\programming\projects\nytl\private\test.cpp
 	<string>
 	<iostream>
+	<nytl/nytl.hpp>
 
 1446036351 a:\programming\projects\nytl\nytl\nytl.hpp
 	<nytl/cache.hpp>
@@ -890,10 +890,10 @@
 	<memory>
 	<functional>
 
-1446148467 a:\programming\projects\nytl\nytl\vec.hpp
+1446170129 a:\programming\projects\nytl\nytl\vec.hpp
 	<nytl/tmp.hpp>
 	<nytl/constants.hpp>
-	<ostream>
+	<iostream>
 	<algorithm>
 	<cmath>
 	<type_traits>
@@ -909,7 +909,7 @@
 	<memory>
 	<nytl/make_unique.hpp>
 
-1446077182 a:\programming\projects\nytl\nytl\mat.hpp
+1446161014 a:\programming\projects\nytl\nytl\mat.hpp
 	<nytl/vec.hpp>
 	<nytl/refVec.hpp>
 	<nytl/compFunc.hpp>
@@ -943,7 +943,7 @@
 	<nytl/tmp.hpp>
 	<utility>
 
-1446075576 a:\programming\projects\nytl\nytl\misc.hpp
+1446168232 a:\programming\projects\nytl\nytl\misc.hpp
 	<string>
 	<vector>
 	<functional>
@@ -966,8 +966,9 @@
 	<nytl/nonCopyable.hpp>
 	<vector>
 
-1446075872 a:\programming\projects\nytl\nytl\line.hpp
+1446166847 a:\programming\projects\nytl\nytl\line.hpp
 	<nytl/vec.hpp>
+	<nytl/bits/line.inl>
 
 1446035542 a:\programming\projects\nytl\nytl\system.hpp
 	<cstdint>
@@ -984,7 +985,7 @@
 	<nytl/constants.hpp>
 	<cmath>
 
-1446077591 a:\programming\projects\nytl\nytl\rect.hpp
+1446170520 a:\programming\projects\nytl\nytl\rect.hpp
 	<nytl/vec.hpp>
 	<nytl/triangle.hpp>
 	<nytl/line.hpp>
@@ -993,9 +994,10 @@
 	<algorithm>
 	<nytl/bits/rect.inl>
 
-1446142250 a:\programming\projects\nytl\nytl\triangle.hpp
+1446162763 a:\programming\projects\nytl\nytl\triangle.hpp
 	<nytl/vec.hpp>
 	<nytl/line.hpp>
+	<nytl/bits/triangle.inl>
 
 1446036416 a:\programming\projects\nytl\nytl\math.hpp
 	<nytl/constants.hpp>
@@ -1008,7 +1010,7 @@
 	<nytl/triangle.hpp>
 	<nytl/vec.hpp>
 
-1446077489 a:\programming\projects\nytl\nytl\region.hpp
+1446166885 a:\programming\projects\nytl\nytl\region.hpp
 	<nytl/vec.hpp>
 	<nytl/rect.hpp>
 	<nytl/triangle.hpp>
@@ -1048,13 +1050,17 @@
 	<nytl/versionControl.hpp>
 	<nytl/watcher.hpp>
 
-1446142485 a:\programming\projects\nytl\nytl\bits\rect.inl
+1446170548 a:\programming\projects\nytl\nytl\bits\rect.inl
 
-1446072053 a:\programming\projects\nytl\nytl\bits\region.inl
+1446168102 a:\programming\projects\nytl\nytl\bits\region.inl
 
-1446151677 a:\programming\projects\nytl\nytl\bits\vec.inl
+1446170481 a:\programming\projects\nytl\nytl\bits\vec.inl
 
-1446076791 a:\programming\projects\nytl\nytl\bits\matmp.inl
+1446161377 a:\programming\projects\nytl\nytl\bits\matmp.inl
 
-1446076846 a:\programming\projects\nytl\nytl\bits\mat.inl
+1446162737 a:\programming\projects\nytl\nytl\bits\mat.inl
+
+1446166867 a:\programming\projects\nytl\nytl\bits\line.inl
+
+1446162785 a:\programming\projects\nytl\nytl\bits\triangle.inl
 

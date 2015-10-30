@@ -80,23 +80,18 @@ inline std::vector<std::string> split(const std::string &s, char delim)
 }
 
 //dumpVector
-template<class T> std::string dumpContainer(const T& obj)
+template<class T> std::string dumpContainer(const T& obj, const char* sep = ",\n")
 {
-    const char* c = "";
     std::stringstream ss;
-
-    //ss << "(";
 
     bool first = 1;
     for(auto& val : obj)
     {
-        if(!first) ss << ", ";
+        if(!first) ss << sep;
         else first = 0;
 
         ss << val;
     }
-
-    //ss << ")";
 
     return ss.str();
 }

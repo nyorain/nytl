@@ -27,7 +27,7 @@
 #include <nytl/tmp.hpp>
 #include <nytl/constants.hpp>
 
-#include <ostream>
+#include <iostream>
 #include <algorithm>
 #include <cmath>
 #include <type_traits>
@@ -74,12 +74,15 @@ typedef vec4<unsigned long> vec4ul;
 typedef vec4<bool> vec4b;
 
 //raw
+namespace detail
+{
 template<typename T> struct rawT
 {
-    using type = typename std::remove_reference<T>::type;
+    using type = typename std::remove_reference<T>::type; //const, volatile?
 };
+}
 
-template<typename T> using raw = typename rawT<T>::type;
+template<typename T> using raw = typename detail::rawT<T>::type;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //vec default
@@ -146,7 +149,7 @@ public:
     template<typename ot> vec_type& operator >>=(const ot& other){ for(auto& val : *this) val >>= other; return *this; }
     template<typename ot> vec_type& operator <<=(const ot& other){ for(auto& val : *this) val <<= other; return *this; }
 
-    vec_type operator-() const { vec_type ret(*this); for(size_t i(0); i < dim; i++) ret[i] -= (*this)[i]; return ret; }
+    vec_type operator-() const { vec_type ret{}; for(size_t i(0); i < dim; i++) ret[i] -= (*this)[i]; return ret; }
 
     template <size_t odim, typename ot, typename = typename std::enable_if<!std::is_reference<ot>::value>::type>
     operator vec<odim, ot>() const { vec<odim, ot> ret; ret.fill(ot()); for(size_t i(0); i < std::min(odim, dim); i++) ret[i] = (*this)[i]; return ret; }
@@ -350,7 +353,7 @@ public:
     template<typename ot> vec_type& operator ^=(const ot& other){ for(auto& val : *this) val ^= other;  return *this; }
     template<typename ot> vec_type& operator &=(const ot& other){ for(auto& val : *this) val &= other;  return *this; }
 
-    vec_type operator-() const { vec_type ret(-x, -y, -z); }
+    vec_type operator-() const { return vec_type(-x, -y, -z); }
 
     template <size_t odim, typename ot, typename = typename std::enable_if<!std::is_reference<ot>::value>::type>
     operator vec<odim, ot>() const { vec<odim, ot> ret; ret.fill(ot()); for(size_t i(0); i < std::min(odim, dim); i++) ret[i] = (*this)[i]; return ret; }
@@ -460,7 +463,7 @@ public:
     template<typename ot> vec_type& operator ^=(const ot& other){ for(auto& val : *this) val ^= other;  return *this; }
     template<typename ot> vec_type& operator &=(const ot& other){ for(auto& val : *this) val &= other;  return *this; }
 
-    vec_type operator-() const { vec_type ret(-x, -y, -z, -w); }
+    vec_type operator-() const { return  vec_type(-x, -y, -z, -w); }
 
     template <size_t odim, typename ot, typename = typename std::enable_if<!std::is_reference<ot>::value>::type>
     operator vec<odim, ot>() const { vec<odim, ot> ret; ret.fill(ot()); for(size_t i(0); i < std::min(odim, dim); i++) ret[i] = (*this)[i]; return ret; }

@@ -37,10 +37,12 @@
 			<Add directory=".." />
 			<Add directory="C:/Program Files/libuv/include" />
 		</Compiler>
+		<Unit filename="../nytl/bits/line.inl" />
 		<Unit filename="../nytl/bits/mat.inl" />
 		<Unit filename="../nytl/bits/matmp.inl" />
 		<Unit filename="../nytl/bits/rect.inl" />
 		<Unit filename="../nytl/bits/region.inl" />
+		<Unit filename="../nytl/bits/triangle.inl" />
 		<Unit filename="../nytl/bits/vec.inl" />
 		<Unit filename="../nytl/cache.hpp" />
 		<Unit filename="../nytl/callback.hpp" />

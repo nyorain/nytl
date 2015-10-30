@@ -94,9 +94,9 @@ public:
     double size() const { return length(b - a) * length(c - a) * 0.5; }
 
     //todo
-    float angleA() const { return angle(AB().getDifference(), AC().getDifference()); }
-    float angleB() const { return angle(BA().getDifference(), BC().getDifference()); }
-    float angleC() const { return angle(CB().getDifference(), CA().getDifference()); }
+    float angleA() const { return angle(AB().difference(), AC().difference()); }
+    float angleB() const { return angle(BA().difference(), BC().difference()); }
+    float angleC() const { return angle(CB().difference(), CA().difference()); }
 
     line_type AB() const { return line_type(a, b); }
     line_type AC() const { return line_type(a, c); }
@@ -110,7 +110,10 @@ public:
     operator triangle<odim, oprec>() const { return triangle<odim, oprec>(a, b, c); }
 };
 
-//util
+//utility and operators/test
+#include <nytl/bits/triangle.inl>
+
+//todo:exclude to bits file
 template<size_t dim, typename prec>
 bool contains(const triangle<dim, prec>& t, const vec<dim, prec>& p)
 {

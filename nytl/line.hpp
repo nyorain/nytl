@@ -29,55 +29,8 @@
 namespace nytl
 {
 
-//line
-template<size_t dim, typename prec>
-class line
-{
-public:
-    using value_type = prec;
-    using vec_type = vec<dim, value_type>;
-
-public:
-    vec_type a;
-    vec_type b;
-
-public:
-    line(const vec_type& xa, const vec_type& xb) noexcept : a(xa), b(xb) {}
-    line() noexcept = default;
-
-    vec_type getDifference() const { return b - a; }
-    vec_type getGradient() const { return normalize(getDifference() / length(getDifference())); }
-    vec_type getGradient(std::size_t dimension) const { return getGradient() / getGradient()[dimension]; }
-
-    vec_type getValueAt(const prec& value, std::size_t dimension = 0) const
-    {
-        if(getGradient()[dimension] == 0)
-        {
-            auto ret = a;
-            ret[dimension] = value;
-            return ret;
-        };
-
-        auto ret = a + ((value - a[dimension]) * getGradient(dimension)); //todo: clearer expression
-        ret[dimension] = value;
-        return ret;
-    }
-
-    bool isDefinedFor(const prec& value, std::size_t dimension = 0) const
-    {
-        return std::min(a[dimension], b[dimension]) <= value && std::max(a[dimension], b[dimension]) >= value;
-    }
-
-    //conversion
-    template<size_t odim, typename oprec>
-    operator line<odim, oprec>() const { return line<odim, oprec>(a, b); }
-};
-
-template<size_t dim, typename prec> using ray = line<dim, prec>;
-template<size_t dim, typename prec> using segment = line<dim, prec>;
-
-
 //typedefs
+template<size_t dim, typename prec> class line;
 template<typename prec> using line2 = line<2, prec>;
 template<typename prec> using line3 = line<3, prec>;
 template<typename prec> using line4 = line<4, prec>;
@@ -94,11 +47,46 @@ using line2ui = line<2, unsigned int>;
 using line3ui = line<3, unsigned int>;
 using line4ui = line<4, unsigned int>;
 
-//util
+//tests
+template<std::size_t dim, typename prec> NYUTIL_CPP14_CONSTEXPR bool intersects(const line<dim, prec>&, const line<dim, prec>&);
+template<std::size_t dim, typename prec> NYUTIL_CPP14_CONSTEXPR bool intersects(const line<dim, prec>&, const vec<dim, prec>&);
+
+template<std::size_t dim, typename prec> NYUTIL_CPP14_CONSTEXPR vec<dim, prec> intersection(const line<dim, prec>&, const line<dim, prec>&);
+
+//line
+//todo: ray, segment? some way to make clear what type of line it is
 template<size_t dim, typename prec>
-auto length(const line<dim, prec>& l) -> decltype(length(l.getDifference()))
+class line
 {
-    return length(l.getDifference());
-}
+public:
+    using value_type = prec;
+    using vec_type = vec<dim, value_type>;
+
+public:
+    vec_type a;
+    vec_type b;
+
+public:
+    constexpr line(const vec_type& xa, const vec_type& xb) noexcept : a(xa), b(xb) {}
+    line() noexcept = default;
+
+    constexpr float length() const { return distance(a, b); }
+    constexpr vec_type difference() const { return b - a; }
+    constexpr vec_type gradient() const { return normalize(difference() / nytl::length(difference())); }
+    constexpr vec_type gradient(std::size_t dimension) const { return gradient() / gradient()[dimension]; }
+
+    constexpr bool definedFor(const prec& value, std::size_t dimension = 0) const;
+    NYUTIL_CPP14_CONSTEXPR vec_type valueAt(const prec& value, std::size_t dimension = 0) const;
+
+    constexpr prec min(std::size_t dimension) const { return nytl::min(a[dimension], b[dimension]); }
+    constexpr prec max(std::size_t dimension) const { return nytl::max(a[dimension], b[dimension]); }
+
+    //conversion
+    template<size_t odim, typename oprec>
+    constexpr operator line<odim, oprec>() const { return line<odim, oprec>(a, b); }
+};
+
+//utility and operators
+#include <nytl/bits/line.inl>
 
 }

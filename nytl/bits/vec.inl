@@ -66,6 +66,7 @@ template<std::size_t dim, typename T> std::istream& operator>>(std::istream& is,
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//todo: vec and vec unefficient atm
 //+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<std::size_t dim, typename T, typename O>
 NYUTIL_CPP14_CONSTEXPR vec<dim, T> operator+(vec<dim, T> mvec, const O& other)
@@ -84,8 +85,8 @@ NYUTIL_CPP14_CONSTEXPR vec<dim, T> operator+(const O& other, vec<dim, T> mvec)
 template<std::size_t dima, typename Ta, std::size_t dimb, typename Tb, typename ttype = typename std::conditional<(dima > dimb), Ta, Tb>::type>
 NYUTIL_CPP14_CONSTEXPR vec<max(dima, dimb), ttype> operator+(const vec<dima, Ta>& a, const vec<dimb, Tb>& b)
 {
-    vec<max(dima, dimb), ttype> ret = (dima > dimb) ? (vec<max(dima, dimb), ttype>)a : (vec<max(dima, dimb), ttype>)b;
-    ret += b;
+    vec<max(dima, dimb), ttype> ret = (vec<max(dima, dimb), ttype>)a;
+    ret += (vec<max(dima, dimb), ttype>)b;
     return ret;
 }
 
@@ -110,8 +111,8 @@ NYUTIL_CPP14_CONSTEXPR vec<dim, T> operator-(const O& other, vec<dim, T> mvec)
 template<std::size_t dima, typename Ta, std::size_t dimb, typename Tb, typename ttype = typename std::conditional<(dima > dimb), Ta, Tb>::type>
 NYUTIL_CPP14_CONSTEXPR vec<max(dima, dimb), ttype> operator-(const vec<dima, Ta>& a, const vec<dimb, Tb>& b)
 {
-    vec<max(dima, dimb), ttype> ret = (dima > dimb) ? (vec<max(dima, dimb), ttype>)a : (vec<max(dima, dimb), ttype>)b;
-    ret -= b;
+    vec<max(dima, dimb), ttype> ret = (vec<max(dima, dimb), ttype>)a;
+    ret -= (vec<max(dima, dimb), ttype>)b;
     return ret;
 }
 
@@ -135,15 +136,15 @@ NYUTIL_CPP14_CONSTEXPR  vec<dim, T> operator*(const O& other, vec<dim, T> mvec)
 template<std::size_t dima, typename Ta, std::size_t dimb, typename Tb, typename ttype = typename std::conditional<(dima > dimb), Ta, Tb>::type>
 NYUTIL_CPP14_CONSTEXPR vec<max(dima, dimb), ttype> operator*(const vec<dima, Ta>& a, const vec<dimb, Tb>& b)
 {
-    vec<max(dima, dimb), ttype> ret = (dima > dimb) ? (vec<max(dima, dimb), ttype>)a : (vec<max(dima, dimb), ttype>)b;
-    ret *= b;
+    vec<max(dima, dimb), ttype> ret = (vec<max(dima, dimb), ttype>)a;
+    ret *= (vec<max(dima, dimb), ttype>)b;
     return ret;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //\////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<std::size_t dim, typename T, typename O>
-NYUTIL_CPP14_CONSTEXPR  vec<dim, T> operator/(vec<dim, T> mvec, const O& other)
+NYUTIL_CPP14_CONSTEXPR vec<dim, T> operator/(vec<dim, T> mvec, const O& other)
 {
     mvec /= other;
     return mvec;
@@ -162,8 +163,8 @@ NYUTIL_CPP14_CONSTEXPR vec<dim, T> operator/(const O& other, vec<dim, T> mvec)
 template<std::size_t dima, typename Ta, std::size_t dimb, typename Tb, typename ttype = typename std::conditional<(dima > dimb), Ta, Tb>::type>
 NYUTIL_CPP14_CONSTEXPR vec<max(dima, dimb), ttype> operator/(const vec<dima, Ta>& a, const vec<dimb, Tb>& b)
 {
-    vec<max(dima, dimb), ttype> ret = (dima > dimb) ? (vec<max(dima, dimb), ttype>)a : (vec<max(dima, dimb), ttype>)b;
-    ret /= b;
+    vec<max(dima, dimb), ttype> ret = (vec<max(dima, dimb), ttype>)a;
+    ret /= (vec<max(dima, dimb), ttype>)b;
     return ret;
 }
 
@@ -190,8 +191,8 @@ NYUTIL_CPP14_CONSTEXPR vec<dim, T> operator%(const O& other, vec<dim, T> mvec)
 template<std::size_t dima, typename Ta, std::size_t dimb, typename Tb, typename ttype = typename std::conditional<(dima > dimb), Ta, Tb>::type>
 NYUTIL_CPP14_CONSTEXPR vec<max(dima, dimb), ttype> operator%(const vec<dima, Ta>& a, const vec<dimb, Tb>& b)
 {
-    vec<max(dima, dimb), ttype> ret = (dima > dimb) ? (vec<max(dima, dimb), ttype>)a : (vec<max(dima, dimb), ttype>)b;
-    ret %= b;
+    vec<max(dima, dimb), ttype> ret = (vec<max(dima, dimb), ttype>)a;
+    ret %= (vec<max(dima, dimb), ttype>)b;
     return ret;
 }
 
@@ -406,7 +407,7 @@ NYUTIL_CPP14_CONSTEXPR float cangle(const vec<2, Ta>& veca, const vec<2, Tb>& ve
 template<std::size_t dim, typename T>
 constexpr vec<dim, float> normalize(const vec<dim, T>& veca)
 {
-    return vec<dim, float>(veca) / weight(veca);
+    return (vec<dim, float>(veca)) / length(veca);
 }
 
 //distance
@@ -440,23 +441,23 @@ NYUTIL_CPP14_CONSTEXPR vec<dim, T> abs(vec<dim, T> veca)
 }
 
 //clamp
-template<std::size_t dim, typename T>
-NYUTIL_CPP14_CONSTEXPR vec<dim, T> clamp(vec<dim, T> val, const vec<dim, T>& minVal, const vec<dim, T>& maxVal)
+template<std::size_t dim, typename Ta, typename Tb, typename Tc>
+NYUTIL_CPP14_CONSTEXPR vec<dim, Ta> clamp(vec<dim, Ta> val, const vec<dim, Tb>& minVal, const vec<dim, Tc>& maxVal)
 {
     for(std::size_t i(0); i < dim; ++i) val[i] = clamp(val[i], minVal[i], maxVal[i]);
     return val;
 }
 
 //mix
-template<std::size_t dim, typename T>
-NYUTIL_CPP14_CONSTEXPR vec<dim, T> mix(vec<dim, T> x, const vec<dim, T>& y, const vec<dim, float>& a)
+template<std::size_t dim, typename Ta, typename Tb>
+NYUTIL_CPP14_CONSTEXPR vec<dim, Ta> mix(vec<dim, Ta> x, const vec<dim, Ta>& y, const vec<dim, Tb>& a)
 {
     for(std::size_t i(0); i < dim; ++i) x[i] = mix(x[i], y[i], a[i]);
     return x;
 }
 
-template<std::size_t dim, typename T>
-NYUTIL_CPP14_CONSTEXPR vec<dim, T> mix(vec<dim, T> x, const vec<dim, T>& y, float a)
+template<std::size_t dim, typename Ta, typename Tb>
+NYUTIL_CPP14_CONSTEXPR vec<dim, Ta> mix(vec<dim, Ta> x, const vec<dim, Ta>& y, const Tb& a)
 {
     for(std::size_t i(0); i < dim; ++i) x[i] = mix(x[i], y[i], a);
     return x;
@@ -465,29 +466,29 @@ NYUTIL_CPP14_CONSTEXPR vec<dim, T> mix(vec<dim, T> x, const vec<dim, T>& y, floa
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //boolean vec operations//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<std::size_t dim>
-NYUTIL_CPP14_CONSTEXPR bool any_of(const vec<dim, bool>& v)
+NYUTIL_CPP14_CONSTEXPR bool any(const vec<dim, bool>& v)
 {
     for(auto val : v) if(val) return 1;
     return 0;
 }
 
 template<std::size_t dim>
-NYUTIL_CPP14_CONSTEXPR bool all_of(const vec<dim, bool>& v)
+NYUTIL_CPP14_CONSTEXPR bool all(const vec<dim, bool>& v)
 {
     for(auto val : v) if(!val) return 0;
     return 1;
 }
 
 template<std::size_t dim>
-NYUTIL_CPP14_CONSTEXPR bool none_of(const vec<dim, bool>& v)
+NYUTIL_CPP14_CONSTEXPR bool none(const vec<dim, bool>& v)
 {
     for(auto val : v) if(val) return 0;
     return 1;
 }
 
 //not
-template<std::size_t dim>
-NYUTIL_CPP14_CONSTEXPR vec<dim, bool> operator!(vec<dim, bool> v)
+template<std::size_t dim, typename T>
+NYUTIL_CPP14_CONSTEXPR vec<dim, T> operator!(vec<dim, T> v)
 {
     for(auto& val : v) val = !val;
     return v;
@@ -498,7 +499,7 @@ NYUTIL_CPP14_CONSTEXPR vec<dim, bool> operator!(vec<dim, bool> v)
 template<std::size_t dim, typename prec>
 NYUTIL_CPP14_CONSTEXPR vec<dim, prec> max(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
 {
-    vec<dim, prec> ret;
+    vec<dim, prec> ret{};
     for(std::size_t i(0); i < dim; ++i)
     {
         ret[i] = max(veca[i], vecb[i]);
@@ -509,7 +510,7 @@ NYUTIL_CPP14_CONSTEXPR vec<dim, prec> max(const vec<dim, prec>& veca, const vec<
 template<std::size_t dim, typename prec>
 NYUTIL_CPP14_CONSTEXPR vec<dim, prec> max(const vec<dim, prec>& veca, const prec& value)
 {
-    vec<dim, prec> ret;
+    vec<dim, prec> ret{};
     for(std::size_t i(0); i < dim; ++i)
     {
         ret[i] = max(veca[i], value);
@@ -520,7 +521,7 @@ NYUTIL_CPP14_CONSTEXPR vec<dim, prec> max(const vec<dim, prec>& veca, const prec
 template<std::size_t dim, typename prec>
 NYUTIL_CPP14_CONSTEXPR vec<dim, prec> min(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
 {
-    vec<dim, prec> ret;
+    vec<dim, prec> ret{};
     for(std::size_t i(0); i < dim; ++i)
     {
         ret[i] = min(veca[i], vecb[i]);
@@ -531,170 +532,10 @@ NYUTIL_CPP14_CONSTEXPR vec<dim, prec> min(const vec<dim, prec>& veca, const vec<
 template<std::size_t dim, typename prec>
 NYUTIL_CPP14_CONSTEXPR vec<dim, prec> min(const vec<dim, prec>& veca, const prec& value)
 {
-    vec<dim, prec> ret;
+    vec<dim, prec> ret{};
     for(std::size_t i(0); i < dim; ++i)
     {
         ret[i] = min(veca[i], value);
     }
     return ret;
 }
-
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//boolean vec comparison helpers/////////////////////////////////////////////////////////////////////////////
-//rlly needed? any_of(lessThan(v1, v2)); is probably easy enough. todo: back up and remove from file
-//any
-/*
-template<size_t dim, typename prec>
-bool anyLessThan(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
-{
-	return any_of(lessThan(veca, vecb));
-}
-
-template<size_t dim, typename prec>
-bool anyLessThan(const vec<dim, prec>& veca, const prec& value)
-{
-	return any_of(lessThan(veca, value));
-}
-
-template<size_t dim, typename prec>
-bool anyLessThanEqual(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
-{
-	return any_of(lessThanEqual(veca, vecb));
-}
-
-template<size_t dim, typename prec>
-bool anyLessThanEqual(const vec<dim, prec>& veca, const prec& value)
-{
-	return any_of(lessThanEqual(veca, value));
-}
-
-template<size_t dim, typename prec>
-bool anyGreaterThan(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
-{
-	return any_of(greaterThan(veca, vecb));
-}
-
-template<size_t dim, typename prec>
-bool anyGreaterThan(const vec<dim, prec>& veca, const prec& value)
-{
-	return any_of(greaterThan(veca, value));
-}
-
-
-template<size_t dim, typename prec>
-bool anyGreaterThanEqual(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
-{
-	return any_of(greaterThanEqual(veca, vecb));
-}
-
-template<size_t dim, typename prec>
-bool anyGreaterThanEqual(const vec<dim, prec>& veca, const prec& value)
-{
-	return any_of(greaterThanequal(veca, value));
-}
-
-
-////all
-template<size_t dim, typename prec>
-bool allLessThan(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
-{
-    return all_of(lessThan(veca, vecb));
-}
-
-template<size_t dim, typename prec>
-bool allLessThan(const vec<dim, prec>& veca, const prec& value)
-{
-    return all_of(lessThan(veca, value));
-}
-
-template<size_t dim, typename prec>
-bool allLessThanEqual(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
-{
-    return all_of(lessThanEqual(veca, vecb));
-}
-
-template<size_t dim, typename prec>
-bool allLessThanEqual(const vec<dim, prec>& veca, const prec& value)
-{
-    return all_of(lessThanEqual(veca, value));
-}
-
-
-template<size_t dim, typename prec>
-bool allGreaterThan(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
-{
-    return all_of(greaterThan(veca, vecb));
-}
-
-template<size_t dim, typename prec>
-bool allGreaterThan(const vec<dim, prec>& veca, const prec& value)
-{
-    return all_of(greaterThan(veca, value));
-}
-
-
-template<size_t dim, typename prec>
-bool allGreaterThanEqual(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
-{
-    return all_of(greaterThanEqual(veca, vecb));
-}
-
-template<size_t dim, typename prec>
-bool allGreaterThanEqual(const vec<dim, prec>& veca, const prec& value)
-{
-    return all_of(greaterThanEqual(veca, value));
-}
-
-////none
-template<size_t dim, typename prec>
-bool noneLessThan(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
-{
-    return none_of(lessThan(veca, vecb));
-}
-
-template<size_t dim, typename prec>
-bool noneLessThan(const vec<dim, prec>& veca, const prec& value)
-{
-    return none_of(lessThan(veca, value));
-}
-
-template<size_t dim, typename prec>
-bool noneLessThanEqual(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
-{
-    return none_of(lessThanEqual(veca, vecb));
-}
-
-template<size_t dim, typename prec>
-bool noneLessThanEqual(const vec<dim, prec>& veca, const prec& value)
-{
-    return none_of(lessThanEqual(veca, value));
-}
-
-
-template<size_t dim, typename prec>
-bool noneGreaterThan(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
-{
-    return none_of(greaterThan(veca, vecb));
-}
-
-template<size_t dim, typename prec>
-bool noneGreaterThan(const vec<dim, prec>& veca, const prec& value)
-{
-    return none_of(greaterThan(veca, value));
-}
-
-
-template<size_t dim, typename prec>
-bool noneGreaterThanEqual(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
-{
-    return none_of(greaterThanEqual(veca, vecb));
-}
-
-template<size_t dim, typename prec>
-bool noneGreaterThanEqual(const vec<dim, prec>& veca, const prec& value)
-{
-    return none_of(greaterThanEqual(veca, value));
-}
-*/
