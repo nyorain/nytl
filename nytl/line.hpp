@@ -48,10 +48,13 @@ using line3ui = line<3, unsigned int>;
 using line4ui = line<4, unsigned int>;
 
 //tests
-template<std::size_t dim, typename prec> NYUTIL_CPP14_CONSTEXPR bool intersects(const line<dim, prec>&, const line<dim, prec>&);
-template<std::size_t dim, typename prec> NYUTIL_CPP14_CONSTEXPR bool intersects(const line<dim, prec>&, const vec<dim, prec>&);
+template<std::size_t dim, typename prec> NYUTIL_CPP14_CONSTEXPR 
+bool intersects(const line<dim, prec>&, const line<dim, prec>&);
+template<std::size_t dim, typename prec> constexpr 
+bool intersects(const line<dim, prec>&, const vec<dim, prec>&);
 
-template<std::size_t dim, typename prec> NYUTIL_CPP14_CONSTEXPR vec<dim, prec> intersection(const line<dim, prec>&, const line<dim, prec>&);
+template<std::size_t dim, typename prec> NYUTIL_CPP14_CONSTEXPR 
+vec<dim, prec> intersection(const line<dim, prec>&, const line<dim, prec>&);
 
 //line
 //todo: ray, segment? some way to make clear what type of line it is

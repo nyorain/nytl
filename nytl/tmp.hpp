@@ -26,6 +26,7 @@
 //header for template metaprogramming
 
 #include <utility>
+#include <ostream>
 
 namespace nytl
 {
@@ -151,6 +152,18 @@ struct seq_print<T<I, idx...>>
         return o;
     };
 };
+
+//raw//////////////////////////////////////////////////////////////////////////////////////////////////
+namespace detail
+{
+template<typename T> struct rawT
+{
+    using type = typename std::remove_reference<T>::type; //const, volatile?
+};
+}
+
+template<typename T> using raw = typename detail::rawT<T>::type;
+
 
 }
 

@@ -55,12 +55,17 @@ using triangle4ui = triangle<4, unsigned int>;
 
 //should rlly be declared here? use helper member functions?
 //tests
-template<std::size_t dim, typename prec> bool intersects(const triangle<dim, prec>&, const triangle<dim, prec>&);
-template<std::size_t dim, typename prec> bool intersects(const triangle<dim, prec>&, const line<dim, prec>&);
+template<std::size_t dim, typename prec> constexpr
+bool intersects(const triangle<dim, prec>&, const triangle<dim, prec>&);
+template<std::size_t dim, typename prec> constexpr
+bool intersects(const triangle<dim, prec>&, const line<dim, prec>&);
 
-template<std::size_t dim, typename prec> bool contains(const triangle<dim, prec>&, const triangle<dim, prec>&);
-template<std::size_t dim, typename prec> bool contains(const triangle<dim, prec>&, const line<dim, prec>&);
-template<std::size_t dim, typename prec> bool contains(const triangle<dim, prec>&, const vec<dim, prec>&);
+template<std::size_t dim, typename prec> constexpr 
+bool contains(const triangle<dim, prec>&, const triangle<dim, prec>&);
+template<std::size_t dim, typename prec> constexpr 
+bool contains(const triangle<dim, prec>&, const line<dim, prec>&);
+template<std::size_t dim, typename prec> NYUTIL_CPP14_CONSTEXPR  
+bool contains(const triangle<dim, prec>&, const vec<dim, prec>&);
 
 
 //class
@@ -79,63 +84,39 @@ public:
     vec_type c;
 
 public:
-    triangle() = default;
-    triangle(const vec_type& xa, const vec_type& xb, const vec_type& xc) : a(xa), b(xb), c(xc) {}
+    constexpr triangle() = default;
+    constexpr triangle(const vec_type& xa, const vec_type& xb, const vec_type& xc) 
+		: a(xa), b(xb), c(xc) {}
 
-    ~triangle() = default;
+    ~triangle() noexcept = default;
 
-    triangle(const triangle_type& other) = default;
-    triangle& operator=(const triangle_type& other) = default;
+    constexpr triangle(const triangle_type& other) noexcept = default;
+    constexpr triangle& operator=(const triangle_type& other) noexcept = default;
 
-    triangle(triangle_type&& other) noexcept = default;
-    triangle& operator=(triangle_type&& other) noexcept = default;
+    constexpr triangle(triangle_type&& other) noexcept = default;
+    constexpr triangle& operator=(triangle_type&& other) noexcept = default;
 
     //
-    double size() const { return length(b - a) * length(c - a) * 0.5; }
+    constexpr double size() const { return length(b - a) * length(c - a) * 0.5; }
 
     //todo
-    float angleA() const { return angle(AB().difference(), AC().difference()); }
-    float angleB() const { return angle(BA().difference(), BC().difference()); }
-    float angleC() const { return angle(CB().difference(), CA().difference()); }
+    constexpr float angleA() const { return angle(AB().difference(), AC().difference()); }
+    constexpr float angleB() const { return angle(BA().difference(), BC().difference()); }
+    constexpr float angleC() const { return angle(CB().difference(), CA().difference()); }
 
-    line_type AB() const { return line_type(a, b); }
-    line_type AC() const { return line_type(a, c); }
-    line_type BC() const { return line_type(b, c); }
-    line_type BA() const { return line_type(b, a); }
-    line_type CA() const { return line_type(c, a); }
-    line_type CB() const { return line_type(c, b); }
+    constexpr line_type AB() const { return line_type(a, b); }
+    constexpr line_type AC() const { return line_type(a, c); }
+    constexpr line_type BC() const { return line_type(b, c); }
+    constexpr line_type BA() const { return line_type(b, a); }
+    constexpr line_type CA() const { return line_type(c, a); }
+    constexpr line_type CB() const { return line_type(c, b); }
 
     //conversion
-    template<size_t odim, typename oprec>
+    template<size_t odim, typename oprec> constexpr
     operator triangle<odim, oprec>() const { return triangle<odim, oprec>(a, b, c); }
 };
 
 //utility and operators/test
 #include <nytl/bits/triangle.inl>
-
-//todo:exclude to bits file
-template<size_t dim, typename prec>
-bool contains(const triangle<dim, prec>& t, const vec<dim, prec>& p)
-{
-    //http://math.stackexchange.com/questions/4322/check-whether-a-point-is-within-a-3d-triangle
-    //todo: if point is not even on triangle plane
-    double area2 = length(t.b - t.a) * length(t.c - t.a);
-    double aa = length(t.b - p) * length(t.c - p) / area2;
-    double bb = length(t.c - p) * length(t.a - p) / area2;
-    double cc = 1 - aa - bb;
-
-    if(aa < 0 || aa > 1) return 0;
-    if(bb < 0 || bb > 1) return 0;
-    if(cc < 0 || cc > 1) return 0;
-
-    return 1;
-}
-
-//operator
-template<size_t dim, typename prec> std::ostream& operator<<(std::ostream& os, const triangle<dim, prec>& obj)
-{
-    os << obj.a << " " << obj.b << " " << obj.c;
-    return os;
-}
 
 }

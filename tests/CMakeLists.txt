@@ -6,3 +6,7 @@ target_compile_features(test_math PRIVATE cxx_range_for)
 
 add_executable(test_utility func.cpp)
 target_compile_features(test_utility PRIVATE cxx_range_for)
+
+#private test for new features
+add_executable(test_private test.cpp)
+target_compile_features(test_private PRIVATE cxx_range_for)

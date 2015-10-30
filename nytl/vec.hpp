@@ -73,17 +73,6 @@ typedef vec4<long> vec4l;
 typedef vec4<unsigned long> vec4ul;
 typedef vec4<bool> vec4b;
 
-//raw
-namespace detail
-{
-template<typename T> struct rawT
-{
-    using type = typename std::remove_reference<T>::type; //const, volatile?
-};
-}
-
-template<typename T> using raw = typename detail::rawT<T>::type;
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //vec default
 template<size_t dimension, typename T> class vec
@@ -114,7 +103,13 @@ public:
     value_type data_[dim];
 
 public:
-    template<typename... Args, typename = typename std::enable_if<std::is_convertible<std::tuple<Args...>, typename type_tuple<value_type, dim>::type>::value>::type>
+    template<typename... Args, typename = typename 
+		std::enable_if<
+			std::is_convertible<
+				std::tuple<Args...>, 
+				typename type_tuple<value_type, dim>::type
+			>::value
+		>::type>
     vec(Args&&... args) noexcept : data_{std::forward<Args>(args)...} {}
 
     vec() noexcept = default;

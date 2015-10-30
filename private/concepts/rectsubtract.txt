@@ -1,0 +1,86 @@
+vector<rect> vec; //output
+recta,rectb; //input, recta original one, rectb the intersecting one
+
+foreach(i : dimensions)
+{
+	if(recta.position[i] < rectb.position[i]) //begin rect
+	{
+		auto pos = recta.position;
+		for(std::size_t o(0); o < i; ++o)
+			pos[o] = rectb.position[o];
+			
+		vec size = (recta.position + recta.size) - pos;
+		size[i] = rectb.position[i] - pos[i];
+			
+		vec.push_back(rect(pos, size));
+	}
+	
+	if(recta.position[i] + rect.size[i] > rectb.position[i] + rectb.position[i]) //end rect
+	{
+		auto pos = recta.position;
+		pos[i] = rectb.position[i] + rectb.size[i];
+			
+		vec size = (recta.position + recta.size) - pos;
+		for(std::size_t o(0); o < i; ++o)
+			size[o] = (rectb.position[o] + rectb.size[o]) - pos[o];
+			
+		vec.push_back(rect(pos, size));
+	}
+}
+
+//subtract
+//old implementation
+
+/*
+template<class prec>
+std::vector<rect<2, prec>> subtract(const rect<2, prec>& sub, const rect<2, prec>& other)
+{
+    //todo
+    std::vector<rect<2, prec>> ret;
+    if(!sub.intersects(other)) return ret;
+
+
+    if(sub.left() < other.left() && other.left() < sub.right()) //rect on the left
+    {
+        rect<2, prec> r;
+        r.position = sub.position;
+        r.size.x = other.position.x - sub.position.x;
+        r.size.y = sub.size.y;
+
+        ret.push_back(r);
+    }
+
+    if(sub.top() < other.top() && other.top() < sub.bottom()) //rect on top
+    {
+        rect<2, prec> r;
+        r.position.x = std::max(sub.position.x, other.position.x);
+        r.position.y = sub.position.y;
+        r.size.x = sub.right() - r.position.x;
+        r.size.y = other.top() - sub.top();
+
+        ret.push_back(r);
+    }
+
+    if(other.right() < sub.right()) //rect on the right
+    {
+        rect<2, prec> r;
+        r.position = other.topRight();
+        r.size.x = sub.right() - other.right();
+        r.size.y = sub.bottom() - r.top();
+
+        ret.push_back(r);
+    }
+
+    if(other.bottom() < sub.bottom()) //rect on bottom
+    {
+        rect<2, prec> r;
+        r.position = other.bottomLeft();
+        r.size.x = other.size.x;
+        r.size.y = sub.bottom() - other.bottom();
+
+        ret.push_back(r);
+    }
+
+    return ret;
+}
+*/
