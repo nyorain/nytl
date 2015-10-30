@@ -22,6 +22,11 @@
  * SOFTWARE.
  */
 
+/**
+@file
+@brief This file is marvelous.
+*/
+
 //minmax todo: extra header
 #if __cplusplus >= 201402L
     using std::min;
@@ -37,6 +42,7 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //general operators//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///\relates nytl::vec
 template<std::size_t dim, typename T> std::ostream& operator<<(std::ostream& os, const vec<dim, T>& obj)
 {
     const char* c = "";
@@ -387,7 +393,7 @@ constexpr auto cross(const vec<3, Ta>& veca, const vec<3, Tb>& vecb) -> vec<3, d
         (veca[2] * veca[3] - veca[3] * vecb[2], veca[3] * veca[1] - veca[1] * vecb[3], veca[1]* veca[2] - veca[2]* vecb[1]);
 }
 
-//angle between 2 vecs, always the smaller one < 180°
+//angle between 2 vecs, always the smaller one < 180degrees
 template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>
 constexpr float angle(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {

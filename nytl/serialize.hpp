@@ -99,6 +99,18 @@ public:
         return instance;
     };
 
+	template<typename T>
+	static std::size_t registerType()
+	{
+		return derivedTypes().template registerType<T>();
+	}
+
+	template<typename T>
+	static std::size_t registerType(const std::string& str)
+	{
+		return derivedTypes().template registerType<T>(str);
+	}
+
     //create
     static std::unique_ptr<Base> create(const std::string& name)
     {
@@ -125,8 +137,17 @@ public:
 
 public:
     virtual bool load(std::istream& is) = 0;
-    virtual bool save(std::ostream& os) = 0;
+    virtual bool save(std::ostream& os) const = 0;
 };
+
+//macro
+#define SERIALIZE_TYPE2(Base, Derived)\
+	REG_TYPE_NAME(Derived);\
+	const bool serializeDummy_##Base_##Derived = 1;
+
+#define SERIALIZE_TYPE4(Base, BaseName, Derived, DerivedName)\
+	REG_TYPE_NAME(Derived);\
+	const bool serializeDummy_##BaseName_##DerivedName = Base::registerType<Derived>();
 
 }
 
