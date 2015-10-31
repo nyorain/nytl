@@ -46,6 +46,7 @@
 		<Unit filename="../nytl/bits/vec.inl" />
 		<Unit filename="../nytl/cache.hpp" />
 		<Unit filename="../nytl/callback.hpp" />
+		<Unit filename="../nytl/cloneable.hpp" />
 		<Unit filename="../nytl/compFunc.hpp" />
 		<Unit filename="../nytl/constants.hpp" />
 		<Unit filename="../nytl/function_traits.hpp" />
@@ -63,7 +64,7 @@
 		<Unit filename="../nytl/rect.hpp" />
 		<Unit filename="../nytl/refVec.hpp" />
 		<Unit filename="../nytl/region.hpp" />
-		<Unit filename="../nytl/serializer.hpp" />
+		<Unit filename="../nytl/serialize.hpp" />
 		<Unit filename="../nytl/system.hpp" />
 		<Unit filename="../nytl/time.hpp" />
 		<Unit filename="../nytl/tmp.hpp" />

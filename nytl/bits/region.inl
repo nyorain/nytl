@@ -24,7 +24,7 @@
 
 //tests/////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<std::size_t dim, typename prec>
-NYUTIL_CPP14_CONSTEXPR bool intersects(const region<dim, prec>& rega, const region<dim, prec>& regb)
+NYTL_CPP14_CONSTEXPR bool intersects(const region<dim, prec>& rega, const region<dim, prec>& regb)
 {
     for(auto& r1 : rega.getRects())
     {
@@ -37,7 +37,7 @@ NYUTIL_CPP14_CONSTEXPR bool intersects(const region<dim, prec>& rega, const regi
     return false;
 }
 template<std::size_t dim, typename prec>
-NYUTIL_CPP14_CONSTEXPR bool intersects(const region<dim, prec>& rega, const rect<dim, prec>& rectb)
+NYTL_CPP14_CONSTEXPR bool intersects(const region<dim, prec>& rega, const rect<dim, prec>& rectb)
 {
     for(auto& r1 : rega.getRects())
     {
@@ -47,7 +47,7 @@ NYUTIL_CPP14_CONSTEXPR bool intersects(const region<dim, prec>& rega, const rect
     return false;
 }
 template<std::size_t dim, typename prec>
-NYUTIL_CPP14_CONSTEXPR bool intersects(const region<dim, prec>& rega, const line<dim, prec>& lineb)
+NYTL_CPP14_CONSTEXPR bool intersects(const region<dim, prec>& rega, const line<dim, prec>& lineb)
 {
     for(auto& rega : rega.getRects())
     {
@@ -57,7 +57,7 @@ NYUTIL_CPP14_CONSTEXPR bool intersects(const region<dim, prec>& rega, const line
     return false;
 }
 template<std::size_t dim, typename prec>
-NYUTIL_CPP14_CONSTEXPR bool intersects(const region<dim, prec>& rega, const triangle<dim, prec>& trib)
+NYTL_CPP14_CONSTEXPR bool intersects(const region<dim, prec>& rega, const triangle<dim, prec>& trib)
 {
     for(auto& rega : rega.getRects())
     {
@@ -69,7 +69,7 @@ NYUTIL_CPP14_CONSTEXPR bool intersects(const region<dim, prec>& rega, const tria
 
 //contains
 template<std::size_t dim, typename prec>
-NYUTIL_CPP14_CONSTEXPR bool contains(const region<dim, prec>& rega, const region<dim, prec>& regb)
+NYTL_CPP14_CONSTEXPR bool contains(const region<dim, prec>& rega, const region<dim, prec>& regb)
 {
     for(auto& r1 : rega.getRects())
     {
@@ -82,7 +82,7 @@ NYUTIL_CPP14_CONSTEXPR bool contains(const region<dim, prec>& rega, const region
     return true;
 }
 template<std::size_t dim, typename prec>
-NYUTIL_CPP14_CONSTEXPR bool contains(const region<dim, prec>& rega, const rect<dim, prec>& rectb)
+NYTL_CPP14_CONSTEXPR bool contains(const region<dim, prec>& rega, const rect<dim, prec>& rectb)
 {
     for(auto& rega : rega.getRects())
     {
@@ -92,7 +92,7 @@ NYUTIL_CPP14_CONSTEXPR bool contains(const region<dim, prec>& rega, const rect<d
     return true;
 }
 template<std::size_t dim, typename prec>
-NYUTIL_CPP14_CONSTEXPR bool contains(const region<dim, prec>& rega, const line<dim, prec>& lineb)
+NYTL_CPP14_CONSTEXPR bool contains(const region<dim, prec>& rega, const line<dim, prec>& lineb)
 {
     for(auto& rega : rega.getRects())
     {
@@ -102,7 +102,7 @@ NYUTIL_CPP14_CONSTEXPR bool contains(const region<dim, prec>& rega, const line<d
     return true;
 }
 template<std::size_t dim, typename prec>
-NYUTIL_CPP14_CONSTEXPR bool contains(const region<dim, prec>& rega, const triangle<dim, prec>& trib)
+NYTL_CPP14_CONSTEXPR bool contains(const region<dim, prec>& rega, const triangle<dim, prec>& trib)
 {
     for(auto& rega : rega.getRects())
     {
@@ -112,7 +112,7 @@ NYUTIL_CPP14_CONSTEXPR bool contains(const region<dim, prec>& rega, const triang
     return true;
 }
 template<std::size_t dim, typename prec>
-NYUTIL_CPP14_CONSTEXPR bool contains(const region<dim, prec>& rega, const vec<dim, prec>& vecb)
+NYTL_CPP14_CONSTEXPR bool contains(const region<dim, prec>& rega, const vec<dim, prec>& vecb)
 {
     for(auto& r1 : rega.getRects())
     {
@@ -246,38 +246,38 @@ region<dim, prec>& region<dim, prec>::operator^=(const region<dim, prec>& r)
 //external operators/////////////////////////////////////////////////////////////////////////////////////////////
 //move needed because it is a expression, not an identifier
 template<std::size_t dim, typename prec>
-NYUTIL_CPP14_CONSTEXPR region<dim, prec> operator|(region<dim, prec> a, const region<dim, prec>& b)
+NYTL_CPP14_CONSTEXPR region<dim, prec> operator|(region<dim, prec> a, const region<dim, prec>& b)
 {
     return std::move(a |= b);
 }
 
 template<std::size_t dim, typename prec>
-NYUTIL_CPP14_CONSTEXPR region<dim, prec> operator|(region<dim, prec> a, const rect<dim, prec>& b)
+NYTL_CPP14_CONSTEXPR region<dim, prec> operator|(region<dim, prec> a, const rect<dim, prec>& b)
 {
     return std::move(a |= b);
 }
 
 template<std::size_t dim, typename prec>
-NYUTIL_CPP14_CONSTEXPR region<dim, prec> operator&(region<dim, prec> a, const region<dim, prec>& b)
+NYTL_CPP14_CONSTEXPR region<dim, prec> operator&(region<dim, prec> a, const region<dim, prec>& b)
 {
     return std::move(a &= b);
 }
 
 template<std::size_t dim, typename prec>
-NYUTIL_CPP14_CONSTEXPR region<dim, prec> operator&(region<dim, prec> a, const rect<dim, prec>& b)
+NYTL_CPP14_CONSTEXPR region<dim, prec> operator&(region<dim, prec> a, const rect<dim, prec>& b)
 {
     return std::move(a &= b);
 }
 
 
 template<std::size_t dim, typename prec>
-NYUTIL_CPP14_CONSTEXPR region<dim, prec> operator^(region<dim, prec> a, const region<dim, prec>& b)
+NYTL_CPP14_CONSTEXPR region<dim, prec> operator^(region<dim, prec> a, const region<dim, prec>& b)
 {
     return std::move(a ^= b);
 }
 
 template<std::size_t dim, typename prec>
-NYUTIL_CPP14_CONSTEXPR region<dim, prec> operator^(region<dim, prec> a, const rect<dim, prec>& b)
+NYTL_CPP14_CONSTEXPR region<dim, prec> operator^(region<dim, prec> a, const rect<dim, prec>& b)
 {
     return std::move(a ^= b);
 }

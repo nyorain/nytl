@@ -1,6 +1,6 @@
 #pragma once
 
-#include <nyutil/time.hpp>
+#include <nytl/time.hpp>
 
 #include <thread>
 #include <mutex>
@@ -11,7 +11,7 @@
 #include <future>
 #include <functional>
 
-namespace nyutil
+namespace nytl
 {
 
 using mtxGuard = std::lock_guard<std::mutex>;

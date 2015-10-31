@@ -32,7 +32,7 @@ constexpr bool line<dim, prec>::definedFor(const prec& value, std::size_t dimens
 }
 
 template<size_t dim, typename prec>
-NYUTIL_CPP14_CONSTEXPR vec<dim, prec> line<dim, prec>::valueAt(const prec& value, std::size_t dimension) const
+NYTL_CPP14_CONSTEXPR vec<dim, prec> line<dim, prec>::valueAt(const prec& value, std::size_t dimension) const
 {
     if(!definedFor(value, dimension))
     {
@@ -56,7 +56,7 @@ NYUTIL_CPP14_CONSTEXPR vec<dim, prec> line<dim, prec>::valueAt(const prec& value
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //tests and stuff
-template<std::size_t dim, typename prec> NYUTIL_CPP14_CONSTEXPR 
+template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR
 bool intersects(const line<dim, prec>& l1, const line<dim, prec>& l2)
 {
     float st = max(l1.min(0), l2.min(0));
@@ -74,23 +74,23 @@ bool intersects(const line<dim, prec>& l1, const line<dim, prec>& l2)
 
     return true;
 }
-template<std::size_t dim, typename prec> constexpr 
+template<std::size_t dim, typename prec> constexpr
 bool intersects(const line<dim, prec>& l1, const vec<dim, prec>& v1)
 {
     return (l1.definedFor(v1[0], 0) && l1.valueAt(v1[0], 0) == v1);
 }
 
-template<std::size_t dim, typename prec> NYUTIL_CPP14_CONSTEXPR 
+template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR
 vec<dim, prec> intersection(const line<dim, prec>& l1, const line<dim, prec>& l2)
 {
     if(!intersects(l1, l2))
     {
 	   	//should this function rlly throw?
-        throw std::logic_error("line::intersection: lines do not intersect");        
+        throw std::logic_error("line::intersection: lines do not intersect");
 		return vec<dim, prec>{};
     }
 
-    float val = (l1.valueAt(0, 0)[1] - l2.valueAt(0, 0)[1]) / 
+    float val = (l1.valueAt(0, 0)[1] - l2.valueAt(0, 0)[1]) /
 		(l2.gradient(0)[1] - l1.gradient(0)[1]);
 
     return l1.valueAt(val, 0);

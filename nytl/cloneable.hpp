@@ -37,30 +37,16 @@ template<typename Base, typename Derived> class deriveCloneable : public Base
 protected:
     constexpr deriveCloneable() noexcept
     {
-        static_assert(std::is_copy_constructible<Derived>::value, 
+        static_assert(std::is_copy_constructible<Derived>::value,
 				"Your class must be copy constructible");
     }
 
 public:
     virtual std::unique_ptr<Base> clone() const override
-		{ return make_unique<Derived>(*(static_cast<const Derived*>(this))); } 
+		{ return make_unique<Derived>(*(static_cast<const Derived*>(this))); }
 };
 
 
-/* useful?
-//basic cloneable
-template<typename T> class cloneable
-{
-protected:
-    constexpr cloneable() noexcept
-    {
-        static_assert(std::is_base_of<cloneable<T>, T>::value, "You have to use a derived class as template parameter");
-        static_assert(std::is_copy_constructible<T>::value, "Your class must be copy constructible");
-    }
+#define NYTL_CLONE_FUNC(Base, Derived) virtual std::unique_ptr<Base> clone() const override { return nytl::make_unique<Derived>(*this); }
 
-public:
-    std::unique_ptr<T> clone() const { return std::make_unique<T>(*(static_cast<const T*>(this))); }
-    //T cloneOnStack() const { return T(*(static_cast<const T*>(this))); } //needed?
-};
-*/
 }

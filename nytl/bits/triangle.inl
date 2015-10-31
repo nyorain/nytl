@@ -26,7 +26,7 @@
 template<std::size_t dim, typename prec> constexpr
 bool intersects(const triangle<dim, prec>& t1, const triangle<dim, prec>& t2)
 {
-	return (intersects(t1.AB(), t2.AB()) || intersects(t1.AB(), t2.BC()) || 
+	return (intersects(t1.AB(), t2.AB()) || intersects(t1.AB(), t2.BC()) ||
 			intersects(t1.AB(), t2.AC()) || intersects(t1.BC(), t2.AB()) ||
 			intersects(t1.BC(), t2.BC()) || intersects(t1.BC(), t2.AC()) ||
 			intersects(t1.AC(), t2.AB()) || intersects(t1.AC(), t2.BC()) ||
@@ -49,7 +49,7 @@ bool contains(const triangle<dim, prec>& t1, const line<dim, prec>& l2)
 {
 	return (contains(t1, l2.a) && contains(t1, l2.b));
 }
-template<std::size_t dim, typename prec> NYUTIL_CPP14_CONSTEXPR 
+template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR
 bool contains(const triangle<dim, prec>& t1, const vec<dim, prec>& v2)
 {
     //http://math.stackexchange.com/questions/4322/check-whether-a-point-is-within-a-3d-triangle
@@ -67,7 +67,7 @@ bool contains(const triangle<dim, prec>& t1, const vec<dim, prec>& v2)
 }
 
 //operators
-template<size_t dim, typename prec> 
+template<size_t dim, typename prec>
 std::ostream& operator<<(std::ostream& os, const triangle<dim, prec>& obj)
 {
     os << obj.a << " " << obj.b << " " << obj.c;

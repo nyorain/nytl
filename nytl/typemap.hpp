@@ -93,8 +93,8 @@ public:
     //typeinfo
     iterator getByTypeInfo(const std::type_info& id)
     {
-        auto it = types_.cbegin();
-        for(; it != types_.cend(); ++it)
+        auto it = types_.begin();
+        for(; it != types_.end(); ++it)
             if(it->second->getTypeInfo() == id) break;
         return it;
     }

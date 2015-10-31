@@ -75,21 +75,21 @@ template<std::size_t dim, typename T> std::istream& operator>>(std::istream& is,
 //todo: vec and vec unefficient atm
 //+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<std::size_t dim, typename T, typename O>
-NYUTIL_CPP14_CONSTEXPR vec<dim, T> operator+(vec<dim, T> mvec, const O& other)
+NYTL_CPP14_CONSTEXPR vec<dim, T> operator+(vec<dim, T> mvec, const O& other)
 {
     mvec += other;
     return mvec;
 }
 
 template<std::size_t dim, typename T, typename O>
-NYUTIL_CPP14_CONSTEXPR vec<dim, T> operator+(const O& other, vec<dim, T> mvec)
+NYTL_CPP14_CONSTEXPR vec<dim, T> operator+(const O& other, vec<dim, T> mvec)
 {
     mvec += other;
     return mvec;
 }
 
 template<std::size_t dima, typename Ta, std::size_t dimb, typename Tb, typename ttype = typename std::conditional<(dima > dimb), Ta, Tb>::type>
-NYUTIL_CPP14_CONSTEXPR vec<max(dima, dimb), ttype> operator+(const vec<dima, Ta>& a, const vec<dimb, Tb>& b)
+NYTL_CPP14_CONSTEXPR vec<max(dima, dimb), ttype> operator+(const vec<dima, Ta>& a, const vec<dimb, Tb>& b)
 {
     vec<max(dima, dimb), ttype> ret = (vec<max(dima, dimb), ttype>)a;
     ret += (vec<max(dima, dimb), ttype>)b;
@@ -99,14 +99,14 @@ NYUTIL_CPP14_CONSTEXPR vec<max(dima, dimb), ttype> operator+(const vec<dima, Ta>
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<std::size_t dim, typename T, typename O>
-NYUTIL_CPP14_CONSTEXPR vec<dim, T> operator-(vec<dim, T> mvec, const O& other)
+NYTL_CPP14_CONSTEXPR vec<dim, T> operator-(vec<dim, T> mvec, const O& other)
 {
     mvec -= other;
     return mvec;
 }
 
 template<std::size_t dim, typename T, typename O>
-NYUTIL_CPP14_CONSTEXPR vec<dim, T> operator-(const O& other, vec<dim, T> mvec)
+NYTL_CPP14_CONSTEXPR vec<dim, T> operator-(const O& other, vec<dim, T> mvec)
 {
     for(std::size_t i(0); i < dim; i++)
         mvec[i] = other - mvec[i];
@@ -115,7 +115,7 @@ NYUTIL_CPP14_CONSTEXPR vec<dim, T> operator-(const O& other, vec<dim, T> mvec)
 }
 
 template<std::size_t dima, typename Ta, std::size_t dimb, typename Tb, typename ttype = typename std::conditional<(dima > dimb), Ta, Tb>::type>
-NYUTIL_CPP14_CONSTEXPR vec<max(dima, dimb), ttype> operator-(const vec<dima, Ta>& a, const vec<dimb, Tb>& b)
+NYTL_CPP14_CONSTEXPR vec<max(dima, dimb), ttype> operator-(const vec<dima, Ta>& a, const vec<dimb, Tb>& b)
 {
     vec<max(dima, dimb), ttype> ret = (vec<max(dima, dimb), ttype>)a;
     ret -= (vec<max(dima, dimb), ttype>)b;
@@ -125,7 +125,7 @@ NYUTIL_CPP14_CONSTEXPR vec<max(dima, dimb), ttype> operator-(const vec<dima, Ta>
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //*//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<std::size_t dim, typename T, typename O>
-NYUTIL_CPP14_CONSTEXPR  vec<dim, T> operator*(vec<dim, T> mvec, const O& other)
+NYTL_CPP14_CONSTEXPR  vec<dim, T> operator*(vec<dim, T> mvec, const O& other)
 {
     mvec *= other;
     return mvec;
@@ -133,14 +133,14 @@ NYUTIL_CPP14_CONSTEXPR  vec<dim, T> operator*(vec<dim, T> mvec, const O& other)
 
 
 template<std::size_t dim, typename T, typename O>
-NYUTIL_CPP14_CONSTEXPR  vec<dim, T> operator*(const O& other, vec<dim, T> mvec)
+NYTL_CPP14_CONSTEXPR  vec<dim, T> operator*(const O& other, vec<dim, T> mvec)
 {
     mvec *= other;
     return mvec;
 }
 
 template<std::size_t dima, typename Ta, std::size_t dimb, typename Tb, typename ttype = typename std::conditional<(dima > dimb), Ta, Tb>::type>
-NYUTIL_CPP14_CONSTEXPR vec<max(dima, dimb), ttype> operator*(const vec<dima, Ta>& a, const vec<dimb, Tb>& b)
+NYTL_CPP14_CONSTEXPR vec<max(dima, dimb), ttype> operator*(const vec<dima, Ta>& a, const vec<dimb, Tb>& b)
 {
     vec<max(dima, dimb), ttype> ret = (vec<max(dima, dimb), ttype>)a;
     ret *= (vec<max(dima, dimb), ttype>)b;
@@ -150,7 +150,7 @@ NYUTIL_CPP14_CONSTEXPR vec<max(dima, dimb), ttype> operator*(const vec<dima, Ta>
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //\////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<std::size_t dim, typename T, typename O>
-NYUTIL_CPP14_CONSTEXPR vec<dim, T> operator/(vec<dim, T> mvec, const O& other)
+NYTL_CPP14_CONSTEXPR vec<dim, T> operator/(vec<dim, T> mvec, const O& other)
 {
     mvec /= other;
     return mvec;
@@ -158,7 +158,7 @@ NYUTIL_CPP14_CONSTEXPR vec<dim, T> operator/(vec<dim, T> mvec, const O& other)
 
 
 template<std::size_t dim, typename T, typename O>
-NYUTIL_CPP14_CONSTEXPR vec<dim, T> operator/(const O& other, vec<dim, T> mvec)
+NYTL_CPP14_CONSTEXPR vec<dim, T> operator/(const O& other, vec<dim, T> mvec)
 {
     for(std::size_t i(0); i < dim; i++)
         mvec[i] = other / mvec[i];
@@ -167,7 +167,7 @@ NYUTIL_CPP14_CONSTEXPR vec<dim, T> operator/(const O& other, vec<dim, T> mvec)
 }
 
 template<std::size_t dima, typename Ta, std::size_t dimb, typename Tb, typename ttype = typename std::conditional<(dima > dimb), Ta, Tb>::type>
-NYUTIL_CPP14_CONSTEXPR vec<max(dima, dimb), ttype> operator/(const vec<dima, Ta>& a, const vec<dimb, Tb>& b)
+NYTL_CPP14_CONSTEXPR vec<max(dima, dimb), ttype> operator/(const vec<dima, Ta>& a, const vec<dimb, Tb>& b)
 {
     vec<max(dima, dimb), ttype> ret = (vec<max(dima, dimb), ttype>)a;
     ret /= (vec<max(dima, dimb), ttype>)b;
@@ -178,7 +178,7 @@ NYUTIL_CPP14_CONSTEXPR vec<max(dima, dimb), ttype> operator/(const vec<dima, Ta>
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //%//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<std::size_t dim, typename T, typename O>
-NYUTIL_CPP14_CONSTEXPR  vec<dim, T> operator%(vec<dim, T> mvec, const O& other)
+NYTL_CPP14_CONSTEXPR  vec<dim, T> operator%(vec<dim, T> mvec, const O& other)
 {
     mvec %= other;
     return mvec;
@@ -186,7 +186,7 @@ NYUTIL_CPP14_CONSTEXPR  vec<dim, T> operator%(vec<dim, T> mvec, const O& other)
 
 
 template<std::size_t dim, typename T, typename O>
-NYUTIL_CPP14_CONSTEXPR vec<dim, T> operator%(const O& other, vec<dim, T> mvec)
+NYTL_CPP14_CONSTEXPR vec<dim, T> operator%(const O& other, vec<dim, T> mvec)
 {
     for(std::size_t i(0); i < dim; i++)
         mvec[i] = other % mvec[i];
@@ -195,7 +195,7 @@ NYUTIL_CPP14_CONSTEXPR vec<dim, T> operator%(const O& other, vec<dim, T> mvec)
 }
 
 template<std::size_t dima, typename Ta, std::size_t dimb, typename Tb, typename ttype = typename std::conditional<(dima > dimb), Ta, Tb>::type>
-NYUTIL_CPP14_CONSTEXPR vec<max(dima, dimb), ttype> operator%(const vec<dima, Ta>& a, const vec<dimb, Tb>& b)
+NYTL_CPP14_CONSTEXPR vec<max(dima, dimb), ttype> operator%(const vec<dima, Ta>& a, const vec<dimb, Tb>& b)
 {
     vec<max(dima, dimb), ttype> ret = (vec<max(dima, dimb), ttype>)a;
     ret %= (vec<max(dima, dimb), ttype>)b;
@@ -205,7 +205,7 @@ NYUTIL_CPP14_CONSTEXPR vec<max(dima, dimb), ttype> operator%(const vec<dima, Ta>
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //equal/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>
-NYUTIL_CPP14_CONSTEXPR vec<min(dima, dimb), bool> equal(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
+NYTL_CPP14_CONSTEXPR vec<min(dima, dimb), bool> equal(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
     vec<min(dima, dimb), bool> ret {};
     for(std::size_t i(0); i < min(dima, dimb); i++)
@@ -214,7 +214,7 @@ NYUTIL_CPP14_CONSTEXPR vec<min(dima, dimb), bool> equal(const vec<dima, Ta>& vec
 }
 
 template<std::size_t dim, typename Ta, typename Tb>
-NYUTIL_CPP14_CONSTEXPR vec<dim, bool> equal(const vec<dim, Ta>& veca, const Tb& value)
+NYTL_CPP14_CONSTEXPR vec<dim, bool> equal(const vec<dim, Ta>& veca, const Tb& value)
 {
     vec<dim, bool> ret {};
     for(std::size_t i(0); i < dim; i++)
@@ -223,7 +223,7 @@ NYUTIL_CPP14_CONSTEXPR vec<dim, bool> equal(const vec<dim, Ta>& veca, const Tb& 
 }
 
 template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>
-NYUTIL_CPP14_CONSTEXPR vec<min(dima, dimb), bool> notEqual(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
+NYTL_CPP14_CONSTEXPR vec<min(dima, dimb), bool> notEqual(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
     vec<min(dima, dimb), bool> ret {};
     for(std::size_t i(0); i < min(dima, dimb); i++)
@@ -232,7 +232,7 @@ NYUTIL_CPP14_CONSTEXPR vec<min(dima, dimb), bool> notEqual(const vec<dima, Ta>& 
 }
 
 template<std::size_t dim, typename Ta, typename Tb>
-NYUTIL_CPP14_CONSTEXPR vec<dim, bool> notEqual(const vec<dim, Ta>& veca, const Tb& value)
+NYTL_CPP14_CONSTEXPR vec<dim, bool> notEqual(const vec<dim, Ta>& veca, const Tb& value)
 {
     vec<dim, bool> ret {};
     for(std::size_t i(0); i < dim; i++)
@@ -245,7 +245,7 @@ NYUTIL_CPP14_CONSTEXPR vec<dim, bool> notEqual(const vec<dim, Ta>& veca, const T
 //greater/less//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //vec
 template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>
-NYUTIL_CPP14_CONSTEXPR vec<min(dima, dimb), bool> lessThan(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
+NYTL_CPP14_CONSTEXPR vec<min(dima, dimb), bool> lessThan(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
     vec<min(dima, dimb), bool> ret {};
     for(std::size_t i(0); i < min(dima, dimb); i++)
@@ -253,7 +253,7 @@ NYUTIL_CPP14_CONSTEXPR vec<min(dima, dimb), bool> lessThan(const vec<dima, Ta>& 
     return ret;
 }
 template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>
-NYUTIL_CPP14_CONSTEXPR vec<min(dima, dimb), bool> greaterThan(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
+NYTL_CPP14_CONSTEXPR vec<min(dima, dimb), bool> greaterThan(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
     vec<min(dima, dimb), bool> ret {};
     for(std::size_t i(0); i < min(dima, dimb); i++)
@@ -261,7 +261,7 @@ NYUTIL_CPP14_CONSTEXPR vec<min(dima, dimb), bool> greaterThan(const vec<dima, Ta
     return ret;
 }
 template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>
-NYUTIL_CPP14_CONSTEXPR vec<min(dima, dimb), bool> lessThanEqual(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
+NYTL_CPP14_CONSTEXPR vec<min(dima, dimb), bool> lessThanEqual(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
     vec<min(dima, dimb), bool> ret {};
     for(std::size_t i(0); i < min(dima, dimb); i++)
@@ -269,7 +269,7 @@ NYUTIL_CPP14_CONSTEXPR vec<min(dima, dimb), bool> lessThanEqual(const vec<dima, 
     return ret;
 }
 template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>
-NYUTIL_CPP14_CONSTEXPR vec<min(dima, dimb), bool> greaterThanEqual(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
+NYTL_CPP14_CONSTEXPR vec<min(dima, dimb), bool> greaterThanEqual(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
     vec<min(dima, dimb), bool> ret {};
     for(std::size_t i(0); i < min(dima, dimb); i++)
@@ -279,7 +279,7 @@ NYUTIL_CPP14_CONSTEXPR vec<min(dima, dimb), bool> greaterThanEqual(const vec<dim
 
 //value
 template<std::size_t dim, typename Ta, typename Tb>
-NYUTIL_CPP14_CONSTEXPR vec<dim, bool> lessThan(const vec<dim, Ta>& veca, const Tb& value)
+NYTL_CPP14_CONSTEXPR vec<dim, bool> lessThan(const vec<dim, Ta>& veca, const Tb& value)
 {
     vec<dim, bool> ret;
     for(std::size_t i(0); i < dim; i++)
@@ -287,7 +287,7 @@ NYUTIL_CPP14_CONSTEXPR vec<dim, bool> lessThan(const vec<dim, Ta>& veca, const T
     return ret;
 }
 template<std::size_t dim, typename Ta, typename Tb>
-NYUTIL_CPP14_CONSTEXPR vec<dim, bool> greaterThan(const vec<dim, Ta>& veca, const Tb& value)
+NYTL_CPP14_CONSTEXPR vec<dim, bool> greaterThan(const vec<dim, Ta>& veca, const Tb& value)
 {
     vec<dim, bool> ret;
     for(std::size_t i(0); i < dim; i++)
@@ -295,7 +295,7 @@ NYUTIL_CPP14_CONSTEXPR vec<dim, bool> greaterThan(const vec<dim, Ta>& veca, cons
     return ret;
 }
 template<std::size_t dim, typename Ta, typename Tb>
-NYUTIL_CPP14_CONSTEXPR vec<dim, bool> lessThanEqual(const vec<dim, Ta>& veca, const Tb& value)
+NYTL_CPP14_CONSTEXPR vec<dim, bool> lessThanEqual(const vec<dim, Ta>& veca, const Tb& value)
 {
     vec<dim, bool> ret;
     for(std::size_t i(0); i < dim; i++)
@@ -303,7 +303,7 @@ NYUTIL_CPP14_CONSTEXPR vec<dim, bool> lessThanEqual(const vec<dim, Ta>& veca, co
     return ret;
 }
 template<std::size_t dim, typename Ta, typename Tb>
-NYUTIL_CPP14_CONSTEXPR vec<dim, bool> greaterThanEqual(const vec<dim, Ta>& veca, const Tb& value)
+NYTL_CPP14_CONSTEXPR vec<dim, bool> greaterThanEqual(const vec<dim, Ta>& veca, const Tb& value)
 {
     vec<dim, bool> ret;
     for(std::size_t i(0); i < dim; i++)
@@ -355,7 +355,7 @@ constexpr auto operator>=(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb) 
 //utility//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //all vector weights added (todo: is there some official name for this?)
 template<std::size_t dim, typename prec>
-NYUTIL_CPP14_CONSTEXPR auto weight(const vec<dim, prec>& v) -> decltype(v[0] + v[0]) //to make reference types disappear
+NYTL_CPP14_CONSTEXPR auto weight(const vec<dim, prec>& v) -> decltype(v[0] + v[0]) //to make reference types disappear
 {
     decltype(v[0] + v[0]) ret {};
     for(auto& val : v) ret += val;
@@ -364,7 +364,7 @@ NYUTIL_CPP14_CONSTEXPR auto weight(const vec<dim, prec>& v) -> decltype(v[0] + v
 
 //length
 template<std::size_t dim, typename prec>
-NYUTIL_CPP14_CONSTEXPR auto length(const vec<dim, prec>& v) -> decltype(sqrt(v[0]))
+NYTL_CPP14_CONSTEXPR auto length(const vec<dim, prec>& v) -> decltype(sqrt(v[0]))
 {
     decltype(sqrt(v[0])) ret{};
     for(auto& val : v) ret += val * val;
@@ -402,7 +402,7 @@ constexpr float angle(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 
 //absoulte counter-clockwise angle, todo: 3D, possible?
 template<typename Ta, typename Tb>
-NYUTIL_CPP14_CONSTEXPR float cangle(const vec<2, Ta>& veca, const vec<2, Tb>& vecb)
+NYTL_CPP14_CONSTEXPR float cangle(const vec<2, Ta>& veca, const vec<2, Tb>& vecb)
 {
     auto val = atan2(veca.y, veca.x) - atan2(vecb.y, vecb.x);
     if(val <= 0) return (2 * cPi) + val;
@@ -425,14 +425,14 @@ constexpr float distance(const vec<dim, T>& veca, const vec<dim, T>& vecb)
 
 //radiance/degrees
 template<std::size_t dim, typename T>
-NYUTIL_CPP14_CONSTEXPR vec<dim, float> radiance(vec<dim, T> veca)
+NYTL_CPP14_CONSTEXPR vec<dim, float> radiance(vec<dim, T> veca)
 {
     for(auto& val : veca) val = radiance(val);
     return veca;
 }
 
 template<std::size_t dim, typename T>
-NYUTIL_CPP14_CONSTEXPR vec<dim, float> degrees(vec<dim, T> veca)
+NYTL_CPP14_CONSTEXPR vec<dim, float> degrees(vec<dim, T> veca)
 {
     for(auto& val : veca) val = degrees(val);
     return veca;
@@ -440,7 +440,7 @@ NYUTIL_CPP14_CONSTEXPR vec<dim, float> degrees(vec<dim, T> veca)
 
 //abs
 template<std::size_t dim, typename T>
-NYUTIL_CPP14_CONSTEXPR vec<dim, T> abs(vec<dim, T> veca)
+NYTL_CPP14_CONSTEXPR vec<dim, T> abs(vec<dim, T> veca)
 {
     for(auto& val : veca) val = std::abs(val);
     return veca;
@@ -448,7 +448,7 @@ NYUTIL_CPP14_CONSTEXPR vec<dim, T> abs(vec<dim, T> veca)
 
 //clamp
 template<std::size_t dim, typename Ta, typename Tb, typename Tc>
-NYUTIL_CPP14_CONSTEXPR vec<dim, Ta> clamp(vec<dim, Ta> val, const vec<dim, Tb>& minVal, const vec<dim, Tc>& maxVal)
+NYTL_CPP14_CONSTEXPR vec<dim, Ta> clamp(vec<dim, Ta> val, const vec<dim, Tb>& minVal, const vec<dim, Tc>& maxVal)
 {
     for(std::size_t i(0); i < dim; ++i) val[i] = clamp(val[i], minVal[i], maxVal[i]);
     return val;
@@ -456,14 +456,14 @@ NYUTIL_CPP14_CONSTEXPR vec<dim, Ta> clamp(vec<dim, Ta> val, const vec<dim, Tb>& 
 
 //mix
 template<std::size_t dim, typename Ta, typename Tb>
-NYUTIL_CPP14_CONSTEXPR vec<dim, Ta> mix(vec<dim, Ta> x, const vec<dim, Ta>& y, const vec<dim, Tb>& a)
+NYTL_CPP14_CONSTEXPR vec<dim, Ta> mix(vec<dim, Ta> x, const vec<dim, Ta>& y, const vec<dim, Tb>& a)
 {
     for(std::size_t i(0); i < dim; ++i) x[i] = mix(x[i], y[i], a[i]);
     return x;
 }
 
 template<std::size_t dim, typename Ta, typename Tb>
-NYUTIL_CPP14_CONSTEXPR vec<dim, Ta> mix(vec<dim, Ta> x, const vec<dim, Ta>& y, const Tb& a)
+NYTL_CPP14_CONSTEXPR vec<dim, Ta> mix(vec<dim, Ta> x, const vec<dim, Ta>& y, const Tb& a)
 {
     for(std::size_t i(0); i < dim; ++i) x[i] = mix(x[i], y[i], a);
     return x;
@@ -472,21 +472,21 @@ NYUTIL_CPP14_CONSTEXPR vec<dim, Ta> mix(vec<dim, Ta> x, const vec<dim, Ta>& y, c
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //boolean vec operations//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<std::size_t dim>
-NYUTIL_CPP14_CONSTEXPR bool any(const vec<dim, bool>& v)
+NYTL_CPP14_CONSTEXPR bool any(const vec<dim, bool>& v)
 {
     for(auto val : v) if(val) return 1;
     return 0;
 }
 
 template<std::size_t dim>
-NYUTIL_CPP14_CONSTEXPR bool all(const vec<dim, bool>& v)
+NYTL_CPP14_CONSTEXPR bool all(const vec<dim, bool>& v)
 {
     for(auto val : v) if(!val) return 0;
     return 1;
 }
 
 template<std::size_t dim>
-NYUTIL_CPP14_CONSTEXPR bool none(const vec<dim, bool>& v)
+NYTL_CPP14_CONSTEXPR bool none(const vec<dim, bool>& v)
 {
     for(auto val : v) if(val) return 0;
     return 1;
@@ -494,7 +494,7 @@ NYUTIL_CPP14_CONSTEXPR bool none(const vec<dim, bool>& v)
 
 //not
 template<std::size_t dim, typename T>
-NYUTIL_CPP14_CONSTEXPR vec<dim, T> operator!(vec<dim, T> v)
+NYTL_CPP14_CONSTEXPR vec<dim, T> operator!(vec<dim, T> v)
 {
     for(auto& val : v) val = !val;
     return v;
@@ -503,7 +503,7 @@ NYUTIL_CPP14_CONSTEXPR vec<dim, T> operator!(vec<dim, T> v)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //component-wise//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<std::size_t dim, typename prec>
-NYUTIL_CPP14_CONSTEXPR vec<dim, prec> max(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
+NYTL_CPP14_CONSTEXPR vec<dim, prec> max(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
 {
     vec<dim, prec> ret{};
     for(std::size_t i(0); i < dim; ++i)
@@ -514,7 +514,7 @@ NYUTIL_CPP14_CONSTEXPR vec<dim, prec> max(const vec<dim, prec>& veca, const vec<
 }
 
 template<std::size_t dim, typename prec>
-NYUTIL_CPP14_CONSTEXPR vec<dim, prec> max(const vec<dim, prec>& veca, const prec& value)
+NYTL_CPP14_CONSTEXPR vec<dim, prec> max(const vec<dim, prec>& veca, const prec& value)
 {
     vec<dim, prec> ret{};
     for(std::size_t i(0); i < dim; ++i)
@@ -525,7 +525,7 @@ NYUTIL_CPP14_CONSTEXPR vec<dim, prec> max(const vec<dim, prec>& veca, const prec
 }
 
 template<std::size_t dim, typename prec>
-NYUTIL_CPP14_CONSTEXPR vec<dim, prec> min(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
+NYTL_CPP14_CONSTEXPR vec<dim, prec> min(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
 {
     vec<dim, prec> ret{};
     for(std::size_t i(0); i < dim; ++i)
@@ -536,7 +536,7 @@ NYUTIL_CPP14_CONSTEXPR vec<dim, prec> min(const vec<dim, prec>& veca, const vec<
 }
 
 template<std::size_t dim, typename prec>
-NYUTIL_CPP14_CONSTEXPR vec<dim, prec> min(const vec<dim, prec>& veca, const prec& value)
+NYTL_CPP14_CONSTEXPR vec<dim, prec> min(const vec<dim, prec>& veca, const prec& value)
 {
     vec<dim, prec> ret{};
     for(std::size_t i(0); i < dim; ++i)

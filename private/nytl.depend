@@ -859,9 +859,10 @@
 	<iostream>
 	<nytl/nytl.hpp>
 
-1446036351 a:\programming\projects\nytl\nytl\nytl.hpp
+1446249895 a:\programming\projects\nytl\nytl\nytl.hpp
 	<nytl/cache.hpp>
 	<nytl/callback.hpp>
+	<nytl/cloneable.hpp>
 	<nytl/compFunc.hpp>
 	<nytl/function_traits.hpp>
 	<nytl/hierachy.hpp>
@@ -870,7 +871,7 @@
 	<nytl/math.hpp>
 	<nytl/misc.hpp>
 	<nytl/nonCopyable.hpp>
-	<nytl/serializer.hpp>
+	<nytl/serialize.hpp>
 	<nytl/system.hpp>
 	<nytl/time.hpp>
 	<nytl/tmp.hpp>
@@ -878,7 +879,7 @@
 	<nytl/versionControl.hpp>
 	<nytl/watcher.hpp>
 
-1446036070 a:\programming\projects\nytl\nytl\typemap.hpp
+1446230121 a:\programming\projects\nytl\nytl\typemap.hpp
 	<nytl/make_unique.hpp>
 	<unordered_map>
 	<algorithm>
@@ -890,7 +891,7 @@
 	<memory>
 	<functional>
 
-1446170129 a:\programming\projects\nytl\nytl\vec.hpp
+1446250489 a:\programming\projects\nytl\nytl\vec.hpp
 	<nytl/tmp.hpp>
 	<nytl/constants.hpp>
 	<iostream>
@@ -899,17 +900,18 @@
 	<type_traits>
 	<nytl/bits/vec.inl>
 
-1446035542 a:\programming\projects\nytl\nytl\tmp.hpp
+1446219869 a:\programming\projects\nytl\nytl\tmp.hpp
 	<utility>
+	<ostream>
 
-1446147700 a:\programming\projects\nytl\nytl\constants.hpp
+1446250442 a:\programming\projects\nytl\nytl\constants.hpp
 
 1446036070 a:\programming\projects\nytl\nytl\cache.hpp
 	<unordered_map>
 	<memory>
 	<nytl/make_unique.hpp>
 
-1446161014 a:\programming\projects\nytl\nytl\mat.hpp
+1446250469 a:\programming\projects\nytl\nytl\mat.hpp
 	<nytl/vec.hpp>
 	<nytl/refVec.hpp>
 	<nytl/compFunc.hpp>
@@ -923,7 +925,7 @@
 	<nytl/bits/matmp.inl>
 	<nytl/bits/mat.inl>
 
-1446036070 a:\programming\projects\nytl\nytl\refvec.hpp
+1446250537 a:\programming\projects\nytl\nytl\refvec.hpp
 	<nytl/vec.hpp>
 
 1446036070 a:\programming\projects\nytl\nytl\compfunc.hpp
@@ -966,11 +968,11 @@
 	<nytl/nonCopyable.hpp>
 	<vector>
 
-1446166847 a:\programming\projects\nytl\nytl\line.hpp
+1446250442 a:\programming\projects\nytl\nytl\line.hpp
 	<nytl/vec.hpp>
 	<nytl/bits/line.inl>
 
-1446035542 a:\programming\projects\nytl\nytl\system.hpp
+1446250369 a:\programming\projects\nytl\nytl\system.hpp
 	<cstdint>
 	"TargetConditionals.h"
 
@@ -994,7 +996,7 @@
 	<algorithm>
 	<nytl/bits/rect.inl>
 
-1446162763 a:\programming\projects\nytl\nytl\triangle.hpp
+1446250442 a:\programming\projects\nytl\nytl\triangle.hpp
 	<nytl/vec.hpp>
 	<nytl/line.hpp>
 	<nytl/bits/triangle.inl>
@@ -1010,7 +1012,7 @@
 	<nytl/triangle.hpp>
 	<nytl/vec.hpp>
 
-1446166885 a:\programming\projects\nytl\nytl\region.hpp
+1446250442 a:\programming\projects\nytl\nytl\region.hpp
 	<nytl/vec.hpp>
 	<nytl/rect.hpp>
 	<nytl/triangle.hpp>
@@ -1031,9 +1033,10 @@
 1446036564 a:\programming\projects\nytl\nytl\watcher.hpp
 	<nytl/callback.hpp>
 
-1446036351 source:a:\programming\projects\nytl\nytl\nytl.hpp
+1446249895 source:a:\programming\projects\nytl\nytl\nytl.hpp
 	<nytl/cache.hpp>
 	<nytl/callback.hpp>
+	<nytl/cloneable.hpp>
 	<nytl/compFunc.hpp>
 	<nytl/function_traits.hpp>
 	<nytl/hierachy.hpp>
@@ -1042,7 +1045,7 @@
 	<nytl/math.hpp>
 	<nytl/misc.hpp>
 	<nytl/nonCopyable.hpp>
-	<nytl/serializer.hpp>
+	<nytl/serialize.hpp>
 	<nytl/system.hpp>
 	<nytl/time.hpp>
 	<nytl/tmp.hpp>
@@ -1052,15 +1055,25 @@
 
 1446170548 a:\programming\projects\nytl\nytl\bits\rect.inl
 
-1446168102 a:\programming\projects\nytl\nytl\bits\region.inl
+1446250442 a:\programming\projects\nytl\nytl\bits\region.inl
 
-1446170481 a:\programming\projects\nytl\nytl\bits\vec.inl
+1446250442 a:\programming\projects\nytl\nytl\bits\vec.inl
 
 1446161377 a:\programming\projects\nytl\nytl\bits\matmp.inl
 
-1446162737 a:\programming\projects\nytl\nytl\bits\mat.inl
+1446250442 a:\programming\projects\nytl\nytl\bits\mat.inl
 
-1446166867 a:\programming\projects\nytl\nytl\bits\line.inl
+1446250442 a:\programming\projects\nytl\nytl\bits\line.inl
 
-1446162785 a:\programming\projects\nytl\nytl\bits\triangle.inl
+1446250442 a:\programming\projects\nytl\nytl\bits\triangle.inl
+
+1446250368 a:\programming\projects\nytl\nytl\serialize.hpp
+	<nytl/typemap.hpp>
+	<string>
+	<type_traits>
+
+1446250753 a:\programming\projects\nytl\nytl\cloneable.hpp
+	<nytl/make_unique.hpp>
+	<memory>
+	<type_traits>
 

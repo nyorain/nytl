@@ -7,7 +7,7 @@
 #include <cstddef>
 #include <unistd.h>
 
-namespace nyutil
+namespace nytl
 {
 
 //http://stackoverflow.com/questions/13541313/handle-socket-descriptors-like-file-descriptor-fstream-c-linux

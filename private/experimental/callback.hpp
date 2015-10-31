@@ -1,8 +1,8 @@
 #pragma once
 
-#include <nyutil/nonCopyable.hpp>
-#include <nyutil/compFunc.hpp>
-#include <nyutil/callback.hpp>
+#include <nytl/nonCopyable.hpp>
+#include <nytl/compFunc.hpp>
+#include <nytl/callback.hpp>
 
 #include <functional>
 #include <vector>
@@ -12,7 +12,7 @@
 #include <memory>
 #include <type_traits>
 
-namespace nyutil
+namespace nytl
 {
 
 //threadsafe-callback////////////////////////////////////////////

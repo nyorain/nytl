@@ -254,11 +254,11 @@ public:
     vec<cols, prec>& operator[](size_t row){ return data_[row]; }
 	const vec<cols, prec>& operator[](size_t row) const { return data_[row]; }
 
-    vec<cols, prec>& at(size_t row){ if(row >= rows || row < 0)throw std::out_of_range("nyutil::mat::at: out of range"); return data_[row][col]; }
-	const vec<cols, prec>& at(size_t row) const { if(row >= rows || row < 0)throw std::out_of_range("nyutil::mat::at: out of range"); return data_[row][col]; }
+    vec<cols, prec>& at(size_t row){ if(row >= rows || row < 0)throw std::out_of_range("nytl::mat::at: out of range"); return data_[row][col]; }
+	const vec<cols, prec>& at(size_t row) const { if(row >= rows || row < 0)throw std::out_of_range("nytl::mat::at: out of range"); return data_[row][col]; }
 
-	prec& at(size_t row, size_t col){ if(row >= rows || row < 0)throw std::out_of_range("nyutil::mat::at: out of range"); return data_[row]; }
-	const prec& at(size_t row, size_t col) const { if(row >= rows || row < 0)throw std::out_of_range("nyutil::mat::at: out of range"); return data_[row]; }
+	prec& at(size_t row, size_t col){ if(row >= rows || row < 0)throw std::out_of_range("nytl::mat::at: out of range"); return data_[row]; }
+	const prec& at(size_t row, size_t col) const { if(row >= rows || row < 0)throw std::out_of_range("nytl::mat::at: out of range"); return data_[row]; }
 
     reference front() noexcept { return data_[0][0]; }
     const_reference front() const noexcept { return data_[0][0]; }
@@ -270,4 +270,4 @@ public:
 //operators and utility functions
 #include <nytl/bits/mat.inl>
 
-} //nyutil
+} //nytl

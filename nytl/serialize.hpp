@@ -53,7 +53,7 @@ template<typename T> struct typeName<T&>
 template<typename T> struct typeName<T* const>
 	{ static std::string name(){ return typeName<T>() + "* const"; } };
 
-#define REG_TYPE_NAME(Type) \
+#define NYTL_REG_TYPE_NAME(Type) \
 	namespace nytl { \
    	template<> \
 	struct typeName<Type> \
@@ -62,7 +62,7 @@ template<typename T> struct typeName<T* const>
    	}; \
 	}
 
-#define REG_TEMPLATE_TYPE_NAME(Type) \
+#define NYTL_REG_TEMPLATE_TYPE_NAME(Type) \
 	namespace nytl { \
 	template<typename... P> \
 	struct typeName<Type<P>> \
@@ -70,7 +70,7 @@ template<typename T> struct typeName<T* const>
 		static std::string name() \
 		{ \
 			std::string ret(#Type); \
-			int dummy[] = {((void) ret.append(typeName<P>()) , 0)...}; \
+			int[]{((void) ret.append(typeName<P>()) , 0)...}; \
 			return ret; \
 		}; \
 	}; \
@@ -136,31 +136,44 @@ public:
     }
 
 public:
-    virtual bool load(std::istream& is) = 0;
+    virtual bool load(std::istream& is) { return 1; };
     virtual bool save(std::ostream& os) const = 0;
 };
 
-//macro
-#define SERIALIZE_TYPE2(Base, Derived)\
-	REG_TYPE_NAME(Derived);\
-	const bool serializeDummy_##Base_##Derived = 1;
+//get
+#define NYTL_SERIALIZE_GET_VERSION(a,b,c,d,Name,...) Name
 
-#define SERIALIZE_TYPE4(Base, BaseName, Derived, DerivedName)\
-	REG_TYPE_NAME(Derived);\
-	const bool serializeDummy_##BaseName_##DerivedName = Base::registerType<Derived>();
+//macro
+#define NYTL_SERIALIZE_TYPE(...) \
+    NYTL_SERIALIZE_GET_VERSION(__VA_ARGS__, NYTL_SERIALIZE_TYPE4, NYTL_SERIALIZE_TYPE3, NYTL_SERIALIZE_TYPE2)(__VA_ARGS__)
+
+#define NYTL_SERIALIZE_TYPE2(Base, Derived)\
+	NYTL_REG_TYPE_NAME(Derived);\
+	namespace { \
+	const bool serializeDummy_##Base_##Derived = Base::registerType<Derived>(); }
+
+#define NYTL_SERIALIZE_TYPE3(Base, BaseName, Derived)\
+	NYTL_REG_TYPE_NAME(Derived);\
+	namespace { \
+	const bool serializeDummy_##BaseName_##Derived = Base::registerType<Derived>(); }
+
+#define NYTL_SERIALIZE_TYPE4(Base, BaseName, Derived, DerivedName) \
+	NYTL_REG_TYPE_NAME(Derived); \
+	namespace { \
+	const bool serializeDummy_##BaseName_##DerivedName = Base::registerType<Derived>(); }
 
 }
 
-REG_TYPE_NAME(std::int8_t);
-REG_TYPE_NAME(std::uint8_t);
-REG_TYPE_NAME(std::int16_t);
-REG_TYPE_NAME(std::uint16_t);
-REG_TYPE_NAME(std::int32_t);
-REG_TYPE_NAME(std::uint32_t);
-REG_TYPE_NAME(std::int64_t);
-REG_TYPE_NAME(std::uint64_t);
-REG_TYPE_NAME(float);
-REG_TYPE_NAME(double);
-REG_TYPE_NAME(std::string);
+NYTL_REG_TYPE_NAME(std::int8_t);
+NYTL_REG_TYPE_NAME(std::uint8_t);
+NYTL_REG_TYPE_NAME(std::int16_t);
+NYTL_REG_TYPE_NAME(std::uint16_t);
+NYTL_REG_TYPE_NAME(std::int32_t);
+NYTL_REG_TYPE_NAME(std::uint32_t);
+NYTL_REG_TYPE_NAME(std::int64_t);
+NYTL_REG_TYPE_NAME(std::uint64_t);
+NYTL_REG_TYPE_NAME(float);
+NYTL_REG_TYPE_NAME(double);
+NYTL_REG_TYPE_NAME(std::string);
 
 

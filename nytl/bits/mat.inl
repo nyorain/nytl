@@ -26,7 +26,7 @@
 //identityMat
 //can probably be done as c++11 constexpr with tmp
 template<size_t dim, typename prec = float>
-NYUTIL_CPP14_CONSTEXPR squareMat<dim, prec> identityMat()
+NYTL_CPP14_CONSTEXPR squareMat<dim, prec> identityMat()
 {
 	squareMat<dim, prec> ret{};
 	for(size_t i(0); i < dim; i++) ret[i][i] = prec(1);
@@ -37,7 +37,7 @@ NYUTIL_CPP14_CONSTEXPR squareMat<dim, prec> identityMat()
 //todo: more standard functions
 //todo: algorithms not entirely correct, detect 2 fail cases and return them as error code
 template<size_t rows, size_t cols, typename prec>
-NYUTIL_CPP14_CONSTEXPR bool refMat(mat<rows, cols, prec>& ma)
+NYTL_CPP14_CONSTEXPR bool refMat(mat<rows, cols, prec>& ma)
 {
     for(size_t k = 0; k < std::min(rows, cols); ++k)
     {
@@ -73,7 +73,7 @@ NYUTIL_CPP14_CONSTEXPR bool refMat(mat<rows, cols, prec>& ma)
 }
 
 template<size_t rows, size_t cols, typename prec>
-NYUTIL_CPP14_CONSTEXPR bool rrefMat(mat<rows, cols, prec>& ma)
+NYTL_CPP14_CONSTEXPR bool rrefMat(mat<rows, cols, prec>& ma)
 {
     if(!mat_ref(ma))
         return 0;
@@ -171,7 +171,7 @@ constexpr mat<rows, cols, prec> operator*(const prec& other, mat<rows, cols, pre
 
 //mat and mat
 template<size_t rowsA, size_t colsA, size_t colsB, typename prec>
-NYUTIL_CPP14_CONSTEXPR mat<rowsA, colsB, prec> operator*(const mat<rowsA, colsA, prec>& ma, const mat<colsA, colsB, prec>& mb)
+NYTL_CPP14_CONSTEXPR mat<rowsA, colsB, prec> operator*(const mat<rowsA, colsA, prec>& ma, const mat<colsA, colsB, prec>& mb)
 {
     mat<rowsA, colsB, prec> ret {};
 
@@ -184,7 +184,7 @@ NYUTIL_CPP14_CONSTEXPR mat<rowsA, colsB, prec> operator*(const mat<rowsA, colsA,
 
 //mat and vector
 template<size_t rows, size_t cols, typename prec>
-NYUTIL_CPP14_CONSTEXPR vec<rows, prec> operator*(const mat<rows, cols, prec>& ma, const vec<cols, prec>& v)
+NYTL_CPP14_CONSTEXPR vec<rows, prec> operator*(const mat<rows, cols, prec>& ma, const vec<cols, prec>& v)
 {
     vec<rows, prec> ret {};
     ret.fill(prec());

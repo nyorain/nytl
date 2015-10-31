@@ -7,7 +7,7 @@
 #include <functional>
 #include <iostream>
 
-namespace nyutil
+namespace nytl
 {
 
 //todo: use std::regex instead of custom parsing

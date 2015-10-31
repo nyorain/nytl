@@ -62,12 +62,12 @@ constexpr prec mix(const prec& x, const prec& y, float a)
 }
 
 //c++14 constexpr, if the constexpr keyword should only be used, if c++14 is used
-#ifndef NYUTIL_CPP14_CONSTEXPR
+#ifndef NYTL_CPP14_CONSTEXPR
     #if __cplusplus >= 201402L
-        #define NYUTIL_CPP14_CONSTEXPR constexpr
+        #define NYTL_CPP14_CONSTEXPR constexpr
     #else
-        #define NYUTIL_CPP14_CONSTEXPR
+        #define NYTL_CPP14_CONSTEXPR
     #endif
-#endif //nyutil_cpp14_constexpr
+#endif //NYTL_CPP14_CONSTEXPR
 
 }

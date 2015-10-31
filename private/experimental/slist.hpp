@@ -5,7 +5,7 @@
 
 #include <forward_list>
 
-namespace nyutil
+namespace nytl
 {
 
 template<typename T> class slist

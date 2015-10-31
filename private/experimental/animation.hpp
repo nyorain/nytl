@@ -1,11 +1,11 @@
 #pragma once
 
-#include <nyutil/vec.hpp>
-#include <nyutil/time.hpp>
+#include <nytl/vec.hpp>
+#include <nytl/time.hpp>
 
 #include <set>
 
-namespace nyutil
+namespace nytl
 {
 
 enum class operation

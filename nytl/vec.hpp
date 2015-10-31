@@ -103,10 +103,10 @@ public:
     value_type data_[dim];
 
 public:
-    template<typename... Args, typename = typename 
+    template<typename... Args, typename = typename
 		std::enable_if<
 			std::is_convertible<
-				std::tuple<Args...>, 
+				std::tuple<Args...>,
 				typename type_tuple<value_type, dim>::type
 			>::value
 		>::type>
@@ -520,7 +520,7 @@ template<typename T> constexpr size_t vec<4, T>::dim;
 //invalid specialization - therefore not specified, allow vec1?
 template<typename T> class vec<0, T>;
 
-//#include <nyutil/refVec.hpp> to make those work!
+//#include <nytl/refVec.hpp> to make those work!
 template<size_t dim, typename T> class vec<dim, T&>;
 template<typename T> class vec<2, T&>;
 template<typename T> class vec<3, T&>;

@@ -60,11 +60,11 @@ bool intersects(const triangle<dim, prec>&, const triangle<dim, prec>&);
 template<std::size_t dim, typename prec> constexpr
 bool intersects(const triangle<dim, prec>&, const line<dim, prec>&);
 
-template<std::size_t dim, typename prec> constexpr 
+template<std::size_t dim, typename prec> constexpr
 bool contains(const triangle<dim, prec>&, const triangle<dim, prec>&);
-template<std::size_t dim, typename prec> constexpr 
+template<std::size_t dim, typename prec> constexpr
 bool contains(const triangle<dim, prec>&, const line<dim, prec>&);
-template<std::size_t dim, typename prec> NYUTIL_CPP14_CONSTEXPR  
+template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR
 bool contains(const triangle<dim, prec>&, const vec<dim, prec>&);
 
 
@@ -85,7 +85,7 @@ public:
 
 public:
     constexpr triangle() = default;
-    constexpr triangle(const vec_type& xa, const vec_type& xb, const vec_type& xc) 
+    constexpr triangle(const vec_type& xa, const vec_type& xb, const vec_type& xc)
 		: a(xa), b(xb), c(xc) {}
 
     ~triangle() noexcept = default;

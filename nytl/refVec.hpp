@@ -227,8 +227,8 @@ public:
     reference operator[](size_type i){ return *data_[i]; }
     const_reference operator[](size_type i) const { return *data_[i]; }
 
-    reference at(size_type i){ if(i >= dim || i < 0) throw std::out_of_range("nyutil::vec::at: out of range"); return *data_[i]; }
-    const_reference at(size_type i) const { if(i >= dim || i < 0) throw std::out_of_range("nyutil::vec::at: out of range"); return *data_[i]; }
+    reference at(size_type i){ if(i >= dim || i < 0) throw std::out_of_range("nytl::vec::at: out of range"); return *data_[i]; }
+    const_reference at(size_type i) const { if(i >= dim || i < 0) throw std::out_of_range("nytl::vec::at: out of range"); return *data_[i]; }
 
     reference front() noexcept { return *data_[0]; }
     const_reference front() const noexcept { return *data_[0]; }
@@ -334,8 +334,8 @@ public:
     reference operator[](size_type i){ if(i == 0) return x; return y; }
     const_reference operator[](size_type i) const { if(i == 0) return x; return y; }
 
-    reference at(size_type i){ if(i >= dim || i < 0) throw std::out_of_range("nyutil::vec::at: out of range"); return (*this)[i]; }
-    const_reference at(size_type i) const { if(i >= dim || i < 0) throw std::out_of_range("nyutil::vec::at: out of range"); return (*this)[i]; }
+    reference at(size_type i){ if(i >= dim || i < 0) throw std::out_of_range("nytl::vec::at: out of range"); return (*this)[i]; }
+    const_reference at(size_type i) const { if(i >= dim || i < 0) throw std::out_of_range("nytl::vec::at: out of range"); return (*this)[i]; }
 
     reference front() noexcept { return x; }
     const_reference front() const noexcept { return x; }
@@ -441,8 +441,8 @@ public:
     reference operator[](size_type i){ if(i == 0) return x; if(i == 1) return y; return z; }
     const_reference operator[](size_type i) const { if(i == 0) return x; if(i == 1) return y; return z; }
 
-    reference at(size_type i){ if(i >= dim || i < 0) throw std::out_of_range("nyutil::vec::at: out of range"); return (*this)[i]; }
-    const_reference at(size_type i) const { if(i >= dim || i < 0) throw std::out_of_range("nyutil::vec::at: out of range"); return (*this)[i]; }
+    reference at(size_type i){ if(i >= dim || i < 0) throw std::out_of_range("nytl::vec::at: out of range"); return (*this)[i]; }
+    const_reference at(size_type i) const { if(i >= dim || i < 0) throw std::out_of_range("nytl::vec::at: out of range"); return (*this)[i]; }
 
     reference front() noexcept { return x; }
     const_reference front() const noexcept { return x; }
@@ -555,8 +555,8 @@ public:
     reference operator[](size_type i){ if(i == 0) return x; if(i == 1) return y; if(i == 2) return z; return w; }
     const_reference operator[](size_type i) const { if(i == 0) return x; if(i == 1) return y; if(i == 2) return z; return w; }
 
-    reference at(size_type i){ if(i >= dim || i < 0) throw std::out_of_range("nyutil::vec::at: out of range"); return (*this)[i]; }
-    const_reference at(size_type i) const { if(i >= dim || i < 0) throw std::out_of_range("nyutil::vec::at: out of range"); return (*this)[i]; }
+    reference at(size_type i){ if(i >= dim || i < 0) throw std::out_of_range("nytl::vec::at: out of range"); return (*this)[i]; }
+    const_reference at(size_type i) const { if(i >= dim || i < 0) throw std::out_of_range("nytl::vec::at: out of range"); return (*this)[i]; }
 
     reference front() noexcept { return x; }
     const_reference front() const noexcept { return x; }

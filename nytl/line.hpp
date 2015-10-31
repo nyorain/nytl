@@ -48,12 +48,12 @@ using line3ui = line<3, unsigned int>;
 using line4ui = line<4, unsigned int>;
 
 //tests
-template<std::size_t dim, typename prec> NYUTIL_CPP14_CONSTEXPR 
+template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR
 bool intersects(const line<dim, prec>&, const line<dim, prec>&);
-template<std::size_t dim, typename prec> constexpr 
+template<std::size_t dim, typename prec> constexpr
 bool intersects(const line<dim, prec>&, const vec<dim, prec>&);
 
-template<std::size_t dim, typename prec> NYUTIL_CPP14_CONSTEXPR 
+template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR
 vec<dim, prec> intersection(const line<dim, prec>&, const line<dim, prec>&);
 
 //line
@@ -79,7 +79,7 @@ public:
     constexpr vec_type gradient(std::size_t dimension) const { return gradient() / gradient()[dimension]; }
 
     constexpr bool definedFor(const prec& value, std::size_t dimension = 0) const;
-    NYUTIL_CPP14_CONSTEXPR vec_type valueAt(const prec& value, std::size_t dimension = 0) const;
+    NYTL_CPP14_CONSTEXPR vec_type valueAt(const prec& value, std::size_t dimension = 0) const;
 
     constexpr prec min(std::size_t dimension) const { return nytl::min(a[dimension], b[dimension]); }
     constexpr prec max(std::size_t dimension) const { return nytl::max(a[dimension], b[dimension]); }
