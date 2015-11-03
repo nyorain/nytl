@@ -1,6 +1,7 @@
 build/
 .git/
 obj/
+github-pages/
 bin/
 old/
 *.gch

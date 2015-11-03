@@ -5,7 +5,7 @@ Getting Started  {#getting-started}
 Since nytl is a header-only library you dont have to compile anything, nytl has __no external dependencies__.
 Start by cloning the nytl repository from github:
 ```
-git clone https://github.com/nyorain/nytl
+git clone https://github.com/nyorain/nytl.git
 cd nytl
 ```
 

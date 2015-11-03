@@ -3,20 +3,21 @@ PROJECT(nytl)
 
 set(NYTL_VMAJOR 0)
 set(NYTL_VMINOR 1)
-#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/CMake)
+option(NYTL_BUILD_TESTS OFF)
 
 include_directories(${CMAKE_SOURCE_DIR})
-add_subdirectory(tests)
+
+if(NYTL_BUILD_TESTS)
+	add_subdirectory(tests)
+	enable_testing()
+	add_test(NAME utilityTest COMMAND test_utility)
+	add_test(NAME mathTest COMMAND test_math)
+	add_test(NAME funcTest COMMAND test_func)
+endif(NYTL_BUILD_TESTS)
 
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
-	configure_file(${CMAKE_SOURCE_DIR}/doc/doxygen/Doxyfile.in 
-		${CMAKE_BINARY_DIR}/doc/doxygen/Doxyfile @ONLY)
-		
-	add_custom_target(doc 
-		${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/doc/doxygen/Doxyfile
-		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-		COMMENT "Generating API documentation with Doxygen" VERBATIM)
+	add_subdirectory(doc)
 endif(DOXYGEN_FOUND)
 
 #pkg-config
@@ -27,9 +28,3 @@ configure_file(
 
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/nytl.pc" DESTINATION lib/pkgconfig)
 install(DIRECTORY nytl DESTINATION include)
-
-#tests
-enable_testing()
-add_test(NAME utilityTest COMMAND test_utility)
-add_test(NAME mathTest COMMAND test_math)
-add_test(NAME funcTest COMMAND test_func)
