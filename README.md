@@ -6,6 +6,7 @@ nytl is really lightweight, yet it offers some pretty useful features for most m
 nytl is still under heavy-developement, the first alpha version will probably be released soon. Although nothing is guaranteed to be working and some things may be changed or removed from the library in the future, we try to fix all bugs and problems you have, just use the issue section of this repository.
 
 nytl is licensed under the MIT License, so you can basically do with it whatever you want. If you start an open-source project using nytl, i will be happy if u let me know.
+
 __Also have a look at the documentation__ (you can also generate it using cmake/doxygen): http://nyorain.github.io/nytl/
 
 ##Getting Started 
