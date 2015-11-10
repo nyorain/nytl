@@ -1,13 +1,13 @@
 #nytl
-nytl is a header-only utility library for c++11. It includes math classes and operations like vec, mat or rect, a smaller part about functions and function-conversions with classes like compatibilityFunction, callback or function_traits, and additionally some general utility stuff, like some c++14 implementation (if your compiler still just supports c++11, but you often need features like make_unique, integer_sequence or apply) or serialzer class and macros.
+nytl is a header-only utility library for c++11. It includes math classes and operations like vec, mat or rect, a smaller part about functions and function-conversions with classes like compatibilityFunction, callback or function_traits, and additionally some general utility stuff, like some c++14 stl implementations (if your compiler still just supports c++11, but you often need features like make_unique or integer_sequence) or serializing-helper class and macros.
 The name nytl does stand for ny-util(or ny-utility) as well as ny-template-library, since it was originally created for the __ny__ gui library.
 nytl is really lightweight, yet it offers some pretty useful features for most modern c++ projects.
 
-nytl is still under heavy-developement, the first alpha version will probably be released soon. Although nothing is guaranteed to be working and some things may be changed or removed from the library in the future, we try to fix all bugs and problems you have, just use the issue section of this repository.
+nytl is still under heavy-developement, the first alpha version will probably be released soon. Although nothing is guaranteed to be working at the moment and some things may be changed or removed from the library in the future, we try to fix all bugs and problems you have, just use the issue section of this repository.
 
-nytl is licensed under the MIT License, so you can basically do with it whatever you want. If you start an open-source project using nytl, i will be happy if u let me know.
+nytl is licensed under the MIT License, so you can basically do with it whatever you want. If you start an open-source project using nytl, i would be happy if u let me know.
 
-__Also have a look at the documentation__ (you can also generate it using cmake/doxygen): http://nyorain.github.io/nytl/
+__Also have a look at the documentation__ (you can also generate it using cmake/doxygen, WIP): http://nyorain.github.io/nytl/
 
 ##Getting Started 
 ###Building nytl
