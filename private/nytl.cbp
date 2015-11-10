@@ -61,6 +61,7 @@
 		<Unit filename="../nytl/nytl.hpp">
 			<Option compile="1" />
 		</Unit>
+		<Unit filename="../nytl/potential_ptr.hpp" />
 		<Unit filename="../nytl/rect.hpp" />
 		<Unit filename="../nytl/refVec.hpp" />
 		<Unit filename="../nytl/region.hpp" />

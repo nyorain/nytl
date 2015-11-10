@@ -25,18 +25,23 @@
 #pragma once
 
 #include <nytl/typemap.hpp>
+#include <nytl/log.hpp>
+
 #include <string>
 #include <type_traits>
+#include <fstream>
 
 namespace nytl
 {
 
 //typeNameFallback
-//todo: if nothing defined, use typeid(T{}).name();
 template<typename A> struct ignored
 {
     using type = void;
 };
+
+//
+template<typename... Args> struct typeNames;
 
 //typeName
 template<typename T, typename Cond = void> struct typeName
@@ -52,6 +57,28 @@ template<typename T> struct typeName<T&>
 	{ static std::string name(){ return typeName<T>() + "&"; } };
 template<typename T> struct typeName<T* const>
 	{ static std::string name(){ return typeName<T>() + "* const"; } };
+template<typename Ret, typename... Args> struct typeName<Ret(Args...)>
+	{ static std::string name(){ return typeName<Ret>() + "(" + typeNames<Args...>() + ")"; } };
+
+template<typename... Args> struct typeNames
+{
+    static std::string name()
+    {
+        std::string ret {};
+        bool first = 1;
+        auto fnc = [&](const std::string& s)
+            {
+                if(!first) ret.append(",");
+                else first = 0;
+                ret.append(s);
+            };
+
+        using expander = int[];
+        expander{((void) fnc(typeName<Args>()) , 0)...};
+        return ret;
+    }
+};
+
 
 #define NYTL_REG_TYPE_NAME(Type) \
 	namespace nytl { \
@@ -77,25 +104,25 @@ template<typename T> struct typeName<T* const>
 	}
 
 //serialzer
-template<typename Base>
-class serializer : public typemap<std::string, Base>
+template<typename Base, typename... CArgs>
+class serializer : public typemap<std::string, Base, CArgs...>
 {
 public:
 	template<typename T>
 	std::size_t registerType(const std::string& id = typeName<T>::name())
 	{
-		return typemap<std::string, Base>::template registerType<T>(id);
+		return typemap<std::string, Base, CArgs...>::template registerType<T>(id);
 	};
 };
 
 //serialized
-template<typename Base>
+template<typename Base, typename... CArgs>
 class serialized
 {
 public:
-    static serializer<Base>& derivedTypes()
+    static serializer<Base, CArgs...>& derivedTypes()
     {
-        static serializer<Base> instance;
+        static serializer<Base, CArgs...> instance;
         return instance;
     };
 
@@ -112,17 +139,17 @@ public:
 	}
 
     //create
-    static std::unique_ptr<Base> create(const std::string& name)
+    static std::unique_ptr<Base> create(const std::string& name, CArgs... args)
     {
-        return derivedTypes().createObject(name);
+        return derivedTypes().createObject(name, args...);
     }
 
-    static std::unique_ptr<Base> createLoad(std::istream& is)
+    static std::unique_ptr<Base> createLoad(std::istream& is, CArgs... args)
     {
         std::string name;
         std::getline(is, name);
-        auto ptr = create(name);
-        if(ptr && ptr->load(is)) return ptr;
+        auto ptr = create(name, args...);
+        if(ptr && ptr->load(is, args...)) return ptr;
         else return nullptr;
     }
 
@@ -136,9 +163,56 @@ public:
     }
 
 public:
-    virtual bool load(std::istream& is) { return 1; };
-    virtual bool save(std::ostream& os) const = 0;
+    virtual bool load(std::istream& is, CArgs... args) { return 1; };
+    virtual bool save(std::ostream& os) const { os << name() << "\n"; return 1; }
+
+    bool saveFile(const std::string& filename) const;
+    bool loadFile(const std::string& filename);
+
+    virtual std::string name() const = 0;
 };
+
+//save
+template<typename Base, typename... CArgs> bool
+serialized<Base, CArgs...>::saveFile(const std::string& filename) const
+{
+    std::ofstream ofs(filename);
+    if(!ofs.is_open())
+    {
+        sendWarning(name(), "::save: failed to open ", filename);
+        return 0;
+    }
+
+	bool ret = save(ofs);
+	ofs.close();
+
+	return ret;
+}
+
+//load
+template<typename Base, typename... CArgs> bool
+serialized<Base, CArgs...>::loadFile(const std::string& filename)
+{
+    std::ifstream ifs(filename);
+    if(!ifs.is_open())
+    {
+        std::cout << name() << "load: failed to open " << filename << "\n";
+        return 0;
+    }
+
+    std::string tmp;
+    std::getline(ifs, tmp);
+
+	bool ret = load(ifs);
+	ifs.close();
+
+	return ret;
+}
+
+
+//saveFunc
+#define NYTL_SAVE_FUNC() virtual bool save(std::ostream& os) const override { os << getName(*this) << "\n"; return 1; }
+#define NYTL_NAME_FUNC() virtual std::string name() const override { return getName(*this); }
 
 //get
 #define NYTL_SERIALIZE_GET_VERSION(a,b,c,d,Name,...) Name
@@ -174,6 +248,7 @@ NYTL_REG_TYPE_NAME(std::int64_t);
 NYTL_REG_TYPE_NAME(std::uint64_t);
 NYTL_REG_TYPE_NAME(float);
 NYTL_REG_TYPE_NAME(double);
+NYTL_REG_TYPE_NAME(void);
 NYTL_REG_TYPE_NAME(std::string);
 
 

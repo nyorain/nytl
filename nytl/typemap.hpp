@@ -38,21 +38,21 @@ namespace nytl
 namespace detail
 {
 
-template<typename Base, typename T> struct make_unique_wrapper
+template<typename Base, typename T, typename... Args> struct make_unique_wrapper
 {
-    static std::unique_ptr<Base> call() { return make_unique<T>(); };
+    static std::unique_ptr<Base> call(Args... args) { return make_unique<T>(args...); };
 };
 
-template<typename T> struct make_unique_wrapper<void, T>
+template<typename T, typename... Args> struct make_unique_wrapper<void, T, Args...>
 {
-    static void* call() { return new T(); };
+    static void* call(Args... args) { return new T(args...); };
 };
 
 }
 
 
 //typemap
-template<typename Identifier, typename Base = void>
+template<typename Identifier, typename Base = void, typename... CArgs>
 class typemap
 {
 public:
@@ -63,7 +63,7 @@ public:
     {
     public:
         virtual ~typeBase() = default;
-        virtual ptr_type create() const = 0;
+        virtual ptr_type create(CArgs... args) const = 0;
         virtual const std::type_info& getTypeInfo() const = 0;
     };
 
@@ -73,7 +73,8 @@ public:
     {
     public:
         virtual ~typeImpl() = default;
-        virtual ptr_type create() const override { return detail::make_unique_wrapper<Base, T>::call(); }
+        virtual ptr_type create(CArgs... args) const override
+            { return detail::make_unique_wrapper<Base, T, CArgs...>::call(args...); }
         virtual const std::type_info& getTypeInfo() const override { return typeid(T); };
     };
 
@@ -118,7 +119,11 @@ public:
 public:
     ~typemap(){ for(auto& val : types_) delete val.second; }
 
-    template<typename T> std::size_t registerType(const Identifier& id) { types_[id] = new typeImpl<T>(); return types_.size(); }
+    template<typename T> std::size_t registerType(const Identifier& id)
+    {
+        types_[id] = new typeImpl<T>();
+        return types_.size();
+    }
 
     bool removeIdentifier(const Identifier& id)
     {
@@ -157,8 +162,10 @@ public:
     template<typename T> bool entryExists(const Identifier& id, const T& obj = T{}) const { return getByEntry(id, typeid(obj)) != types_.cend(); }
     bool entryExists(const Identifier& id, const std::type_info& typeID) const { return getByEntry(id, typeID) != types_.cend(); }
 
-    ptr_type createObject(const Identifier& id) const { auto it = getByIdentifier(id); if(it != types_.cend()) return it->second->create(); return nullptr; }
-    ptr_type createObject(const std::type_info& id) const { auto it = getByTypeInfo(id); if(it != types_.cend()) return it->second->create(); return nullptr; }
+    ptr_type createObject(const Identifier& id, CArgs... args) const
+        { auto it = getByIdentifier(id); if(it != types_.cend()) return it->second->create(args...); return nullptr; }
+    ptr_type createObject(const std::type_info& id, CArgs... args) const
+        { auto it = getByTypeInfo(id); if(it != types_.cend()) return it->second->create(args...); return nullptr; }
 
     const Identifier& getID(const std::type_info& typeID) const { auto it = getByTypeInfo(typeID); if(it != types_.cend()) return it->first; return Identifier{}; }
     template<typename T> const Identifier& getID(const T& obj = T{}) const { return getID(typeid(obj)); }

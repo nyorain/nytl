@@ -22,10 +22,6 @@
  * SOFTWARE.
  */
 
-/**
-@file
-@brief This file is marvelous.
-*/
 
 //minmax todo: extra header
 #if __cplusplus >= 201402L

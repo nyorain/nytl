@@ -27,6 +27,7 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <utility>
 #include <algorithm>
 #include <sstream>
 #include <cmath>
@@ -113,8 +114,6 @@ template<class A, class B> std::vector<B> copyVector(const std::vector<A>& a)
     return ret;
 }
 
-
-
 template<class B, class A> std::vector<B> copyVectorLike(const A& a)
 {
     std::vector<B> ret(a.size());
@@ -124,6 +123,18 @@ template<class B, class A> std::vector<B> copyVectorLike(const A& a)
     {
         ret[i] = val;
         i++;
+    }
+    return ret;
+}
+
+template<class A> std::vector<A> cloneVector(const std::vector<A>& a)
+{
+    std::vector<A> ret(a.size());
+    for(auto& val : a)
+    {
+        auto&& cpy = val->clone();
+        auto& cpy2 = (A&) cpy;
+        ret.emplace_back(std::move(cpy2));
     }
     return ret;
 }
