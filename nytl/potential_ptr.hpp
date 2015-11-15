@@ -42,14 +42,25 @@ public:
     }
 
     //
-    potential_ptr(std::unique_ptr<T>&& other)
-        : ptr_(other.release()), owned_(1)
+    potential_ptr(std::unique_ptr<T>&& value)
+        : ptr_(value.release()), owned_(1)
     {
     }
 
-    potential_ptr& operator=(std::unique_ptr<T>&& other)
+    potential_ptr(T& value) noexcept
+        : ptr_(&value), owned_(0)
     {
-        reset(other.release(), 1);
+    }
+
+    potential_ptr& operator=(std::unique_ptr<T>&& value)
+    {
+        reset(value.release(), 1);
+        return *this;
+    }
+
+    potential_ptr& operator=(T& value)
+    {
+        reset(&value, 0);
         return *this;
     }
 

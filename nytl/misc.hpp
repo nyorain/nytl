@@ -127,18 +127,6 @@ template<class B, class A> std::vector<B> copyVectorLike(const A& a)
     return ret;
 }
 
-template<class A> std::vector<A> cloneVector(const std::vector<A>& a)
-{
-    std::vector<A> ret(a.size());
-    for(auto& val : a)
-    {
-        auto&& cpy = val->clone();
-        auto& cpy2 = (A&) cpy;
-        ret.emplace_back(std::move(cpy2));
-    }
-    return ret;
-}
-
 
 //functions
 inline double absDistance(double x1, double y1, double x2, double y2){ return sqrt(pow(x2 - x1,2) + pow(y2 - y1,2)); }

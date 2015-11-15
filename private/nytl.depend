@@ -947,7 +947,7 @@
 	<nytl/tmp.hpp>
 	<utility>
 
-1446941947 a:\programming\projects\nytl\nytl\misc.hpp
+1447534972 a:\programming\projects\nytl\nytl\misc.hpp
 	<string>
 	<vector>
 	<functional>
@@ -1036,7 +1036,7 @@
 1446583769 a:\programming\projects\nytl\nytl\watcher.hpp
 	<nytl/callback.hpp>
 
-1446743809 source:a:\programming\projects\nytl\nytl\nytl.hpp
+1447184499 source:a:\programming\projects\nytl\nytl\nytl.hpp
 	<nytl/cache.hpp>
 	<nytl/callback.hpp>
 	<nytl/cloneable.hpp>
@@ -1044,6 +1044,7 @@
 	<nytl/function_traits.hpp>
 	<nytl/hierachy.hpp>
 	<nytl/integer_sequence.hpp>
+	<nytl/log.hpp>
 	<nytl/make_unique.hpp>
 	<nytl/math.hpp>
 	<nytl/misc.hpp>
@@ -1071,21 +1072,23 @@
 
 1446583769 a:\programming\projects\nytl\nytl\bits\triangle.inl
 
-1447184482 a:\programming\projects\nytl\nytl\serialize.hpp
+1447626664 a:\programming\projects\nytl\nytl\serialize.hpp
 	<nytl/typemap.hpp>
+	<nytl/log.hpp>
 	<string>
 	<type_traits>
 	<fstream>
 
-1447180912 a:\programming\projects\nytl\nytl\cloneable.hpp
+1447541619 a:\programming\projects\nytl\nytl\cloneable.hpp
 	<nytl/make_unique.hpp>
 	<memory>
+	<vector>
 	<type_traits>
 
-1447181053 a:\programming\projects\nytl\nytl\potential_ptr.hpp
+1447353207 a:\programming\projects\nytl\nytl\potential_ptr.hpp
 	<memory>
 
-1447184564 a:\programming\projects\nytl\nytl\log.hpp
+1447185466 a:\programming\projects\nytl\nytl\log.hpp
 	<nytl/misc.hpp>
 	<iostream>
 	<string>

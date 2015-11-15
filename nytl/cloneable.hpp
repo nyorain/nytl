@@ -26,6 +26,7 @@
 
 #include <nytl/make_unique.hpp>
 #include <memory>
+#include <vector>
 #include <type_traits>
 
 namespace nytl
@@ -48,5 +49,20 @@ public:
 
 
 #define NYTL_CLONE_FUNC(Base, Derived) virtual std::unique_ptr<Base> clone() const override { return nytl::make_unique<Derived>(*this); }
+
+//cloneVector - mainly for unique pointers
+template<class A> std::vector<A> cloneVector(const std::vector<A>& a)
+{
+    std::vector<A> ret;
+    ret.reserve(a.size());
+
+    for(auto& val : a)
+    {
+        auto&& cpy = val->clone();
+        auto& cpy2 = (A&) cpy;
+        ret.emplace_back(std::move(cpy2));
+    }
+    return ret;
+}
 
 }

@@ -92,7 +92,7 @@ template<typename... Args> struct typeNames
 #define NYTL_REG_TEMPLATE_TYPE_NAME(Type) \
 	namespace nytl { \
 	template<typename... P> \
-	struct typeName<Type<P>> \
+	struct typeName<Type<P...>> \
 	 \
 		static std::string name() \
 		{ \
@@ -153,6 +153,21 @@ public:
         else return nullptr;
     }
 
+	static std::unique_ptr<Base> createLoad(const std::string& filename, CArgs... args)
+	{
+		std::ifstream ifs(filename);
+		if(!ifs.is_open())
+		{
+			sendWarning("serialized::createLoad: failed to open file ", filename);
+			return nullptr;
+		}
+
+		auto ret = createLoad(ifs, args...);
+		ifs.close();
+
+		return ret;
+	}
+
     //getName
     template<typename T> static std::string getName(const T& ref = T{})
     {
@@ -210,9 +225,8 @@ serialized<Base, CArgs...>::loadFile(const std::string& filename)
 }
 
 
-//saveFunc
-#define NYTL_SAVE_FUNC() virtual bool save(std::ostream& os) const override { os << getName(*this) << "\n"; return 1; }
-#define NYTL_NAME_FUNC() virtual std::string name() const override { return getName(*this); }
+//nameFunc
+#define NYTL_NAME_FUNC() virtual std::string name() const override { return this->getName(*this); }
 
 //get
 #define NYTL_SERIALIZE_GET_VERSION(a,b,c,d,Name,...) Name

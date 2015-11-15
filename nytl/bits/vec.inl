@@ -465,6 +465,31 @@ NYTL_CPP14_CONSTEXPR vec<dim, Ta> mix(vec<dim, Ta> x, const vec<dim, Ta>& y, con
     return x;
 }
 
+//smallest/greatest
+template<std::size_t dim, typename T>
+NYTL_CPP14_CONSTEXPR raw<T> smallest(const vec<dim, T>& a)
+{
+    raw<T> ret = a[0];
+    for(auto& val : a)
+    {
+        if(val < ret) ret = val;
+    }
+
+    return ret;
+}
+
+template<std::size_t dim, typename T>
+NYTL_CPP14_CONSTEXPR raw<T> greatest(const vec<dim, T>& a)
+{
+    raw<T> ret = a[0];
+    for(auto& val : a)
+    {
+        if(val > ret) ret = val;
+    }
+
+    return ret;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //boolean vec operations//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<std::size_t dim>
