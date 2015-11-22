@@ -66,6 +66,7 @@
 		<Unit filename="../nytl/refVec.hpp" />
 		<Unit filename="../nytl/region.hpp" />
 		<Unit filename="../nytl/serialize.hpp" />
+		<Unit filename="../nytl/singleton.hpp" />
 		<Unit filename="../nytl/system.hpp" />
 		<Unit filename="../nytl/time.hpp" />
 		<Unit filename="../nytl/tmp.hpp" />

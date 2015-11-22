@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+///@file
+///\brief defines all vec operators
 
 //minmax todo: extra header
 #if __cplusplus >= 201402L
@@ -38,7 +40,9 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //general operators//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 ///\relates nytl::vec
+///\brief prints all values individually to an output stream
 template<std::size_t dim, typename T> std::ostream& operator<<(std::ostream& os, const vec<dim, T>& obj)
 {
     const char* c = "";

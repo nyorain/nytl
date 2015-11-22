@@ -18,7 +18,7 @@ table.memberdecls
     border-radius: 4px;
     margin-left: 2px;
     margin-right: 2px;
-    line-height: normal;
+    line-height: 1.2;
 }
 
 .icona 
@@ -41,6 +41,12 @@ table.memberdecls
     border: none;
     margin: 4px;
     padding: 1px 0 0 8px;
+	text-align: left !important;
+}
+
+.memTemplItemLeft
+{
+	display: inline !important;
 }
 
 .mdescLeft, .mdescRight 
@@ -58,13 +64,13 @@ table.memberdecls
     margin: 0px;
     padding: 0px !important;
 }
-/*
+
 .memTemplParams 
 {
 	display: none; //rlly do this? just useful sometimes
 }
 
 .memItemLeft, .memTemplItemLeft {
-    white-space: !important;
+    white-space: nowrap !important;
 }
-*/
+

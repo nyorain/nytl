@@ -1,7 +1,0 @@
-/**
-\namespace nytl
-\brief the namespace that is used for all classes and functions.
-
-\file nytl.hpp
-\brief jeader file that includes all public header files of nytl. Especially useful when used as pre-compiled header.
-**/

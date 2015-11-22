@@ -27,47 +27,42 @@
 namespace nytl
 {
 
-constexpr const double cPi = 3.14159265359;
-constexpr const double cDeg = cPi / 180.0;
-constexpr const double cE = 2.71828182845;
-
-//degrees/radians
-template<typename prec>
-constexpr auto degrees(const prec& rad) -> decltype(rad / cDeg)
+//singleton
+template<typename T>
+class singleton
 {
-    return rad / cDeg;
-}
+public:
+    static T& instance()
+    {
+        static T instance;
+        return instance;
+    }
 
-template<typename prec>
-constexpr auto radians(const prec& deg) -> decltype(deg * cDeg)
+protected:
+    ~singleton();
+
+};
+
+//dynamicSingleton
+template<typename T>
+class dynamicSingleton
 {
-    return deg * cDeg;
-}
+protected:
+    static T* singletonInstance(T* newPtr = nullptr, bool change = 0)
+    {
+        static T* instancePtr = nullptr;
+        if(change) instancePtr = newPtr;
+        return instancePtr;
+    }
 
-//clamp
-template<typename prec>
-constexpr prec clamp(const prec& val, const prec& minVal, const prec& maxVal)
-{
-    return
-        val <= minVal ? minVal :
-        val >= maxVal ? maxVal:
-        val;
-}
+public:
+    static T* instance()
+    {
+        return singletonInstance();
+    }
 
-//mix
-template<typename prec>
-constexpr prec mix(const prec& x, const prec& y, float a)
-{
-    return (x * (1 - a)) + (y * a);
-}
-
-//c++14 constexpr, if the constexpr keyword should only be used, if c++14 is used
-#ifndef NYTL_CPP14_CONSTEXPR
-    #if __cplusplus >= 201402L
-        #define NYTL_CPP14_CONSTEXPR constexpr
-    #else
-        #define NYTL_CPP14_CONSTEXPR
-    #endif
-#endif //NYTL_CPP14_CONSTEXPR
+protected:
+    ~singleton();
+};
 
 }

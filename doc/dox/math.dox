@@ -1,0 +1,74 @@
+/** @defgroup math
+ * The math module deals with utility template classes and functions. 
+ * Especially the nytl::vec class is designed with glsl in mind.
+ * It does additionally include all sort of classes useful for graphical computing. 
+ * There are some specific design patterns, so are most of the operations or tests you can do 
+ * with a class defined as global functions instead of member functions.
+ * 
+ * You can test all geometrical shapes for intersection/containment and most of them can be
+ * combined/subtracted/splitted into new shapes:
+ *  nytl::intersects, nytl::contains, nytl::intersection, nytl::combine, nytl::subtract
+ * 
+ * @{
+ */
+ 
+ 
+/**  ********************************
+
+\class nytl::vec
+\brief basic vector class with templated size and type
+
+\class nytl::mat
+\brief matrix class with templated size and precision
+
+\class nytl::triangle
+\brief triangle class with templated dimension and precision
+
+\class nytl::rect
+\brief rectangle class with templated dimension and precision. 
+	Rectangles with dimensions > 2 can be understood as box, tesseract etc.
+
+\class nytl::line
+\brief line class with templated dimension and precision.
+
+\class nytl::transform
+\brief template class that is able to hold transformations in the 2nd and 3th dimension
+
+\class nytl::transformable
+\brief template class you can derive from when your object should be transformable. 
+	Helper/Wrapper class for nytl::transform
+
+\class nytl::region
+\brief class with templated dimension and precision which is able to define a rectangular area.
+*/
+
+
+/** ********************************
+\file vec.hpp
+\brief vec class header file
+		
+\file mat.hpp
+\brief mat class header file
+
+\file triangle.hpp
+\brief triangle class header file
+
+\file line.hpp
+\brief line class header file
+
+\file rect.hpp
+\brief rect class header file
+
+\file transformable.hpp
+\brief file for transform2, transform3 and the transformable helper classes 
+
+\file constants.hpp
+\brief defines some mathematical constants and simple scalar operations
+
+\file math.hpp
+\brief includes all nytl math headers
+*/
+
+
+		
+/** @} */

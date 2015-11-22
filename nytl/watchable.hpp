@@ -29,6 +29,7 @@
 namespace nytl
 {
 
+template
 class watchable
 {
 protected:
@@ -40,24 +41,23 @@ public:
 };
 
 //ref//////////////////////////////////////////////
-//move, copy semantics
 template <typename T>
-class watcherRef
+class watchableRef
 {
 protected:
     T* ref_;
     connection conn_;
 
 public:
-    watcherRef() = default;
-    watcherRef(T& nref) { set(nref); }
-    ~watcherRef() { if(ref_) conn_.destroy(); }
+    watchableRef() = default;
+    watchableRef(T& nref) { set(nref); }
+    ~watchableRef() { if(ref_) conn_.destroy(); }
 
-    watcherRef(const watcherRef<T>& other) : ref_(other.ref_) { if(ref_) set(*ref_); }
-    watcherRef& operator=(const watcherRef<T>& other) { reset(); if(other.ref_) set(*other.ref_); return *this; }
+    watchableRef(const watcherRef<T>& other) : ref_(other.ref_) { if(ref_) set(*ref_); }
+    watchableRef& operator=(const watcherRef<T>& other) { reset(); if(other.ref_) set(*other.ref_); return *this; }
 
-    watcherRef(watcherRef<T>&& other) : ref_(other.ref_), conn_(std::move(other.conn_)) { other.ref_ = nullptr; }
-    watcherRef& operator=(watcherRef<T>&& other) { reset(); ref_ = other.ref_; conn_ = std::move(other.conn_); other.ref_ = nullptr; }
+    watchableRef(watcherRef<T>&& other) : ref_(other.ref_), conn_(std::move(other.conn_)) { other.ref_ = nullptr; }
+    watchableRef& operator=(watcherRef<T>&& other) { reset(); ref_ = other.ref_; conn_ = std::move(other.conn_); other.ref_ = nullptr; }
 
     T* get() const { return ref_; }
     void set(T& nref)

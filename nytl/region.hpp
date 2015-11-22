@@ -114,7 +114,7 @@ protected:
     std::vector<rect_type> rects_ {};
 
 public:
-    region(const std::vector<rect_type>& rects) noexcept : rects_(rects) {};
+    region(const std::vector<rect_type>& rects) : rects_(rects) {};
     region() noexcept = default;
     ~region() noexcept = default;
 
