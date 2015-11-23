@@ -29,7 +29,6 @@
 namespace nytl
 {
 
-template
 class watchable
 {
 protected:
@@ -53,11 +52,11 @@ public:
     watchableRef(T& nref) { set(nref); }
     ~watchableRef() { if(ref_) conn_.destroy(); }
 
-    watchableRef(const watcherRef<T>& other) : ref_(other.ref_) { if(ref_) set(*ref_); }
-    watchableRef& operator=(const watcherRef<T>& other) { reset(); if(other.ref_) set(*other.ref_); return *this; }
+    watchableRef(const watchableRef<T>& other) : ref_(other.ref_) { if(ref_) set(*ref_); }
+    watchableRef& operator=(const watchableRef<T>& other) { reset(); if(other.ref_) set(*other.ref_); return *this; }
 
-    watchableRef(watcherRef<T>&& other) : ref_(other.ref_), conn_(std::move(other.conn_)) { other.ref_ = nullptr; }
-    watchableRef& operator=(watcherRef<T>&& other) { reset(); ref_ = other.ref_; conn_ = std::move(other.conn_); other.ref_ = nullptr; }
+    watchableRef(watchableRef<T>&& other) : ref_(other.ref_), conn_(std::move(other.conn_)) { other.ref_ = nullptr; }
+    watchableRef& operator=(watchableRef<T>&& other) { reset(); ref_ = other.ref_; conn_ = std::move(other.conn_); other.ref_ = nullptr; }
 
     T* get() const { return ref_; }
     void set(T& nref)
@@ -71,6 +70,11 @@ public:
             conn_.destroy();
         });
     }
+	void set(T* ptr)
+	{
+		if(ptr) set(*ptr);
+		else reset();
+	}
     void reset()
     {
         if(!ref_) return;
@@ -78,6 +82,15 @@ public:
         conn_.destroy();
         ref_ = nullptr;
     }
+
+	T* operator->(){ return ref_; }
+	const T* operator->() const { return ref_; }
+
+	T& operator*(){ return *ref_; }
+	const T& operator*() const { return *ref_; }
+
+	operator bool() const { return (ref_ != nullptr); }
+	
 };
 
 }

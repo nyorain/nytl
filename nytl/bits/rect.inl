@@ -24,11 +24,13 @@
 
 //tests/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //intersects
-template<std::size_t dim, typename prec> bool intersects(const rect<dim, prec>& r1, const rect<dim, prec>& r2)
+template<std::size_t dim, typename prec> bool 
+intersects(const rect<dim, prec>& r1, const rect<dim, prec>& r2)
 {
     return all(r2.position < r1.position + r1.size) && all(r1.position < r2.position + r2.size);
 }
-template<std::size_t dim, typename prec> bool intersects(const rect<dim, prec>& r1, const line<dim, prec>& l2)
+template<std::size_t dim, typename prec> bool 
+intersects(const rect<dim, prec>& r1, const line<dim, prec>& l2)
 {
     //todo: algorithm might be wrong, might have bugs, !important
     if(contains(r1, l2.a) || contains(r1, l2.b)) return 1;
@@ -53,25 +55,42 @@ template<std::size_t dim, typename prec> bool intersects(const rect<dim, prec>& 
 
     return true;
 }
-template<std::size_t dim, typename prec> bool intersects(const rect<dim, prec>& r1, const triangle<dim, prec>& t2)
+template<std::size_t dim, typename prec> bool 
+intersects(const rect<dim, prec>& r1, const triangle<dim, prec>& t2)
 {
     return intersects(r1, t2.AB()) || intersects(r1, t2.BC()) || intersects(r1. t2.CA());
 }
 
+template<std::size_t dim, typename prec> bool 
+intersects(const line<dim, prec>& a, const rect<dim, prec>& b){ return intersects(b, a); }
+
+template<std::size_t dim, typename prec> bool 
+intersects(const triangle<dim, prec>& a, const rect<dim, prec>& b){ return interects(b, a); };
+
+template<std::size_t dim, typename prec> bool 
+contains(const rect<dim, prec>& a, const triangle<dim, prec>& b)
+{
+	return (contains(a, b.a) && contains(a, b.b) && contains(a, b.c));
+}
+
 //contains
-template<std::size_t dim, typename prec> bool contains(const rect<dim, prec>& r1, const rect<dim, prec>& r2)
+template<std::size_t dim, typename prec> bool 
+contains(const rect<dim, prec>& r1, const rect<dim, prec>& r2)
 {
     return contains(r1, r2.position) && contains(r1, r2.position + r2.size);
 }
-template<std::size_t dim, typename prec> bool contains(const rect<dim, prec>& r1, const line<dim, prec>& l2)
+template<std::size_t dim, typename prec> bool 
+contains(const rect<dim, prec>& r1, const line<dim, prec>& l2)
 {
     return contains(r1, l2.a) && contains(r1, l2.b);
 }
-template<std::size_t dim, typename prec> bool contains(const rect<dim, prec>& r1, const triangle<dim, prec>& t2)
+template<std::size_t dim, typename prec> bool 
+contains(const rect<dim, prec>& r1, const triangle<dim, prec>& t2)
 {
     return contains(r1, t2.a) && contains(r1, t2.b) && contains(r1, t2.c);
 }
-template<std::size_t dim, typename prec> bool contains(const rect<dim, prec>& r1, const vec<dim, prec>& v2)
+template<std::size_t dim, typename prec> bool 
+contains(const rect<dim, prec>& r1, const vec<dim, prec>& v2)
 {
     return all(r1.position <= v2) && all(v2 <= r1.position + r1.size);
 }

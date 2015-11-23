@@ -70,29 +70,55 @@ typedef region<4, unsigned long> region4ul;
 
 //should rlly be declared here? use helper member functions?
 //tests
-template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR bool intersects(const region<dim, prec>&, const region<dim, prec>&);
-template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR bool intersects(const region<dim, prec>&, const rect<dim, prec>&);
-template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR bool intersects(const region<dim, prec>&, const line<dim, prec>&);
-template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR bool intersects(const region<dim, prec>&, const triangle<dim, prec>&);
+template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR 
+	bool intersects(const region<dim, prec>&, const region<dim, prec>&);
+template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR 
+	bool intersects(const region<dim, prec>&, const rect<dim, prec>&);
+template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR 
+	bool intersects(const region<dim, prec>&, const line<dim, prec>&);
+template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR 
+	bool intersects(const region<dim, prec>&, const triangle<dim, prec>&);
 
-template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR bool contains(const region<dim, prec>&, const region<dim, prec>&);
-template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR bool contains(const region<dim, prec>&, const rect<dim, prec>&);
-template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR bool contains(const region<dim, prec>&, const line<dim, prec>&);
-template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR bool contains(const region<dim, prec>&, const triangle<dim, prec>&);
-template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR bool contains(const region<dim, prec>&, const vec<dim, prec>&);
+
+template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR 
+	bool contains(const region<dim, prec>&, const region<dim, prec>&);
+template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR 
+	bool contains(const region<dim, prec>&, const rect<dim, prec>&);
+template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR 
+	bool contains(const region<dim, prec>&, const line<dim, prec>&);
+template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR 
+	bool contains(const region<dim, prec>&, const triangle<dim, prec>&);
+template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR 
+	bool contains(const region<dim, prec>&, const vec<dim, prec>&);
 
 //operations
-template<std::size_t dim, typename prec> region<dim, prec> intersection(const region<dim, prec>&, const region<dim, prec>&);
-template<std::size_t dim, typename prec> region<dim, prec> intersection(const region<dim, prec>&, const rect<dim, prec>&);
+template<std::size_t dim, typename prec> region<dim, prec>
+   	intersection(const region<dim, prec>&, const region<dim, prec>&);
+template<std::size_t dim, typename prec> region<dim, prec>
+   	intersection(const region<dim, prec>&, const rect<dim, prec>&);
+template<std::size_t dim, typename prec> region<dim, prec>
+   	intersection(const rect<dim, prec>&, const region<dim, prec>&);
 
-template<std::size_t dim, typename prec> region<dim, prec> combination(const region<dim, prec>&, const region<dim, prec>&);
-template<std::size_t dim, typename prec> region<dim, prec> combination(const region<dim, prec>&, const rect<dim, prec>&);
+template<std::size_t dim, typename prec> region<dim, prec>
+   	combination(const region<dim, prec>&, const region<dim, prec>&);
+template<std::size_t dim, typename prec> region<dim, prec>
+   	combination(const region<dim, prec>&, const rect<dim, prec>&);
+template<std::size_t dim, typename prec> region<dim, prec>
+   	combination(const rect<dim, prec>&, const region<dim, prec>&);
 
-template<std::size_t dim, typename prec> region<dim, prec> difference(const region<dim, prec>&, const region<dim, prec>&);
-template<std::size_t dim, typename prec> region<dim, prec> difference(const region<dim, prec>&, const rect<dim, prec>&);
+template<std::size_t dim, typename prec> region<dim, prec>
+   	difference(const region<dim, prec>&, const region<dim, prec>&);
+template<std::size_t dim, typename prec> region<dim, prec>
+   	difference(const region<dim, prec>&, const rect<dim, prec>&);
+template<std::size_t dim, typename prec> region<dim, prec>
+   	difference(const rect<dim, prec>&, const region<dim, prec>&);
 
-template<std::size_t dim, typename prec> region<dim, prec> symmetricDifference(const region<dim, prec>&, const region<dim, prec>&);
-template<std::size_t dim, typename prec> region<dim, prec> symmetricDifference(const region<dim, prec>&, const rect<dim, prec>&);
+template<std::size_t dim, typename prec> region<dim, prec>
+   	symmetricDifference(const region<dim, prec>&, const region<dim, prec>&);
+template<std::size_t dim, typename prec> region<dim, prec>
+   	symmetricDifference(const region<dim, prec>&, const rect<dim, prec>&);
+template<std::size_t dim, typename prec> region<dim, prec>
+   	symmetricDifference(const rect<dim, prec>&, const region<dim, prec>&);
 
 
 //todo: cache complex compute results?

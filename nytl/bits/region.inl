@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-//tests/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//tests///////////////////////////////////////////////////////////////////////////////////////////
 template<std::size_t dim, typename prec>
 NYTL_CPP14_CONSTEXPR bool intersects(const region<dim, prec>& rega, const region<dim, prec>& regb)
 {
@@ -66,6 +66,14 @@ NYTL_CPP14_CONSTEXPR bool intersects(const region<dim, prec>& rega, const triang
 
     return false;
 }
+template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR 
+bool intersects(const rect<dim, prec>& a, const region<dim, prec>& b){ return intersects(b, a); }
+
+template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR 
+bool intersects(const line<dim, prec>& a, const region<dim, prec>& b){ return intersects(b, a); }
+
+template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR 
+bool intersects(const triangle<dim, prec>& a, const region<dim, prec>& b){ return intersects(b, a); }
 
 //contains
 template<std::size_t dim, typename prec>
@@ -122,6 +130,28 @@ NYTL_CPP14_CONSTEXPR bool contains(const region<dim, prec>& rega, const vec<dim,
     return false;
 }
 
+template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR 
+bool contains(const rect<dim, prec>& a, const region<dim, prec>& b)
+{
+	for(auto& r1 : b.getRects())
+	{
+		if(!contains(a, r1)) return false;
+	}
+
+	return true;
+}
+
+template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR 
+bool contains(const triangle<dim, prec>& a, const region<dim, prec>& b)
+{
+	for(auto& r1 : b.getRects())
+	{
+		if(!contains(a, r1) return false;
+	}
+
+	return true;
+}
+
 //functions/////////////////////////////////////////////////////////////////////////////////////////////
 template<std::size_t dim, typename prec>
 void region<dim, prec>::add(const rect<dim, prec>& r)
@@ -129,7 +159,8 @@ void region<dim, prec>::add(const rect<dim, prec>& r)
     std::vector<rect<dim, prec>> rvec{r};
     for(auto& r1 : rects_)
     {
-        for(std::size_t i(0); i < rvec.size(); i++)
+		std::size_t size = rvec.size();
+        for(std::size_t i(0); i < size; ++i)
         {
             if(intersects(r1, rvec[i]))
             {
@@ -161,14 +192,30 @@ void region<dim, prec>::add(const region<dim, prec>& r)
 template<std::size_t dim, typename prec>
 void region<dim, prec>::subtract(const rect<dim, prec>& r)
 {
-    auto r1 = r;
-    for(auto& r2 : rects_)
+	std::vector<rect<dim,prec>> rvec{r};
+	std::vector<rect<dim, prec>> addVec{};
+
+    for(auto it = rects_.begin(); it != rects_.end(); ++it)
     {
-        if(intersects(r2, r1))
-        {
-            r2 = r2 - r1;
-            r1 = r1 - r2; //optional, probably better for performance if omitted
-        }
+		auto& r1 = *it;
+
+		std::size_t size = rvec.size();
+		for(std::size_t i(0); i < size; ++i)
+		{
+			if(intersects(r1, rvec[i]))
+			{
+				auto result = difference(rvec[i], r1);
+				if(!result.empty())
+				{
+					r1 = result[0];
+					addVec.insert(addVec.cend(), result.cbegin() + 1, result.cend());				
+				}
+				else
+				{
+					it = rects_.erase(it);
+				}
+			}
+		}
     }
 }
 

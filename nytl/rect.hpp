@@ -69,25 +69,51 @@ typedef rect<4, long> rect4l;
 typedef rect<4, unsigned long> rect4ul;
 
 //should rlly be declared here? use helper member functions?
-//todo: intersection overload for point of intersection for types
-//tests
-template<std::size_t dim, typename prec> bool intersects(const rect<dim, prec>&, const rect<dim, prec>&);
-template<std::size_t dim, typename prec> bool intersects(const rect<dim, prec>&, const line<dim, prec>&);
-template<std::size_t dim, typename prec> bool intersects(const rect<dim, prec>&, const triangle<dim, prec>&);
+//todo: nytl_cpp14_constexpr
+template<std::size_t dim, typename prec> bool 
+	intersects(const rect<dim, prec>&, const rect<dim, prec>&);
+template<std::size_t dim, typename prec> bool 
+	intersects(const rect<dim, prec>&, const line<dim, prec>&);
+template<std::size_t dim, typename prec> bool 
+	intersects(const rect<dim, prec>&, const triangle<dim, prec>&);
 
-template<std::size_t dim, typename prec> bool contains(const rect<dim, prec>&, const rect<dim, prec>&);
-template<std::size_t dim, typename prec> bool contains(const rect<dim, prec>&, const line<dim, prec>&);
-template<std::size_t dim, typename prec> bool contains(const rect<dim, prec>&, const triangle<dim, prec>&);
-template<std::size_t dim, typename prec> bool contains(const rect<dim, prec>&, const vec<dim, prec>&);
+template<std::size_t dim, typename prec> bool 
+	contains(const rect<dim, prec>&, const rect<dim, prec>&);
+template<std::size_t dim, typename prec> bool 
+	contains(const rect<dim, prec>&, const line<dim, prec>&);
+template<std::size_t dim, typename prec> bool 
+	contains(const rect<dim, prec>&, const triangle<dim, prec>&);
+template<std::size_t dim, typename prec> bool 
+	contains(const rect<dim, prec>&, const vec<dim, prec>&);
 
 //operations
-template<std::size_t dim, typename prec> rect<dim, prec> intersection(const rect<dim, prec>&, const rect<dim, prec>&);
-template<std::size_t dim, typename prec> std::vector<rect<dim, prec>> combination(const rect<dim, prec>&, const rect<dim, prec>&);
-template<std::size_t dim, typename prec> std::vector<rect<dim, prec>> difference(const rect<dim, prec>&, const rect<dim, prec>&);
-template<std::size_t dim, typename prec> std::vector<rect<dim, prec>> symmetricDifference(const rect<dim, prec>&, const rect<dim, prec>&);
+///Returns the rectangle in which area the two paramater rectangles intersect. 
+///Also represented by the AND operator.
+template<std::size_t dim, typename prec> rect<dim, prec>
+   	intersection(const rect<dim, prec>&, const rect<dim, prec>&);
+
+///Returns the union of two areas. Since it combines them the result cannot be expressed
+///in a single rectangle and is therefore a vector.
+///Also represented by the OR operator.
+template<std::size_t dim, typename prec> std::vector<rect<dim, prec>>
+   	combination(const rect<dim, prec>&, const rect<dim, prec>&);
+
+///Returns the difference between two rectangles, it subtracts the second one from the
+///first one and returns the rest of the first one. Since the result cant be expressed as
+///a single rectangle, it is a vector. 
+template<std::size_t dim, typename prec> std::vector<rect<dim, prec>>
+   	difference(const rect<dim, prec>&, const rect<dim, prec>&);
+
+///Returns the symmetric difference between two rectangles, so basically just the
+///area where exactly one of them is placed.
+///Also represented by the XOR operator.
+template<std::size_t dim, typename prec> std::vector<rect<dim, prec>>
+   	symmetricDifference(const rect<dim, prec>&, const rect<dim, prec>&);
 
 
-//rect
+///The rect class represents a rectangular area in a templated dimension 
+///with a templated precision. There exist specific overloads for 2-dimensional rects(rectangle)
+///and 3-dimensional rects(box).
 template<size_t dim, class prec> class rect
 {
 public:
