@@ -146,7 +146,7 @@ bool contains(const triangle<dim, prec>& a, const region<dim, prec>& b)
 {
 	for(auto& r1 : b.getRects())
 	{
-		if(!contains(a, r1) return false;
+		if(!contains(a, r1)) return false;
 	}
 
 	return true;

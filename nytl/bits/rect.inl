@@ -56,22 +56,16 @@ intersects(const rect<dim, prec>& r1, const line<dim, prec>& l2)
     return true;
 }
 template<std::size_t dim, typename prec> bool 
-intersects(const rect<dim, prec>& r1, const triangle<dim, prec>& t2)
+intersects(const rect<dim, prec>& a, const triangle<dim, prec>& b)
 {
-    return intersects(r1, t2.AB()) || intersects(r1, t2.BC()) || intersects(r1. t2.CA());
+	return (contains(a, b.a) || contains(a, b.b) || contains(a, b.c));
 }
-
 template<std::size_t dim, typename prec> bool 
 intersects(const line<dim, prec>& a, const rect<dim, prec>& b){ return intersects(b, a); }
 
 template<std::size_t dim, typename prec> bool 
 intersects(const triangle<dim, prec>& a, const rect<dim, prec>& b){ return interects(b, a); };
 
-template<std::size_t dim, typename prec> bool 
-contains(const rect<dim, prec>& a, const triangle<dim, prec>& b)
-{
-	return (contains(a, b.a) && contains(a, b.b) && contains(a, b.c));
-}
 
 //contains
 template<std::size_t dim, typename prec> bool 
