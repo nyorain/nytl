@@ -59,7 +59,7 @@ public:
 
 protected:
     rot_type rotation_ {};
-    vec_type scale_ {};
+    vec_type scaling_ {};
     vec_type position_ {};
 	vec_type origin_ {};
 
@@ -72,35 +72,37 @@ protected:
 	    float rotCos = std::cos(rotation_ * cDeg);
 	    float rotSin = std::sin(rotation_ * cDeg);
 
-	    matrix_[0][0] = scale_.x * rotCos;
-	    matrix_[0][1] = scale_.x * rotSin;
+	    matrix_[0][0] = scaling_.x * rotCos;
+	    matrix_[0][1] = scaling_.x * rotSin;
         matrix_[0][2] = -(origin_.x * matrix_[0][0]) - (origin_.y * matrix_[0][1]) + position_.x;
-	    matrix_[1][0] = -scale_.x * rotSin;
-	    matrix_[1][1] = scale_.y * rotCos;
+	    matrix_[1][0] = -scaling_.x * rotSin;
+	    matrix_[1][1] = scaling_.y * rotCos;
 	    matrix_[1][2] = -(origin_.x * matrix_[1][0]) - (origin_.y * matrix_[1][1]) + position_.y;
 
         matValid_ = 1;
 	}
 
 public:
-    transform() : matrix_(identityMat<dim + 1, prec>()) { scale_.fill(1); position_.fill(0); origin_.fill(0); }
+    transform() noexcept : matrix_(identityMat<dim + 1, prec>()) 
+		{ scaling_.fill(1); position_.fill(0); origin_.fill(0); }
+    transform(const vec_type& pos) noexcept : position_(pos), matValid_(0) {}
     ~transform() noexcept = default;
 
     //operations
     void rotate(const rot_type& rotation){ rotation_ += rotation; invMat(); }
     void move(const vec_type& pos){ position_ += pos; invMat(); }
-    void scale(const vec_type& pscale){ scale_ *= pscale; invMat(); }
+    void scale(const vec_type& pscale){ scaling_ *= pscale; invMat(); }
     void moveOrigin(const vec_type& m) { origin_ += m; invMat(); };
 
-    void setRotation(const rot_type& rotation){ rotation_ = rotation; invMat(); }
-    void setPosition(const vec_type& pos){ position_ = pos; invMat(); }
-    void setScale(const vec_type& pscale){ scale_ = pscale; invMat(); }
-    void setOrigin(const vec_type& origin) { origin_ = origin; invMat(); }
+    void rotation(const rot_type& rotation){ rotation_ = rotation; invMat(); }
+    void position(const vec_type& pos){ position_ = pos; invMat(); }
+    void scaling(const vec_type& pscale){ scaling_ = pscale; invMat(); }
+    void origin(const vec_type& origin) { origin_ = origin; invMat(); }
 
-    const rot_type& getRotation() const { return rotation_; }
-    const vec_type& getPosition() const { return position_; }
-    const vec_type& getScale() const { return scale_; }
-    const vec_type& getOrigin() const { return origin_; }
+    const rot_type& rotation() const { return rotation_; }
+    const vec_type& position() const { return position_; }
+    const vec_type& scaling() const { return scaling_; }
+    const vec_type& origin() const { return origin_; }
 
     template<size_t odim, class oprec>
     operator transform<odim, oprec>()
@@ -109,8 +111,8 @@ public:
 
         ret.position_ = position_;
         ret.origin_ = origin_;
-        if(odim >= 1) ret.scale_[0] = scale_[0];
-        if(odim >= 2) ret.scale_[1] = scale_[1], ret.rotation_[0] = rotation_;
+        if(odim >= 1) ret.scaling_[0] = scaling_[0];
+        if(odim >= 2) ret.scaling_[1] = scaling_[1], ret.rotation_[0] = rotation_;
 
         if(matValid_) ret.matrix_ = matrix_;
         else ret.matValid_ = 0;
@@ -119,11 +121,11 @@ public:
     }
 
     //apply
-    vec_type apply(const vec_type& org) const { return vec_type(vec<dim + 1, prec>(org.x, org.y, 1) * getMatrix()); }
-    rect_type apply(const rect_type& org) const { return rect_type(apply(org.position), apply(org.size)); }
+    vec_type apply(const vec_type& org) const 
+		{ return vec_type(vec<dim + 1, prec>(org.x, org.y, 1) * matrix()); }
 
     //getMatrix
-    const mat_type& getMatrix() const { if(!matValid_) bakeMat(); return matrix_; }
+    const mat_type& matrix() const { if(!matValid_) bakeMat(); return matrix_; }
 };
 
 //3
@@ -140,7 +142,7 @@ public:
 
 protected:
     rot_type rotation_ {};
-    vec_type scale_ {};
+    vec_type scaling_ {};
     vec_type position_ {};
 	vec_type origin_ {};
 
@@ -161,15 +163,17 @@ protected:
         float cosC = std::cos(rotation_[2] * cDeg);
 
         //todo: pre-calculate this
-        mat_type trMatrix(cosB * cosC, cosC * sinA * sinB - cosA * sinC, cosA * cosC * sinB + sinA * sinC, position_[0],
-                          cosB * sinC, cosA * cosC + sinA * sinB * sinC, -cosC * sinA + cosA * sinB * sinC, position_[1],
-                          -sinB,       cosB * sinA,                      cosA * cosB,                       position_[2],
-                          0,           0,                                0,                                 1);
+        mat_type trMatrix(cosB * cosC, cosC * sinA * sinB - cosA * sinC, 
+					cosA * cosC * sinB + sinA * sinC, position_[0],
+                          cosB * sinC, cosA * cosC + sinA * sinB * sinC, 
+					-cosC * sinA + cosA * sinB * sinC, position_[1],
+                          -sinB, cosB * sinA, cosA * cosB, position_[2],
+                          0, 0, 0, 1);
 
-        mat_type sMatrix(scale_[0], 0, 0, 0,
-                         0, scale_[1], 0, 0,
-                         0, 0, scale_[2], 0,
-                         0, 0, 0, scale_[3]);
+        mat_type sMatrix(scaling_[0], 0, 0, 0,
+                         0, scaling_[1], 0, 0,
+                         0, 0, scaling_[2], 0,
+                         0, 0, 0, scaling_[3]);
 
         matrix_ = trMatrix * sMatrix;
 
@@ -177,24 +181,26 @@ protected:
 	}
 
 public:
-    transform() : matrix_(identityMat<dim + 1, prec>()) { scale_.fill(1); position_.fill(0); origin_.fill(0); rotation_.fill(0); }
+    transform() noexcept : matrix_(identityMat<dim + 1, prec>()) 
+		{ scaling_.fill(1); position_.fill(0); origin_.fill(0); rotation_.fill(0); }
+    transform(const vec_type& pos) noexcept : position_(pos), matValid_(0) {}
     ~transform() noexcept = default;
 
     //operations
     void rotate(const rot_type& rotation){ rotation_ += rotation; invMat(); }
     void move(const vec_type& pos){ position_ += pos; invMat(); }
-    void scale(const vec_type& pscale){ scale_ *= pscale; invMat(); }
+    void scale(const vec_type& pscale){ scaling_ *= pscale; invMat(); }
     void moveOrigin(const vec_type& m) { origin_ += m; invMat(); };
 
-    void setRotation(const rot_type& rotation){ rotation_ = rotation; invMat(); }
-    void setPosition(const vec_type& pos){ position_ = pos; invMat(); }
-    void setScale(const vec_type& pscale){ scale_ = pscale; invMat(); }
-    void setOrigin(const vec_type& origin) { origin_ = origin; invMat(); }
+    void rotation(const rot_type& rotation){ rotation_ = rotation; invMat(); }
+    void position(const vec_type& pos){ position_ = pos; invMat(); }
+    void scaling(const vec_type& pscale){ scaling_ = pscale; invMat(); }
+    void origin(const vec_type& origin) { origin_ = origin; invMat(); }
 
-    const rot_type& getRotation() const { return rotation_; }
-    const vec_type& getPosition() const { return position_; }
-    const vec_type& getScale() const { return scale_; }
-    const vec_type& getOrigin() const { return origin_; }
+    const rot_type& rotation() const { return rotation_; }
+    const vec_type& position() const { return position_; }
+    const vec_type& scaling() const { return scaling_; }
+    const vec_type& origin() const { return origin_; }
 
     template<size_t odim, class oprec>
     operator transform<odim, oprec>()
@@ -203,9 +209,10 @@ public:
 
         ret.position_ = position_;
         ret.origin_ = origin_;
-        if(odim >= 1) ret.scale_[0] = scale_[0];
-        if(odim >= 2) ret.scale_[1] = scale_[1], ret.rotation_[0] = rotation_[0];
-        if(odim >= 3) ret.scale_[2] = scale_[2], ret.rotation_[1] = rotation_[1], ret.rotation_[2] = rotation_[2];
+        if(odim >= 1) ret.scaling_[0] = scaling_[0];
+        if(odim >= 2) ret.scaling_[1] = scaling_[1], ret.rotation_[0] = rotation_[0];
+        if(odim >= 3) ret.scaling_[2] = scaling_[2], ret.rotation_[1] = rotation_[1], 
+			ret.rotation_[2] = rotation_[2];
 
         if(matValid_) ret.matrix_ = matrix_;
         else ret.matValid_ = 0;
@@ -214,11 +221,11 @@ public:
     }
 
     //apply
-    vec_type apply(const vec_type& org) const { return vec_type(vec<dim + 1, prec>(org.x, org.y, org.z, 1) * getMatrix()); }
-    rect_type apply(const rect_type& org) const { return rect_type(apply(org.position), apply(org.size)); }
+    vec_type apply(const vec_type& org) const 
+		{ return vec_type(vec<dim + 1, prec>(org.x, org.y, org.z, 1) * matrix()); }
 
     //getMatrix
-    const mat_type& getMatrix() const { if(!matValid_) bakeMat(); return matrix_; }
+    const mat_type& matrix() const { if(!matValid_) bakeMat(); return matrix_; }
 };
 
 
@@ -241,11 +248,17 @@ protected:
 
 public:
     transformable() = default;
+    transformable(const vec_type& pos) : transform_(pos) {}
+
     ~transformable() = default;
 
-    template<size_t odim, typename oprec> transformable(const transformable<odim, oprec>& other) : transform_(other.getTransform()) {}
-    template<size_t odim, typename oprec> transformable(const transform<odim, oprec>& trans) : transform_(trans) {}
-    template<size_t odim, typename oprec> transformable<dim, prec>& operator=(const transformable<odim, oprec>& other) { transform_ = other.getTransform(); return *this; }
+    template<size_t odim, typename oprec> 
+		transformable(const transformable<odim, oprec>& other) : transform_(other.transform()) {}
+    template<size_t odim, typename oprec> 
+		transformable(const transform<odim, oprec>& trans) : transform_(trans) {}
+    template<size_t odim, typename oprec> 
+		transformable<dim, prec>& operator=(const transformable<odim, oprec>& other) 
+		{ transform_ = other.transform(); return *this; }
 
     //operations
     void rotate(const rot_type& rotation){ transform_.rotate(rotation); }
@@ -253,25 +266,24 @@ public:
     void scale(const vec_type& pscale){ transform_.scale(pscale); }
     void moveOrigin(const vec_type& m) { transform_.moveOrigin(m); };
 
-    void setRotation(const rot_type& rotation){ transform_.setRotation(rotation); }
-    void setPosition(const vec_type& pos){ transform_.setPosition(pos); }
-    void setScale(const vec_type& pscale){ transform_.setScale(pscale); }
-    void setOrigin(const vec_type& origin){ transform_.setOrigin(origin); }
+    void rotation(const rot_type& rotation){ transform_.rotation(rotation); }
+    void position(const vec_type& pos){ transform_.position(pos); }
+    void scaling(const vec_type& pscale){ transform_.scaling(pscale); }
+    void origin(const vec_type& origin){ transform_.origin(origin); }
 
-    const rot_type& getRotation() const { return transform_.getRotation(); }
-    const vec_type& getPosition() const { return transform_.getPosition(); }
-    const vec_type& getScale() const { return transform_.getScale(); }
-    const vec_type& getOrigin() const { return transform_.getOrigin(); }
+    const rot_type& rotation() const { return transform_.rotation(); }
+    const vec_type& position() const { return transform_.position(); }
+    const vec_type& scaling() const { return transform_.scaling(); }
+    const vec_type& origin() const { return transform_.origin(); }
 
     void copyTransform(const transform_type& trans) { transform_ = trans; }
     void copyTransform(const transformable<dim, prec>& trans) { transform_ = trans.transform_; }
 
     //todo
-    const mat_type& getTransformMatrix() const { return transform_.getMatrix(); }
-    const transform_type& getTransform() const { return transform_; }
+    const mat_type& transformMatrix() const { return transform_.matrix(); }
+    const transform_type& transformObject() const { return transform_; }
 
-	virtual rect_type getExtents() const { return rect_type{}; };
-	rect_type getTransformedExtents() const { return transform_.apply(getExtents()); }
+	virtual rect_type extents() const { return rect_type{}; };
 };
 
 }

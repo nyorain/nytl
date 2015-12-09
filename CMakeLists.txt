@@ -3,7 +3,9 @@ PROJECT(nytl)
 
 set(NYTL_VMAJOR 0)
 set(NYTL_VMINOR 1)
-option(NYTL_BUILD_TESTS OFF)
+option(NYTL_BUILD_TESTS ON)
+set(CMAKE_BUILD_TYPE Debug)
+
 
 include_directories(${CMAKE_SOURCE_DIR})
 
@@ -28,3 +30,4 @@ configure_file(
 
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/nytl.pc" DESTINATION lib/pkgconfig)
 install(DIRECTORY nytl DESTINATION include)
+

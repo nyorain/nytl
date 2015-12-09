@@ -91,13 +91,17 @@ public:
     ~triangle() noexcept = default;
 
     constexpr triangle(const triangle_type& other) noexcept = default;
-    constexpr triangle& operator=(const triangle_type& other) noexcept = default;
+    triangle_type& operator=(const triangle_type& other) noexcept = default;
 
     constexpr triangle(triangle_type&& other) noexcept = default;
-    constexpr triangle& operator=(triangle_type&& other) noexcept = default;
+    triangle_type& operator=(triangle_type&& other) noexcept = default;
 
     //
-    constexpr double size() const { return length(b - a) * length(c - a) * 0.5; }
+    double size() const 
+	{
+		float s = 0.5 * (length(b - a) + length(c - b) + length(a - c));
+		return std::sqrt(s*(s - length(c - b))*(s - length(b - a))*(s - length(a - c))); 
+	}
 
     //todo
     constexpr float angleA() const { return angle(AB().difference(), AC().difference()); }
