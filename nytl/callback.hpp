@@ -41,8 +41,10 @@ class connectionRef;
 template <class> class callback;
 
 //class callback should be thread safe
-//atm implemented using expensive mutexes etc., should change to lock free containers (deque/queue) later on
-//when cheap implementation found, tsafe callback and callback sohuld be merged into one threadsafe callback class
+//atm implemented using expensive mutexes etc., should change to lock free containers 
+//(deque/queue) later on
+//when cheap implementation found, tsafe callback and callback sohuld be merged into one 
+//threadsafe callback class
 
 //callbackBase//////////////////////////////////////
 class callbackBase
@@ -87,7 +89,8 @@ public:
 };
 
 //connectionRef for destroying a connection inside a callback/////////////////////
-//exactly the same class, only used for this purpose to be able to use it in compFunc without overriding a connection parameter
+//exactly the same class, only used for this purpose to be able to use it in compFunc without 
+//overriding a connection parameter
 class connectionRef
 {
 protected:
@@ -111,10 +114,10 @@ public:
 };
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//non-threadsafe callback/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-template <class  Ret, class ... Args> class callback<Ret(Args...)> final : public callbackBase
+/////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+//non-threadsafe callback//////////////////////////////////////////////////////////////////////
+template <class  Ret, class ... Args> class callback<Ret(Args...)> : public callbackBase
 {
 protected:
     struct callbackSlot
@@ -204,9 +207,9 @@ public:
 };
 
 
-//callback specialization for void because callback cant return a <void>-vector/////////////////////////////////
+//callback specialization for void because callback cant return a <void>-vector
 //callback////////////////////////////////////////////
-template <class ... Args> class callback<void(Args...)> final : public callbackBase
+template <class ... Args> class callback<void(Args...)> : public callbackBase
 {
 protected:
     struct callbackSlot

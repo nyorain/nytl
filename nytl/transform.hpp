@@ -58,10 +58,10 @@ public:
 	using rect_type = rect<dim, prec>;
 
 protected:
-    rot_type rotation_ {};
-    vec_type scaling_ {};
-    vec_type position_ {};
-	vec_type origin_ {};
+    rot_type rotation_ {0};
+    vec_type scaling_ {1, 1};
+    vec_type position_ {0, 0};
+	vec_type origin_ {0, 0};
 
 	mutable mat_type matrix_ {};
 	mutable bool matValid_ {1};
@@ -78,14 +78,17 @@ protected:
 	    matrix_[1][0] = -scaling_.x * rotSin;
 	    matrix_[1][1] = scaling_.y * rotCos;
 	    matrix_[1][2] = -(origin_.x * matrix_[1][0]) - (origin_.y * matrix_[1][1]) + position_.y;
+		matrix_[2][0] = 0;
+		matrix_[2][1] = 0;
+		matrix_[2][2] = 1;
 
         matValid_ = 1;
 	}
 
 public:
-    transform() noexcept : matrix_(identityMat<dim + 1, prec>()) 
-		{ scaling_.fill(1); position_.fill(0); origin_.fill(0); }
-    transform(const vec_type& pos) noexcept : position_(pos), matValid_(0) {}
+    transform() noexcept : matrix_(identityMat<dim + 1, prec>()) {} 
+    transform(const vec_type& pos) noexcept : position_(pos), matValid_(0),
+		matrix_(identityMat<dim + 1, prec>())  {}
     ~transform() noexcept = default;
 
     //operations
