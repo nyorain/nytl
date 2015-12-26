@@ -28,6 +28,7 @@
 #include <nytl/callback.hpp>
 #include <nytl/cloneable.hpp>
 #include <nytl/compFunc.hpp>
+#include <nytl/dynVec.hpp>
 #include <nytl/function_traits.hpp>
 #include <nytl/hierachy.hpp>
 #include <nytl/integer_sequence.hpp>
@@ -43,5 +44,6 @@
 #include <nytl/time.hpp>
 #include <nytl/tmp.hpp>
 #include <nytl/typemap.hpp>
+#include <nytl/uniqueArea.hpp>
 #include <nytl/versionControl.hpp>
 #include <nytl/watchable.hpp>
