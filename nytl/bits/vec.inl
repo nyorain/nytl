@@ -23,18 +23,6 @@
  */
 #pragma once
 
-#include <nytl/constants.hpp>
-#include <nytl/integer_sequence.hpp>
-
-#include <iostream>
-#include <algorithm>
-#include <cmath>
-#include <cstddef>
-#include <utility>
-
-namespace nytl
-{
-
 namespace detail
 {
 
@@ -119,8 +107,8 @@ vec<dim, T> operator-(vec<dim, T> mvec, const O& other)
 }
 
 ///\relates vec
-template<std::size_t dim, typename T, typename O>  
-vec<dim, T> operator-(const O& other, vec<dim, T> mvec)
+template<std::size_t dim, typename T, typename OT>  
+vec<dim, T> operator-(OT other, vec<dim, T> mvec)
 {
     for(auto& val : mvec)
         val = other - val;
@@ -163,7 +151,7 @@ template<std::size_t dima, typename Ta, std::size_t dimb, typename Tb>
 auto operator*(const vec<dima, Ta>& a, const vec<dimb, Tb>& b) 
 	-> vec<detail::dMax(dima, dimb), typename std::conditional<dima >= dimb, Ta, Tb>::type>
 {
-	using V = vec<detail::dMax(dima, dimb), typename std::conditional<dima >= dimb, Ta, Tb>::type>;
+	using V = vec<detail::dMax(dima, dimb), decltype(a[0] * b[0])>;
 
     auto ret = static_cast<V>(a);
     ret *= static_cast<V>(b);
@@ -180,8 +168,8 @@ vec<dim, T> operator/(vec<dim, T> mvec, const O& other)
 }
 
 ///\relates vec
-template<std::size_t dim, typename T, typename O>
-vec<dim, T> operator/(const O& other, vec<dim, T> mvec)
+template<std::size_t dim, typename T, typename OT>
+vec<dim, T> operator/(OT other, vec<dim, T> mvec)
 {
     for(auto& val : mvec)
         val = other / val;
@@ -211,8 +199,8 @@ vec<dim, T> operator%(vec<dim, T> mvec, const O& other)
 }
 
 ///\relates vec
-template<std::size_t dim, typename T, typename O>
-vec<dim, T> operator%(const O& other, vec<dim, T> mvec)
+template<std::size_t dim, typename T, typename OT>
+vec<dim, T> operator%(OT other, vec<dim, T> mvec)
 {
     for(auto& val : mvec)
         val = other % val;
@@ -655,4 +643,3 @@ vec<dim, prec> min(const vec<dim, prec>& veca, const prec& value)
     return ret;
 }
 
-} //namespace

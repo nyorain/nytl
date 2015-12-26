@@ -22,49 +22,44 @@
  * SOFTWARE.
  */
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//members
-template<size_t dim, typename prec>
-constexpr bool line<dim, prec>::definedFor(const prec& value, std::size_t dimension) const
+template<size_t D, typename P> bool 
+line<D, P>::definedAt(const P& value, std::size_t dim) const
 {
-    return ((std::min(a[dimension], b[dimension]) <= value) &&
-            (std::max(a[dimension], b[dimension]) >= value));
+    return ((smallestValue(dim) <= value) &&
+            (greatestValue(dim) >= value));
 }
 
-template<size_t dim, typename prec>
-NYTL_CPP14_CONSTEXPR vec<dim, prec> line<dim, prec>::valueAt(const prec& value, std::size_t dimension) const
+template<size_t D, typename P> vec<D, P>
+line<D, P>::valueAt(const P& value, std::size_t dim) const
 {
-    if(!definedFor(value, dimension))
+    if(!definedFor(value, dim))
     {
-         //should this function rlly throw?
-        throw std::logic_error("line::valueAt: line is not defined for [" + std::to_string(dimension) + "] == " + std::to_string(value));
-        return vec<dim, prec>{};
+		sendWarning("nytl::line::valueAt: line not defined at ", value, ", dim ", dim);
+        return {};
     }
-    else if(gradient()[dimension] == 0)
+    else if(gradient()[dim] == 0)
     {
         auto ret = a;
-        ret[dimension] = value;
+        ret[dim] = value;
         return ret;
     }
     else
     {
-        auto ret = a + ((value - a[dimension]) * gradient(dimension)); //todo: clearer expression
-        ret[dimension] = value;
+        auto ret = a + ((value - a[dim]) * gradient(dim));
         return ret;
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //tests and stuff
-template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR
-bool intersects(const line<dim, prec>& l1, const line<dim, prec>& l2)
+template<std::size_t D, typename P> NYTL_CPP14_CONSTEXPR
+bool intersects(const line<D, P>& l1, const line<D, P>& l2)
 {
     float st = max(l1.min(0), l2.min(0));
     float en = min(l1.max(0), l2.max(0));
 
     if(st >= en) return false;
 
-    for(std::size_t i(1); i < dim; ++i)
+    for(std::size_t i(1); i < D; ++i)
     {
         bool stV = l1.valueAt(st)[i] < l2.valueAt(st)[i];
         bool enV = l1.valueAt(en)[i] < l2.valueAt(en)[i];
@@ -74,20 +69,20 @@ bool intersects(const line<dim, prec>& l1, const line<dim, prec>& l2)
 
     return true;
 }
-template<std::size_t dim, typename prec> constexpr
-bool intersects(const line<dim, prec>& l1, const vec<dim, prec>& v1)
+template<std::size_t D, typename P> constexpr
+bool intersects(const line<D, P>& l1, const vec<D, P>& v1)
 {
     return (l1.definedFor(v1[0], 0) && l1.valueAt(v1[0], 0) == v1);
 }
 
-template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR
-vec<dim, prec> intersection(const line<dim, prec>& l1, const line<dim, prec>& l2)
+template<std::size_t D, typename P> NYTL_CPP14_CONSTEXPR
+vec<D, P> intersection(const line<D, P>& l1, const line<D, P>& l2)
 {
     if(!intersects(l1, l2))
     {
 	   	//should this function rlly throw?
         throw std::logic_error("line::intersection: lines do not intersect");
-		return vec<dim, prec>{};
+		return vec<D, P>{};
     }
 
     float val = (l1.valueAt(0, 0)[1] - l2.valueAt(0, 0)[1]) /
@@ -96,10 +91,10 @@ vec<dim, prec> intersection(const line<dim, prec>& l1, const line<dim, prec>& l2
     return l1.valueAt(val, 0);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //utility
-template<size_t dim, typename prec>
-constexpr auto length(const line<dim, prec>& l) -> decltype(l.length())
+template<size_t D, typename P>
+constexpr auto length(const line<D, P>& l) -> decltype(l.length())
 {
     return l.length();
 }
+

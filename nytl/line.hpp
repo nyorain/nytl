@@ -25,15 +25,18 @@
 #pragma once
 
 #include <nytl/vec.hpp>
+#include <nytl/constants.hpp>
+#include <nytl/simplex.hpp>
+#include <nytl/log.hpp>
 
 namespace nytl
 {
 
 //typedefs
-template<size_t dim, typename prec> class line;
-template<typename prec> using line2 = line<2, prec>;
-template<typename prec> using line3 = line<3, prec>;
-template<typename prec> using line4 = line<4, prec>;
+template<size_t D, typename P = float> using line = simplex<D, P, 1>;
+template<typename P = float> using line2 = line<2, P>;
+template<typename P = float> using line3 = line<3, P>;
+template<typename P = float> using line4 = line<4, P>;
 
 using line2f = line<2, float>;
 using line3f = line<3, float>;
@@ -47,49 +50,63 @@ using line2ui = line<2, unsigned int>;
 using line3ui = line<3, unsigned int>;
 using line4ui = line<4, unsigned int>;
 
-//tests
-template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR
-bool intersects(const line<dim, prec>&, const line<dim, prec>&);
-template<std::size_t dim, typename prec> constexpr
-bool intersects(const line<dim, prec>&, const vec<dim, prec>&);
 
-template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR
-vec<dim, prec> intersection(const line<dim, prec>&, const line<dim, prec>&);
-
-//line
-//todo: ray, segment? some way to make clear what type of line it is
-template<size_t dim, typename prec>
-class line
+///Simplex specialization for a 2-dimensional area (line).
+///Look at simplex for more information.
+template<size_t D, typename P>
+class simplex<D, P, 1>
 {
 public:
-    using value_type = prec;
-    using vec_type = vec<dim, value_type>;
+    using value_type = P;
+    using vec_type = vec<D, value_type>;
 
 public:
     vec_type a;
     vec_type b;
 
 public:
-    constexpr line(const vec_type& xa, const vec_type& xb) noexcept : a(xa), b(xb) {}
-    line() noexcept = default;
+    simplex(const vec_type& xa, const vec_type& xb) noexcept : a(xa), b(xb) {}
+    simplex() noexcept = default;
 
-    constexpr float length() const { return distance(a, b); }
-    constexpr vec_type difference() const { return b - a; }
-    constexpr vec_type gradient() const { return normalize(difference() / nytl::length(difference())); }
-    constexpr vec_type gradient(std::size_t dimension) const { return gradient() / gradient()[dimension]; }
+    double size() const { return distance(a, b); }
 
-    constexpr bool definedFor(const prec& value, std::size_t dimension = 0) const;
-    NYTL_CPP14_CONSTEXPR vec_type valueAt(const prec& value, std::size_t dimension = 0) const;
+	///Alias for size():
+	double length() const { return size(); }
 
-    constexpr prec min(std::size_t dimension) const { return nytl::min(a[dimension], b[dimension]); }
-    constexpr prec max(std::size_t dimension) const { return nytl::max(a[dimension], b[dimension]); }
+	vec_type center() const { return (a + b) / 2; }
 
-    //conversion
-    template<size_t odim, typename oprec>
-    constexpr operator line<odim, oprec>() const { return line<odim, oprec>(a, b); }
+	///Returns the vector that lays between the two points
+    vec_type difference() const { return b - a; }
+
+	///Returns a normalized (length = 1) gradient vector.
+    vec_type gradient() const { return normalize(difference()); }
+
+	///Returns the gradient vector in relation to the given dimension parameter.
+	///If e.g. dim is 0, the x component of the returned gradient vector will be 1 and all
+	///other components will be set in relation.
+    vec_type gradient(std::size_t dim) const { return difference() / difference()[dim]; }
+
+	///Returns wheter the line is defined for the given value in the given dimension.
+    bool definedAt(const value_type& value, std::size_t dimension = 0) const;
+
+	///Returns the point of the line at the given value in the given dimension.
+	///One should check with definedAt(value, dimension) if the line is defined for the given
+	///value before using this. If it is not, this function will produce a warning and return an
+	///empty vec.
+    vec_type valueAt(const value_type& value, std::size_t dimension = 0) const;
+
+	///Returns the smallest value the line is defined for in the given dimension.
+    value_type smallestValue(std::size_t dim) const { return min(a[dim], b[dim]); }
+
+	///Returns the greatest value the line is defined for in the given dimension.
+    value_type greatestValue(std::size_t dim) const { return max(a[dim], b[dim]); }
+
+	///Converts the line to a line with a different precision and/or space dimension.
+    template<size_t OD, typename OP>
+	operator line<OD, OP>() const { return line<OD, OP>(a, b); }
 };
 
-//utility and operators
+//implementation, utility and operators
 #include <nytl/bits/line.inl>
 
 }

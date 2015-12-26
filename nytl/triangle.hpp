@@ -25,16 +25,17 @@
 #pragma once
 
 #include <nytl/vec.hpp>
+#include <nytl/simplex.hpp>
 #include <nytl/line.hpp>
 
 namespace nytl
 {
 
 //typedefs
-template<size_t dim, typename prec> class triangle;
-template<typename prec> using triangle2 = triangle<2, prec>;
-template<typename prec> using triangle3 = triangle<3, prec>;
-template<typename prec> using triangle4 = triangle<4, prec>;
+template<size_t D, typename P> using triangle = simplex<D, P, 2>;
+template<typename P> using triangle2 = triangle<2, P>;
+template<typename P> using triangle3 = triangle<3, P>;
+template<typename P> using triangle4 = triangle<4, P>;
 
 using triangle2f = triangle<2, float>;
 using triangle3f = triangle<3, float>;
@@ -52,31 +53,16 @@ using triangle2ui = triangle<2, unsigned int>;
 using triangle3ui = triangle<3, unsigned int>;
 using triangle4ui = triangle<4, unsigned int>;
 
-
-//should rlly be declared here? use helper member functions?
-//tests
-template<std::size_t dim, typename prec> constexpr
-bool intersects(const triangle<dim, prec>&, const triangle<dim, prec>&);
-template<std::size_t dim, typename prec> constexpr
-bool intersects(const triangle<dim, prec>&, const line<dim, prec>&);
-
-template<std::size_t dim, typename prec> constexpr
-bool contains(const triangle<dim, prec>&, const triangle<dim, prec>&);
-template<std::size_t dim, typename prec> constexpr
-bool contains(const triangle<dim, prec>&, const line<dim, prec>&);
-template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR
-bool contains(const triangle<dim, prec>&, const vec<dim, prec>&);
-
-
-//class
-template<size_t dim, typename prec>
-class triangle
+///2-dimensional simplex specialization (triangle).
+///Look at simplex for more information.
+template<size_t D, typename P>
+class simplex<D, P, 2>
 {
 public:
     using value_type = prec;
-    using vec_type = vec<dim, prec>;
-    using triangle_type = triangle<dim, prec>;
-    using line_type = line<dim, prec>;
+    using vec_type = vec<D, P>;
+    using triangle_type = triangle<D, P>;
+    using line_type = line<D, P>;
 
 public:
     vec_type a;
@@ -84,26 +70,23 @@ public:
     vec_type c;
 
 public:
-    constexpr triangle() = default;
-    constexpr triangle(const vec_type& xa, const vec_type& xb, const vec_type& xc)
+    triangle() noexcept = default;
+    triangle(const vec_type& xa, const vec_type& xb, const vec_type& xc) noexcept
 		: a(xa), b(xb), c(xc) {}
 
     ~triangle() noexcept = default;
-
     constexpr triangle(const triangle_type& other) noexcept = default;
     triangle_type& operator=(const triangle_type& other) noexcept = default;
 
-    constexpr triangle(triangle_type&& other) noexcept = default;
-    triangle_type& operator=(triangle_type&& other) noexcept = default;
+	//defaulöt
+    double size() const;
+	vec_type center() const;
+	vec_type barycentric(const vec_type& val) const;
 
-    //
-    double size() const 
-	{
-		float s = 0.5 * (length(b - a) + length(c - b) + length(a - c));
-		return std::sqrt(s*(s - length(c - b))*(s - length(b - a))*(s - length(a - c))); 
-	}
+    template<size_t odim, typename oprec> constexpr
+    operator triangle<odim, oprec>() const { return triangle<odim, oprec>(a, b, c); }
 
-    //todo
+	//triangle specific
     constexpr float angleA() const { return angle(AB().difference(), AC().difference()); }
     constexpr float angleB() const { return angle(BA().difference(), BC().difference()); }
     constexpr float angleC() const { return angle(CB().difference(), CA().difference()); }
@@ -114,10 +97,6 @@ public:
     constexpr line_type BA() const { return line_type(b, a); }
     constexpr line_type CA() const { return line_type(c, a); }
     constexpr line_type CB() const { return line_type(c, b); }
-
-    //conversion
-    template<size_t odim, typename oprec> constexpr
-    operator triangle<odim, oprec>() const { return triangle<odim, oprec>(a, b, c); }
 };
 
 //utility and operators/test

@@ -5,8 +5,10 @@ using namespace nytl;
 
 int main()
 {
-	vec<dynamicSize, int> a(vec3f{7, 6, 2});
-	std::cout << (a == vec4f(7, 6 ,2, 222)) << "\n";
-
-	return EXIT_SUCCESS;
+	mat2f m(3, 8, 4, 6);
+	std::cout << m << "\n";
+	//std::cout << pivot(m) << " -> " << m << "\n";
+	std::cout << luDecomposition(m) << "\n";
+	std::cout << det(m) << "\n";
+	
 }

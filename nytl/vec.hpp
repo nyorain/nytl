@@ -26,7 +26,13 @@
 
 #include <nytl/tmp.hpp>
 #include <nytl/constants.hpp>
+#include <nytl/integer_sequence.hpp>
 
+#include <iostream>
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <utility>
 #include <type_traits>
 #include <limits>
 
@@ -73,7 +79,20 @@ typedef vec4<bool> vec4b;
 
 //better use dynmiacSize = 0? 
 //error messages with this one are kinda disgusting
+
+///Constant that can be used as dimension parameter for the vector to make its
+///size variable (like std::vector), while still oferring all mathematical
+///operators.
+///You have to include <nytl/dynVec.hpp> to make it work.
 constexpr std::size_t dynamicSize = std::numeric_limits<std::size_t>::max();
+
+
+//For serveral operations with/for vec and its specializations, parameters are passed by by-copy 
+//instead of by-reference. This have to be done because otherwise you could not perform 
+//certain operations of the vector in realtion to its current state.
+//Example: v /= v[0]. If v[0] is passed as reference here, the components of the vector are
+//devided by difference values, since v[0] changes during the operation. If we pass it as
+//copy instead, it might be more expensive, but we get at least the expected results.
 
 ///The vec class represents a fixed-sized group of \c dim values of type \ T.
 ///Since it is fixed-size is is not a replacement or alternative to std::vector or any
@@ -154,25 +173,25 @@ public:
     template <std::size_t OD, typename ot> vec_type& operator <<=(const vec<OD, ot>& lhs)
 		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] <<= lhs[i]; return *this; }
 
-    template<typename ot> vec_type& operator +=(const ot& lhs)
+    template<typename OT> vec_type& operator +=(OT lhs)
 		{ for(auto& val : *this) val += lhs; return *this; }
-    template<typename ot> vec_type& operator -=(const ot& lhs)
+    template<typename OT> vec_type& operator -=(OT lhs)
 		{ for(auto& val : *this) val -= lhs; return *this; }
-    template<typename ot> vec_type& operator *=(const ot& lhs)
+    template<typename OT> vec_type& operator *=(OT lhs)
 		{ for(auto& val : *this) val *= lhs; return *this; }
-    template<typename ot> vec_type& operator /=(const ot& lhs)
+    template<typename OT> vec_type& operator /=(OT lhs)
 		{ for(auto& val : *this) val /= lhs; return *this; }
-    template<typename ot> vec_type& operator %=(const ot& lhs){ 
+    template<typename OT> vec_type& operator %=(OT lhs){ 
 		for(auto& val : *this) val %= lhs; return *this; }
-    template<typename ot> vec_type& operator |=(const ot& lhs)
+    template<typename OT> vec_type& operator |=(OT lhs)
 		{ for(auto& val : *this) val |= lhs; return *this; }
-    template<typename ot> vec_type& operator ^=(const ot& lhs)
+    template<typename OT> vec_type& operator ^=(OT lhs)
 		{ for(auto& val : *this) val ^= lhs; return *this; }
-    template<typename ot> vec_type& operator &=(const ot& lhs)
+    template<typename OT> vec_type& operator &=(OT lhs)
 		{ for(auto& val : *this) val &= lhs; return *this; }
-    template<typename ot> vec_type& operator >>=(const ot& lhs)
+    template<typename OT> vec_type& operator >>=(OT lhs)
 		{ for(auto& val : *this) val >>= lhs; return *this; }
-    template<typename ot> vec_type& operator <<=(const ot& lhs)
+    template<typename OT> vec_type& operator <<=(OT lhs)
 		{ for(auto& val : *this) val <<= lhs; return *this; }
 
     vec_type operator-() const 
@@ -224,9 +243,13 @@ public:
 
     reference back() noexcept { return data_[dim - 1]; }
     const_reference back() const noexcept { return data_[dim - 1]; }
+
+	void swap(vec_type& other){ std::swap(data_, other.data_); }
 };
 
-//vec2
+///2-dimensional vec specialization.
+///Offers all vec functionality, but to the 2 components can be refered to with
+///vec.x and vec.y.
 template<typename T> class vec<2, T>
 {
 public:
@@ -286,21 +309,21 @@ public:
     template <std::size_t OD, typename ot> vec_type& operator &=(const vec<OD, ot>& lhs)
 		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] &= lhs[i];  return *this; }
 
-    template<typename ot> vec_type& operator +=(const ot& lhs)
+    template<typename OT> vec_type& operator +=(OT lhs)
 		{ for(auto& val : *this) val += lhs;  return *this; }
-    template<typename ot> vec_type& operator -=(const ot& lhs)
+    template<typename OT> vec_type& operator -=(OT lhs)
 		{ for(auto& val : *this) val -= lhs;  return *this; }
-    template<typename ot> vec_type& operator *=(const ot& lhs)
+    template<typename OT> vec_type& operator *=(OT lhs)
 		{ for(auto& val : *this) val *= lhs;  return *this; }
-    template<typename ot> vec_type& operator /=(const ot& lhs)
+    template<typename OT> vec_type& operator /=(OT lhs)
 		{ for(auto& val : *this) val /= lhs;  return *this; }
-    template<typename ot> vec_type& operator %=(const ot& lhs)
+    template<typename OT> vec_type& operator %=(OT lhs)
 		{ for(auto& val : *this) val %= lhs;  return *this; }
-    template<typename ot> vec_type& operator |=(const ot& lhs)
+    template<typename OT> vec_type& operator |=(OT lhs)
 		{ for(auto& val : *this) val |= lhs;  return *this; }
-    template<typename ot> vec_type& operator ^=(const ot& lhs)
+    template<typename OT> vec_type& operator ^=(OT lhs)
 		{ for(auto& val : *this) val ^= lhs;  return *this; }
-    template<typename ot> vec_type& operator &=(const ot& lhs)
+    template<typename OT> vec_type& operator &=(OT lhs)
 		{ for(auto& val : *this) val &= lhs;  return *this; }
 
     vec_type operator-() const { return vec_type(-x, -y); }
@@ -351,10 +374,14 @@ public:
 
     reference back() noexcept { return y; }
     const_reference back() const noexcept { return y; }
+
+	void swap(vec_type& other){ std::swap(x, other.x); std::swap(y, other.y); }
 };
 
 
-//vec3
+///3-dimensional vec specialization.
+///Offers all vec functionality, but to the 3 components can be refered to with 
+///vec.x, vec.y and vec.z.
 template<typename T> class vec<3, T>
 {
 public:
@@ -415,21 +442,21 @@ public:
     template <std::size_t OD, typename ot> vec_type& operator &=(const vec<OD, ot>& lhs)
 		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] &= lhs[i];  return *this; }
 
-    template<typename ot> vec_type& operator +=(const ot& lhs)
+    template<typename OT> vec_type& operator +=(OT lhs)
 		{ for(auto& val : *this) val += lhs;  return *this; }
-    template<typename ot> vec_type& operator -=(const ot& lhs)
+    template<typename OT> vec_type& operator -=(OT lhs)
 		{ for(auto& val : *this) val -= lhs;  return *this; }
-    template<typename ot> vec_type& operator *=(const ot& lhs)
+    template<typename OT> vec_type& operator *=(OT lhs)
 		{ for(auto& val : *this) val *= lhs;  return *this; }
-    template<typename ot> vec_type& operator /=(const ot& lhs)
+    template<typename OT> vec_type& operator /=(OT lhs)
 		{ for(auto& val : *this) val /= lhs;  return *this; }
-    template<typename ot> vec_type& operator %=(const ot& lhs)
+    template<typename OT> vec_type& operator %=(OT lhs)
 		{ for(auto& val : *this) val %= lhs;  return *this; }
-    template<typename ot> vec_type& operator |=(const ot& lhs)
+    template<typename OT> vec_type& operator |=(OT lhs)
 		{ for(auto& val : *this) val |= lhs;  return *this; }
-    template<typename ot> vec_type& operator ^=(const ot& lhs)
+    template<typename OT> vec_type& operator ^=(OT lhs)
 		{ for(auto& val : *this) val ^= lhs;  return *this; }
-    template<typename ot> vec_type& operator &=(const ot& lhs)
+    template<typename OT> vec_type& operator &=(OT lhs)
 		{ for(auto& val : *this) val &= lhs;  return *this; }
 
     vec_type operator-() const { return vec_type(-x, -y, -z); }
@@ -481,6 +508,9 @@ public:
     reference back() noexcept { return z; }
     const_reference back() const noexcept { return z; }
 
+	void swap(vec_type& other)
+		{ std::swap(x, other.x); std::swap(y, other.y); std::swap(z, other.z); }
+
     //custom
     vec2<value_type> xy() const noexcept { return vec2<value_type>(x,y); }
     vec2<value_type> yz() const noexcept { return vec2<value_type>(y,z); }
@@ -489,8 +519,9 @@ public:
 
 
 
-//////////////////////////////
-//vec4
+///4-dimensional vec specialization.
+///Offers all vec functionality, but to the 4 components can be refered to with 
+///vec.x, vec.y, vec.z and vec.w.
 template<typename T> class vec<4, T>
 {
 public:
@@ -552,21 +583,21 @@ public:
     template <std::size_t OD, typename ot> vec_type& operator &=(const vec<OD, ot>& lhs)
 		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] &= lhs[i];  return *this; }
 
-    template<typename ot> vec_type& operator +=(const ot& lhs)
+    template<typename OT> vec_type& operator +=(OT lhs)
 		{ for(auto& val : *this) val += lhs;  return *this; }
-    template<typename ot> vec_type& operator -=(const ot& lhs)
+    template<typename OT> vec_type& operator -=(OT lhs)
 		{ for(auto& val : *this) val -= lhs;  return *this; }
-    template<typename ot> vec_type& operator *=(const ot& lhs)
+    template<typename OT> vec_type& operator *=(OT lhs)
 		{ for(auto& val : *this) val *= lhs;  return *this; }
-    template<typename ot> vec_type& operator /=(const ot& lhs)
+    template<typename OT> vec_type& operator /=(OT lhs)
 		{ for(auto& val : *this) val /= lhs;  return *this; }
-    template<typename ot> vec_type& operator %=(const ot& lhs)
+    template<typename OT> vec_type& operator %=(OT lhs)
 		{ for(auto& val : *this) val %= lhs;  return *this; }
-    template<typename ot> vec_type& operator |=(const ot& lhs)
+    template<typename OT> vec_type& operator |=(OT lhs)
 		{ for(auto& val : *this) val |= lhs;  return *this; }
-    template<typename ot> vec_type& operator ^=(const ot& lhs)
+    template<typename OT> vec_type& operator ^=(OT lhs)
 		{ for(auto& val : *this) val ^= lhs;  return *this; }
-    template<typename ot> vec_type& operator &=(const ot& lhs)
+    template<typename OT> vec_type& operator &=(OT lhs)
 		{ for(auto& val : *this) val &= lhs;  return *this; }
 
     vec_type operator-() const { return  vec_type(-x, -y, -z, -w); }
@@ -619,6 +650,9 @@ public:
     reference back() noexcept { return w; }
     const_reference back() const noexcept { return w; }
 
+	void swap(vec_type& other) { std::swap(x, other.x); std::swap(y, other.y); 
+		std::swap(z, other.z); std::swap(w, other.w); }
+
     //custom
     vec2<T> xy() const noexcept { return vec2<T>(x,y); }
     vec2<T> xz() const noexcept { return vec2<T>(x,z); }
@@ -651,8 +685,9 @@ template<typename T> class vec<4, T&>;
 template<typename T> class vec<dynamicSize, T>;
 template<typename T> class vec<dynamicSize, T&>; //where to put this? <nytl/dynRefVec>?
 
-}
-
 //operators/utility
 #include <nytl/bits/vec.inl>
+
+}
+
 

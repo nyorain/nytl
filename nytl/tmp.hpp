@@ -76,7 +76,8 @@ template<typename T, template<typename...> class Tuple> struct type_tuple<T, 1, 
     using type = Tuple<T>;
 };
 
-template<typename T, std::size_t size, template<typename...> class Tuple = std::tuple> using type_tuple_t = typename type_tuple<T, size, Tuple>::type;
+template<typename T, std::size_t size, template<typename...> class Tuple = std::tuple> 
+using type_tuple_t = typename type_tuple<T, size, Tuple>::type;
 
 
 

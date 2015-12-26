@@ -183,6 +183,8 @@ public:
 
     reference back() noexcept { return data_.back(); }
     const_reference back() const noexcept { return data_.back(); }
+
+	void swap(vec_type& other){ data_.swap(other.data_); }
 };
 
 }
