@@ -137,25 +137,25 @@ public:
     template <size_t odim, typename ot> vec_type& operator <<=(const vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] <<= other[i]; return *this; }
 
-    template<typename ot> vec_type& operator +=(const ot& other)
+    template<typename ot> vec_type& operator +=(ot other)
 		{ for(auto& val : *this) val += other; return *this; }
-    template<typename ot> vec_type& operator -=(const ot& other)
+    template<typename ot> vec_type& operator -=(ot other)
 		{ for(auto& val : *this) val -= other; return *this; }
-    template<typename ot> vec_type& operator *=(const ot& other)
+    template<typename ot> vec_type& operator *=(ot other)
 		{ for(auto& val : *this) val *= other; return *this; }
-    template<typename ot> vec_type& operator /=(const ot& other)
+    template<typename ot> vec_type& operator /=(ot other)
 		{ for(auto& val : *this) val /= other; return *this; }
-    template<typename ot> vec_type& operator %=(const ot& other)
+    template<typename ot> vec_type& operator %=(ot other)
 		{ for(auto& val : *this) val %= other; return *this; }
-    template<typename ot> vec_type& operator |=(const ot& other)
+    template<typename ot> vec_type& operator |=(ot other)
 		{ for(auto& val : *this) val |= other; return *this; }
-    template<typename ot> vec_type& operator ^=(const ot& other)
+    template<typename ot> vec_type& operator ^=(ot other)
 		{ for(auto& val : *this) val ^= other; return *this; }
-    template<typename ot> vec_type& operator &=(const ot& other)
+    template<typename ot> vec_type& operator &=(ot other)
 		{ for(auto& val : *this) val &= other; return *this; }
-    template<typename ot> vec_type& operator >>=(const ot& other)
+    template<typename ot> vec_type& operator >>=(ot other)
 		{ for(auto& val : *this) val >>= other; return *this; }
-    template<typename ot> vec_type& operator <<=(const ot& other)
+    template<typename ot> vec_type& operator <<=(ot other)
 		{ for(auto& val : *this) val <<= other; return *this; }
 
     vec_type operator-() const 
@@ -276,25 +276,25 @@ public:
     template <size_t odim, typename ot> vec_type& operator <<=(const vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] <<= other[i]; return *this; }
 
-    template<typename ot> vec_type& operator +=(const ot& other)
+    template<typename ot> vec_type& operator +=(ot other)
 		{ for(auto& val : *this) val += other; return *this; }
-    template<typename ot> vec_type& operator -=(const ot& other)
+    template<typename ot> vec_type& operator -=(ot other)
 		{ for(auto& val : *this) val -= other; return *this; }
-    template<typename ot> vec_type& operator *=(const ot& other)
+    template<typename ot> vec_type& operator *=(ot other)
 		{ for(auto& val : *this) val *= other; return *this; }
-    template<typename ot> vec_type& operator /=(const ot& other)
+    template<typename ot> vec_type& operator /=(ot other)
 		{ for(auto& val : *this) val /= other; return *this; }
-    template<typename ot> vec_type& operator %=(const ot& other)
+    template<typename ot> vec_type& operator %=(ot other)
 		{ for(auto& val : *this) val %= other; return *this; }
-    template<typename ot> vec_type& operator |=(const ot& other)
+    template<typename ot> vec_type& operator |=(ot other)
 		{ for(auto& val : *this) val |= other; return *this; }
-    template<typename ot> vec_type& operator ^=(const ot& other)
+    template<typename ot> vec_type& operator ^=(ot other)
 		{ for(auto& val : *this) val ^= other; return *this; }
-    template<typename ot> vec_type& operator &=(const ot& other)
+    template<typename ot> vec_type& operator &=(ot other)
 		{ for(auto& val : *this) val &= other; return *this; }
-    template<typename ot> vec_type& operator >>=(const ot& other)
+    template<typename ot> vec_type& operator >>=(ot other)
 		{ for(auto& val : *this) val >>= other; return *this; }
-    template<typename ot> vec_type& operator <<=(const ot& other)
+    template<typename ot> vec_type& operator <<=(ot other)
 		{ for(auto& val : *this) val <<= other; return *this; }
 
     vec_type operator-() const { return vec_type(x, y); }
@@ -414,25 +414,25 @@ public:
     template <size_t odim, typename ot> vec_type& operator <<=(const vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] <<= other[i]; return *this; }
 
-    template<typename ot> vec_type& operator +=(const ot& other)
+    template<typename ot> vec_type& operator +=(ot other)
 		{ for(auto& val : *this) val += other; return *this; }
-    template<typename ot> vec_type& operator -=(const ot& other)
+    template<typename ot> vec_type& operator -=(ot other)
 		{ for(auto& val : *this) val -= other; return *this; }
-    template<typename ot> vec_type& operator *=(const ot& other)
+    template<typename ot> vec_type& operator *=(ot other)
 		{ for(auto& val : *this) val *= other; return *this; }
-    template<typename ot> vec_type& operator /=(const ot& other)
+    template<typename ot> vec_type& operator /=(ot other)
 		{ for(auto& val : *this) val /= other; return *this; }
-    template<typename ot> vec_type& operator %=(const ot& other)
+    template<typename ot> vec_type& operator %=(ot other)
 		{ for(auto& val : *this) val %= other; return *this; }
-    template<typename ot> vec_type& operator |=(const ot& other)
+    template<typename ot> vec_type& operator |=(ot other)
 		{ for(auto& val : *this) val |= other; return *this; }
-    template<typename ot> vec_type& operator ^=(const ot& other)
+    template<typename ot> vec_type& operator ^=(ot other)
 		{ for(auto& val : *this) val ^= other; return *this; }
-    template<typename ot> vec_type& operator &=(const ot& other)
+    template<typename ot> vec_type& operator &=(ot other)
 		{ for(auto& val : *this) val &= other; return *this; }
-    template<typename ot> vec_type& operator >>=(const ot& other)
+    template<typename ot> vec_type& operator >>=(ot other)
 		{ for(auto& val : *this) val >>= other; return *this; }
-    template<typename ot> vec_type& operator <<=(const ot& other)
+    template<typename ot> vec_type& operator <<=(ot other)
 		{ for(auto& val : *this) val <<= other; return *this; }
 
     vec_type operator-() const { return vec_type(x, y, z); }
@@ -563,25 +563,25 @@ public:
     template <size_t odim, typename ot> vec_type& operator <<=(const vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] <<= other[i]; return *this; }
 
-    template<typename ot> vec_type& operator +=(const ot& other)
+    template<typename ot> vec_type& operator +=(ot other)
 		{ for(auto& val : *this) val += other; return *this; }
-    template<typename ot> vec_type& operator -=(const ot& other)
+    template<typename ot> vec_type& operator -=(ot other)
 		{ for(auto& val : *this) val -= other; return *this; }
-    template<typename ot> vec_type& operator *=(const ot& other)
+    template<typename ot> vec_type& operator *=(ot other)
 		{ for(auto& val : *this) val *= other; return *this; }
-    template<typename ot> vec_type& operator /=(const ot& other)
+    template<typename ot> vec_type& operator /=(ot other)
 		{ for(auto& val : *this) val /= other; return *this; }
-    template<typename ot> vec_type& operator %=(const ot& other)
+    template<typename ot> vec_type& operator %=(ot other)
 		{ for(auto& val : *this) val %= other; return *this; }
-    template<typename ot> vec_type& operator |=(const ot& other)
+    template<typename ot> vec_type& operator |=(ot other)
 		{ for(auto& val : *this) val |= other; return *this; }
-    template<typename ot> vec_type& operator ^=(const ot& other)
+    template<typename ot> vec_type& operator ^=(ot other)
 		{ for(auto& val : *this) val ^= other; return *this; }
-    template<typename ot> vec_type& operator &=(const ot& other)
+    template<typename ot> vec_type& operator &=(ot other)
 		{ for(auto& val : *this) val &= other; return *this; }
-    template<typename ot> vec_type& operator >>=(const ot& other)
+    template<typename ot> vec_type& operator >>=(ot other)
 		{ for(auto& val : *this) val >>= other; return *this; }
-    template<typename ot> vec_type& operator <<=(const ot& other)
+    template<typename ot> vec_type& operator <<=(ot other)
 		{ for(auto& val : *this) val <<= other; return *this; }
 
     vec_type operator-() const { return vec_type(x, y, z); }

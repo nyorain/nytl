@@ -62,11 +62,7 @@ public:
 		std::enable_if<
 			std::is_convertible<
 				std::tuple<Args...>,
-				typename type_tuple<vec_type, A + 1>::type
-			>::value ||
-		   std::is_convertible<
-				std::tuple<Args...>,
-				typename type_tuple<P, 2 * A + 2>::type
+				type_tuple_t<vec_type, A + 1>
 			>::value
 		>::type>		
 	simplex(Args&&... args) noexcept : points{std::forward<Args>(args)...} {}
@@ -89,10 +85,18 @@ public:
 	///This can be checked before with sameSpace().
 	vec<A + 1, double> barycentric(const vec_type& val) const;
 
+	///Converts the object into a vec of points. Can be used to acces (read/change/manipulate) the
+	///points.
+	vec<A + 1, vec_type>& asVec(){ return points; }
+
+	///Converts the object into a const vec of poitns. Can be used to const_iterate/read the 
+	///points.
+	const vec<A + 1, vec_type>& asVec() const { return points; }
+
 	///Converts the object to a simplex with a different dimension or precision.
 	///Note that the area dimension A cannot be changed, only the space dimension D.
 	///Works only if the new D is still greater equal A.
-	template<std::size_t OD, typename OP, typename = DimMatch<OD, A>> 
+	template<std::size_t OD, typename OP> 
 		operator simplex<OD, OP, A>() const;
 };
 
@@ -138,11 +142,13 @@ public:
 		operator simplexRegion<ND, NP, A>() const;
 };
 
-///Typedef the specializations.
-//TODO XXX
+//To get the additional features for each specialization, include the according headers:
+//#include <nytl/line.hpp>
 template<std::size_t D, typename P = float> using line = simplex<D, P, 1>;
-//template<std::size_t D, typename P = float> using triangle = simplex<D, P, 2>;
-//template<std::size_t D, typename P = float> using tetrahedron = simplex<D, P, 3>;
+//#include <nytl/triangle.hpp>
+template<std::size_t D, typename P = float> using triangle = simplex<D, P, 2>;
+//#include <nytl/tetrahedron.hpp>
+template<std::size_t D, typename P = float> using tetrahedron = simplex<D, P, 3>;
 
 //operators/utility
 #include <nytl/bits/simplex.inl>

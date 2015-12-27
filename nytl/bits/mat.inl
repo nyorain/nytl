@@ -68,15 +68,15 @@ squareMat<D, P> identityMat()
 //full pivot?
 ///\relates mat
 ///Returns the sign of the used pivot matrix.
-template<std::size_t D, typename P>
-int pivot(mat<D, D, P>& m)
+template<std::size_t R, std::size_t C, typename P>
+int pivot(mat<R, C, P>& m)
 {
 	int ret = 1;
 
-	for(std::size_t c(0); c < D; ++c)
+	for(std::size_t c(0); c < C; ++c)
 	{
 		std::size_t maxR = c;
-		for(std::size_t r(c); r < D; ++r)
+		for(std::size_t r(c); r < R; ++r)
 		{
 			if(std::abs(m[r][c]) > std::abs(m[maxR][c]))
 			maxR = r;
@@ -155,74 +155,99 @@ double det(const mat<D, D, P>& m)
 }
 
 
-//todo: algorithms not entirely correct, detect 2 fail cases and return them as error code
 ///\relates mat
-template<size_t R, size_t C, typename P>
-bool refMat(mat<R, C, P>& ma)
+template<std::size_t R, std::size_t C, typename P>
+void refMat(mat<R, C, P>& m)
 {
-    for(size_t k = 0; k < std::min(R, C); ++k)
+	std::size_t c = 0;
+    for(std::size_t r = 0; r < R; ++r, ++c)
     {
-        size_t iMax = 0;
-        P iMaxValue {};
+		for(; c < C; ++c)
+		{
+			std::size_t maxR = r;
+			for(std::size_t r2 = r + 1; r2 < R; ++r2)
+			{
+				if(std::abs(m[r2][c]) > std::abs(m[maxR][c]))
+					maxR = r2;
+			}
 
-        for(size_t r = k; r < R; ++r)
-        {
-            if(std::abs(ma[r][k]) > iMaxValue)
-            {
-                iMaxValue = std::abs(ma[r][k]);
-                iMax = r;
-            }
-        }
+			if(m[maxR][c] != 0)
+			{
+				if(r != maxR) swapRow(m, r, maxR);
+				break;
+			}
+			else if(c == C - 1)
+			{
+				return;
+			}
+		}
 
-        if(ma[iMax][k] == 0) //singular matrix, throw here but first document it.
-            return 0;
+		m[r] /= m[r][c];
 
-        std::swap(ma[k], ma[iMax]);
-
-        for(size_t r = k + 1; r < R; ++r)
-        {
-            for(size_t c = k + 1; c < C; ++c)
-            {
-                ma[r][c] = ma[r][c] - ma[k][c] * (ma[r][k] / ma[k][k]);
-            }
-
-            ma[r][k] = 0;
-        }
-    }
-
-    return 1;
+		for(std::size_t r2 = r + 1; r2 < R; ++r2)
+		{
+			if(m[r2][c] != 0)
+			{
+				m[r2] -= (m[r2][c] / m[r][c]) * m[r];
+			}
+		}
+	}
 }
 
 ///\relates mat
 template<size_t R, size_t C, typename P>
-bool rrefMat(mat<R, C, P>& ma)
+mat<R, C, P> refMatCopy(mat<R, C, P> m)
 {
-    if(!refMat(ma))
-        return 0;
+	refMat(m);
+	return m;
+}
 
-    for(int k = R - 1; k >= 0; --k)
+//XXX: Some kind of solution set class for possible matrix solutions?
+///\relates mat
+///Analzyes a matrix in row echelon form
+///Returns 0 if the corresponding linear equotation system is not solvable.
+///Returns 1 if it is unabiguously solveavle by exactly one solution.
+///Returns 2 if it has infinity solutions.
+template<size_t R, size_t C, typename P>
+unsigned int analyzeRefMat(const mat<R, C, P>& m)
+{
+	//TODO
+	return 0;
+}
+
+///\relates mat
+template<size_t R, size_t C, typename P>
+void rrefMat(mat<R, C, P>& m)
+{
+    refMat(m);
+
+    for(int r = R - 1; r >= 0; --r)
     {
-        size_t leadingIndex = 0;
-        for(; leadingIndex < C; ++leadingIndex)
-            if(ma[k][leadingIndex] != 0)
-                break;
+		std::size_t c = 0;
+        for(; c < C; ++c)
+		{
+			if(m[r][c] != 0) break;
+		}
 
-        if(leadingIndex == C)
+		if(m[r][c] == 0)
+		{
+			continue;
+		}
+
+        m[r] /= m[r][c];
+
+        for(std::size_t r2 = 0; r2 < r; ++r2)
         {
-            //std::cout << "empty row\n";
-            return 0;
-        }
-
-        P fac = ma[k][leadingIndex];
-        ma[k] /= fac;
-
-        for(size_t r = 0; r < (size_t)k; ++r)
-        {
-            ma[r] -= ma[r][leadingIndex] * ma[k];
+            m[r2] -= m[r2][c] * m[r];
         }
     }
+}
 
-    return 1;
+template<size_t R, size_t C, typename P>
+mat<R, C, P> rrefMatCopy(mat<R, C, P> m)
+{
+	rrefMat(m);
+	return m;
 }
 
 //TODO XXX:
@@ -258,7 +283,7 @@ std::ostream& operator<<(std::ostream& os, const mat<R, C, P>& obj)
         {
 			using namespace detail;
             os	<< std::setw(cDWidth) 
-				<< std::setprecision(cDWidth - getNumberOfDigits(obj[i][o]) - 1) 
+				<< std::setprecision(cDWidth - getNumberOfDigits(obj[i][o])) 
 				<< obj[i][o];
 
             if(o != C - 1)

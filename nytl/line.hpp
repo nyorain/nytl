@@ -68,12 +68,21 @@ public:
     simplex(const vec_type& xa, const vec_type& xb) noexcept : a(xa), b(xb) {}
     simplex() noexcept = default;
 
+	//simplex
     double size() const { return distance(a, b); }
-
-	///Alias for size():
-	double length() const { return size(); }
-
 	vec_type center() const { return (a + b) / 2; }
+	vec<2, double> barycentric(const vec_type& v) const;
+	bool sameSpace(const vec_type& v) const;
+
+	vec<3, vec_type>& asVec(){ return *reinterpret_cast<vec_type*>(this); }
+	const vec<3, vec_type>& asVec() const { return *reinterpret_cast<const vec_type*>(this); }
+
+    template<size_t OD, typename OP>
+	operator line<OD, OP>() const { return line<OD, OP>(a, b); }
+
+	//line-specific
+	///Alias for size(). Returns the length of the line.
+	double length() const { return size(); }
 
 	///Returns the vector that lays between the two points
     vec_type difference() const { return b - a; }
@@ -100,10 +109,6 @@ public:
 
 	///Returns the greatest value the line is defined for in the given dimension.
     value_type greatestValue(std::size_t dim) const { return max(a[dim], b[dim]); }
-
-	///Converts the line to a line with a different precision and/or space dimension.
-    template<size_t OD, typename OP>
-	operator line<OD, OP>() const { return line<OD, OP>(a, b); }
 };
 
 //implementation, utility and operators

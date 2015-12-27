@@ -142,7 +142,7 @@ bool simplex<D, P, A, Cond>::sameSpace(const vec<D, P>& v) const
 }
 
 template<std::size_t D, typename P, std::size_t A, typename Cond>
-template<std::size_t OD, typename OP, typename>
+template<std::size_t OD, typename OP>
 simplex<D, P, A, Cond>::operator simplex<OD, OP, A>() const
 {
 	return detail::simplexConversion<OD, OP>(*this);

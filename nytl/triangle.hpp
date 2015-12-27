@@ -26,7 +26,6 @@
 
 #include <nytl/vec.hpp>
 #include <nytl/simplex.hpp>
-#include <nytl/line.hpp>
 
 namespace nytl
 {
@@ -70,10 +69,10 @@ public:
     vec_type c;
 
 public:
-    simplex() noexcept = default;
     simplex(const vec_type& xa, const vec_type& xb, const vec_type& xc) noexcept
 		: a(xa), b(xb), c(xc) {}
 
+    simplex() noexcept = default;
     ~simplex() noexcept = default;
     simplex(const triangle_type& other) noexcept = default;
     triangle_type& operator=(const triangle_type& other) noexcept = default;
@@ -81,22 +80,26 @@ public:
 	//default
     double size() const;
 	vec_type center() const;
-	vec_type barycentric(const vec_type& val) const;
+	vec<3, double> barycentric(const vec_type& v) const;
+	bool sameSpace(const vec_type& v) const;
 
-    template<size_t odim, typename oprec> constexpr
-    operator triangle<odim, oprec>() const { return triangle<odim, oprec>(a, b, c); }
+	vec<3, vec_type>& asVec(){ return *reinterpret_cast<vec_type*>(this); }
+	const vec<3, vec_type>& asVec() const { return *reinterpret_cast<const vec_type*>(this); }
+
+    template<size_t OD, typename OP> constexpr
+    operator triangle<OD, OP>() const { return triangle<OD, OP>(a, b, c); }
 
 	//triangle specific
-    constexpr float angleA() const { return angle(AB().difference(), AC().difference()); }
-    constexpr float angleB() const { return angle(BA().difference(), BC().difference()); }
-    constexpr float angleC() const { return angle(CB().difference(), CA().difference()); }
+    float angleA() const { return angle(AB().difference(), AC().difference()); }
+    float angleB() const { return angle(BA().difference(), BC().difference()); }
+    float angleC() const { return angle(CB().difference(), CA().difference()); }
 
-    constexpr line_type AB() const { return line_type(a, b); }
-    constexpr line_type AC() const { return line_type(a, c); }
-    constexpr line_type BC() const { return line_type(b, c); }
-    constexpr line_type BA() const { return line_type(b, a); }
-    constexpr line_type CA() const { return line_type(c, a); }
-    constexpr line_type CB() const { return line_type(c, b); }
+    line_type AB() const { return line_type(a, b); }
+    line_type AC() const { return line_type(a, c); }
+    line_type BC() const { return line_type(b, c); }
+    line_type BA() const { return line_type(b, a); }
+    line_type CA() const { return line_type(c, a); }
+    line_type CB() const { return line_type(c, b); }
 };
 
 //utility and operators/test
