@@ -22,53 +22,37 @@
  * SOFTWARE.
  */
 
-//test
-template<std::size_t dim, typename prec> constexpr
-bool intersects(const triangle<dim, prec>& t1, const triangle<dim, prec>& t2)
+#pragma once
+
+//member
+template<std::size_t D, typename P>
+double triangle<D, P>::size() const
 {
-	return (intersects(t1.AB(), t2.AB()) || intersects(t1.AB(), t2.BC()) ||
-			intersects(t1.AB(), t2.AC()) || intersects(t1.BC(), t2.AB()) ||
-			intersects(t1.BC(), t2.BC()) || intersects(t1.BC(), t2.AC()) ||
-			intersects(t1.AC(), t2.AB()) || intersects(t1.AC(), t2.BC()) ||
-			insersects(t1.AC(), t2.AC()) || contains(t1, t2));
-}
-template<std::size_t dim, typename prec> constexpr
-bool intersects(const triangle<dim, prec>& t1, const line<dim, prec>& l2)
-{
-	return (contains(t1, l2) || intersects(t1.AB(), l2) ||
-			intersects(t1.BC(), l2) || intersects(t1.ac(), l2));
+	return detail::simplexSize(*this);
 }
 
-template<std::size_t dim, typename prec> constexpr
-bool contains(const triangle<dim, prec>& t1, const triangle<dim, prec>& t2)
+template<std::size_t D, typename P>
+vec<D, P> triangle<D, P>::center() const
 {
-	return (contains(t1, t2.a) && contains(t1, t2.b) && contains(t1, t2.c));
+	return detail::simplexCenter(*this);
 }
-template<std::size_t dim, typename prec> constexpr
-bool contains(const triangle<dim, prec>& t1, const line<dim, prec>& l2)
+
+template<std::size_t D, typename P>
+vec<3, double> triangle<D, P>::barycentric(const vec<D, P>& v) const
 {
-	return (contains(t1, l2.a) && contains(t1, l2.b));
+	return detail::simplexBarycentric(*this, v);
 }
-template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR
-bool contains(const triangle<dim, prec>& t1, const vec<dim, prec>& v2)
+
+template<std::size_t D, typename P>
+bool triangle<D, P>::sameSpace(const vec<D, P>& v) const
 {
-    //http://math.stackexchange.com/questions/4322/check-whether-a-point-is-within-a-3d-triangle
-    //todo: if point is not even on triangle plane
-    double area2 = length(t1.b - t1.a) * length(t1.c - t1.a);
-    double aa = length(t1.b - v2) * length(t1.c - v2) / area2;
-    double bb = length(t1.c - v2) * length(t1.a - v2) / area2;
-    double cc = 1 - aa - bb;
-
-    if(aa < 0 || aa > 1) return 0;
-    if(bb < 0 || bb > 1) return 0;
-    if(cc < 0 || cc > 1) return 0;
-
-    return 1;
+	return detail::simplexSameSpace(*this, v);
 }
 
 //operators
-template<size_t dim, typename prec>
-std::ostream& operator<<(std::ostream& os, const triangle<dim, prec>& obj)
+///\relates triangle
+template<size_t D, typename P>
+std::ostream& operator<<(std::ostream& os, const triangle<D, P>& obj)
 {
     os << obj.a << " " << obj.b << " " << obj.c;
     return os;

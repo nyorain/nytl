@@ -24,44 +24,67 @@
 
 namespace detail
 {
+
 using expander = int[];
 
-//makeRefVec
-template<typename seq> struct makeRefVec;
-template<size_t... idx> struct makeRefVec<index_sequence<idx...>>
+//makeRowRefVec
+template<std::size_t size, typename seq = make_index_sequence<size>> struct makeRowRefVec;
+template<std::size_t size, size_t... idx> struct makeRowRefVec<size, index_sequence<idx...>>
 {
-    constexpr makeRefVec() = default;
-
     template<size_t rows, size_t cols, typename prec>
-    constexpr refVec<sizeof...(idx), prec> operator()(vec<rows, vec<cols, prec>>& v, size_t i) const
+    static refVec<sizeof...(idx), prec> call(vec<rows, vec<cols, prec>>& v, size_t i)
     {
         return refVec<sizeof...(idx), prec>(v[idx][i]...);
     }
 };
 
-//initMat
-template<typename seq> struct initMatData;
-template<size_t... idx> struct initMatData<index_sequence<idx...>>
+//makeRowVec
+template<std::size_t size, typename seq = make_index_sequence<size>> struct makeRowVec;
+template<std::size_t size, size_t... idx> struct makeRowVec<size, index_sequence<idx...>>
 {
-    constexpr initMatData() = default;
-
-    template<size_t rows, size_t cols, typename prec, typename... Args>
-    constexpr int operator()(vec<rows, vec<cols, prec>>& v, std::tuple<Args...> args) const
+    template<size_t rows, size_t cols, typename prec>
+    static vec<sizeof...(idx), prec> call(vec<rows, vec<cols, prec>>& v, size_t i)
     {
-        return expander{0, ((v[idx / cols][idx % cols] = std::get<idx>(args)), 0)... }[0];
+        return vec<sizeof...(idx), prec>(v[idx][i]...);
+    }
+};
+
+//initMat
+template<std::size_t size, typename seq = make_index_sequence<size>> struct initMatData;
+template<std::size_t size, std::size_t... idx> struct initMatData<size, index_sequence<idx...>>
+{
+    template<size_t rows, size_t cols, typename prec, typename... Args>
+    static void call(vec<rows, vec<cols, prec>>& v, std::tuple<Args...> args)
+    {
+        expander{0, ((v[idx / cols][idx % cols] = std::get<idx>(args)), 0)... }[0];
+    }
+
+    template<size_t rows, size_t cols, typename prec>
+    static void call(vec<rows, vec<cols, prec>>& v, const prec& val)
+    {
+        expander{0, ((v[idx / cols][idx % cols] = val), 0)... }[0];
     }
 };
 
 //copyMatData
-template<typename seq> struct copyMatData;
-template<size_t... idx> struct copyMatData<index_sequence<idx...>>
+template<std::size_t size, typename seq = make_index_sequence<size>> struct copyMatData;
+template<std::size_t size, size_t... idx> struct copyMatData<size, index_sequence<idx...>>
 {
-    constexpr copyMatData() = default;
-
     template<size_t rows, size_t cols, typename prec>
-    constexpr std::unique_ptr<prec[]> operator()(const vec<rows, vec<cols, prec>>& v) const
+    static std::unique_ptr<prec[]> call(const vec<rows, vec<cols, prec>>& v)
     {
         return std::unique_ptr<prec[]>(new prec[rows * cols]{v[idx / cols][idx % rows]...});
+    }
+};
+
+//makeRowRefVec
+template<std::size_t size, typename seq = make_index_sequence<size>> struct matTuple;
+template<std::size_t size, size_t... idx> struct matTuple<size, index_sequence<idx...>>
+{
+    template<size_t rows, size_t cols, typename P>
+    static type_tuple_t<P, sizeof...(idx)> call(const vec<rows, vec<cols, P>>& v)
+    {
+        return type_tuple_t<P, sizeof...(idx)>{v[idx / cols][idx % rows]...};
     }
 };
 

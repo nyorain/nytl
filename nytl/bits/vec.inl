@@ -21,37 +21,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#pragma once
 
-///@file
-///\brief defines all vec operators
+namespace detail
+{
 
-//minmax todo: extra header
-#if __cplusplus >= 201402L
-    using std::min;
-    using std::max;
+constexpr std::size_t dMin(std::size_t a, std::size_t b)
+	{ return (a == dynamicSize || b == dynamicSize) ? dynamicSize : min(a, b); }
 
-#else
-    template<typename T> constexpr T min(const T& a, const T& b) { return a < b ? a : b; }
-    template<typename T> constexpr T max(const T& a, const T& b) { return a > b ? a : b; }
+constexpr std::size_t dMax(std::size_t a, std::size_t b)
+	{ return (a == dynamicSize || b == dynamicSize) ? dynamicSize : max(a, b); }
 
-#endif // c++14
+}
 
-//maxType
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//general operators//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-///\relates nytl::vec
-///\brief prints all values individually to an output stream
-template<std::size_t dim, typename T> std::ostream& operator<<(std::ostream& os, const vec<dim, T>& obj)
+//general operators
+///\relates vec
+///Prints all values individually to an output stream.
+template<std::size_t dim, typename T> std::ostream& 
+operator<<(std::ostream& os, const vec<dim, T>& obj)
 {
     const char* c = "";
 
     os << "(";
 
-    for(unsigned int i(0); i < dim; i++)
+    for(const auto& val : obj)
     {
-        os << c << obj[i];
+        os << c << val;
         c = "; ";
     }
 
@@ -60,513 +55,591 @@ template<std::size_t dim, typename T> std::ostream& operator<<(std::ostream& os,
     return os;
 }
 
-//todo
-template<std::size_t dim, typename T> std::istream& operator>>(std::istream& is, vec<dim, T>& obj)
+///\relates vec
+///Loads all components from an input stream.
+template<std::size_t dim, typename T> std::istream& 
+operator>>(std::istream& is, vec<dim, T>& obj)
 {
-    for(unsigned int i(0); i < dim; i++)
+    for(auto& val : obj)
     {
-        is >> obj[i];
+        is >> val;
     }
 
     return is;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//todo: vec and vec unefficient atm
-//+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-template<std::size_t dim, typename T, typename O>
-NYTL_CPP14_CONSTEXPR vec<dim, T> operator+(vec<dim, T> mvec, const O& other)
+//+todo: vec and vec unefficient atm, some proxy class 
+///\relates vec
+template<std::size_t dim, typename T, typename O>  
+vec<dim, T> operator+(vec<dim, T> mvec, const O& other)
 {
     mvec += other;
     return mvec;
 }
 
-template<std::size_t dim, typename T, typename O>
-NYTL_CPP14_CONSTEXPR vec<dim, T> operator+(const O& other, vec<dim, T> mvec)
+///\relates vec
+template<std::size_t dim, typename T, typename O>  
+vec<dim, T> operator+(const O& other, vec<dim, T> mvec)
 {
     mvec += other;
     return mvec;
 }
 
-template<std::size_t dima, typename Ta, std::size_t dimb, typename Tb, typename ttype = typename std::conditional<(dima > dimb), Ta, Tb>::type>
-NYTL_CPP14_CONSTEXPR vec<max(dima, dimb), ttype> operator+(const vec<dima, Ta>& a, const vec<dimb, Tb>& b)
+///\relates vec
+template<std::size_t dima, typename Ta, std::size_t dimb, typename Tb>  
+auto operator+(const vec<dima, Ta>& a, const vec<dimb, Tb>& b) 
+	-> vec<detail::dMax(dima, dimb), typename std::conditional<dima >= dimb, Ta, Tb>::type>
 {
-    vec<max(dima, dimb), ttype> ret = (vec<max(dima, dimb), ttype>)a;
-    ret += (vec<max(dima, dimb), ttype>)b;
+	using V = vec<detail::dMax(dima, dimb), typename std::conditional<dima >= dimb, Ta, Tb>::type>;
+
+    auto ret = static_cast<V>(a);
+    ret += static_cast<V>(b);
     return ret;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-template<std::size_t dim, typename T, typename O>
-NYTL_CPP14_CONSTEXPR vec<dim, T> operator-(vec<dim, T> mvec, const O& other)
+//-
+///\relates vec
+template<std::size_t dim, typename T, typename O>  
+vec<dim, T> operator-(vec<dim, T> mvec, const O& other)
 {
     mvec -= other;
     return mvec;
 }
 
-template<std::size_t dim, typename T, typename O>
-NYTL_CPP14_CONSTEXPR vec<dim, T> operator-(const O& other, vec<dim, T> mvec)
+///\relates vec
+template<std::size_t dim, typename T, typename OT>  
+vec<dim, T> operator-(OT other, vec<dim, T> mvec)
 {
-    for(std::size_t i(0); i < dim; i++)
-        mvec[i] = other - mvec[i];
+    for(auto& val : mvec)
+        val = other - val;
 
     return mvec;
 }
 
-template<std::size_t dima, typename Ta, std::size_t dimb, typename Tb, typename ttype = typename std::conditional<(dima > dimb), Ta, Tb>::type>
-NYTL_CPP14_CONSTEXPR vec<max(dima, dimb), ttype> operator-(const vec<dima, Ta>& a, const vec<dimb, Tb>& b)
+///\relates vec
+template<std::size_t dima, typename Ta, std::size_t dimb, typename Tb>  
+auto operator-(const vec<dima, Ta>& a, const vec<dimb, Tb>& b) 
+	-> vec<detail::dMax(dima, dimb), typename std::conditional<dima >= dimb, Ta, Tb>::type>
 {
-    vec<max(dima, dimb), ttype> ret = (vec<max(dima, dimb), ttype>)a;
-    ret -= (vec<max(dima, dimb), ttype>)b;
+	using V = vec<detail::dMax(dima, dimb), typename std::conditional<dima >= dimb, Ta, Tb>::type>;
+
+    auto ret = static_cast<V>(a);
+    ret -= static_cast<V>(b);
     return ret;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//*//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-template<std::size_t dim, typename T, typename O>
-NYTL_CPP14_CONSTEXPR  vec<dim, T> operator*(vec<dim, T> mvec, const O& other)
+//*
+///\relates vec
+template<std::size_t dim, typename T, typename O> 
+vec<dim, T> operator*(vec<dim, T> mvec, const O& other)
 {
     mvec *= other;
     return mvec;
 }
 
 
-template<std::size_t dim, typename T, typename O>
-NYTL_CPP14_CONSTEXPR  vec<dim, T> operator*(const O& other, vec<dim, T> mvec)
+///\relates vec
+template<std::size_t dim, typename T, typename O> 
+vec<dim, T> operator*(const O& other, vec<dim, T> mvec)
 {
     mvec *= other;
     return mvec;
 }
 
-template<std::size_t dima, typename Ta, std::size_t dimb, typename Tb, typename ttype = typename std::conditional<(dima > dimb), Ta, Tb>::type>
-NYTL_CPP14_CONSTEXPR vec<max(dima, dimb), ttype> operator*(const vec<dima, Ta>& a, const vec<dimb, Tb>& b)
+///\relates vec
+template<std::size_t dima, typename Ta, std::size_t dimb, typename Tb>  
+auto operator*(const vec<dima, Ta>& a, const vec<dimb, Tb>& b) 
+	-> vec<detail::dMax(dima, dimb), typename std::conditional<dima >= dimb, Ta, Tb>::type>
 {
-    vec<max(dima, dimb), ttype> ret = (vec<max(dima, dimb), ttype>)a;
-    ret *= (vec<max(dima, dimb), ttype>)b;
+	using V = vec<detail::dMax(dima, dimb), decltype(a[0] * b[0])>;
+
+    auto ret = static_cast<V>(a);
+    ret *= static_cast<V>(b);
     return ret;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//\////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-template<std::size_t dim, typename T, typename O>
-NYTL_CPP14_CONSTEXPR vec<dim, T> operator/(vec<dim, T> mvec, const O& other)
+//\
+///\relates vec
+template<std::size_t dim, typename T, typename O>  
+vec<dim, T> operator/(vec<dim, T> mvec, const O& other)
 {
     mvec /= other;
     return mvec;
 }
 
-
-template<std::size_t dim, typename T, typename O>
-NYTL_CPP14_CONSTEXPR vec<dim, T> operator/(const O& other, vec<dim, T> mvec)
+///\relates vec
+template<std::size_t dim, typename T, typename OT>
+vec<dim, T> operator/(OT other, vec<dim, T> mvec)
 {
-    for(std::size_t i(0); i < dim; i++)
-        mvec[i] = other / mvec[i];
+    for(auto& val : mvec)
+        val = other / val;
 
     return mvec;
 }
 
-template<std::size_t dima, typename Ta, std::size_t dimb, typename Tb, typename ttype = typename std::conditional<(dima > dimb), Ta, Tb>::type>
-NYTL_CPP14_CONSTEXPR vec<max(dima, dimb), ttype> operator/(const vec<dima, Ta>& a, const vec<dimb, Tb>& b)
+///\relates vec
+template<std::size_t dima, typename Ta, std::size_t dimb, typename Tb>
+auto operator/(const vec<dima, Ta>& a, const vec<dimb, Tb>& b) 
+	-> vec<detail::dMax(dima, dimb), typename std::conditional<dima >= dimb, Ta, Tb>::type>
 {
-    vec<max(dima, dimb), ttype> ret = (vec<max(dima, dimb), ttype>)a;
-    ret /= (vec<max(dima, dimb), ttype>)b;
+	using V = vec<detail::dMax(dima, dimb), typename std::conditional<dima >= dimb, Ta, Tb>::type>;
+
+    auto ret = static_cast<V>(a);
+    ret /= static_cast<V>(b);
     return ret;
 }
 
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//%//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//%
+///\relates vec
 template<std::size_t dim, typename T, typename O>
-NYTL_CPP14_CONSTEXPR  vec<dim, T> operator%(vec<dim, T> mvec, const O& other)
+vec<dim, T> operator%(vec<dim, T> mvec, const O& other)
 {
     mvec %= other;
     return mvec;
 }
 
-
-template<std::size_t dim, typename T, typename O>
-NYTL_CPP14_CONSTEXPR vec<dim, T> operator%(const O& other, vec<dim, T> mvec)
+///\relates vec
+template<std::size_t dim, typename T, typename OT>
+vec<dim, T> operator%(OT other, vec<dim, T> mvec)
 {
-    for(std::size_t i(0); i < dim; i++)
-        mvec[i] = other % mvec[i];
+    for(auto& val : mvec)
+        val = other % val;
 
     return mvec;
 }
 
-template<std::size_t dima, typename Ta, std::size_t dimb, typename Tb, typename ttype = typename std::conditional<(dima > dimb), Ta, Tb>::type>
-NYTL_CPP14_CONSTEXPR vec<max(dima, dimb), ttype> operator%(const vec<dima, Ta>& a, const vec<dimb, Tb>& b)
+///\relates vec
+template<std::size_t dima, typename Ta, std::size_t dimb, typename Tb>
+auto operator%(const vec<dima, Ta>& a, const vec<dimb, Tb>& b) 
+	-> vec<detail::dMax(dima, dimb), typename std::conditional<dima >= dimb, Ta, Tb>::type>
 {
-    vec<max(dima, dimb), ttype> ret = (vec<max(dima, dimb), ttype>)a;
-    ret %= (vec<max(dima, dimb), ttype>)b;
+	using V = vec<detail::dMax(dima, dimb), typename std::conditional<dima >= dimb, Ta, Tb>::type>;
+
+    auto ret = static_cast<V>(a);
+    ret %= static_cast<V>(b);
     return ret;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//equal/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//equal
+///\relates vec
 template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>
-NYTL_CPP14_CONSTEXPR vec<min(dima, dimb), bool> equal(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
+vec<detail::dMin(dima, dimb), bool> equal(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
-    vec<min(dima, dimb), bool> ret {};
-    for(std::size_t i(0); i < min(dima, dimb); i++)
+    vec<detail::dMin(dima, dimb), bool> ret(min(veca.size(), vecb.size()));
+    for(std::size_t i(0); i < min(veca.size(), vecb.size()); ++i)
         ret[i] = (veca[i] == vecb[i]);
     return ret;
 }
 
-template<std::size_t dim, typename Ta, typename Tb>
-NYTL_CPP14_CONSTEXPR vec<dim, bool> equal(const vec<dim, Ta>& veca, const Tb& value)
+///\relates vec
+template<std::size_t dim, typename Ta, typename Tb>  
+vec<dim, bool> equal(const vec<dim, Ta>& veca, const Tb& value)
 {
-    vec<dim, bool> ret {};
-    for(std::size_t i(0); i < dim; i++)
+    vec<dim, bool> ret(veca.size());
+    for(std::size_t i(0); i < dim; ++i)
         ret[i] = (veca[i] == value);
     return ret;
 }
 
-template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>
-NYTL_CPP14_CONSTEXPR vec<min(dima, dimb), bool> notEqual(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
+///\relates vec
+template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>  
+vec<detail::dMin(dima, dimb), bool> notEqual(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
-    vec<min(dima, dimb), bool> ret {};
-    for(std::size_t i(0); i < min(dima, dimb); i++)
+    vec<detail::dMin(dima, dimb), bool> ret(min(veca.size(), vecb.size()));
+    for(std::size_t i(0); i < min(veca.size(), vecb.size()); ++i)
         ret[i] = (veca[i] != vecb[i]);
     return ret;
 }
 
-template<std::size_t dim, typename Ta, typename Tb>
-NYTL_CPP14_CONSTEXPR vec<dim, bool> notEqual(const vec<dim, Ta>& veca, const Tb& value)
+///\relates vec
+template<std::size_t dim, typename Ta, typename Tb>  
+vec<dim, bool> notEqual(const vec<dim, Ta>& veca, const Tb& value)
 {
-    vec<dim, bool> ret {};
-    for(std::size_t i(0); i < dim; i++)
+    vec<dim, bool> ret(veca.size());
+    for(std::size_t i(0); i < dim; ++i)
         ret[i] = (veca[i] != value);
     return ret;
 }
 
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//greater/less//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//vec
-template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>
-NYTL_CPP14_CONSTEXPR vec<min(dima, dimb), bool> lessThan(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
+///\relates vec
+template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>  
+vec<detail::dMin(dima, dimb), bool> lessThan(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
-    vec<min(dima, dimb), bool> ret {};
-    for(std::size_t i(0); i < min(dima, dimb); i++)
+    vec<detail::dMin(dima, dimb), bool> ret(min(veca.size(), vecb.size()));
+    for(std::size_t i(0); i < min(veca.size(), vecb.size()); ++i)
         ret[i] = veca[i] < vecb[i];
     return ret;
 }
-template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>
-NYTL_CPP14_CONSTEXPR vec<min(dima, dimb), bool> greaterThan(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
+
+///\relates vec
+template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>  
+vec<min(dima, dimb), bool> greaterThan(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
-    vec<min(dima, dimb), bool> ret {};
-    for(std::size_t i(0); i < min(dima, dimb); i++)
+    vec<min(dima, dimb), bool> ret(min(veca.size(), vecb.size()));
+    for(std::size_t i(0); i < min(veca.size(), vecb.size()); ++i)
         ret[i] = veca[i] > vecb[i];
     return ret;
 }
-template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>
-NYTL_CPP14_CONSTEXPR vec<min(dima, dimb), bool> lessThanEqual(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
+
+///\relates vec
+template<std::size_t DA, std::size_t DB, typename TA, typename TB>
+vec<detail::dMin(DA, DB), bool> lessThanEqual(const vec<DA, TA>& veca, const vec<DB, TB>& vecb)
 {
-    vec<min(dima, dimb), bool> ret {};
-    for(std::size_t i(0); i < min(dima, dimb); i++)
+    vec<detail::dMin(DA, DB), bool> ret(min(veca.size(), vecb.size()));
+    for(std::size_t i(0); i < min(veca.size(), vecb.size()); ++i)
         ret[i] = veca[i] <= vecb[i];
     return ret;
 }
-template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>
-NYTL_CPP14_CONSTEXPR vec<min(dima, dimb), bool> greaterThanEqual(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
+
+///\relates vec
+template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>  
+vec<detail::dMin(dima, dimb), bool> greaterThanEqual(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
-    vec<min(dima, dimb), bool> ret {};
-    for(std::size_t i(0); i < min(dima, dimb); i++)
+    vec<detail::dMin(dima, dimb), bool> ret(min(veca.size(), vecb.size()));
+    for(std::size_t i(0); i < min(veca.size(), vecb.size()); ++i)
         ret[i] = veca[i] >= vecb[i];
     return ret;
 }
 
-//value
-template<std::size_t dim, typename Ta, typename Tb>
-NYTL_CPP14_CONSTEXPR vec<dim, bool> lessThan(const vec<dim, Ta>& veca, const Tb& value)
+///\relates vec
+template<std::size_t dim, typename Ta, typename Tb>  
+vec<dim, bool> lessThan(const vec<dim, Ta>& veca, const Tb& value)
 {
-    vec<dim, bool> ret;
-    for(std::size_t i(0); i < dim; i++)
+    vec<dim, bool> ret(veca.size());
+    for(std::size_t i(0); i < veca.size(); ++i)
         ret[i] = veca[i] < value;
     return ret;
 }
-template<std::size_t dim, typename Ta, typename Tb>
-NYTL_CPP14_CONSTEXPR vec<dim, bool> greaterThan(const vec<dim, Ta>& veca, const Tb& value)
+
+///\relates vec
+template<std::size_t dim, typename Ta, typename Tb>  
+vec<dim, bool> greaterThan(const vec<dim, Ta>& veca, const Tb& value)
 {
-    vec<dim, bool> ret;
-    for(std::size_t i(0); i < dim; i++)
+    vec<dim, bool> ret(veca.size());
+    for(std::size_t i(0); i < veca.size(); ++i)
         ret[i] = veca[i] > value;
     return ret;
 }
-template<std::size_t dim, typename Ta, typename Tb>
-NYTL_CPP14_CONSTEXPR vec<dim, bool> lessThanEqual(const vec<dim, Ta>& veca, const Tb& value)
+
+///\relates vec
+template<std::size_t dim, typename Ta, typename Tb>  
+vec<dim, bool> lessThanEqual(const vec<dim, Ta>& veca, const Tb& value)
 {
-    vec<dim, bool> ret;
-    for(std::size_t i(0); i < dim; i++)
+    vec<dim, bool> ret(veca.size());
+    for(std::size_t i(0); i < veca.size(); ++i)
         ret[i] = veca[i] <= value;
     return ret;
 }
-template<std::size_t dim, typename Ta, typename Tb>
-NYTL_CPP14_CONSTEXPR vec<dim, bool> greaterThanEqual(const vec<dim, Ta>& veca, const Tb& value)
+
+///\relates vec
+template<std::size_t dim, typename Ta, typename Tb>  
+vec<dim, bool> greaterThanEqual(const vec<dim, Ta>& veca, const Tb& value)
 {
-    vec<dim, bool> ret;
-    for(std::size_t i(0); i < dim; i++)
+    vec<dim, bool> ret(veca.size());
+    for(std::size_t i(0); i < veca.size(); ++i)
         ret[i] = veca[i] >= value;
     return ret;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//operator form//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//todo: allow comparison of vec and value with operator? "" vec<dim, bool> operator==(vec<dim, Ta> v, Tb value); ""
-//equal/not equal
-template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>
-constexpr auto operator==(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb) -> decltype(equal(veca, vecb))
+//todo: allow comparison of vec and value with operator? 
+//vec<dim, bool> operator==(vec<dim, Ta> v, Tb value);
+///\relates vec
+template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb> 
+vec<detail::dMin(dima, dimb), bool> operator==(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
     return equal(veca, vecb);
 }
 
-template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>
-constexpr auto operator!=(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb) -> decltype(notEqual(veca, vecb))
+///\relates vec
+template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>  
+vec<detail::dMin(dima, dimb), bool> operator!=(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
     return notEqual(veca, vecb);
 }
-//less/greater
-template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>
-constexpr auto operator<(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb) -> decltype(lessThan(veca, vecb))
+
+///\relates vec
+template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb> 
+vec<detail::dMin(dima, dimb), bool> operator<(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
     return lessThan(veca, vecb);
 }
 
-template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>
-constexpr auto operator>(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb) -> decltype(greaterThan(veca, vecb))
+///\relates vec
+template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>  
+vec<detail::dMin(dima, dimb), bool> operator>(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
     return greaterThan(veca, vecb);
 }
 
-template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>
-constexpr auto operator<=(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb) -> decltype(lessThanEqual(veca, vecb))
+///\relates vec
+template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb> 
+vec<detail::dMin(dima,dimb), bool> operator<=(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
     return lessThanEqual(veca, vecb);
 }
 
-template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>
-constexpr auto operator>=(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb) -> decltype(lessThanEqual(veca, vecb))
+///\relates vec
+template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb> 
+vec<detail::dMin(dima, dimb), bool> operator>=(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
     return greaterThanEqual(veca, vecb);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//utility//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//all vector weights added (todo: is there some official name for this?)
-template<std::size_t dim, typename prec>
-NYTL_CPP14_CONSTEXPR auto weight(const vec<dim, prec>& v) -> decltype(v[0] + v[0]) //to make reference types disappear
+//utility
+///\relates vec
+template<std::size_t dim, typename T>  
+auto sum(const vec<dim, T>& v) -> decltype(v[0] + v[0])
 {
     decltype(v[0] + v[0]) ret {};
     for(auto& val : v) ret += val;
     return ret;
 }
 
-//length
+///\relates vec
 template<std::size_t dim, typename prec>
-NYTL_CPP14_CONSTEXPR auto length(const vec<dim, prec>& v) -> decltype(sqrt(v[0]))
+auto length(const vec<dim, prec>& v) -> decltype(sqrt(v[0] * v[0]))
 {
-    decltype(sqrt(v[0])) ret{};
+    decltype(v[0] * v[0]) ret{};
     for(auto& val : v) ret += val * val;
     return std::sqrt(ret);
 }
 
-//length alias
+///\relates vec
+///Alias function for length()
 template<std::size_t dim, typename prec>
-constexpr auto norm(const vec<dim, prec>& v) -> decltype(length(v))
+auto norm(const vec<dim, prec>& v) -> decltype(length(v))
 {
     return length(v);
 }
 
-//dot
-template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>
-constexpr auto dot(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb) -> decltype(weight(veca * vecb))
+///\relates vec
+template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb> 
+auto dot(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb) -> decltype(sum(veca * vecb))
 {
-    return weight(veca * vecb);
+    return sum(veca * vecb);
 }
 
-//cross, only vec3
-template<typename Ta, typename Tb>
-constexpr auto cross(const vec<3, Ta>& veca, const vec<3, Tb>& vecb) -> vec<3, decltype(veca[0] * vecb[0])>
+///\relates vec
+template<typename Ta, typename Tb> 
+auto cross(const vec<3, Ta>& veca, const vec<3, Tb>& vecb) -> vec<3, decltype(veca[0] * vecb[0])>
 {
     return vec<3, decltype(veca[0] * vecb[0])>
-        (veca[2] * veca[3] - veca[3] * vecb[2], veca[3] * veca[1] - veca[1] * vecb[3], veca[1]* veca[2] - veca[2]* vecb[1]);
+		{
+			veca[2] * veca[3] - veca[3] * vecb[2], 
+			veca[3] * veca[1] - veca[1] * vecb[3], 
+			veca[1] * veca[2] - veca[2] * vecb[1]
+		};
 }
 
-//angle between 2 vecs, always the smaller one < 180degrees
+///\relates vec
+///Returns the angle between 2 vecs, always the smaller one that is <= PI. 
+///Returns the angle in radiant form.
 template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>
-constexpr float angle(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
+double angle(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
-    return std::acos(weight(veca * vecb) / (length(veca) * length(vecb)));
+    return std::acos(sum(veca * vecb) / (length(veca) * length(vecb)));
 }
 
-//absoulte counter-clockwise angle, todo: 3D, possible?
-template<typename Ta, typename Tb>
-NYTL_CPP14_CONSTEXPR float cangle(const vec<2, Ta>& veca, const vec<2, Tb>& vecb)
+///\relates vec
+///Returns the smallest angle between two lines with the given vectors as direction.
+///The Returned angle is always <= PI/2. Returns the angle in radian form.
+template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb> 
+double smallerAngle(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
+{
+    return std::acos(abs(sum(veca * vecb)) / (length(veca) * length(vecb)));
+}
+
+//todo: cangle for 3-dimensional (or all) vectors
+///\relates vec
+///Returns the absolute, clockwise angle between two 2-dimensional vectors.
+///Angle is returned in radian form.
+template<typename Ta, typename Tb> 
+double cangle(const vec<2, Ta>& veca, const vec<2, Tb>& vecb)
 {
     auto val = atan2(veca.y, veca.x) - atan2(vecb.y, vecb.x);
     if(val <= 0) return (2 * cPi) + val;
     return val;
 }
 
-//normalize
+///\relates vec
 template<std::size_t dim, typename T>
-constexpr vec<dim, float> normalize(const vec<dim, T>& veca)
+auto normalize(const vec<dim, T>& veca) -> decltype(veca / length(veca))
 {
-    return (vec<dim, float>(veca)) / length(veca);
+    return veca / length(veca);
 }
 
-//distance
+///\relates vec
 template<std::size_t dim, typename T>
-constexpr float distance(const vec<dim, T>& veca, const vec<dim, T>& vecb)
+auto distance(const vec<dim, T>& veca, const vec<dim, T>& vecb) -> decltype(length(veca - vecb))
 {
     return length(vecb - veca);
 }
 
-//radiance/degrees
-template<std::size_t dim, typename T>
-NYTL_CPP14_CONSTEXPR vec<dim, float> radiance(vec<dim, T> veca)
+///\relates vec
+template<std::size_t dim, typename T> 
+vec<dim, double> radians(vec<dim, T> veca)
 {
-    for(auto& val : veca) val = radiance(val);
+    for(auto& val : veca) val = radians(val);
     return veca;
 }
 
-template<std::size_t dim, typename T>
-NYTL_CPP14_CONSTEXPR vec<dim, float> degrees(vec<dim, T> veca)
+///\relates vec
+template<std::size_t dim, typename T>  
+vec<dim, double> degrees(vec<dim, T> veca)
 {
     for(auto& val : veca) val = degrees(val);
     return veca;
 }
 
-//abs
+///\relates vec
 template<std::size_t dim, typename T>
-NYTL_CPP14_CONSTEXPR vec<dim, T> abs(vec<dim, T> veca)
+vec<dim, T> abs(vec<dim, T> veca)
 {
     for(auto& val : veca) val = std::abs(val);
     return veca;
 }
 
-//clamp
-template<std::size_t dim, typename Ta, typename Tb, typename Tc>
-NYTL_CPP14_CONSTEXPR vec<dim, Ta> clamp(vec<dim, Ta> val, const vec<dim, Tb>& minVal, const vec<dim, Tc>& maxVal)
+///\relates vec
+template<std::size_t dim, typename Ta, typename Tb, typename Tc>  
+vec<dim, Ta> clamp(vec<dim, Ta> val, const vec<dim, Tb>& minVal, const vec<dim, Tc>& maxVal)
 {
-    for(std::size_t i(0); i < dim; ++i) val[i] = clamp(val[i], minVal[i], maxVal[i]);
+    for(std::size_t i(0); i < min(min(val.size()), minVal.size(), maxVal.size()); ++i) 
+		val[i] = clamp(val[i], minVal[i], maxVal[i]);
     return val;
 }
 
-//mix
-template<std::size_t dim, typename Ta, typename Tb>
-NYTL_CPP14_CONSTEXPR vec<dim, Ta> mix(vec<dim, Ta> x, const vec<dim, Ta>& y, const vec<dim, Tb>& a)
+///\relates vec
+template<std::size_t dim, typename Ta, typename Tb, typename Tc>  
+vec<dim, Ta> clamp(vec<dim, Ta> val, const Tb& minVal, const Tc& maxVal)
 {
-    for(std::size_t i(0); i < dim; ++i) x[i] = mix(x[i], y[i], a[i]);
+    for(auto& v : val) v = clamp(v, minVal, maxVal);
+    return val;
+}
+
+///\relates vec
+template<std::size_t dim, typename Ta, typename Tb>  
+vec<dim, Ta> mix(vec<dim, Ta> x, const vec<dim, Ta>& y, const vec<dim, Tb>& a)
+{
+    for(std::size_t i(0); i < min(min(x.size(), y.size()), a.size()); ++i) 
+		x[i] = mix(x[i], y[i], a[i]);
     return x;
 }
 
-template<std::size_t dim, typename Ta, typename Tb>
-NYTL_CPP14_CONSTEXPR vec<dim, Ta> mix(vec<dim, Ta> x, const vec<dim, Ta>& y, const Tb& a)
+///\relates vec
+template<std::size_t dim, typename Ta, typename Tb>  
+vec<dim, Ta> mix(vec<dim, Ta> x, const vec<dim, Ta>& y, const Tb& a)
 {
-    for(std::size_t i(0); i < dim; ++i) x[i] = mix(x[i], y[i], a);
+    for(std::size_t i(0); i < min(min(x.size(), y.size()), a.size()); ++i) 
+		x[i] = mix(x[i], y[i], a);
     return x;
 }
 
-//smallest/greatest
-template<std::size_t dim, typename T>
-NYTL_CPP14_CONSTEXPR raw<T> smallest(const vec<dim, T>& a)
+///\relates vec
+template<std::size_t dim, typename Ta, typename Tb>  
+vec<dim, Ta> mix(const Ta& x, const Ta& y, const vec<dim, Tb>& a)
+{
+	vec<dim, Ta> ret(a.size());
+    for(std::size_t i(0); i < a.size(); ++i) ret[i] = mix(x, y, a[i]);
+    return ret;
+}
+
+///\relates vec
+template<std::size_t dim, typename T>  
+raw<T> smallest(const vec<dim, T>& a)
 {
     raw<T> ret = a[0];
     for(auto& val : a)
-    {
-        if(val < ret) ret = val;
-    }
+		if(val < ret) ret = val;
 
     return ret;
 }
 
-template<std::size_t dim, typename T>
-NYTL_CPP14_CONSTEXPR raw<T> greatest(const vec<dim, T>& a)
+///\relates vec
+template<std::size_t dim, typename T>  
+raw<T> greatest(const vec<dim, T>& a)
 {
     raw<T> ret = a[0];
     for(auto& val : a)
-    {
         if(val > ret) ret = val;
-    }
 
     return ret;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//boolean vec operations//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-template<std::size_t dim>
-NYTL_CPP14_CONSTEXPR bool any(const vec<dim, bool>& v)
+//boolean vec operations
+///\relates vec
+template<std::size_t dim>  
+bool any(const vec<dim, bool>& v)
 {
     for(auto val : v) if(val) return 1;
     return 0;
 }
 
-template<std::size_t dim>
-NYTL_CPP14_CONSTEXPR bool all(const vec<dim, bool>& v)
+///\relates vec
+template<std::size_t dim>  
+bool all(const vec<dim, bool>& v)
 {
     for(auto val : v) if(!val) return 0;
     return 1;
 }
 
-template<std::size_t dim>
-NYTL_CPP14_CONSTEXPR bool none(const vec<dim, bool>& v)
+///\relates vec
+template<std::size_t dim>  
+bool none(const vec<dim, bool>& v)
 {
     for(auto val : v) if(val) return 0;
     return 1;
 }
 
-//not
-template<std::size_t dim, typename T>
-NYTL_CPP14_CONSTEXPR vec<dim, T> operator!(vec<dim, T> v)
+///\relates vec
+template<std::size_t dim, typename T>  
+vec<dim, T> operator!(vec<dim, T> v)
 {
     for(auto& val : v) val = !val;
     return v;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//component-wise//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-template<std::size_t dim, typename prec>
-NYTL_CPP14_CONSTEXPR vec<dim, prec> max(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
+//component-wise
+///\relates vec
+template<std::size_t dim, typename prec>  
+vec<dim, prec> max(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
 {
-    vec<dim, prec> ret{};
-    for(std::size_t i(0); i < dim; ++i)
-    {
+    vec<dim, prec> ret(min(veca.size(), vecb.size()));
+    for(std::size_t i(0); i < min(veca.size(), vecb.size()); ++i)
         ret[i] = max(veca[i], vecb[i]);
-    }
+
     return ret;
 }
 
-template<std::size_t dim, typename prec>
-NYTL_CPP14_CONSTEXPR vec<dim, prec> max(const vec<dim, prec>& veca, const prec& value)
+///\relates vec
+template<std::size_t dim, typename prec>  
+vec<dim, prec> max(const vec<dim, prec>& veca, const prec& value)
 {
-    vec<dim, prec> ret{};
-    for(std::size_t i(0); i < dim; ++i)
-    {
+    vec<dim, prec> ret(veca.size());
+    for(std::size_t i(0); i < veca.size(); ++i)
         ret[i] = max(veca[i], value);
-    }
+
     return ret;
 }
 
-template<std::size_t dim, typename prec>
-NYTL_CPP14_CONSTEXPR vec<dim, prec> min(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
+///\relates vec
+template<std::size_t dim, typename prec>  
+vec<dim, prec> min(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
 {
-    vec<dim, prec> ret{};
-    for(std::size_t i(0); i < dim; ++i)
-    {
+    vec<dim, prec> ret(min(veca.size(), vecb.size()));
+    for(std::size_t i(0); i < min(veca.size(), vecb.size()); ++i)
         ret[i] = min(veca[i], vecb[i]);
-    }
+
     return ret;
 }
 
-template<std::size_t dim, typename prec>
-NYTL_CPP14_CONSTEXPR vec<dim, prec> min(const vec<dim, prec>& veca, const prec& value)
+///\relates vec
+template<std::size_t dim, typename prec>  
+vec<dim, prec> min(const vec<dim, prec>& veca, const prec& value)
 {
-    vec<dim, prec> ret{};
-    for(std::size_t i(0); i < dim; ++i)
-    {
+    vec<dim, prec> ret(veca.size());
+    for(std::size_t i(0); i < veca.size(); ++i)
         ret[i] = min(veca[i], value);
-    }
+    
     return ret;
 }
+

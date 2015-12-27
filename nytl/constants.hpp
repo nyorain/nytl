@@ -56,7 +56,7 @@ constexpr prec clamp(const prec& val, const prec& minVal, const prec& maxVal)
 
 //mix
 template<typename prec>
-constexpr prec mix(const prec& x, const prec& y, float a)
+constexpr prec mix(const prec& x, const prec& y, double a)
 {
     return (x * (1 - a)) + (y * a);
 }
@@ -69,5 +69,40 @@ constexpr prec mix(const prec& x, const prec& y, float a)
         #define NYTL_CPP14_CONSTEXPR
     #endif
 #endif //NYTL_CPP14_CONSTEXPR
+
+
+//constexpr min/max
+#if __cplusplus >= 201402L
+    using std::min;
+    using std::max;
+
+#else
+    template<typename T> constexpr T min(const T& a, const T& b) { return a < b ? a : b; }
+    template<typename T> constexpr T max(const T& a, const T& b) { return a > b ? a : b; }
+
+#endif // c++14
+
+namespace detail
+{
+
+template<unsigned long N>
+struct Fac
+{
+    static constexpr unsigned long value = N * Fac<N - 1>::value;
+};
+
+template<>
+struct Fac<0> 
+{
+	static constexpr unsigned long value = 1;
+};
+
+} //detail
+
+template<unsigned long N>
+unsigned long fac()
+{
+	return detail::Fac<N>::value;
+}
 
 }

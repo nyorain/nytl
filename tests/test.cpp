@@ -4,22 +4,34 @@
 using namespace nytl;
 
 int main()
-{
-	sequence<2, float, vec3f> myGradient;
+{/*
+	mat43f m(0.4, 200, 0, 56,
+			4, 0.2, 22, 66,
+			0, 224, 22, 45);
+*/	
+	mat34f m(25, 1, 4, 111,
+			0, 1, 7, 66,
+			0, 1, 7, 66);
 
-	myGradient.addPoint({{0.f, 0.f}, {0.f, 0.f, 0.f}});
-	myGradient.addPoint({{0.f, 10.f}, {0.f, 1.f, 0.f}});
-	myGradient.addPoint({{10.f, 0.f}, {1.f, 0.f, 0.f}});
-/*
-	std::ofstream myF("test.txt");
-	for(int y = -1; y < 11; ++y)
+	linearEquotationSystem<3, 3, float> les(m);
+	auto res = les.solve();
+
+	std::cout << res.solvable() << "\n";
+	std::cout << res.numberVariables() << "\n";
+	std::cout << res.solution(vec<1, float>{1.f}) << "\n";
+	
+	for(auto& e : res.solution_)
 	{
-		for(int x = -1; x < 11; ++x)
-		{
-			myF << "{(" << x << "," << y << "): " << myGradient.valueAt(vec2f(x,y)) << "} ";
-		}
-		myF << "\n";
+		std::cout << e.constPart << " + " << e.variablePart << "\n";
 	}
+
+/*
+	std::cout << m << "\n";
+	refMat(m);
+
+	std::cout << m << "\n";
+	rrefMat(m);
+
+	std::cout << m << "\n";
 */
-	std::cout << myGradient.valueAt(vec2f(4, 4));
 }

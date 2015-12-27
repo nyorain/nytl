@@ -22,75 +22,39 @@
  * SOFTWARE.
  */
 
-//implementation specialization
-namespace detail
-{
-
-template<std::size_t D, typename P>
-struct SimplexContainsPoint<D, P, 1>
-{
-	static bool test(const simplex<D, P, 1>& a, const vec<D, P>& v)
-	{
-		return (a.definedAt(v[0]) && all(a.valueAt(v[0]) == v));
-	}
-};
-
-} //detail
-
-template<size_t D, typename P> bool 
-line<D, P>::definedAt(const P& value, std::size_t dim) const
-{
-    return ((smallestValue(dim) <= value) &&
-            (greatestValue(dim) >= value));
-}
-
-template<size_t D, typename P> vec<D, P>
-line<D, P>::valueAt(const P& value, std::size_t dim) const
-{
-    if(!definedFor(value, dim))
-    {
-		sendWarning("nytl::line::valueAt: line not defined at ", value, ", dim ", dim);
-        return {};
-    }
-    else if(gradient()[dim] == 0)
-    {
-        auto ret = a;
-        ret[dim] = value;
-        return ret;
-    }
-    else
-    {
-        auto ret = a + ((value - a[dim]) * gradient(dim));
-        return ret;
-    }
-}
+#pragma once
 
 //member
 template<std::size_t D, typename P>
-vec<2, double> line<D, P>::barycentric(const vec<D, P>& v) const
+double tetrahedron<D, P>::size() const
+{
+	return detail::simplexSize(*this);
+}
+
+template<std::size_t D, typename P>
+vec<D, P> tetrahedron<D, P>::center() const
+{
+	return detail::simplexCenter(*this);
+}
+
+template<std::size_t D, typename P>
+vec<4, double> tetrahedron<D, P>::barycentric(const vec<D, P>& v) const
 {
 	return detail::simplexBarycentric(*this, v);
 }
 
 template<std::size_t D, typename P>
-bool line<D, P>::sameSpace(const vec<D, P>& v) const
+bool tetrahedron<D, P>::sameSpace(const vec<D, P>& v) const
 {
 	return detail::simplexSameSpace(*this, v);
 }
 
-//utility
-///\relates line
+//operators
+///\relates tetrahedron
 template<size_t D, typename P>
-std::ostream& operator<<(std::ostream& os, const line<D, P>& obj)
+std::ostream& operator<<(std::ostream& os, const tetrahedron<D, P>& obj)
 {
-    os << obj.a << " " << obj.b; 
+    os << obj.a << " " << obj.b << " " << obj.c << " " << obj.d;
     return os;
-}
-
-///\relates line
-template<size_t D, typename P>
-double length(const line<D, P>& l)
-{
-    return l.length();
 }
 
