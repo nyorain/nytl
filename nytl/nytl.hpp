@@ -33,6 +33,7 @@
 #include <nytl/hierachy.hpp>
 #include <nytl/integer_sequence.hpp>
 #include <nytl/log.hpp>
+#include <nytl/linearSolver.hpp>
 #include <nytl/make_unique.hpp>
 #include <nytl/math.hpp>
 #include <nytl/misc.hpp>
@@ -43,6 +44,7 @@
 #include <nytl/sequence.hpp>
 #include <nytl/simplex.hpp>
 #include <nytl/time.hpp>
+#include <nytl/tetrahedron.hpp>
 #include <nytl/tmp.hpp>
 #include <nytl/typemap.hpp>
 #include <nytl/versionControl.hpp>
