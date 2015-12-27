@@ -151,7 +151,7 @@ simplex<D, P, A, Cond>::operator simplex<OD, OP, A>() const
 //tests
 //XXX: intersection does not check for containment atm. Probably unexpected 
 
-///\relates simplex
+///\relates nytl::simplex
 ///Tests if the given simplex contains the given point.
 template<std::size_t D, typename P, std::size_t A> bool 
 	contains(const simplex<D, P, A>& s, const vec<D, P>& v)
@@ -159,7 +159,7 @@ template<std::size_t D, typename P, std::size_t A> bool
 	return detail::SimplexContainsPoint<D, P, A>::test(s, v);
 }
 
-///\relates simplex
+///\relates nytl::simplex
 ///Tests two simplexs for intersection. Symmetrical operator.
 template<std::size_t D, typename P, std::size_t A> bool 
 	intersects(const simplex<D, P, A>& s1, const simplex<D, P, A>& s2)
@@ -170,7 +170,7 @@ template<std::size_t D, typename P, std::size_t A> bool
 	return 0;
 }
 
-///\relates simplex
+///\relates nytl::simplex
 ///Tests if the first simplex fully contains the second one. Asymmetrical operator.
 template<std::size_t D, typename P, std::size_t A> bool 
 	contains(const simplex<D, P, A>& s1, const simplex<D, P, A>& s2)
@@ -181,7 +181,7 @@ template<std::size_t D, typename P, std::size_t A> bool
 	return 1;
 }
 
-///\relates simplexRegion
+///\relates nytl::simplexRegion
 ///Tests if a simplexRegion intersects with a simplex. Symmetrical operator.
 template<std::size_t D, typename P, std::size_t A> bool 
 	intersects(const simplexRegion<D, P, A>& r, const simplex<D, P, A>& s)
@@ -192,7 +192,7 @@ template<std::size_t D, typename P, std::size_t A> bool
 	return 0;
 }
 
-///\relates simplexRegion
+///\relates nytl::simplexRegion
 ///Tests two simplexRegions for intersection. Symmetrical operator.
 template<std::size_t D, typename P, std::size_t A> bool 
 	intersects(const simplexRegion<D, P, A>& r1, const simplexRegion<D, P, A>& r2)
@@ -203,7 +203,7 @@ template<std::size_t D, typename P, std::size_t A> bool
 	return 0;
 }
 
-///\relates simplexRegion
+///\relates nytl::simplexRegion
 ///Tests if the given simplexRegion fully contains the given simplex. Asymmetrical operator.
 template<std::size_t D, typename P, std::size_t A>bool 
 	contains(const simplexRegion<D, P, A>& r, const simplex<D, P, A>& s)
@@ -213,7 +213,7 @@ template<std::size_t D, typename P, std::size_t A>bool
 
 	return 1;
 }
-///\relates simplexRegion
+///\relates nytl::simplexRegion
 ///Tests if the first simplexRegion fully contains the second one. Asymmetrical operator.
 template<std::size_t D, typename P, std::size_t A>bool 
 	contains(const simplexRegion<D, P, A>& r1, const simplexRegion<D, P, A>& r2)
@@ -224,7 +224,7 @@ template<std::size_t D, typename P, std::size_t A>bool
 	return 1;
 }
 
-///\relates simplexRegion
+///\relates nytl::simplexRegion
 ///Tests if the given simplexRegion contains the given point.
 template<std::size_t D, typename P, std::size_t A> bool 
 	contains(const simplexRegion<D, P, A>& r, const vec<D, P>& v)
@@ -237,7 +237,7 @@ template<std::size_t D, typename P, std::size_t A> bool
 
 
 //operators
-///\relates simplex
+///\relates nytl::simplex
 ///Returns the region of intersection between the two given simplexs. Result is not guaranteed
 ///to be representable by a simplex and therefore a simplexRegion (i.e. the intersection of two
 ///triangles is not guaranteed to be a triangle). Symmetrical operator. [AND]
@@ -246,7 +246,7 @@ template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A>
 {
 }
 
-///\relates simplex
+///\relates nytl::simplex
 ///Combines the first and the second area (Offically called union but this name is not available 
 ///in c++). Result is not guaranteed to be representable by one
 ///single simplex and is therefore a simplexRegion. Symmetrical operator. [OR]
@@ -255,7 +255,7 @@ template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A>
 {
 }
 
-///\relates simplex
+///\relates nytl::simplex
 ///Returns the symmetric difference of the two given simplexs, so basically the region
 ///in the given space where exactly one of the two given areas are located.
 ///Symmetrical operator. [XOR]
@@ -264,7 +264,7 @@ template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A>
 {
 }
 
-///\relates simplex
+///\relates nytl::simplex
 ///Subtracts the second area from the first one and returns the "rest" of the first area.
 ///Return type is a simplexRegion since the result is not guaranteed to be representable by one
 ///single simplex. Asymmetrical operator. [AND NOT]
@@ -274,25 +274,25 @@ template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A>
 }
 
 
-///\relates simplexRegion
+///\relates nytl::simplexRegion
 template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A> 
 	intersection(const simplexRegion<D, P, A>&, const simplexRegion<D, P, A>&)
 {
 }
 
-///\relates simplexRegion
+///\relates nytl::simplexRegion
 template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A> 
 	combination(const simplexRegion<D, P, A>&, const simplexRegion<D, P, A>&)
 {
 }
 
-///\relates simplexRegion
+///\relates nytl::simplexRegion
 template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A> 
 	symmetricDifference(const simplexRegion<D, P, A>&, const simplexRegion<D, P, A>&)
 {
 }
 
-///\relates simplexRegion
+///\relates nytl::simplexRegion
 template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A> 
 	difference(const simplexRegion<D, P, A>&, const simplexRegion<D, P, A>&)
 {

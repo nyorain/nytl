@@ -25,6 +25,7 @@
 #pragma once
 
 #include <nytl/vec.hpp>
+#include <nytl/bits/refVecIterator.inl>
 
 namespace nytl
 {
@@ -62,7 +63,6 @@ typedef refVec4<unsigned char> refVec4uc;
 typedef refVec4<long> refVec4l;
 typedef refVec4<unsigned long> refVec4ul;
 
-#include <nytl/bits/refVecIterator.inl>
 
 ///Vec specialization for a reference type. Tries to behave like a normal vec type for operations.
 template<size_t dimension, typename T> 

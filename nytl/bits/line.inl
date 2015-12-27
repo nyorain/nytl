@@ -79,7 +79,7 @@ bool line<D, P>::sameSpace(const vec<D, P>& v) const
 }
 
 //utility
-///\relates line
+///\relates nytl::line
 template<size_t D, typename P>
 std::ostream& operator<<(std::ostream& os, const line<D, P>& obj)
 {
@@ -87,7 +87,7 @@ std::ostream& operator<<(std::ostream& os, const line<D, P>& obj)
     return os;
 }
 
-///\relates line
+///\relates nytl::line
 template<size_t D, typename P>
 double length(const line<D, P>& l)
 {

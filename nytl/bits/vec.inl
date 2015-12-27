@@ -35,7 +35,7 @@ constexpr std::size_t dMax(std::size_t a, std::size_t b)
 }
 
 //general operators
-///\relates vec
+///\relates nytl::vec
 ///Prints all values individually to an output stream.
 template<std::size_t dim, typename T> std::ostream& 
 operator<<(std::ostream& os, const vec<dim, T>& obj)
@@ -55,7 +55,7 @@ operator<<(std::ostream& os, const vec<dim, T>& obj)
     return os;
 }
 
-///\relates vec
+///\relates nytl::vec
 ///Loads all components from an input stream.
 template<std::size_t dim, typename T> std::istream& 
 operator>>(std::istream& is, vec<dim, T>& obj)
@@ -69,7 +69,7 @@ operator>>(std::istream& is, vec<dim, T>& obj)
 }
 
 //+todo: vec and vec unefficient atm, some proxy class 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename T, typename O>  
 vec<dim, T> operator+(vec<dim, T> mvec, const O& other)
 {
@@ -77,7 +77,7 @@ vec<dim, T> operator+(vec<dim, T> mvec, const O& other)
     return mvec;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename T, typename O>  
 vec<dim, T> operator+(const O& other, vec<dim, T> mvec)
 {
@@ -85,7 +85,7 @@ vec<dim, T> operator+(const O& other, vec<dim, T> mvec)
     return mvec;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dima, typename Ta, std::size_t dimb, typename Tb>  
 auto operator+(const vec<dima, Ta>& a, const vec<dimb, Tb>& b) 
 	-> vec<detail::dMax(dima, dimb), typename std::conditional<dima >= dimb, Ta, Tb>::type>
@@ -98,7 +98,7 @@ auto operator+(const vec<dima, Ta>& a, const vec<dimb, Tb>& b)
 }
 
 //-
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename T, typename O>  
 vec<dim, T> operator-(vec<dim, T> mvec, const O& other)
 {
@@ -106,7 +106,7 @@ vec<dim, T> operator-(vec<dim, T> mvec, const O& other)
     return mvec;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename T, typename OT>  
 vec<dim, T> operator-(OT other, vec<dim, T> mvec)
 {
@@ -116,7 +116,7 @@ vec<dim, T> operator-(OT other, vec<dim, T> mvec)
     return mvec;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dima, typename Ta, std::size_t dimb, typename Tb>  
 auto operator-(const vec<dima, Ta>& a, const vec<dimb, Tb>& b) 
 	-> vec<detail::dMax(dima, dimb), typename std::conditional<dima >= dimb, Ta, Tb>::type>
@@ -129,7 +129,7 @@ auto operator-(const vec<dima, Ta>& a, const vec<dimb, Tb>& b)
 }
 
 //*
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename T, typename O> 
 vec<dim, T> operator*(vec<dim, T> mvec, const O& other)
 {
@@ -138,7 +138,7 @@ vec<dim, T> operator*(vec<dim, T> mvec, const O& other)
 }
 
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename T, typename O> 
 vec<dim, T> operator*(const O& other, vec<dim, T> mvec)
 {
@@ -146,7 +146,7 @@ vec<dim, T> operator*(const O& other, vec<dim, T> mvec)
     return mvec;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dima, typename Ta, std::size_t dimb, typename Tb>  
 auto operator*(const vec<dima, Ta>& a, const vec<dimb, Tb>& b) 
 	-> vec<detail::dMax(dima, dimb), typename std::conditional<dima >= dimb, Ta, Tb>::type>
@@ -159,7 +159,7 @@ auto operator*(const vec<dima, Ta>& a, const vec<dimb, Tb>& b)
 }
 
 //\
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename T, typename O>  
 vec<dim, T> operator/(vec<dim, T> mvec, const O& other)
 {
@@ -167,7 +167,7 @@ vec<dim, T> operator/(vec<dim, T> mvec, const O& other)
     return mvec;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename T, typename OT>
 vec<dim, T> operator/(OT other, vec<dim, T> mvec)
 {
@@ -177,7 +177,7 @@ vec<dim, T> operator/(OT other, vec<dim, T> mvec)
     return mvec;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dima, typename Ta, std::size_t dimb, typename Tb>
 auto operator/(const vec<dima, Ta>& a, const vec<dimb, Tb>& b) 
 	-> vec<detail::dMax(dima, dimb), typename std::conditional<dima >= dimb, Ta, Tb>::type>
@@ -190,7 +190,7 @@ auto operator/(const vec<dima, Ta>& a, const vec<dimb, Tb>& b)
 }
 
 //%
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename T, typename O>
 vec<dim, T> operator%(vec<dim, T> mvec, const O& other)
 {
@@ -198,7 +198,7 @@ vec<dim, T> operator%(vec<dim, T> mvec, const O& other)
     return mvec;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename T, typename OT>
 vec<dim, T> operator%(OT other, vec<dim, T> mvec)
 {
@@ -208,7 +208,7 @@ vec<dim, T> operator%(OT other, vec<dim, T> mvec)
     return mvec;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dima, typename Ta, std::size_t dimb, typename Tb>
 auto operator%(const vec<dima, Ta>& a, const vec<dimb, Tb>& b) 
 	-> vec<detail::dMax(dima, dimb), typename std::conditional<dima >= dimb, Ta, Tb>::type>
@@ -221,7 +221,7 @@ auto operator%(const vec<dima, Ta>& a, const vec<dimb, Tb>& b)
 }
 
 //equal
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>
 vec<detail::dMin(dima, dimb), bool> equal(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
@@ -231,7 +231,7 @@ vec<detail::dMin(dima, dimb), bool> equal(const vec<dima, Ta>& veca, const vec<d
     return ret;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename Ta, typename Tb>  
 vec<dim, bool> equal(const vec<dim, Ta>& veca, const Tb& value)
 {
@@ -241,7 +241,7 @@ vec<dim, bool> equal(const vec<dim, Ta>& veca, const Tb& value)
     return ret;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>  
 vec<detail::dMin(dima, dimb), bool> notEqual(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
@@ -251,7 +251,7 @@ vec<detail::dMin(dima, dimb), bool> notEqual(const vec<dima, Ta>& veca, const ve
     return ret;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename Ta, typename Tb>  
 vec<dim, bool> notEqual(const vec<dim, Ta>& veca, const Tb& value)
 {
@@ -261,7 +261,7 @@ vec<dim, bool> notEqual(const vec<dim, Ta>& veca, const Tb& value)
     return ret;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>  
 vec<detail::dMin(dima, dimb), bool> lessThan(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
@@ -271,7 +271,7 @@ vec<detail::dMin(dima, dimb), bool> lessThan(const vec<dima, Ta>& veca, const ve
     return ret;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>  
 vec<min(dima, dimb), bool> greaterThan(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
@@ -281,7 +281,7 @@ vec<min(dima, dimb), bool> greaterThan(const vec<dima, Ta>& veca, const vec<dimb
     return ret;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t DA, std::size_t DB, typename TA, typename TB>
 vec<detail::dMin(DA, DB), bool> lessThanEqual(const vec<DA, TA>& veca, const vec<DB, TB>& vecb)
 {
@@ -291,7 +291,7 @@ vec<detail::dMin(DA, DB), bool> lessThanEqual(const vec<DA, TA>& veca, const vec
     return ret;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>  
 vec<detail::dMin(dima, dimb), bool> greaterThanEqual(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
@@ -301,7 +301,7 @@ vec<detail::dMin(dima, dimb), bool> greaterThanEqual(const vec<dima, Ta>& veca, 
     return ret;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename Ta, typename Tb>  
 vec<dim, bool> lessThan(const vec<dim, Ta>& veca, const Tb& value)
 {
@@ -311,7 +311,7 @@ vec<dim, bool> lessThan(const vec<dim, Ta>& veca, const Tb& value)
     return ret;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename Ta, typename Tb>  
 vec<dim, bool> greaterThan(const vec<dim, Ta>& veca, const Tb& value)
 {
@@ -321,7 +321,7 @@ vec<dim, bool> greaterThan(const vec<dim, Ta>& veca, const Tb& value)
     return ret;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename Ta, typename Tb>  
 vec<dim, bool> lessThanEqual(const vec<dim, Ta>& veca, const Tb& value)
 {
@@ -331,7 +331,7 @@ vec<dim, bool> lessThanEqual(const vec<dim, Ta>& veca, const Tb& value)
     return ret;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename Ta, typename Tb>  
 vec<dim, bool> greaterThanEqual(const vec<dim, Ta>& veca, const Tb& value)
 {
@@ -343,42 +343,42 @@ vec<dim, bool> greaterThanEqual(const vec<dim, Ta>& veca, const Tb& value)
 
 //todo: allow comparison of vec and value with operator? 
 //vec<dim, bool> operator==(vec<dim, Ta> v, Tb value);
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb> 
 vec<detail::dMin(dima, dimb), bool> operator==(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
     return equal(veca, vecb);
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>  
 vec<detail::dMin(dima, dimb), bool> operator!=(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
     return notEqual(veca, vecb);
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb> 
 vec<detail::dMin(dima, dimb), bool> operator<(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
     return lessThan(veca, vecb);
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>  
 vec<detail::dMin(dima, dimb), bool> operator>(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
     return greaterThan(veca, vecb);
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb> 
 vec<detail::dMin(dima,dimb), bool> operator<=(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
     return lessThanEqual(veca, vecb);
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb> 
 vec<detail::dMin(dima, dimb), bool> operator>=(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
@@ -386,7 +386,7 @@ vec<detail::dMin(dima, dimb), bool> operator>=(const vec<dima, Ta>& veca, const 
 }
 
 //utility
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename T>  
 auto sum(const vec<dim, T>& v) -> decltype(v[0] + v[0])
 {
@@ -395,7 +395,7 @@ auto sum(const vec<dim, T>& v) -> decltype(v[0] + v[0])
     return ret;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename prec>
 auto length(const vec<dim, prec>& v) -> decltype(sqrt(v[0] * v[0]))
 {
@@ -404,7 +404,7 @@ auto length(const vec<dim, prec>& v) -> decltype(sqrt(v[0] * v[0]))
     return std::sqrt(ret);
 }
 
-///\relates vec
+///\relates nytl::vec
 ///Alias function for length()
 template<std::size_t dim, typename prec>
 auto norm(const vec<dim, prec>& v) -> decltype(length(v))
@@ -412,14 +412,14 @@ auto norm(const vec<dim, prec>& v) -> decltype(length(v))
     return length(v);
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb> 
 auto dot(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb) -> decltype(sum(veca * vecb))
 {
     return sum(veca * vecb);
 }
 
-///\relates vec
+///\relates nytl::vec
 template<typename Ta, typename Tb> 
 auto cross(const vec<3, Ta>& veca, const vec<3, Tb>& vecb) -> vec<3, decltype(veca[0] * vecb[0])>
 {
@@ -431,7 +431,7 @@ auto cross(const vec<3, Ta>& veca, const vec<3, Tb>& vecb) -> vec<3, decltype(ve
 		};
 }
 
-///\relates vec
+///\relates nytl::vec
 ///Returns the angle between 2 vecs, always the smaller one that is <= PI. 
 ///Returns the angle in radiant form.
 template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>
@@ -440,7 +440,7 @@ double angle(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
     return std::acos(sum(veca * vecb) / (length(veca) * length(vecb)));
 }
 
-///\relates vec
+///\relates nytl::vec
 ///Returns the smallest angle between two lines with the given vectors as direction.
 ///The Returned angle is always <= PI/2. Returns the angle in radian form.
 template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb> 
@@ -450,7 +450,7 @@ double smallerAngle(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 }
 
 //todo: cangle for 3-dimensional (or all) vectors
-///\relates vec
+///\relates nytl::vec
 ///Returns the absolute, clockwise angle between two 2-dimensional vectors.
 ///Angle is returned in radian form.
 template<typename Ta, typename Tb> 
@@ -461,21 +461,21 @@ double cangle(const vec<2, Ta>& veca, const vec<2, Tb>& vecb)
     return val;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename T>
 auto normalize(const vec<dim, T>& veca) -> decltype(veca / length(veca))
 {
     return veca / length(veca);
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename T>
 auto distance(const vec<dim, T>& veca, const vec<dim, T>& vecb) -> decltype(length(veca - vecb))
 {
     return length(vecb - veca);
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename T> 
 vec<dim, double> radians(vec<dim, T> veca)
 {
@@ -483,7 +483,7 @@ vec<dim, double> radians(vec<dim, T> veca)
     return veca;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename T>  
 vec<dim, double> degrees(vec<dim, T> veca)
 {
@@ -491,7 +491,7 @@ vec<dim, double> degrees(vec<dim, T> veca)
     return veca;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename T>
 vec<dim, T> abs(vec<dim, T> veca)
 {
@@ -499,7 +499,7 @@ vec<dim, T> abs(vec<dim, T> veca)
     return veca;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename Ta, typename Tb, typename Tc>  
 vec<dim, Ta> clamp(vec<dim, Ta> val, const vec<dim, Tb>& minVal, const vec<dim, Tc>& maxVal)
 {
@@ -508,7 +508,7 @@ vec<dim, Ta> clamp(vec<dim, Ta> val, const vec<dim, Tb>& minVal, const vec<dim, 
     return val;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename Ta, typename Tb, typename Tc>  
 vec<dim, Ta> clamp(vec<dim, Ta> val, const Tb& minVal, const Tc& maxVal)
 {
@@ -516,7 +516,7 @@ vec<dim, Ta> clamp(vec<dim, Ta> val, const Tb& minVal, const Tc& maxVal)
     return val;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename Ta, typename Tb>  
 vec<dim, Ta> mix(vec<dim, Ta> x, const vec<dim, Ta>& y, const vec<dim, Tb>& a)
 {
@@ -525,7 +525,7 @@ vec<dim, Ta> mix(vec<dim, Ta> x, const vec<dim, Ta>& y, const vec<dim, Tb>& a)
     return x;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename Ta, typename Tb>  
 vec<dim, Ta> mix(vec<dim, Ta> x, const vec<dim, Ta>& y, const Tb& a)
 {
@@ -534,7 +534,7 @@ vec<dim, Ta> mix(vec<dim, Ta> x, const vec<dim, Ta>& y, const Tb& a)
     return x;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename Ta, typename Tb>  
 vec<dim, Ta> mix(const Ta& x, const Ta& y, const vec<dim, Tb>& a)
 {
@@ -543,7 +543,7 @@ vec<dim, Ta> mix(const Ta& x, const Ta& y, const vec<dim, Tb>& a)
     return ret;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename T>  
 raw<T> smallest(const vec<dim, T>& a)
 {
@@ -554,7 +554,7 @@ raw<T> smallest(const vec<dim, T>& a)
     return ret;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename T>  
 raw<T> greatest(const vec<dim, T>& a)
 {
@@ -566,7 +566,7 @@ raw<T> greatest(const vec<dim, T>& a)
 }
 
 //boolean vec operations
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim>  
 bool any(const vec<dim, bool>& v)
 {
@@ -574,7 +574,7 @@ bool any(const vec<dim, bool>& v)
     return 0;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim>  
 bool all(const vec<dim, bool>& v)
 {
@@ -582,7 +582,7 @@ bool all(const vec<dim, bool>& v)
     return 1;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim>  
 bool none(const vec<dim, bool>& v)
 {
@@ -590,7 +590,7 @@ bool none(const vec<dim, bool>& v)
     return 1;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename T>  
 vec<dim, T> operator!(vec<dim, T> v)
 {
@@ -599,7 +599,7 @@ vec<dim, T> operator!(vec<dim, T> v)
 }
 
 //component-wise
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename prec>  
 vec<dim, prec> max(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
 {
@@ -610,7 +610,7 @@ vec<dim, prec> max(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
     return ret;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename prec>  
 vec<dim, prec> max(const vec<dim, prec>& veca, const prec& value)
 {
@@ -621,7 +621,7 @@ vec<dim, prec> max(const vec<dim, prec>& veca, const prec& value)
     return ret;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename prec>  
 vec<dim, prec> min(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
 {
@@ -632,7 +632,7 @@ vec<dim, prec> min(const vec<dim, prec>& veca, const vec<dim, prec>& vecb)
     return ret;
 }
 
-///\relates vec
+///\relates nytl::vec
 template<std::size_t dim, typename prec>  
 vec<dim, prec> min(const vec<dim, prec>& veca, const prec& value)
 {

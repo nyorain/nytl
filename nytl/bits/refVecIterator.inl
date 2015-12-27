@@ -24,6 +24,9 @@
 
 #pragma once
 
+namespace nytl
+{
+
 template<size_t dim, typename T>
 class const_refvec_iterator : public std::iterator<std::random_access_iterator_tag, T, size_t>
 {
@@ -91,3 +94,4 @@ public:
     vec<dim, T&>& getRef() const {return ref_; }
 };
 
+}

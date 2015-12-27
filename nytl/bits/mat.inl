@@ -34,7 +34,7 @@ mat<R, C, P, Cond>::operator mat<OR, OC, OP>() const
 	return ret;
 }
 
-///\relates mat
+///\relates nytl::mat
 template<std::size_t R, std::size_t C, typename P>
 void swapRow(mat<R, C, P>& m, std::size_t a, std::size_t b)
 {
@@ -44,7 +44,7 @@ void swapRow(mat<R, C, P>& m, std::size_t a, std::size_t b)
 	}
 }
 
-///\relates mat
+///\relates nytl::mat
 template<std::size_t R, std::size_t C, typename P>
 void swapCol(mat<R, C, P>& m, std::size_t a, std::size_t b)
 {
@@ -54,7 +54,7 @@ void swapCol(mat<R, C, P>& m, std::size_t a, std::size_t b)
 	}
 }
 
-///\relates mat
+///\relates nytl::mat
 ///Returns the identityMatrix for the given dimension and precision.
 template<size_t D, typename P = float>
 squareMat<D, P> identityMat()
@@ -66,7 +66,7 @@ squareMat<D, P> identityMat()
 
 //XXX: correct implementation.
 //full pivot?
-///\relates mat
+///\relates nytl::mat
 ///Returns the sign of the used pivot matrix.
 template<std::size_t R, std::size_t C, typename P>
 int pivot(mat<R, C, P>& m)
@@ -93,7 +93,7 @@ int pivot(mat<R, C, P>& m)
 	return ret;
 }
 
-///\relates mat
+///\relates nytl::mat
 template<std::size_t D, typename P>
 vec2<mat<D, D, double>> luDecomposition(const mat<D, D, P>& m)
 {
@@ -132,7 +132,7 @@ vec2<mat<D, D, double>> luDecomposition(const mat<D, D, P>& m)
 	return lu;	
 }
 
-///\relates mat
+///\relates nytl::mat
 template<std::size_t D, typename P>
 P diagonalMult(const mat<D, D, P>& m)
 {
@@ -143,7 +143,7 @@ P diagonalMult(const mat<D, D, P>& m)
 	return ret;
 }
 
-///\relates mat
+///\relates nytl::mat
 template<std::size_t D, typename P>
 double det(const mat<D, D, P>& m)
 {
@@ -155,7 +155,7 @@ double det(const mat<D, D, P>& m)
 }
 
 
-///\relates mat
+///\relates nytl::mat
 template<std::size_t R, std::size_t C, typename P>
 void refMat(mat<R, C, P>& m)
 {
@@ -194,7 +194,7 @@ void refMat(mat<R, C, P>& m)
 	}
 }
 
-///\relates mat
+///\relates nytl::mat
 template<size_t R, size_t C, typename P>
 mat<R, C, P> refMatCopy(mat<R, C, P> m)
 {
@@ -203,7 +203,7 @@ mat<R, C, P> refMatCopy(mat<R, C, P> m)
 }
 
 //XXX: Some kind of solution set class for possible matrix solutions?
-///\relates mat
+///\relates nytl::mat
 ///Analzyes a matrix in row echelon form
 ///Returns 0 if the corresponding linear equotation system is not solvable.
 ///Returns 1 if it is unabiguously solveavle by exactly one solution.
@@ -215,7 +215,7 @@ unsigned int analyzeRefMat(const mat<R, C, P>& m)
 	return 0;
 }
 
-///\relates mat
+///\relates nytl::mat
 template<size_t R, size_t C, typename P>
 void rrefMat(mat<R, C, P>& m)
 {
@@ -269,7 +269,7 @@ unsigned int getNumberOfDigits(double i)
 
 }
 
-///\relates mat
+///\relates nytl::mat
 template<size_t R, size_t C, class P>
 std::ostream& operator<<(std::ostream& os, const mat<R, C, P>& obj)
 {
@@ -301,7 +301,7 @@ std::ostream& operator<<(std::ostream& os, const mat<R, C, P>& obj)
 
 //todo: more efficiency with wrapper classes for operations
 //+
-///\relates mat
+///\relates nytl::mat
 template<size_t R, size_t C, typename P>
 mat<R, C, P> operator+(mat<R, C, P> ma, const mat<R, C, P>& mb)
 {
@@ -310,7 +310,7 @@ mat<R, C, P> operator+(mat<R, C, P> ma, const mat<R, C, P>& mb)
 
 
 //-
-///\relates mat
+///\relates nytl::mat
 template<size_t R, size_t C, typename P> mat<R, C, P>
 operator-(mat<R, C, P> ma, const mat<R, C, P>& mb)
 {
@@ -320,14 +320,14 @@ operator-(mat<R, C, P> ma, const mat<R, C, P>& mb)
 
 //*
 //mat and value
-///\relates mat
+///\relates nytl::mat
 template<size_t R, size_t C, typename P>
 mat<R, C, P> operator*(mat<R, C, P> ma, const P& other)
 {
     return std::move(ma *= other);
 }
 
-///\relates mat
+///\relates nytl::mat
 template<size_t R, size_t C, typename P>
 mat<R, C, P> operator*(const P& other, mat<R, C, P> ma)
 {
@@ -335,7 +335,7 @@ mat<R, C, P> operator*(const P& other, mat<R, C, P> ma)
 }
 
 //mat and mat
-///\relates mat
+///\relates nytl::mat
 template <size_t RA, size_t CA, size_t CB, typename P> mat<RA, CB, P> 
 operator*(const mat<RA, CA, P>& ma, const mat<CA, CB, P>& mb)
 {
@@ -349,7 +349,7 @@ operator*(const mat<RA, CA, P>& ma, const mat<CA, CB, P>& mb)
 }
 
 //mat and vector
-///\relates mat
+///\relates nytl::mat
 template<size_t R, size_t C, typename P>
 vec<R, P> operator*(const mat<R, C, P>& ma, const vec<C, P>& v)
 {
@@ -362,7 +362,7 @@ vec<R, P> operator*(const mat<R, C, P>& ma, const vec<C, P>& v)
     return ret;
 }
 
-///\relates mat
+///\relates nytl::mat
 template<size_t R, size_t C, typename P>
 vec<R, P> operator*(const vec<C, P>& v, const mat<R, C, P>& ma)
 {

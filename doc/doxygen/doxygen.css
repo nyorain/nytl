@@ -8,8 +8,8 @@ table.memberdecls
 {
     font-family: Arial, Helvetica;
     font-weight: bold;
-    font-size: 12px;
-    height: 14px;
+    font-size: 14px;
+    height: 16px;
     width: 16px;
     display: inline-block;
     background-color: #337ab7;
@@ -18,7 +18,7 @@ table.memberdecls
     border-radius: 4px;
     margin-left: 2px;
     margin-right: 2px;
-    line-height: 1.2;
+    line-height: 1.1;
 }
 
 .icona 
@@ -26,6 +26,12 @@ table.memberdecls
     width: 24px;
     height: 22px;
     display: inline-block !important;
+}
+
+/* makes the cursor a pointer for drop-down arrow */
+.arrow
+{
+	cursor: pointer;
 }
 
 
@@ -44,11 +50,6 @@ table.memberdecls
 	text-align: left !important;
 }
 
-.memTemplItemLeft
-{
-	display: inline !important;
-}
-
 .mdescLeft, .mdescRight 
 {
     padding: 0px 8px 4px 8px !important;
@@ -64,7 +65,7 @@ table.memberdecls
     margin: 0px;
     padding: 0px !important;
 }
-
+/*
 .memTemplParams 
 {
 	display: none; //rlly do this? just useful sometimes
@@ -74,3 +75,8 @@ table.memberdecls
     white-space: nowrap !important;
 }
 
+.memTemplItemLeft
+{
+	display: inline !important;
+}
+*/

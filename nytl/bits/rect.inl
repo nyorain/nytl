@@ -32,7 +32,7 @@ intersects(const rect<dim, prec>& r1, const rect<dim, prec>& r2)
 template<std::size_t dim, typename prec> bool 
 intersects(const rect<dim, prec>& r1, const line<dim, prec>& l2)
 {
-    //todo: algorithm might be wrong, might have bugs, !important
+    //TODO: algorithm might be wrong, might have bugs, !important
     if(contains(r1, l2.a) || contains(r1, l2.b)) return 1;
     if(!l2.definedFor(r1.position[0], 0) || !l2.definedFor(r1.position[0] + r1.size[0], 0)) return 0;
 
