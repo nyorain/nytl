@@ -24,13 +24,6 @@
 
 #pragma once
 
-namespace detail
-{
-
-thread_local int intDummy;
-
-}
-
 //members
 template<std::size_t R, std::size_t C, typename P, typename Cond>
 template<std::size_t OR, std::size_t OC, typename OP>
@@ -71,6 +64,8 @@ squareMat<D, P> identityMat()
 	return ret;
 }
 
+//XXX: correct implementation.
+//full pivot?
 ///\relates mat
 ///Returns the sign of the used pivot matrix.
 template<std::size_t D, typename P>
@@ -179,7 +174,7 @@ bool refMat(mat<R, C, P>& ma)
             }
         }
 
-        if(ma[iMax][k] == 0) //singular matrix
+        if(ma[iMax][k] == 0) //singular matrix, throw here but first document it.
             return 0;
 
         std::swap(ma[k], ma[iMax]);
@@ -202,7 +197,7 @@ bool refMat(mat<R, C, P>& ma)
 template<size_t R, size_t C, typename P>
 bool rrefMat(mat<R, C, P>& ma)
 {
-    if(!mat_ref(ma))
+    if(!refMat(ma))
         return 0;
 
     for(int k = R - 1; k >= 0; --k)
@@ -229,6 +224,10 @@ bool rrefMat(mat<R, C, P>& ma)
 
     return 1;
 }
+
+//TODO XXX:
+//some function for analyzing the ref/rref result
+//no solution, infinite solutions, exactly onesolution?
 
 //operators
 namespace detail

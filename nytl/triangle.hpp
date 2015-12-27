@@ -59,7 +59,7 @@ template<size_t D, typename P>
 class simplex<D, P, 2>
 {
 public:
-    using value_type = prec;
+    using value_type = P;
     using vec_type = vec<D, P>;
     using triangle_type = triangle<D, P>;
     using line_type = line<D, P>;
@@ -70,15 +70,15 @@ public:
     vec_type c;
 
 public:
-    triangle() noexcept = default;
-    triangle(const vec_type& xa, const vec_type& xb, const vec_type& xc) noexcept
+    simplex() noexcept = default;
+    simplex(const vec_type& xa, const vec_type& xb, const vec_type& xc) noexcept
 		: a(xa), b(xb), c(xc) {}
 
-    ~triangle() noexcept = default;
-    constexpr triangle(const triangle_type& other) noexcept = default;
+    ~simplex() noexcept = default;
+    simplex(const triangle_type& other) noexcept = default;
     triangle_type& operator=(const triangle_type& other) noexcept = default;
 
-	//defaulöt
+	//default
     double size() const;
 	vec_type center() const;
 	vec_type barycentric(const vec_type& val) const;

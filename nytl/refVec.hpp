@@ -110,9 +110,9 @@ public:
     vec(const vec_type& other) noexcept 
 		{ for(size_t i(0); i < dim; ++i) data_[i] = &other[i]; }
 
-    vec_type& operator=(const vec_type& other) noexcept 
+    ref_vec_type& operator=(const vec_type& other) noexcept 
 		{ for(size_t i(0); i < dim; ++i) *data_[i] = other[i]; return *this; }
-    vec_type& operator=(const ref_vec_type& other) noexcept //needed?
+    ref_vec_type& operator=(const ref_vec_type& other) noexcept //needed?
 		{ for(size_t i(0); i < dim; ++i) *data_[i] = other[i]; return *this; }
 
     //operator
@@ -249,10 +249,10 @@ public:
     vec(const ref_vec_type& other) noexcept = default;
 
     vec(vec_type& other) noexcept : x(other.x), y(other.y) {}
-    vec_type& operator=(const vec_type& other) noexcept 
-		{ x = other.x; y = other.y; return *this; return *this; }
-    vec_type& operator=(const ref_vec_type& other) noexcept 
-		{ x = other.x; y = other.y; return *this; return *this; }
+    ref_vec_type& operator=(const vec_type& other) noexcept 
+		{ x = other.x; y = other.y; return *this; }
+    ref_vec_type& operator=(const ref_vec_type& other) noexcept 
+		{ x = other.x; y = other.y; return *this; }
 
     //operator
     template <size_t odim, typename ot> vec_type& operator +=(const vec<odim, ot>& other)
@@ -387,9 +387,9 @@ public:
     vec(const ref_vec_type& other) noexcept = default;
 
     vec(const vec_type& other) noexcept : x(other.x), y(other.y), z(other.z) {}
-    vec_type& operator=(const vec_type& other) noexcept 
+    ref_vec_type& operator=(const vec_type& other) noexcept 
 		{ x = other.x; y = other.y; z = other.z; return *this; } 
-    vec_type& operator=(const ref_vec_type& other) noexcept 
+    ref_vec_type& operator=(const ref_vec_type& other) noexcept 
 		{ x = other.x; y = other.y; z = other.z; return *this; }
 
     //operator
@@ -533,12 +533,12 @@ public:
     vec(reference a, reference b, reference c, reference d) noexcept : x(a), y(b), z(c), w(d) {}
     ~vec() noexcept = default;
 
-    vec(const vec_type& other) noexcept = default;
+    vec(const ref_vec_type& other) noexcept = default;
 
     vec(const vec_type& other) noexcept : x(other.x), y(other.y), z(other.z), w(other.w) {} 
-    vec_type& operator=(const vec_type& other) noexcept 
+    ref_vec_type& operator=(const vec_type& other) noexcept 
 		{ x = other.x; y = other.y; z = other.z; w = other.w; return *this; }
-    vec_type& operator=(const ref_vec_type& other) noexcept 
+    ref_vec_type& operator=(const ref_vec_type& other) noexcept 
 		{ x = other.x; y = other.y; z = other.z; w = other.w; return *this; }
 
     //operator

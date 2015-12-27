@@ -124,10 +124,10 @@ public:
 	///Returns a reference vec of a certain column of the matrix.
 	///Must be captured by a refVec (not possible with vec&) to be able to change the actual
 	///values of the matrix object.
-	refVec<C, P> col(size_t i){ return detail::makeRowRefVec<R>::call(data_, i); }
+	refVec<R, P> col(size_t i){ return detail::makeRowRefVec<R>::call(data_, i); }
 
 	///Returns a vec (just the values, no references) of a certain row.
-	vec<C, P> col(size_t i) const { return detail::makeRowVec<R>::call(data_, i); }
+	vec<R, P> col(size_t i) const { return detail::makeRowVec<R>::call(data_, i); }
 
     ///Returns a plain pointer to the data of the matrix.
     pointer data(){ return (pointer) &data_.data(); }

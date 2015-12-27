@@ -22,6 +22,22 @@
  * SOFTWARE.
  */
 
+#pragma once
+
+/*
+namespace detail
+{
+
+template<std::size_t D, typename P>
+struct SimplexContainsPoint<D, P, 2>
+{
+	static bool test(const triangle<D, P>& t, const vec<D, P>& v)
+	{
+	};
+};
+
+}
+
 //test
 template<std::size_t dim, typename prec> constexpr
 bool intersects(const triangle<dim, prec>& t1, const triangle<dim, prec>& t2)
@@ -65,6 +81,7 @@ bool contains(const triangle<dim, prec>& t1, const vec<dim, prec>& v2)
 
     return 1;
 }
+*/
 
 //operators
 template<size_t dim, typename prec>

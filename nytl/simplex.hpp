@@ -24,11 +24,14 @@
 #pragma once
 
 #include <nytl/vec.hpp>
+#include <nytl/mat.hpp>
 #include <nytl/tmp.hpp>
+#include <nytl/constants.hpp>
 
 #include <vector>
 #include <type_traits>
 #include <utility>
+#include <cmath>
 
 namespace nytl
 {
@@ -75,15 +78,22 @@ public:
 	///Returns the center point of the area.
 	vec_type center() const;
 
+	///Returns whether the simplex lays in the same space as the given point.
+	///If e.g. D==2 it checks whether they lay on the same plane.
+	///If D==A this will always return true.
+	bool sameSpace(const vec_type& val) const;
+
 	///Converts the given normal coordinates into barycentric coordinates for the simplex
-	///object.
-	vec_type barycentric(const vec_type& val) const;
+	///object. If the given point does not lay in the same space as the simplex object,
+	///the function will output a warning and return a null-vector.
+	///This can be checked before with sameSpace().
+	vec<A + 1, double> barycentric(const vec_type& val) const;
 
 	///Converts the object to a simplex with a different dimension or precision.
 	///Note that the area dimension A cannot be changed, only the space dimension D.
 	///Works only if the new D is still greater equal A.
-	template<std::size_t ND, typename NP, typename = DimMatch<D, A>> 
-		operator simplex<ND, NP, A>() const;
+	template<std::size_t OD, typename OP, typename = DimMatch<OD, A>> 
+		operator simplex<OD, OP, A>() const;
 };
 
 ///Describes a region of multiple unique areas.

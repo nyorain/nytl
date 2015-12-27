@@ -22,6 +22,21 @@
  * SOFTWARE.
  */
 
+//implementation specialization
+namespace detail
+{
+
+template<std::size_t D, typename P>
+struct SimplexContainsPoint<D, P, 1>
+{
+	static bool test(const simplex<D, P, 1>& a, const vec<D, P>& v)
+	{
+		return (a.definedAt(v[0]) && all(a.valueAt(v[0]) == v));
+	}
+};
+
+} //detail
+
 template<size_t D, typename P> bool 
 line<D, P>::definedAt(const P& value, std::size_t dim) const
 {
@@ -51,6 +66,7 @@ line<D, P>::valueAt(const P& value, std::size_t dim) const
 }
 
 //tests and stuff
+/*
 template<std::size_t D, typename P> NYTL_CPP14_CONSTEXPR
 bool intersects(const line<D, P>& l1, const line<D, P>& l2)
 {
@@ -90,10 +106,11 @@ vec<D, P> intersection(const line<D, P>& l1, const line<D, P>& l2)
 
     return l1.valueAt(val, 0);
 }
+*/
 
 //utility
 template<size_t D, typename P>
-constexpr auto length(const line<D, P>& l) -> decltype(l.length())
+double length(const line<D, P>& l)
 {
     return l.length();
 }
