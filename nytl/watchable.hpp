@@ -29,6 +29,8 @@
 namespace nytl
 {
 
+///Base class that can be derived from if the lifetime of objects of this class should be
+///watchable by others.
 class watchable
 {
 protected:
@@ -36,10 +38,13 @@ protected:
 
 public:
     ~watchable(){ destructionCallback_(); } //virtual? not needed here
-    connection onDestruction(std::function<void()> func){ return destructionCallback_.add(func); }
+    template<typename F> connection onDestruction(F&& func){ return destructionCallback_.add(func); }
 };
 
-//ref//////////////////////////////////////////////
+///Basically a smart pointer that does always know, whether the object it points to is alive
+///or not. Does only work with objects of classes that have a onDestruction callback member
+///function like e.g. classes dervied from watchable.
+///Semantics are related to std::unique_ptr.
 template <typename T>
 class watchableRef
 {
@@ -52,11 +57,15 @@ public:
     watchableRef(T& nref) { set(nref); }
     ~watchableRef() { if(ref_) conn_.destroy(); }
 
-    watchableRef(const watchableRef<T>& other) : ref_(other.ref_) { if(ref_) set(*ref_); }
-    watchableRef& operator=(const watchableRef<T>& other) { reset(); if(other.ref_) set(*other.ref_); return *this; }
+    watchableRef(const watchableRef<T>& other) : ref_(other.ref_) 
+		{ if(ref_) set(*ref_); }
+    watchableRef& operator=(const watchableRef<T>& other) 
+		{ reset(); if(other.ref_) set(*other.ref_); return *this; }
 
-    watchableRef(watchableRef<T>&& other) : ref_(other.ref_), conn_(std::move(other.conn_)) { other.ref_ = nullptr; }
-    watchableRef& operator=(watchableRef<T>&& other) { reset(); ref_ = other.ref_; conn_ = std::move(other.conn_); other.ref_ = nullptr; }
+    watchableRef(watchableRef<T>&& other) : ref_(other.ref_), conn_(std::move(other.conn_)) 
+		{ other.ref_ = nullptr; }
+    watchableRef& operator=(watchableRef<T>&& other) 
+		{ reset(); ref_ = other.ref_; conn_ = std::move(other.conn_); other.ref_ = nullptr; }
 
     T* get() const { return ref_; }
     void set(T& nref)
@@ -90,7 +99,6 @@ public:
 	const T& operator*() const { return *ref_; }
 
 	operator bool() const { return (ref_ != nullptr); }
-	
 };
 
 }

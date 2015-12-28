@@ -260,7 +260,7 @@ namespace detail
 
 
 constexpr const unsigned int cDWidth = 6;
-unsigned int getNumberOfDigits(double i)
+inline unsigned int getNumberOfDigits(double i)
 {
     return ((i < 10 && i > 0) || i == 0) ? 1 :
     (i > -10 && i < 0) ? 2 :
