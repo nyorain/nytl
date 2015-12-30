@@ -73,7 +73,8 @@ protected:
     callbackBase* callback_ {nullptr};
     std::shared_ptr<connectionData> data_ {nullptr};
 
-    explicit connection(callbackBase& call, std::shared_ptr<connectionData> data) : callback_(&call), data_(data) {}
+    explicit connection(callbackBase& call, std::shared_ptr<connectionData> data) 
+		: callback_(&call), data_(data) {}
 public:
     connection() = default;
     ~connection() = default;
@@ -99,7 +100,8 @@ protected:
     callbackBase* callback_ {nullptr};
     std::shared_ptr<connectionData> data_ {nullptr};
 
-    explicit connectionRef(callbackBase& call, std::shared_ptr<connectionData> data) : callback_(&call), data_(data) {}
+    explicit connectionRef(callbackBase& call, std::shared_ptr<connectionData> data) 
+		: callback_(&call), data_(data) {}
 public:
     ~connectionRef() = default;
 
@@ -222,7 +224,8 @@ protected:
     size_t highestID {0};
     std::vector<callbackSlot> slots_;
 
-    //removes a callback identified by its connection. Functions (std::function) can't be compared => we need connections
+    //removes a callback identified by its connection. 
+	//Functions (std::function) can't be compared => we need connections
     virtual void remove(size_t id) override
     {
         if(id == 0)
@@ -292,12 +295,5 @@ public:
         call(a ...);
     }
 };
-
-
-
-//todo
-//watcher classes as alternative to smart pointers
-//before you use a object you can check if it is alive
-//if an object dies it will signal all its watchers, so they know
 
 }
