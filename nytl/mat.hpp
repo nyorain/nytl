@@ -37,7 +37,6 @@
 namespace nytl
 {
 
-//typedefs
 template<std::size_t R, std::size_t C, typename P, typename = typename 
 	std::enable_if<
 		(R >= 1) && 
@@ -46,13 +45,10 @@ template<std::size_t R, std::size_t C, typename P, typename = typename
 	>::type>
 class mat;
 
-template<std::size_t D, class P> using squareMat = mat<D, D, P>;
-
-
 #include <nytl/bits/matmp.inl>
 #include <nytl/bits/matypes.inl>
 
-//mat class
+///\brief Templated matrix class with \c R rows and \c C columns of precision \c P.
 template<std::size_t R, std::size_t C, typename P, typename Cond>
 class mat
 {

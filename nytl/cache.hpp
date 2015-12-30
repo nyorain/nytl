@@ -31,7 +31,7 @@
 namespace nytl
 {
 
-//cache base class
+///Default cache base class used by the multiCache template.
 class cache
 {
 public:
@@ -39,23 +39,33 @@ public:
 	virtual std::unique_ptr<cache> cacheClone() const = 0;
 };
 
-//cache derive helper class
+///\brief Helper template that make deriving from cache easier.
+///\details Implements the pure virtual cache::cacheClione() function depending on the given Derived 
+///class template paremeter.
 template<typename Derived>
 class cacheBase : public cache
 {
 public:
-    virtual std::unique_ptr<cache> cacheClone() const override { return make_unique<Derived>(static_cast<const Derived&>(*this)); }
+    virtual std::unique_ptr<cache> cacheClone() const override 
+		{ return make_unique<Derived>(static_cast<const Derived&>(*this)); }
 };
 
-//multiCacher
-//object with which multiple cache objects can be associated
+///\brief Base class for classes that carry associated cache objects.
+///\details Objects of classes dervied from multiCache are able to hold multiple associated cache 
+//objects that have Base as common base class and can be individually accessed by a given key.
+///Copying one multiCache object does clone all its cache objects, it may be therefore an
+///expensive operation. If the multiCache object is move-constructed or move-assigned no cache
+///object has usually to be moved or copied.
 template<typename Key, typename Base = cache>
 class multiCache
 {
-template<unsigned int id> friend class cacheAccessor;
+protected:
+	template<unsigned int id> friend class cacheAccessor;
+	mutable std::unordered_map<Key, std::unique_ptr<Base>> cache_; //unordered_map with ids?
 
 protected:
-	mutable std::unordered_map<Key, std::unique_ptr<Base>> cache_; //unordered_map with ids?
+	///This function clears all cache objects and should be called whenever the object is changed
+	///in a way that invalidates its cache objects.
 	void invalidateCache() const
 	{
 		cache_.clear();
@@ -65,13 +75,23 @@ public:
 	multiCache() noexcept = default;
 	~multiCache() noexcept = default;
 
-	multiCache(const multiCache& other) : cache_() { for(auto& c : other.cache_) cache_[c->first] = c->second->cacheClone(); }
+	multiCache(const multiCache& other) : cache_() 
+		{ for(auto& c : other.cache_) cache_[c->first] = c->second->cacheClone(); }
 	multiCache(multiCache&& other) noexcept : cache_(std::move(other.cache_)) {}
 
-	multiCache& operator=(const multiCache& other) { cache_.clear(); for(auto& c : other.cache_) cache_[c->first] = c->second->cacheClone(); return *this; }
-	multiCache& operator=(multiCache&& other) noexcept { cache_ = std::move(other.cache_); return *this; }
+	multiCache& operator=(const multiCache& other) 
+	{ 
+		cache_.clear(); 
+		for(auto& c : other.cache_) 
+			cache_[c->first] = c->second->cacheClone(); 
+		return *this; 
+	}
 
+	multiCache& operator=(multiCache&& other) noexcept 
+		{ cache_ = std::move(other.cache_); return *this; }
 
+	///Gets a cache object pointer for a given key if existent.
+	///\return The associated cache for a given key, nullptr if none is found for that key.
 	const Base* getCache(const Key& id) const
 	{
         auto it = cache_.find(id);
@@ -81,8 +101,13 @@ public:
         return nullptr;
 	}
 
-	void storeCache(const Key& id, std::unique_ptr<Base> c) const
+	///Stores a cache object with for a given key. If there exists already some cache object for
+	///the given key it will be replaced. 
+	///\return A reference to the moved cache object.
+	Base& storeCache(const Key& id, std::unique_ptr<Base> c) const
 	{
+		auto ret = *c;
+
         auto it = cache_.find(id);
         if(it != cache_.end())
         {
@@ -92,8 +117,12 @@ public:
         {
             cache_[id] = std::move(c);
         }
+
+		return c;
 	}
 
+	///Clears the set cache object for the given key. 
+	///\return 1 if an found cache object was cleared, 0 otherwise.
 	bool resetCache(const Key& id) const
 	{
         auto it = cache_.find(id);

@@ -495,8 +495,7 @@ public:
 };
 
 
-//4
-//vec
+///4-dimensional refVec specialization.
 template<typename T> class vec<4, T&>
 {
 public:

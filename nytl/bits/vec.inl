@@ -385,8 +385,71 @@ vec<detail::dMin(dima, dimb), bool> operator>=(const vec<dima, Ta>& veca, const 
     return greaterThanEqual(veca, vecb);
 }
 
+///\relates nytl::vec
+template<std::size_t dima, typename Ta, typename Tb> 
+vec<detail::dMin(dima, dimb), bool> operator==(const vec<dima, Ta>& veca, const Tb& b)
+{
+    return equal(veca, b);
+}
+
+///\relates nytl::vec
+template<std::size_t dima, typename Ta, typename Tb> 
+vec<detail::dMin(dima, dimb), bool> operator!=(const vec<dima, Ta>& veca, const Tb& b)
+{
+    return notEqual(veca, b);
+}
+
+///\relates nytl::vec
+template<std::size_t dima, typename Ta, typename Tb> 
+vec<detail::dMin(dima, dimb), bool> operator<(const vec<dima, Ta>& veca, const Tb& b)
+{
+    return lessThan(veca, b);
+}
+
+///\relates nytl::vec
+template<std::size_t dima, typename Ta, typename Tb> 
+vec<detail::dMin(dima, dimb), bool> operator>(const vec<dima, Ta>& veca, const Tb& b)
+{
+    return greaterThan(veca, b);
+}
+
+///\relates nytl::vec
+template<std::size_t dima, typename Ta, typename Tb> 
+vec<detail::dMin(dima, dimb), bool> operator<=(const vec<dima, Ta>& veca, const Tb& b)
+{
+    return lessThanEqual(veca, b);
+}
+
+///\relates nytl::vec
+template<std::size_t dima, typename Ta, typename Tb> 
+vec<detail::dMin(dima, dimb), bool> operator>=(const vec<dima, Ta>& veca, const Tb& b)
+{
+    return greaterThanEqual(veca, b);
+}
+
+///\relates nytl::vec
+template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>
+bool allEqual(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
+{
+    for(std::size_t i(0); i < min(veca.size(), vecb.size()); ++i)
+        if(veca[i] != vecb[i]) return 0;
+
+    return 1;
+}
+
+///\relates nytl::vec
+template<std::size_t dim, typename Ta, typename Tb>  
+bool allEqual(const vec<dim, Ta>& veca, const Tb& value)
+{
+    for(std::size_t i(0); i < dim; ++i)
+		if(veca[i] != value) return 0;
+
+	return 1; 
+}
+
 //utility
 ///\relates nytl::vec
+///\return The sum of all vector components.
 template<std::size_t dim, typename T>  
 auto sum(const vec<dim, T>& v) -> decltype(v[0] + v[0])
 {
@@ -396,6 +459,7 @@ auto sum(const vec<dim, T>& v) -> decltype(v[0] + v[0])
 }
 
 ///\relates nytl::vec
+///\return The length of the vector (square-root of the sum of all its component squared).
 template<std::size_t dim, typename prec>
 auto length(const vec<dim, prec>& v) -> decltype(sqrt(v[0] * v[0]))
 {
@@ -405,7 +469,8 @@ auto length(const vec<dim, prec>& v) -> decltype(sqrt(v[0] * v[0]))
 }
 
 ///\relates nytl::vec
-///Alias function for length()
+///Alias function for length.
+///\return the length (norm) of the given vector.
 template<std::size_t dim, typename prec>
 auto norm(const vec<dim, prec>& v) -> decltype(length(v))
 {
@@ -413,6 +478,7 @@ auto norm(const vec<dim, prec>& v) -> decltype(length(v))
 }
 
 ///\relates nytl::vec
+///\return The dot product of the given vectors.
 template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb> 
 auto dot(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb) -> decltype(sum(veca * vecb))
 {
@@ -420,6 +486,16 @@ auto dot(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb) -> decltype(sum(v
 }
 
 ///\relates nytl::vec
+///Alias function for dot.
+///\return The dot (scalar) product of the given vectors.
+template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb> 
+auto scalar(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb) -> decltype(sum(veca * vecb))
+{
+    return sum(veca * vecb);
+}
+
+///\relates nytl::vec
+///\return The cross product for 2 3-dimensional vectors.
 template<typename Ta, typename Tb> 
 auto cross(const vec<3, Ta>& veca, const vec<3, Tb>& vecb) -> vec<3, decltype(veca[0] * vecb[0])>
 {
@@ -432,8 +508,7 @@ auto cross(const vec<3, Ta>& veca, const vec<3, Tb>& vecb) -> vec<3, decltype(ve
 }
 
 ///\relates nytl::vec
-///Returns the angle between 2 vecs, always the smaller one that is <= PI. 
-///Returns the angle in radiant form.
+///\return The angle between 2 vecs in radiant form. Returns always the smaller one; angle <= PI. 
 template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb>
 double angle(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
@@ -441,8 +516,8 @@ double angle(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 }
 
 ///\relates nytl::vec
-///Returns the smallest angle between two lines with the given vectors as direction.
-///The Returned angle is always <= PI/2. Returns the angle in radian form.
+///\return The smallest angle between two lines with the given vectors as direction in radiant 
+///form. The Returned angle is always <= PI/2. 
 template<std::size_t dima, std::size_t dimb, typename Ta, typename Tb> 
 double smallerAngle(const vec<dima, Ta>& veca, const vec<dimb, Tb>& vecb)
 {
