@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+///\file
+///\brief Defines several useful constants and conversion/utility functions for scalar numbers.
+
 #pragma once
 
 namespace nytl

@@ -23,7 +23,7 @@
  */
 
 ///\file
-///Defines the callback and connection classes.
+///\brief Defines the callback and connection classes.
 
 #pragma once
 

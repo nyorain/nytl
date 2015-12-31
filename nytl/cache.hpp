@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+///\file
+///\brief Utility base classes to be able to store cache directly into its associated object.
+
 #pragma once
 
 #include <unordered_map>

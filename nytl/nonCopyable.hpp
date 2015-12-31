@@ -22,12 +22,15 @@
  * SOFTWARE.
  */
 
+///\file
+///\brief Defines the helper base classes nonCopyable and nonMoveable to derive from.
+
 #pragma once
 
 namespace nytl
 {
 
-//nonCopyable
+///Derive from this class to make it impossible to copy objects of the derived class.
 class nonCopyable
 {
 private:
@@ -41,7 +44,7 @@ protected:
 	nonCopyable& operator=(nonCopyable&&) noexcept = default;
 };
 
-//nonMoveable
+///Derive from this class to make it impossible to copy or move objects of the derived class.
 class nonMoveable
 {
 private:
