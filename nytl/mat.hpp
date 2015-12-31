@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+///\file
+///\brief Includes the matrix template class as well as operations and typedefs for it.
+
 #pragma once
 
 #include <nytl/vec.hpp>
@@ -37,20 +40,14 @@
 namespace nytl
 {
 
-template<std::size_t R, std::size_t C, typename P, typename = typename 
-	std::enable_if<
-		(R >= 1) && 
-		(C >= 1) && 
-		(!std::is_reference<P>::value)
-	>::type>
-class mat;
+template<std::size_t R, std::size_t C, typename P> class mat;
 
 #include <nytl/bits/matmp.inl>
 #include <nytl/bits/matypes.inl>
 
-///\brief Templated matrix class with \c R rows and \c C columns of precision \c P.
-template<std::size_t R, std::size_t C, typename P, typename Cond>
-class mat
+///\brief A size- and type-templated matrix class.
+template<std::size_t R, std::size_t C, typename P>
+class mat : deriveDummy<std::enable_if<(R >= 1) && (C >= 1) && (!std::is_reference<P>::value)>::type>
 {
 public:
     using value_type = P;

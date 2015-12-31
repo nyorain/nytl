@@ -23,7 +23,7 @@
  */
 
 ///\file
-///Includes the vec template class as well as vec typedefs and utility functions.
+///\brief Includes the vec template class as well as vec typedefs and utility functions.
 
 #pragma once
 
@@ -43,9 +43,10 @@ namespace nytl
 {
 
 
-template<size_t dim, typename T> class vec;
+template<size_t D, typename T> class vec;
 
 //typedefs
+///\brief Typedefs a vector with 2 components.
 template<typename T = float> using vec2 = vec<2, T>;
 template<typename T = float> using vec3 = vec<3, T>;
 template<typename T = float> using vec4 = vec<4, T>;
@@ -98,11 +99,11 @@ constexpr std::size_t dynamicSize = std::numeric_limits<std::size_t>::max();
 //copy instead, it might be more expensive, but we get at least the expected results.
 
 ///\brief The vec class represents a sized group of \c D values of type \c T.
-template<size_t dimension, typename T> class vec
+template<size_t D, typename T> class vec
 {
 public:
     using value_type = T;
-    constexpr static size_t dim = dimension;
+    constexpr static size_t dim = D;
 
     using reference = value_type&;
     using const_reference = const value_type&;
@@ -115,7 +116,7 @@ public:
     using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
 
-    using vec_type = vec<dimension, value_type>;
+    using vec_type = vec<dim, value_type>;
 
 public:
     constexpr size_t size() const noexcept { return dim; }
@@ -241,9 +242,6 @@ public:
 	void swap(vec_type& other){ std::swap(data_, other.data_); }
 };
 
-///\brief 2-dimensional vec specialization.
-///\details Offers all vec functionality, but to the 2 components can be refered to with
-///vec.x and vec.y.
 template<typename T> class vec<2, T>
 {
 public:
@@ -373,9 +371,6 @@ public:
 };
 
 
-///\brief 3-dimensional vec specialization.
-///\details Offers all vec functionality, but to the 3 components can be refered to with 
-///vec.x, vec.y and vec.z.
 template<typename T> class vec<3, T>
 {
 public:
@@ -512,10 +507,6 @@ public:
 };
 
 
-
-///\brief 4-dimensional vec specialization.
-///\details Offers all vec functionality, but to the 4 components can be refered to with 
-///vec.x, vec.y, vec.z and vec.w.
 template<typename T> class vec<4, T>
 {
 public:
@@ -661,23 +652,23 @@ public:
     vec3<T> yzw() const noexcept { return vec3<T>(y,z,w); }
 };
 
-template<size_t dim, typename T> constexpr size_t vec<dim, T>::dim;
-template<typename T> constexpr size_t vec<2, T>::dim;
-template<typename T> constexpr size_t vec<3, T>::dim;
-template<typename T> constexpr size_t vec<4, T>::dim;
+template<std::size_t D, typename T> constexpr std::size_t vec<D, T>::dim;
+template<typename T> constexpr std::size_t vec<2, T>::dim;
+template<typename T> constexpr std::size_t vec<3, T>::dim;
+template<typename T> constexpr std::size_t vec<4, T>::dim;
 
 //invalid specialization - therefore not specified
 template<typename T> class vec<0, T>;
 
 //reference vec, include <nytl/refVec.hpp> to make those work!
-template<size_t dim, typename T> class vec<dim, T&>;
+template<std::size_t D, typename T> class vec<D, T&>;
 template<typename T> class vec<2, T&>;
 template<typename T> class vec<3, T&>;
 template<typename T> class vec<4, T&>;
 
 //Dynamic storage vec, include <nytl/dynVec.hpp> to make this work!
 template<typename T> class vec<dynamicSize, T>;
-template<typename T> class vec<dynamicSize, T&>; //where to put this? <nytl/dynRefVec>?
+template<typename T> class vec<dynamicSize, T&>; //where to put this? <nytl/dynRefVec>? TODO
 
 //operators/utility
 #include <nytl/bits/vec.inl>

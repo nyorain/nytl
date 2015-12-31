@@ -22,6 +22,12 @@
  * SOFTWARE.
  */
 
+///\file
+///\brief Provides a utility class to handle different versions of a function.
+
+//TODO: files name is missleading, version control is usually associated with sth like
+//git or sourceforge.
+
 #pragma once
 
 #include <unordered_map>

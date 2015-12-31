@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+///\file
+///\brief The 2-dimensional simplex specialization (triangle).
+
 #pragma once
 
 #include <nytl/vec.hpp>
@@ -52,8 +55,6 @@ using triangle2ui = triangle<2, unsigned int>;
 using triangle3ui = triangle<3, unsigned int>;
 using triangle4ui = triangle<4, unsigned int>;
 
-///2-dimensional simplex specialization (triangle).
-///Look at simplex for more information.
 template<size_t D, typename P>
 class simplex<D, P, 2>
 {

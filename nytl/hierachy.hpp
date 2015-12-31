@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+///\file
+///\brief Contains a template class for creating hierachy-structered clas objects.
+
 #pragma once
 
 #include <nytl/nonCopyable.hpp>

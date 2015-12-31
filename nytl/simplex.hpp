@@ -21,6 +21,9 @@
  * SOFTWARE.
  */
 
+///\file
+///\brief Includes the unspecialized simplex template class with operations and typedefs.
+
 #pragma once
 
 #include <nytl/vec.hpp>

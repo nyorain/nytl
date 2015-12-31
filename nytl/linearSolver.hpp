@@ -8,7 +8,7 @@
 namespace nytl
 {
 
-///Represents the solution a linear equotation system can have.
+///\brief Represents the solutions a linear equotation system can have.
 template<std::size_t N>
 class solutionSet
 {
@@ -40,7 +40,8 @@ public:
 	vec<N, double> solution() const { return solution(vec2i(0, 0)); }
 };
 
-///Represents a linear equotation with V variables and a result that have a precision of P.
+///\brief A linear equtations with variable coefficients and a result.
+///\details Represents a linear equotation with V variables and a result that have a precision of P.
 template<std::size_t V, typename P>
 class linearEquotation
 {
@@ -52,7 +53,9 @@ public:
 		{ vars = values; result = values.back(); return *this; }
 };
 
-///Represnts a linear equotation system with E equtations and V variables that have P precision.
+///\brief A set on linear equotations that may be solved.
+///\details Represents a linear equotation system with E equtations and V variables that have P 
+///precision.
 template<std::size_t E, std::size_t V, typename P>
 class linearEquotationSystem
 {
