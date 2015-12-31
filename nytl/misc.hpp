@@ -31,6 +31,7 @@
 #include <algorithm>
 #include <sstream>
 #include <cmath>
+#include <type_traits>
 
 namespace nytl
 {
@@ -38,21 +39,6 @@ namespace nytl
 template<class... T> void unused(T&&...)
 { }
 
-template<class U, class V, class ...t> std::function<U(t...)> memberCallback(U (V::*func)(t ...), V* obj) //auto vs function?
-{
-    return ([func, obj](t ... params)
-    {
-        return (obj->*func)(params ...);
-    });
-}
-
-template<class U, class V, class ...t> std::function<U(t...)> memberCallback(U (V::*func)(t ...), V& obj)
-{
-    return ([=](t ... params)
-    {
-        return (obj.*func)(params ...);
-    });
-}
 
 template<class ... Args> void printVars(std::ostream& out, Args ... args)
 {

@@ -40,6 +40,26 @@
 namespace nytl
 {
 
+//membercallback function
+template<class U, class V, class ...t> std::function<U(t...)> 
+memberCallback(U (V::*func)(t ...), V* obj) //auto vs function?
+{
+    return ([=](t ... params)
+    {
+        return (obj->*func)(params ...);
+    });
+}
+
+template<class U, class V, class ...t> std::function<U(t...)> 
+memberCallback(U (V::*func)(t ...), V& obj)
+{
+	const auto ptr = &obj;
+    return ([=](t ... params)
+    {
+        return (ptr->*func)(params ...);
+    });
+}
+
 
 //tupleMap
 namespace detail

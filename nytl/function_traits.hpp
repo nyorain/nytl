@@ -34,8 +34,11 @@ namespace detail
 
 //from SO
 //todo: give credit, search link and user [is callable]
+template<typename T, typename = void>
+struct isCallableImpl;
+
 template<typename T>
-struct isCallableImpl
+struct isCallableImpl<T, typename std::enable_if<std::is_class<T>::value>::type>
 {
 private:
     typedef char(&yes)[1];
@@ -52,12 +55,40 @@ private:
     template<typename C> static no test(Check<void (Fallback::*)(), &C::operator()>*);
 
 public:
-    static const bool value = sizeof(test<Derived>(0)) == sizeof(yes);
+    static constexpr bool value = sizeof(test<Derived>(0)) == sizeof(yes);
+};
+
+template<typename R, typename S, typename... Args>
+struct isCallableImpl<R(S::*)(Args...)>
+{
+public:
+	static constexpr bool value = 1;
+};
+
+template<typename R, typename... Args>
+struct isCallableImpl<R(*)(Args...)>
+{
+public:
+	static constexpr bool value = 1;
+};
+
+template<typename R, typename... Args>
+struct isCallableImpl<R(&)(Args...)>
+{
+public:
+	static constexpr bool value = 1;
+};
+
+template<typename R, typename... Args>
+struct isCallableImpl<R(Args...)>
+{
+public:
+	static constexpr bool value = 1;
 };
 
 }
 
-template<typename T> using is_callable = typename std::conditional<std::is_class<T>::value, detail::isCallableImpl<T>, std::false_type>::type;
+template<typename T> using is_callable = typename detail::isCallableImpl<T>;
 
 
 
