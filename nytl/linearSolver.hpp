@@ -1,3 +1,30 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2015 Jan Kelling
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+///\file
+///\brief Template classes and functions for solving linear equotation system.
+
 #pragma once
 
 #include <nytl/mat.hpp>
@@ -8,7 +35,7 @@
 namespace nytl
 {
 
-///Represents the solution a linear equotation system can have.
+///\brief Represents the solutions a linear equotation system can have.
 template<std::size_t N>
 class solutionSet
 {
@@ -40,7 +67,8 @@ public:
 	vec<N, double> solution() const { return solution(vec2i(0, 0)); }
 };
 
-///Represents a linear equotation with V variables and a result that have a precision of P.
+///\brief A linear equtations with variable coefficients and a result.
+///\details Represents a linear equotation with V variables and a result that have a precision of P.
 template<std::size_t V, typename P>
 class linearEquotation
 {
@@ -52,7 +80,9 @@ public:
 		{ vars = values; result = values.back(); return *this; }
 };
 
-///Represnts a linear equotation system with E equtations and V variables that have P precision.
+///\brief A set on linear equotations that may be solved.
+///\details Represents a linear equotation system with E equtations and V variables that have P 
+///precision.
 template<std::size_t E, std::size_t V, typename P>
 class linearEquotationSystem
 {

@@ -22,15 +22,19 @@
  * SOFTWARE.
  */
 
-//tests/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//intersects
-template<std::size_t dim, typename prec> bool 
-intersects(const rect<dim, prec>& r1, const rect<dim, prec>& r2)
+#pragma once
+
+
+///\relates nytl::rect
+template<std::size_t D, typename P> bool 
+intersects(const rect<D, P>& r1, const rect<D, P>& r2)
 {
     return all(r2.position < r1.position + r1.size) && all(r1.position < r2.position + r2.size);
 }
-template<std::size_t dim, typename prec> bool 
-intersects(const rect<dim, prec>& r1, const line<dim, prec>& l2)
+
+///\relates nytl::rect
+template<std::size_t D, typename P> bool 
+intersects(const rect<D, P>& r1, const line<D, P>& l2)
 {
     //TODO: algorithm might be wrong, might have bugs, !important
     if(contains(r1, l2.a) || contains(r1, l2.b)) return 1;
@@ -39,7 +43,7 @@ intersects(const rect<dim, prec>& r1, const line<dim, prec>& l2)
     auto st = l2.valueAt(r1.position[0]);
     auto en = l2.valueAt(r1.position[0] + r1.size[0]);
 
-    for(std::size_t i(1); i < dim; ++i)
+    for(std::size_t i(1); i < D; ++i)
     {
         int stV = 1;
         int enV = 1;
@@ -55,52 +59,54 @@ intersects(const rect<dim, prec>& r1, const line<dim, prec>& l2)
 
     return true;
 }
-template<std::size_t dim, typename prec> bool 
-intersects(const rect<dim, prec>& a, const triangle<dim, prec>& b)
+///\relates nytl::rect
+template<std::size_t D, typename P> bool 
+intersects(const rect<D, P>& a, const triangle<D, P>& b)
 {
 	return (contains(a, b.a) || contains(a, b.b) || contains(a, b.c));
 }
-template<std::size_t dim, typename prec> bool 
-intersects(const line<dim, prec>& a, const rect<dim, prec>& b){ return intersects(b, a); }
+///\relates nytl::rect
+template<std::size_t D, typename P> bool 
+intersects(const line<D, P>& a, const rect<D, P>& b){ return intersects(b, a); }
 
-template<std::size_t dim, typename prec> bool 
-intersects(const triangle<dim, prec>& a, const rect<dim, prec>& b){ return interects(b, a); };
+///\relates nytl::rect
+template<std::size_t D, typename P> bool 
+intersects(const triangle<D, P>& a, const rect<D, P>& b){ return interects(b, a); };
 
 
 //contains
-template<std::size_t dim, typename prec> bool 
-contains(const rect<dim, prec>& r1, const rect<dim, prec>& r2)
+///\relates nytl::rect
+template<std::size_t D, typename P> bool 
+contains(const rect<D, P>& r1, const rect<D, P>& r2)
 {
     return contains(r1, r2.position) && contains(r1, r2.position + r2.size);
 }
-template<std::size_t dim, typename prec> bool 
-contains(const rect<dim, prec>& r1, const line<dim, prec>& l2)
+///\relates nytl::rect
+template<std::size_t D, typename P> bool 
+contains(const rect<D, P>& r1, const line<D, P>& l2)
 {
     return contains(r1, l2.a) && contains(r1, l2.b);
 }
-template<std::size_t dim, typename prec> bool 
-contains(const rect<dim, prec>& r1, const triangle<dim, prec>& t2)
-{
-    return contains(r1, t2.a) && contains(r1, t2.b) && contains(r1, t2.c);
-}
-template<std::size_t dim, typename prec> bool 
-contains(const rect<dim, prec>& r1, const vec<dim, prec>& v2)
+///\relates nytl::rect
+template<std::size_t D, typename P> bool 
+contains(const rect<D, P>& r1, const vec<D, P>& v2)
 {
     return all(r1.position <= v2) && all(v2 <= r1.position + r1.size);
 }
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//operators
-//means: subtract rectb from recta and then return everything that is left from recta.
-//so recta will be splitted into the rectb-part and the not-rectb-part. the not-rectb-part will be returned.
-template<std::size_t dim, class prec>
-std::vector<rect<dim, prec>> difference(const rect<dim, prec>& recta, const rect<dim, prec>& rectb)
+///\relates nytl::rect
+///\brief Returns the difference between two rectangles [AND ~].
+///\details Tt subtracts the second rect from the first one and returns the rest of the first one. 
+///Since the result cant be expressed as a single rect, it is a vector of those. 
+///Asymmetrical operator.
+template<std::size_t D, class P>
+std::vector<rect<D, P>> difference(const rect<D, P>& recta, const rect<D, P>& rectb)
 {
-    std::vector<rect<dim, prec>> ret;
-    if(!intersects(recta, rectb)) return std::vector<rect<dim, prec>>{recta};
+    std::vector<rect<D, P>> ret;
+    if(!intersects(recta, rectb)) return std::vector<rect<D, P>>{recta};
 
-    for(std::size_t i(0); i < dim; ++i)
+    for(std::size_t i(0); i < D; ++i)
     {
         if(recta.position[i] < rectb.position[i]) //begin rect
         {
@@ -111,7 +117,7 @@ std::vector<rect<dim, prec>> difference(const rect<dim, prec>& recta, const rect
             auto size = (recta.position + recta.size) - pos;
             size[i] = rectb.position[i] - pos[i];
 
-            ret.push_back(rect<dim,prec>(pos, size));
+            ret.push_back(rect<D,P>(pos, size));
         }
 
         if(recta.position[i] + recta.size[i] > rectb.position[i] + rectb.size[i]) //end rect
@@ -125,31 +131,41 @@ std::vector<rect<dim, prec>> difference(const rect<dim, prec>& recta, const rect
             for(std::size_t o(0); o < i; ++o)
                 size[o] = (rectb.position[o] + rectb.size[o]) - pos[o];
 
-            ret.push_back(rect<dim, prec>(pos, size));
+            ret.push_back(rect<D, P>(pos, size));
         }
     }
 
     return ret;
 }
 
-template<std::size_t dim, typename prec>
-rect<dim, prec> intersection(const rect<dim, prec>& recta, const rect<dim, prec>& rectb)
+///\relates nytl::rect
+///\brief Returns the rectangle in which area the two paramater rectangles intersect [AND]. 
+///\details Symmetrical operator.
+template<std::size_t D, typename P>
+rect<D, P> intersection(const rect<D, P>& recta, const rect<D, P>& rectb)
 {
     auto pos = max(recta.topLeft(), rectb.topLeft());
     auto size = min(recta.bottomRight(), rectb.bottomRight()) - pos;
-    return rect<dim, prec>(pos, size); //max and min component-wise
+    return rect<D, P>(pos, size); //max and min component-wise
 }
 
-template<std::size_t dim, typename prec>
-std::vector<rect<dim, prec>> combination(const rect<dim, prec>& recta, const rect<dim, prec>& rectb)
+///\relates nytl::rect
+///\brief Returns the union of two rects [OR]. 
+//\details Since it combines them the result cannot be expressed in a single rectangle and is 
+///therefore a vector. Symmetrical operator.
+template<std::size_t D, typename P>
+std::vector<rect<D, P>> combination(const rect<D, P>& recta, const rect<D, P>& rectb)
 {
     auto ret = difference(recta, rectb);
     ret.push_back(rectb);
     return ret;
 }
 
-template<std::size_t dim, typename prec>
-std::vector<rect<dim, prec>> symmetricDifference(const rect<dim, prec>& recta, const rect<dim, prec>& rectb)
+///\relates nytl::rect
+///\brief Returns the symmetric difference between two rectangles [XOR].
+///\details Basically just the area where exactly one of them is placed. Symmetrical operator.
+template<std::size_t D, typename P>
+std::vector<rect<D, P>> symmetricDifference(const rect<D, P>& recta, const rect<D, P>& rectb)
 {
     //return combination(difference(recta, rectb), difference(rectb, recta));
     auto result = combination(recta, rectb);
@@ -169,56 +185,42 @@ std::vector<rect<dim, prec>> symmetricDifference(const rect<dim, prec>& recta, c
 }
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//as operators
-template<std::size_t dim, typename prec>
-rect<dim, prec> operator&(const rect<dim, prec>& recta, const rect<dim, prec>& rectb)
+///\relates nytl::rect
+template<std::size_t D, typename P>
+rect<D, P> operator&(const rect<D, P>& recta, const rect<D, P>& rectb)
 {
     return intersection(recta, rectb);
 }
 
-template<std::size_t dim, typename prec>
-std::vector<rect<dim, prec>> operator^(const rect<dim, prec>& recta, const rect<dim, prec>& rectb)
+///\relates nytl::rect
+template<std::size_t D, typename P>
+std::vector<rect<D, P>> operator^(const rect<D, P>& recta, const rect<D, P>& rectb)
 {
     return symmeticDifference(recta, rectb);
 }
 
-template<std::size_t dim, typename prec>
-std::vector<rect<dim, prec>> operator|(const rect<dim, prec>& recta, const rect<dim, prec>& rectb)
+///\relates nytl::rect
+template<std::size_t D, typename P>
+std::vector<rect<D, P>> operator|(const rect<D, P>& recta, const rect<D, P>& rectb)
 {
     return combination(recta, rectb);
 }
 
-//those 2 rlly needed?
-/*
-template<std::size_t dim, typename prec>
-std::vector<rect<dim, prec>> operator+(const rect<dim, prec>& recta, const rect<dim, prec>& rectb)
+///\relates nytl::rect simplex
+///\brief Returns a simplex representation of the rects area.
+///\details There are many ways to represent a rect area by multiple simplexes, this functions 
+///returns one of them.
+///\return A vec with D! simplexes of the same dimension and precision as the given rect.
+template<std::size_t D, typename P>
+vec<fac<D>::value, simplex<D, P>> split(const rect<D, P>& r)
 {
-    return combination(recta, rectb);
 }
 
-template<std::size_t dim, typename prec>
-std::vector<rect<dim, prec>> operator-(const rect<dim, prec>& recta, const rect<dim, prec>& rectb)
-{
-    return combination(recta, rectb);
-}
-*/
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//split
-template<std::size_t dim, typename prec>
-vec<2, triangle<dim, prec>> split(const rect<dim, prec>& r)
-{
-    return vec<2, triangle<dim, prec>>({r.topLeft(), r.topRight(), r.bottomRight()},
-                                       {r.topLeft(), r.bottomLeft(), r.bottomRight()});
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//ostream
-template<size_t dim, typename T> std::ostream& operator<<(std::ostream& os, const rect<dim, T>& obj)
+///\relates nytl::rect
+template<size_t D, typename T> 
+std::ostream& operator<<(std::ostream& os, const rect<D, T>& obj)
 {
     os << "position: " << obj.position << " size: " << obj.size;
     return os;
 }
-
 

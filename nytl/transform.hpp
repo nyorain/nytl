@@ -22,6 +22,13 @@
  * SOFTWARE.
  */
 
+///\file
+///\brief Provides a transform class for translation, rotation and scaling of several primitives.
+
+//TODO: dont provide specializations for transform, package them in the original class,
+//provide specializations for a utility function (e.g. detail::bakeTransformMat or sth) instead.
+//Document it then!
+
 #pragma once
 
 #include <nytl/mat.hpp>
@@ -45,8 +52,6 @@ using transformable3 = transformable<3, float>;
 using transform2 = transform<2, float>;
 using transform3 = transform<3, float>;
 
-//transform
-//2
 template<typename prec>
 class transform<2, prec>
 {

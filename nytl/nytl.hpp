@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+///\file
+///Includes all stable nytl headers.
+
 #pragma once
 
 #include <nytl/cache.hpp>

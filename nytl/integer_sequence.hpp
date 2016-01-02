@@ -22,6 +22,12 @@
  * SOFTWARE.
  */
 
+///\file
+///\brief Inclusing this file provides the c++14 std::integer_sequence template.
+///\details If this file is compiled with c++14, the stl implementation will be used, otherwise
+///a custom implementation. Useful if this feature is needed but the compiler does not support
+///c++14.
+
 #pragma once
 
 #include <nytl/tmp.hpp>
@@ -37,6 +43,8 @@ namespace nytl
  using std::make_integer_sequence;
 #else
 
+///\brief Provides the c++14 std::integer_sequence template. 
+///\details Only used if c++14 is not available. See std::integer_sequence for more information.
 template<typename T, T... Ints> class integer_sequence
 {
 public:

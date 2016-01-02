@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+///\file
+///Includes several useful template functions.
+
 #pragma once
 
 #include <string>

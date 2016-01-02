@@ -6,7 +6,6 @@ set(NYTL_VMINOR 1)
 option(NYTL_BUILD_TESTS ON)
 set(CMAKE_BUILD_TYPE Debug)
 
-
 include_directories(${CMAKE_SOURCE_DIR})
 
 if(NYTL_BUILD_TESTS)

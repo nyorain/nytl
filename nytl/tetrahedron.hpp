@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+///\file
+///\brief The 3-dimensional simplex spiecialization (tetrahedron).
+
 #pragma once
 
 #include <nytl/vec.hpp>
@@ -31,6 +34,7 @@ namespace nytl
 {
 
 //typedefs
+///Defines the 3 dimensional simplex specialization.
 template<size_t D, typename P> using tetrahedron = simplex<D, P, 3>;
 template<typename P> using tetrahedron3 = tetrahedron<3, P>;
 template<typename P> using tetrahedron4 = tetrahedron<4, P>;
@@ -47,8 +51,6 @@ using tetrahedron4i = tetrahedron<4, int>;
 using tetrahedron3ui = tetrahedron<3, unsigned int>;
 using tetrahedron4ui = tetrahedron<4, unsigned int>;
 
-///2-dimensional simplex specialization (tetrahedron).
-///Look at simplex for more information.
 template<size_t D, typename P>
 class simplex<D, P, 3>
 {

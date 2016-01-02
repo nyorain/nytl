@@ -24,6 +24,8 @@
 
 #pragma once
 
+template<std::size_t D, class P> using squareMat = mat<D, D, P>;
+
 template<class P> using mat2 = squareMat<2,P>;
 template<class P> using mat3 = squareMat<3,P>;
 template<class P> using mat4 = squareMat<4,P>;

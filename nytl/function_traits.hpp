@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+///\file
+///\brief Defines utility templates to get information about callable types.
+
 #pragma once
 
 #include <tuple>
@@ -32,8 +35,6 @@ namespace nytl
 namespace detail
 {
 
-//from SO
-//todo: give credit, search link and user [is callable]
 template<typename T>
 struct isCallableImpl
 {
@@ -58,7 +59,6 @@ public:
 }
 
 template<typename T> using is_callable = typename std::conditional<std::is_class<T>::value, detail::isCallableImpl<T>, std::false_type>::type;
-
 
 
 //base for every functor or class
