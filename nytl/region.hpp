@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+///\file
+///Defines the rectRegion template class for representing an area consisting of rects.
+
 #pragma once
 
 #include <nytl/vec.hpp>

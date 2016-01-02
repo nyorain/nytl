@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+///\file
+///Extends the std::chrono time api by some useful features and shortcuts.
+
 #pragma once
 
 #include <chrono>
