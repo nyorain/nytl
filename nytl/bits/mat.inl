@@ -34,6 +34,20 @@ mat<R, C, P, Cond>::operator mat<OR, OC, OP>() const
 	return ret;
 }
 
+//exceptions
+///\brief Exception class deriving std::invalid_argument.
+///\detail Thrown by operational matrix functions that do not work for singular matrices
+///but receive a singular matrix as argument.
+class singular_matrix : public std::invalid_argument
+{
+public:
+	singular_matrix()
+		: std::invalid_argument("Invalid singular matrix argument") {}
+
+	singular_matrix(const std::string& func)
+		: std::invalid_argument("Inalid singular matrix argument in function " + func) {}
+};
+
 ///\relates nytl::mat
 template<std::size_t R, std::size_t C, typename P>
 void swapRow(mat<R, C, P>& m, std::size_t a, std::size_t b)
@@ -64,10 +78,12 @@ squareMat<D, P> identityMat()
 	return ret;
 }
 
-//XXX: correct implementation.
+//XXX: correct implementation?
 //full pivot?
+
 ///\relates nytl::mat
-///Returns the sign of the used pivot matrix.
+///\brief Rearranges the matrix rows.
+///\return The sign of the used pivot matrix.
 template<std::size_t R, std::size_t C, typename P>
 int pivot(mat<R, C, P>& m)
 {
@@ -94,6 +110,10 @@ int pivot(mat<R, C, P>& m)
 }
 
 ///\relates nytl::mat
+///\brief Computes a luDecomposition of a non-singular matrix.
+///\return 2 mats, The lower (l, first mat) and the upper one(u, second mat).
+///\warning May throw a nytl::singular_matrix exception if the given argument is a
+///singular matrix (algorithm only works for non-singular matrices).
 template<std::size_t D, typename P>
 vec2<mat<D, D, double>> luDecomposition(const mat<D, D, P>& m)
 {
@@ -119,6 +139,11 @@ vec2<mat<D, D, double>> luDecomposition(const mat<D, D, P>& m)
 			//l
 			else
 			{
+				if(lu[1][c][c] == 0)
+				{
+					throw singular_matrix("nytl::luDecomposition");
+				}
+
 				vsum = 0;
 
 				for(std::size_t k(0); k < c; ++k)
@@ -133,6 +158,7 @@ vec2<mat<D, D, double>> luDecomposition(const mat<D, D, P>& m)
 }
 
 ///\relates nytl::mat
+///\brief Composutes the product of all diagonal elements of a square-mat.
 template<std::size_t D, typename P>
 P diagonalMult(const mat<D, D, P>& m)
 {
@@ -144,6 +170,8 @@ P diagonalMult(const mat<D, D, P>& m)
 }
 
 ///\relates nytl::mat
+///\brief Computes the determinant of a given non-singular matrix.
+///\todo May throw (since lu-algorithm is used). Determinant always computable.
 template<std::size_t D, typename P>
 double det(const mat<D, D, P>& m)
 {
@@ -156,6 +184,7 @@ double det(const mat<D, D, P>& m)
 
 
 ///\relates nytl::mat
+///\brief Brings a given mat in the row-echolon-form (ref).
 template<std::size_t R, std::size_t C, typename P>
 void refMat(mat<R, C, P>& m)
 {
@@ -195,6 +224,7 @@ void refMat(mat<R, C, P>& m)
 }
 
 ///\relates nytl::mat
+///\brief Returns the row-echolon-form (ref) of a given mat.
 template<size_t R, size_t C, typename P>
 mat<R, C, P> refMatCopy(mat<R, C, P> m)
 {
@@ -202,6 +232,7 @@ mat<R, C, P> refMatCopy(mat<R, C, P> m)
 	return m;
 }
 
+/*
 //XXX: Some kind of solution set class for possible matrix solutions?
 ///\relates nytl::mat
 ///Analzyes a matrix in row echelon form
@@ -214,8 +245,10 @@ unsigned int analyzeRefMat(const mat<R, C, P>& m)
 	//TODO
 	return 0;
 }
+*/
 
 ///\relates nytl::mat
+///\brief Brings a given matrix in the reduced-row-echolon-form (rref).
 template<size_t R, size_t C, typename P>
 void rrefMat(mat<R, C, P>& m)
 {
@@ -243,6 +276,8 @@ void rrefMat(mat<R, C, P>& m)
     }
 }
 
+///\relates mat
+///\brief Computes the reduced-row-echolon-form (rref) of a given mat.
 template<size_t R, size_t C, typename P>
 mat<R, C, P> rrefMatCopy(mat<R, C, P> m)
 {

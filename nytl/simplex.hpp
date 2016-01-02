@@ -81,7 +81,7 @@ public:
 
 	///Converts the given normal coordinates into barycentric coordinates for the simplex
 	///object. If the given point does not lay in the same space as the simplex object,
-	///the function will output a warning and return a null-vector.
+	///the function will throw an exception.
 	///This can be checked before with sameSpace().
 	vec<A + 1, double> barycentric(const vec_type& val) const;
 
