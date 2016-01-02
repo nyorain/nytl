@@ -43,6 +43,7 @@ public:
 };
 
 ///\brief Helper template that make deriving from cache easier.
+///\ingroup utility
 ///\details Implements the pure virtual cache::cacheClione() function depending on the given Derived 
 ///class template paremeter.
 template<typename Derived>

@@ -35,7 +35,8 @@
 namespace nytl
 {
 
-///Utility template to derive from a class with a virtual clone function.
+///\brief Utility template to derive from a class with a virtual clone function.
+///\ingroup utility
 template<typename Base, typename Derived> 
 class deriveCloneable : public Base
 {

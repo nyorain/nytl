@@ -99,6 +99,7 @@ constexpr std::size_t dynamicSize = std::numeric_limits<std::size_t>::max();
 //copy instead, it might be more expensive, but we get at least the expected results.
 
 ///\brief The vec class represents a sized group of \c D values of type \c T.
+///\ingroup math
 template<size_t D, typename T> class vec
 {
 public:

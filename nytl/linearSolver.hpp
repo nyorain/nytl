@@ -36,6 +36,7 @@ namespace nytl
 {
 
 ///\brief Represents the solutions a linear equotation system can have.
+///\ingroup math
 template<std::size_t N>
 class solutionSet
 {
@@ -68,6 +69,7 @@ public:
 };
 
 ///\brief A linear equtations with variable coefficients and a result.
+///\ingroup math
 ///\details Represents a linear equotation with V variables and a result that have a precision of P.
 template<std::size_t V, typename P>
 class linearEquotation
@@ -81,6 +83,7 @@ public:
 };
 
 ///\brief A set on linear equotations that may be solved.
+///\ingroup math
 ///\details Represents a linear equotation system with E equtations and V variables that have P 
 ///precision.
 template<std::size_t E, std::size_t V, typename P>

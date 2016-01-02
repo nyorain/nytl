@@ -43,6 +43,7 @@ namespace nytl
 template<std::size_t D, std::size_t A> using DimMatch = typename std::enable_if<D >= A>::type;
 
 ///\brief Templated abstraction of the simplex concept.
+///\ingroup math
 ///\details The simplex<D, P, A> template class defines an unique area with \cA dimensions
 ///of \cP precision in an \cD dimensional space.
 ///So e.g. simplex<3, float, 2> describes a triangle in a 3-dimensional space.

@@ -34,6 +34,7 @@ namespace nytl
 {
 
 ///\brief Virtual utility base template class for objects that are part of a hierachy.
+///\ingroup utility
 template <typename T>
 class hierachyNode : public nonMoveable
 {

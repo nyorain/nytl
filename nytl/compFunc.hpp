@@ -44,8 +44,6 @@ template<typename Signature> class compatibleFunction; //not specified
 
 ///\brief A Function object that is able to hold all functions with a compatible signature.
 ///\ingroup function
-///
-///\details todo
 template<typename Ret, typename... Args>
 class compatibleFunction<Ret(Args...)>
 {
