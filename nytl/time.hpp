@@ -23,7 +23,7 @@
  */
 
 ///\file
-///Extends the std::chrono time api by some useful features and shortcuts.
+///\brief Extends the std::chrono time api by some useful features and shortcuts.
 
 #pragma once
 

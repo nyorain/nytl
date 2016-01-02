@@ -23,7 +23,7 @@
  */
 
 ///\file
-///Defines the rectRegion template class for representing an area consisting of rects.
+///\brief Defines the rectRegion template class for representing an area consisting of rects.
 
 #pragma once
 

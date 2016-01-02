@@ -23,7 +23,7 @@
  */
 
 ///\file
-///Includes all stable nytl headers.
+///\brief Includes all stable nytl headers.
 
 #pragma once
 

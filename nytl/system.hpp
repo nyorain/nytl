@@ -23,7 +23,7 @@
  */
 
 ///\file
-///Defines useful macros and functions concerning system or compiler.
+///\brief Defines useful macros and functions concerning system or compiler.
 
 #pragma once
 #include <cstdint>
