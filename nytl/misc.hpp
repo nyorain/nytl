@@ -34,6 +34,7 @@
 #include <algorithm>
 #include <sstream>
 #include <cmath>
+#include <type_traits>
 
 namespace nytl
 {

@@ -40,8 +40,6 @@
 namespace nytl
 {
 
-template<typename Signature> class compatibleFunction; //not specified
-
 ///\brief A Function object that is able to hold all functions with a compatible signature.
 ///\ingroup function
 template<typename Ret, typename... Args>

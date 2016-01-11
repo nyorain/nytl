@@ -32,13 +32,13 @@
 #include <nytl/cloneable.hpp>
 #include <nytl/compFunc.hpp>
 #include <nytl/dynVec.hpp>
+#include <nytl/enumOps.hpp>
 #include <nytl/function_traits.hpp>
 #include <nytl/hierachy.hpp>
 #include <nytl/integer_sequence.hpp>
 #include <nytl/log.hpp>
 #include <nytl/linearSolver.hpp>
 #include <nytl/make_unique.hpp>
-#include <nytl/math.hpp>
 #include <nytl/misc.hpp>
 #include <nytl/nonCopyable.hpp>
 #include <nytl/potential_ptr.hpp>
