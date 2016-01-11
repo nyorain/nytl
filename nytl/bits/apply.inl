@@ -22,36 +22,36 @@
  * SOFTWARE.
  */
 
-///\file
-///\brief Provides a utility class to handle different versions of a function.
-
-//TODO: files name is missleading, version control is usually associated with sth like
-//git or sourceforge.
-
 #pragma once
 
-#include <unordered_map>
-#include <functional>
-#include <cstdint>
+#include <tuple>
+#include <nytl/integer_sequence.hpp>
+
+//experimental::tuple::apply example implementation
+//http://en.cppreference.com/w/cpp/experimental/apply
 
 namespace nytl
 {
-
-template<typename, typename = std::uint32_t>
-class versionHandler;
-
-template<typename Ret, typename ... Args, typename Version>
-class versionHandler<Ret(Args...), Version>
+namespace detail
 {
-protected:
-	std::unordered_map<Version, std::function<Ret(Args...)>> versions_;
 
-public:
-	void addVersion(Version version, std::function<Ret(Args...)> func){ versions_[version] = func; };
-	bool hasVersion(Version version) const { return versions_.find(version) != versions_.cend(); }
+template <class F, class Tuple, std::size_t... I>
+constexpr auto apply_impl( F&& f, Tuple&& t, index_sequence<I...> ) 
+	-> decltype(f(std::get<I>(std::forward<Tuple>(t))...))
+{
+    //return std::invoke(std::forward<F>(f), std::get<I>(std::forward<Tuple>(t))...);
+    return std::forward<F>(f)(std::get<I>(std::forward<Tuple>(t))...);
+}
 
-	Ret call(Version version, Args ... args){ return versions_[version](args ...); }
-	Ret operator()(Version version, Args ... args){ return call(version, args ...); }
-};
+}
+
+template <class F, class Tuple>
+constexpr auto apply(F&& f, Tuple&& t) 
+	-> decltype(detail::apply_impl(std::forward<F>(f), std::forward<Tuple>(t),
+        make_index_sequence<std::tuple_size<typename std::decay<Tuple>::type>{}>{}))
+{
+    return detail::apply_impl(std::forward<F>(f), std::forward<Tuple>(t),
+        make_index_sequence<std::tuple_size<typename std::decay<Tuple>::type>{}>{});
+}
 
 }

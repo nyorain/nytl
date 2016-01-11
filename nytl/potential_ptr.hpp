@@ -22,6 +22,11 @@
  * SOFTWARE.
  */
 
+///\file
+///\brief Smart pointer class potential_ptr which can handle owned as well as non-owned objects.
+
+//TODO: not really needed? not the sence of a smart pointer ~
+
 #pragma once
 
 #include <memory>
@@ -29,6 +34,7 @@
 namespace nytl
 {
 
+///\brief Can handle an owned or with an non-owned object.
 template<typename T>
 class potential_ptr
 {

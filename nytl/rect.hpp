@@ -22,11 +22,13 @@
  * SOFTWARE.
  */
 
+///\file
+///\brief Includes the rect template class as well as several operators for it.
+
 #pragma once
 
 #include <nytl/vec.hpp>
-#include <nytl/triangle.hpp>
-#include <nytl/line.hpp>
+#include <nytl/simplex.hpp>
 
 #include <vector>
 #include <ostream>
@@ -35,11 +37,11 @@
 namespace nytl
 {
 //rect
-template<size_t dim, class prec> class rect;
+template<size_t D, class P> class rect;
 
-template<class prec> using rect2 = rect<2, prec>;
-template<class prec> using rect3 = rect<3, prec>;
-template<class prec> using rect4 = rect<4, prec>;
+template<class P> using rect2 = rect<2, P>;
+template<class P> using rect3 = rect<3, P>;
+template<class P> using rect4 = rect<4, P>;
 
 typedef rect<2, int> rect2i;
 typedef rect<2, unsigned int> rect2ui;
@@ -68,196 +70,164 @@ typedef rect<4, unsigned char> rect4uc;
 typedef rect<4, long> rect4l;
 typedef rect<4, unsigned long> rect4ul;
 
-//should rlly be declared here? use helper member functions?
-//todo: nytl_cpp14_constexpr
-template<std::size_t dim, typename prec> bool 
-	intersects(const rect<dim, prec>&, const rect<dim, prec>&);
-template<std::size_t dim, typename prec> bool 
-	intersects(const rect<dim, prec>&, const line<dim, prec>&);
-template<std::size_t dim, typename prec> bool 
-	intersects(const rect<dim, prec>&, const triangle<dim, prec>&);
-
-template<std::size_t dim, typename prec> bool 
-	contains(const rect<dim, prec>&, const rect<dim, prec>&);
-template<std::size_t dim, typename prec> bool 
-	contains(const rect<dim, prec>&, const line<dim, prec>&);
-template<std::size_t dim, typename prec> bool 
-	contains(const rect<dim, prec>&, const triangle<dim, prec>&);
-template<std::size_t dim, typename prec> bool 
-	contains(const rect<dim, prec>&, const vec<dim, prec>&);
-
-//operations
-///Returns the rectangle in which area the two paramater rectangles intersect. 
-///Also represented by the AND operator.
-template<std::size_t dim, typename prec> rect<dim, prec>
-   	intersection(const rect<dim, prec>&, const rect<dim, prec>&);
-
-///Returns the union of two areas. Since it combines them the result cannot be expressed
-///in a single rectangle and is therefore a vector.
-///Also represented by the OR operator.
-template<std::size_t dim, typename prec> std::vector<rect<dim, prec>>
-   	combination(const rect<dim, prec>&, const rect<dim, prec>&);
-
-///Returns the difference between two rectangles, it subtracts the second one from the
-///first one and returns the rest of the first one. Since the result cant be expressed as
-///a single rectangle, it is a vector. 
-template<std::size_t dim, typename prec> std::vector<rect<dim, prec>>
-   	difference(const rect<dim, prec>&, const rect<dim, prec>&);
-
-///Returns the symmetric difference between two rectangles, so basically just the
-///area where exactly one of them is placed.
-///Also represented by the XOR operator.
-template<std::size_t dim, typename prec> std::vector<rect<dim, prec>>
-   	symmetricDifference(const rect<dim, prec>&, const rect<dim, prec>&);
-
-
-///The rect class represents a rectangular area in a templated dimension 
-///with a templated precision. There exist specific overloads for 2-dimensional rects(rectangle)
-///and 3-dimensional rects(box).
-template<size_t dim, class prec> class rect
+///\brief Templated class that represents the mathematic hyperrect (n-box) concept.
+///\tparam D The dimension of the hyperrectangle
+///\tparam P The precision of the hyperrectangle.
+///\details The hyperrectangle is the generalization of a rectangle for higher dimensions.
+///It represents an area that is aligned with the spaces dimensions at a given position with
+///a given size. There exist various operators for the rect template class e.g. to check for
+///intersection, compute unions or differences.
+///There exist specialization for a 2-dimensional hyperrect (just a rectangle), a 3-dimensional
+///hyperrect (also called box) with additional features. 
+template<size_t D, class P> 
+class rect
 {
 public:
-    using value_type = prec;
-    using vec_type = vec<dim, value_type>;
+    using value_type = P;
+    using vec_type = vec<D, value_type>;
 
 public:
 	vec_type position;
 	vec_type size;
 
 public:
-	rect(vec_type pposition = vec_type(), vec_type psize = vec_type()) noexcept : position(pposition), size(psize) {}
+	rect(vec_type pposition = vec_type(), vec_type psize = vec_type()) noexcept 
+		: position(pposition), size(psize) {}
     ~rect() noexcept = default;
 
-    rect(const rect<dim, prec>& other) noexcept = default;
-	rect& operator=(const rect<dim, prec>& other) noexcept = default;
+    rect(const rect<D, P>& other) noexcept = default;
+	rect& operator=(const rect<D, P>& other) noexcept = default;
 
-    rect(rect<dim, prec>&& other) noexcept = default;
-	rect& operator=(rect<dim, prec>&& other) noexcept = default;
+    rect(rect<D, P>&& other) noexcept = default;
+	rect& operator=(rect<D, P>&& other) noexcept = default;
 
-	vec<dim, double> center() const { return (double)(position + (size / 2.d)); };
+	vec<D, double> center() const { return (double)(position + (size / 2.)); };
 	bool empty() const { return anyValueGreater(size, 0); }
 
-	//conversion
-	template<size_t odim, class oprec> operator rect<odim, oprec>() const { return rect<odim, oprec>(position, size); }
+	template<size_t oD, class oP> 
+	operator rect<oD, oP>() const { return rect<oD, oP>(position, size); }
 };
 
-//rect2
-template<class prec> class rect<2, prec>
+//rect2 specialization
+template<class P> class rect<2, P>
 {
 public:
-    static constexpr std::size_t dim = 2;
-    using value_type = prec;
-    using vec_type = vec<dim, value_type>;
+    static constexpr std::size_t D = 2;
+    using value_type = P;
+    using vec_type = vec<D, value_type>;
 
 public:
 	vec_type position;
 	vec_type size;
 
 public:
-	rect(const vec_type& pposition, const vec_type& psize = vec_type()) noexcept : position(pposition), size(psize) {}
-	rect(prec x = prec(), prec y = prec(), prec width = prec(), prec height = prec()) noexcept : position(x,y), size(width,height) {}
+	rect(const vec_type& pposition, const vec_type& psize = vec_type()) noexcept 
+		: position(pposition), size(psize) {}
+	rect(P x = P(), P y = P(), P width = P(), P height = P()) noexcept 
+		: position(x,y), size(width,height) {}
 
 	~rect() noexcept = default;
 
-	rect(const rect<dim, prec>& other) noexcept = default;
-	rect& operator=(const rect<dim, prec>& other) noexcept = default;
+	rect(const rect<D, P>& other) noexcept = default;
+	rect& operator=(const rect<D, P>& other) noexcept = default;
 
-    rect(rect<dim, prec>&& other) noexcept = default;
-	rect& operator=(rect<dim, prec>&& other) noexcept = default;
+    rect(rect<D, P>&& other) noexcept = default;
+	rect& operator=(rect<D, P>&& other) noexcept = default;
 
-	vec<dim, double> center() const { return (double)(position + (size / 2.d)); };
+	vec<D, double> center() const { return (double)(position + (size / 2.)); };
 
-    vec<2, prec> topLeft() const { return position; }
-	vec<2, prec> topRight() const { return position + vec<2, prec>(size.x, 0); }
-	vec<2, prec> bottomLeft() const { return position + vec<2, prec>(0, size.y);}
-	vec<2, prec> bottomRight() const { return position + size; }
+    vec<2, P> topLeft() const { return position; }
+	vec<2, P> topRight() const { return position + vec<2, P>(size.x, 0); }
+	vec<2, P> bottomLeft() const { return position + vec<2, P>(0, size.y);}
+	vec<2, P> bottomRight() const { return position + size; }
 
-	const prec& left() const { return position.x; }
-	const prec right() const { return position.x + size.x; }
-	const prec& top() const { return position.y; }
-	const prec bottom() const { return position.y + size.y; }
+	const P& left() const { return position.x; }
+	const P right() const { return position.x + size.x; }
+	const P& top() const { return position.y; }
+	const P bottom() const { return position.y + size.y; }
 
-    prec& left() { return position.x; }
-	prec& top() { return position.y; }
+    P& left() { return position.x; }
+	P& top() { return position.y; }
 
-	const prec& width() const { return size.x; }
-	const prec& height() const { return size.y; }
+	const P& width() const { return size.x; }
+	const P& height() const { return size.y; }
 
-    prec& width() { return size.x; }
-	prec& height() { return size.y; }
+    P& width() { return size.x; }
+	P& height() { return size.y; }
 
-    bool empty() const { return anyValueGreater(size, 0); }
+    bool empty() const { return any(size > 0); }
 
     //conversion
-	template<size_t odim, class oprec>
-	operator rect<odim, oprec>() const { return rect<odim, oprec>(position, size); }
+	template<size_t oD, class oP>
+	operator rect<oD, oP>() const { return rect<oD, oP>(position, size); }
 };
 
-//rect3
-template<class prec> class rect<3, prec>
+//rect3 specialization
+template<class P> class rect<3, P>
 {
 public:
-    static constexpr std::size_t dim = 3;
-    using value_type = prec;
-    using vec_type = vec<dim, value_type>;
+    static constexpr std::size_t D = 3;
+    using value_type = P;
+    using vec_type = vec<D, value_type>;
 
 public:
 	vec_type position;
 	vec_type size;
 
 public:
-	rect(const vec_type& pposition, const vec_type& psize = vec_type()) noexcept : position(pposition), size(psize) {}
-	rect(prec x = prec(), prec y = prec(), prec z = prec(), prec width = prec(), prec height = prec(), prec depth = prec()) noexcept
+	rect(const vec_type& pposition, const vec_type& psize = vec_type()) noexcept 
+		: position(pposition), size(psize) {}
+	rect(P x = P(), P y = P(), P z = P(), P width = P(), P height = P(), P depth = P()) noexcept
         : position(x,y,z), size(width,height,depth) {}
 
 	~rect() noexcept = default;
 
-	rect(const rect<dim, prec>& other) noexcept = default;
-	rect& operator=(const rect<dim, prec>& other) noexcept = default;
+	rect(const rect<D, P>& other) noexcept = default;
+	rect& operator=(const rect<D, P>& other) noexcept = default;
 
-    rect(rect<dim, prec>&& other) noexcept = default;
-	rect& operator=(rect<dim, prec>&& other) noexcept = default;
+    rect(rect<D, P>&& other) noexcept = default;
+	rect& operator=(rect<D, P>&& other) noexcept = default;
 
-	vec<dim, double> center() const { return (double)(position + (size / 2.d)); };
+	vec<D, double> center() const { return (double)(position + (size / 2.)); };
 
-    vec<2, prec> topLeft() const { return position.xy(); }
-	vec<2, prec> topRight() const { return position.xy() + vec<2, prec>(size.x, 0); }
-	vec<2, prec> bottomLeft() const { return position.xy() + vec<2, prec>(0, size.y);}
-	vec<2, prec> bottomRight() const { return position.xy() + size.xy(); }
+    vec<2, P> topLeft() const { return position.xy(); }
+	vec<2, P> topRight() const { return position.xy() + vec<2, P>(size.x, 0); }
+	vec<2, P> bottomLeft() const { return position.xy() + vec<2, P>(0, size.y);}
+	vec<2, P> bottomRight() const { return position.xy() + size.xy(); }
 
-    vec<3, prec> frontTopLeft() const { return position; }
-	vec<3, prec> frontTopRight() const { return position + vec<3, prec>(size.x, 0, 0); }
-	vec<3, prec> frontBottomLeft() const { return position + vec<3, prec>(0, size.y, 0);}
-	vec<3, prec> frontBottomRight() const { return position + vec<3, prec>(size.x, size.y, 0); }
-    vec<3, prec> backTopLeft() const { return position + vec<3, prec>(0, 0, size.z); }
-	vec<3, prec> backTopRight() const { return position + vec<3, prec>(size.x, 0, size.z); }
-	vec<3, prec> backBottomLeft() const { return position + vec<3, prec>(0, size.y, size.z);}
-	vec<3, prec> backBottomRight() const { return position + size; }
+    vec<3, P> frontTopLeft() const { return position; }
+	vec<3, P> frontTopRight() const { return position + vec<3, P>(size.x, 0, 0); }
+	vec<3, P> frontBottomLeft() const { return position + vec<3, P>(0, size.y, 0);}
+	vec<3, P> frontBottomRight() const { return position + vec<3, P>(size.x, size.y, 0); }
+    vec<3, P> backTopLeft() const { return position + vec<3, P>(0, 0, size.z); }
+	vec<3, P> backTopRight() const { return position + vec<3, P>(size.x, 0, size.z); }
+	vec<3, P> backBottomLeft() const { return position + vec<3, P>(0, size.y, size.z);}
+	vec<3, P> backBottomRight() const { return position + size; }
 
-	const prec& left() const { return position.x; }
-	prec right() const { return position.x + size.x; }
-	const prec& top() const { return position.y; }
-	prec bottom() const { return position.y + size.y; }
-	const prec& front() const { return position.z + size.z; }
-	prec back() const { return position.z + size.z; }
+	const P& left() const { return position.x; }
+	P right() const { return position.x + size.x; }
+	const P& top() const { return position.y; }
+	P bottom() const { return position.y + size.y; }
+	const P& front() const { return position.z + size.z; }
+	P back() const { return position.z + size.z; }
 
-    prec& left() { return position.x; }
-	prec& top() { return position.y; }
-	prec& front() { return position.z; }
+    P& left() { return position.x; }
+	P& top() { return position.y; }
+	P& front() { return position.z; }
 
-	const prec& width() const { return size.x; }
-	const prec& height() const { return size.y; }
-	const prec& depth() const { return size.z; }
+	const P& width() const { return size.x; }
+	const P& height() const { return size.y; }
+	const P& depth() const { return size.z; }
 
-    prec& width() { return size.x; }
-	prec& height() { return size.y; }
-	prec& depth() { return size.z; }
+    P& width() { return size.x; }
+	P& height() { return size.y; }
+	P& depth() { return size.z; }
 
-    bool empty() const { return anyValueGreater(size, 0); }
+    bool empty() const { return any(size > 0); }
 
     //conversion
-	template<size_t odim, class oprec>
-	operator rect<odim, oprec>() const { return rect<odim, oprec>(position, size); }
+	template<size_t oD, class oP>
+	operator rect<oD, oP>() const { return rect<oD, oP>(position, size); }
 };
 
 //operators

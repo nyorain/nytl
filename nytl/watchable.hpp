@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+///\file
+///\brief Utility base classes to make it possible to track an objects lifetime.
+
 #pragma once
 
 #include <nytl/callback.hpp>
@@ -29,7 +32,8 @@
 namespace nytl
 {
 
-///Base class that can be derived from if the lifetime of objects of this class should be
+///\brief Utility class to make the objects lifetime observable.
+///\details Base class that can be derived from if the lifetime of objects of this class should be
 ///watchable by others.
 class watchable
 {
@@ -41,8 +45,9 @@ public:
     template<typename F> connection onDestruction(F&& func){ return destructionCallback_.add(func); }
 };
 
-///Basically a smart pointer that does always know, whether the object it points to is alive
-///or not. Does only work with objects of classes that have a onDestruction callback member
+///\brief Smart pointer class that observes the lifetime of its object.
+///\details Basically a smart pointer that does always know, whether the object it points to is 
+//alive or not. Does only work with objects of classes that have a onDestruction callback member
 ///function like e.g. classes dervied from watchable.
 ///Semantics are related to std::unique_ptr.
 template <typename T>

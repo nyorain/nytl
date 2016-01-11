@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+///\file
+///\brief Makes the dynamic-sized vec specialization work
+
 #pragma once
 
 #include <nytl/vec.hpp>
@@ -37,7 +40,17 @@ namespace nytl
 
 template<typename T> using dynVec = vec<dynamicSize, T>;
 
-///Vec specialization with a dynamic size.
+using dynVecf = dynVec<float>;
+using dynVeci = dynVec<int>;
+using dynVecui = dynVec<unsigned int>;
+using dynVecc = dynVec<char>;
+using dynVecuc = dynVec<unsigned char>;
+using dynVecl = dynVec<long>;
+using dynVecul = dynVec<unsigned long>;
+using dynVecd = dynVec<double>;
+using dynVecb = dynVec<bool>;
+
+///Vec specialization for a dynamic-sized vec.
 template<typename T>
 class vec<dynamicSize, T>
 {

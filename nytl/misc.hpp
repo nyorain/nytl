@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+///\file
+///\brief Includes several useful template functions.
+
 #pragma once
 
 #include <string>
@@ -39,6 +42,23 @@ namespace nytl
 template<class... T> void unused(T&&...)
 { }
 
+template<class U, class V, class ...t> 
+std::function<U(t...)> memberCallback(U (V::*func)(t ...), V* obj)
+{
+    return ([func, obj](t ... params)
+    {
+        return (obj->*func)(params ...);
+    });
+}
+
+template<class U, class V, class ...t> 
+std::function<U(t...)> memberCallback(U (V::*func)(t ...), V& obj)
+{
+    return ([=](t ... params)
+    {
+        return (obj.*func)(params ...);
+    });
+}
 
 template<class ... Args> void printVars(std::ostream& out, Args ... args)
 {

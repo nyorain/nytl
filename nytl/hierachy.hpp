@@ -22,15 +22,19 @@
  * SOFTWARE.
  */
 
+///\file
+///\brief Contains a template class for creating hierachy-structered clas objects.
+
 #pragma once
 
 #include <nytl/nonCopyable.hpp>
-
 #include <vector>
 
 namespace nytl
 {
 
+///\brief Virtual utility base template class for objects that are part of a hierachy.
+///\ingroup utility
 template <typename T>
 class hierachyNode : public nonMoveable
 {
@@ -80,9 +84,10 @@ public:
 	{
 	    for(auto* c : children_)
         {
-            c->parent_ = nullptr; //so they wont call parent_->destroyChild which would invalidate the iterator
+            c->parent_ = nullptr; 
             c->destroy();
         }
+
 	    children_.clear();
 
 	    if(parent_) parent_->removeChild(static_cast<T&>(*this));
