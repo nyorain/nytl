@@ -38,23 +38,15 @@ namespace nytl
 {
 
 //typedefs
-template<std::size_t R, std::size_t C, typename P, typename = typename 
-	std::enable_if<
-		(R >= 1) && 
-		(C >= 1) && 
-		(!std::is_reference<P>::value)
-	>::type>
+template<std::size_t R, std::size_t C, typename P>
 class mat;
-
-template<std::size_t D, class P> using squareMat = mat<D, D, P>;
-
 
 #include <nytl/bits/matmp.inl>
 #include <nytl/bits/matypes.inl>
 
 //mat class
-template<std::size_t R, std::size_t C, typename P, typename Cond>
-class mat
+template<std::size_t R, std::size_t C, typename P>
+class mat : deriveDummy<std::enable_if<(R > 0) && (C > 0) && (!std::is_reference<P>::value)>::type>
 {
 public:
     using value_type = P;
@@ -69,7 +61,7 @@ public:
     using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
 
-    using mat_type = mat<R, C, P, Cond>;
+    using mat_type = mat<R, C, P>;
     using rows_vec = vec<R, P>;
     using cols_vec = vec<C, P>;
 
@@ -141,6 +133,12 @@ public:
 	///Returns a std::tuple filled with the components of the matrix
 	type_tuple_t<P, mat_size> asTuple() const { return detail::matTuple<R * C>::call(data_); }
 
+	///Swaps the both given columns.
+	void swapCol(std::size_t a, std::size_t b){ std::swap(col(a), col(b)); }
+
+	///Swaps the both given rows
+	void swapRow(std::size_t a, std::size_t b){ std::swap(row(a), row(b)); }
+
     //math
     mat_type& operator +=(const mat<R, C, P>& other){ data_ += other.data_; return *this; }
    	mat_type& operator -=(const mat<R, C, P>& other){ data_ -= other.data_; return *this; }
@@ -155,10 +153,17 @@ public:
     mat<R, C, P>& operator *=(const P& other){ for(auto& val : *this) val *= other; }
 
     //invert
-    bool invertable() const { return 0; }
-    std::enable_if<is_squared, bool> invert() const { return invertable(); }
+	///\brief Only available for squared (R == C) mat objects.
+	///\return Returns whether the mat object is invertible. 
+	std::enable_if<is_squared, bool> invertable() const { return 0; }
 
-    //convert
+	///\brief Inverts the mat object.
+	///\details Only available for squared (R == C) mat objects.
+	///\warning Will throw nytl::invalid_matrix if the matrix is not invertable.
+	///Check this with invertable() before using invert().
+    std::enable_if<is_squared, void> invert();
+
+	///\brief Converts the mat object to a mat object with different template parameters.
     template<std::size_t OR, std::size_t OC, class OP> operator mat<OR, OC, OP>() const;
 
     //stl container
@@ -187,14 +192,14 @@ public:
 	const vec<C, P>& operator[](size_t row) const { return data_[row]; }
 
     vec<C, P>& at(size_t row){ if(row >= R || row < 0)
-		throw std::out_of_range("nytl::mat::at: out of range"); return data_[row][col]; }
+		throw std::out_of_range("nytl::mat::at: out of range"); return data_[row]; }
 	const vec<C, P>& at(size_t row) const { if(row >= R || row < 0)
-		throw std::out_of_range("nytl::mat::at: out of range"); return data_[row][col]; }
+		throw std::out_of_range("nytl::mat::at: out of range"); return data_[row]; }
 
 	P& at(size_t row, size_t col){ if(row >= R || row < 0)
-		throw std::out_of_range("nytl::mat::at: out of range"); return data_[row]; }
+		throw std::out_of_range("nytl::mat::at: out of range"); return data_[row][col]; }
 	const P& at(size_t row, size_t col) const { if(row >= R || row < 0)
-		throw std::out_of_range("nytl::mat::at: out of range"); return data_[row]; }
+		throw std::out_of_range("nytl::mat::at: out of range"); return data_[row][col]; }
 
     reference front() noexcept { return data_[0][0]; }
     const_reference front() const noexcept { return data_[0][0]; }

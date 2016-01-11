@@ -207,7 +207,10 @@ public:
     reference back() noexcept { return *data_[dim - 1]; }
     const_reference back() const noexcept { return *data_[dim - 1]; }
 
-	void swap(vec_type& other){ for(std::size_t i(0); i < dim; ++i) std::swap(*this[i], other[i]); }
+	void swap(vec_type& other)
+		{ for(std::size_t i(0); i < size(); ++i) std::swap(*data_[i], other[i]); }
+
+	friend void swap(ref_vec_type& a, ref_vec_type& b) { a.swap(b); }
 };
 
 
@@ -346,6 +349,8 @@ public:
     const_reference back() const noexcept { return y; }
 
 	void swap(vec_type& other){ std::swap(x, other.x); std::swap(y, other.y); }
+
+	friend void swap(ref_vec_type& a, ref_vec_type& b) { a.swap(b); }
 };
 
 ///3-dimensional refVec specialization.
@@ -487,6 +492,8 @@ public:
 
 	void swap(vec_type& other)
 		{ std::swap(x, other.x); std::swap(y, other.y); std::swap(z, other.z); }
+
+	friend void swap(ref_vec_type& a, ref_vec_type& b) { a.swap(b); }
 
     //custom
     vec2<reference> xy() const noexcept { return vec2<reference>(x,y); }
@@ -635,7 +642,9 @@ public:
     const_reference back() const noexcept { return w; }
 
 	void swap(vec_type& other)
-		{using std::swap; swap(x, other.x); swap(y, other.y); swap(z, other.z); swap(w, other.w);}
+		{ using std::swap; swap(x, other.x); swap(y, other.y); swap(z, other.z); swap(w, other.w);}
+
+	friend void swap(ref_vec_type& a, ref_vec_type& b){ a.swap(b); }
 
     //custom
     vec2<reference> xy() const noexcept { return vec2<reference>(x,y); }

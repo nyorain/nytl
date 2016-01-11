@@ -25,57 +25,53 @@
 #pragma once
 
 //members
-template<std::size_t R, std::size_t C, typename P, typename Cond>
+template<std::size_t R, std::size_t C, typename P>
 template<std::size_t OR, std::size_t OC, typename OP>
-mat<R, C, P, Cond>::operator mat<OR, OC, OP>() const
+mat<R, C, P>::operator mat<OR, OC, OP>() const
 {
 	mat<OR, OC, OP> ret({});
 	detail::initMatData<min(OR, R) * min(OC, C)>::call(ret.data_, asTuple());
 	return ret;
 }
 
+template<std::size_t R, std::size_t C, typename P>
+std::enable_if<mat<R, C, P, Cond> mat<R, C, P>::invert()
+{
+	//TODO	
+}
+
 //exceptions
 ///\brief Exception class deriving std::invalid_argument.
 ///\detail Thrown by operational matrix functions that do not work for singular matrices
 ///but receive a singular matrix as argument.
-class singular_matrix : public std::invalid_argument
+class invalid_matrix : public std::invalid_argument
 {
 public:
-	singular_matrix()
-		: std::invalid_argument("Invalid singular matrix argument") {}
+	invalid_matrix()
+		: std::invalid_argument("Invalid matrix argument") {}
 
-	singular_matrix(const std::string& func)
-		: std::invalid_argument("Inalid singular matrix argument in function " + func) {}
+	invalid_matrix(const std::string& func)
+		: std::invalid_argument("Invalid matrix argument in function " + func) {}
 };
 
-///\relates nytl::mat
-template<std::size_t R, std::size_t C, typename P>
-void swapRow(mat<R, C, P>& m, std::size_t a, std::size_t b)
-{
-	for(std::size_t i(0); i < C; ++i)
-	{
-		std::swap(m[a][i], m[b][i]);
-	}
-}
-
-///\relates nytl::mat
-template<std::size_t R, std::size_t C, typename P>
-void swapCol(mat<R, C, P>& m, std::size_t a, std::size_t b)
-{
-	for(std::size_t i(0); i < R; ++i)
-	{
-		std::swap(m[i][a], m[i][b]);
-	}
-}
 
 ///\relates nytl::mat
 ///Returns the identityMatrix for the given dimension and precision.
-template<size_t D, typename P = float>
+template<std::size_t D, typename P = float>
 squareMat<D, P> identityMat()
 {
 	squareMat<D, P> ret(0);
 	for(size_t i(0); i < D; i++) ret[i][i] = 1;
 	return ret;
+}
+
+///\relates nytl::mat
+///\return The inverse of the given square matrix
+template<std::size_t D, typename P> 
+squareMat<D, P> inverse(const squareMat<D, P>& m)
+{
+	auto cpy = m;
+	return m.invert();
 }
 
 //XXX: correct implementation?
@@ -101,7 +97,7 @@ int pivot(mat<R, C, P>& m)
 
 		if(maxR != c)
 		{
-			swapRow(m, c, maxR);
+			m.swapRow(c, maxR);
 			ret *= -1;
 		}
 	}
@@ -112,8 +108,8 @@ int pivot(mat<R, C, P>& m)
 ///\relates nytl::mat
 ///\brief Computes a luDecomposition of a non-singular matrix.
 ///\return 2 mats, The lower (l, first mat) and the upper one(u, second mat).
-///\warning May throw a nytl::singular_matrix exception if the given argument is a
-///singular matrix (algorithm only works for non-singular matrices).
+///\warning May throw a nytl::invalid_matrix exception if the given matrix is
+///not correctly pivotized.
 template<std::size_t D, typename P>
 vec2<mat<D, D, double>> luDecomposition(const mat<D, D, P>& m)
 {
@@ -141,7 +137,7 @@ vec2<mat<D, D, double>> luDecomposition(const mat<D, D, P>& m)
 			{
 				if(lu[1][c][c] == 0)
 				{
-					throw singular_matrix("nytl::luDecomposition");
+					throw invalid_matrix("nytl::luDecomposition");
 				}
 
 				vsum = 0;
@@ -185,6 +181,7 @@ double det(const mat<D, D, P>& m)
 
 ///\relates nytl::mat
 ///\brief Brings a given mat in the row-echolon-form (ref).
+///\details The given mat does not have to be pivotized.
 template<std::size_t R, std::size_t C, typename P>
 void refMat(mat<R, C, P>& m)
 {
@@ -193,6 +190,7 @@ void refMat(mat<R, C, P>& m)
     {
 		for(; c < C; ++c)
 		{
+			//basically pivotize
 			std::size_t maxR = r;
 			for(std::size_t r2 = r + 1; r2 < R; ++r2)
 			{
@@ -202,7 +200,7 @@ void refMat(mat<R, C, P>& m)
 
 			if(m[maxR][c] != 0)
 			{
-				if(r != maxR) swapRow(m, r, maxR);
+				if(r != maxR) m.swapRow(m, r, maxR);
 				break;
 			}
 			else if(c == C - 1)
@@ -233,7 +231,7 @@ mat<R, C, P> refMatCopy(mat<R, C, P> m)
 }
 
 /*
-//XXX: Some kind of solution set class for possible matrix solutions?
+//TODO: Some kind of solution set class for possible matrix solutions?
 ///\relates nytl::mat
 ///Analzyes a matrix in row echelon form
 ///Returns 0 if the corresponding linear equotation system is not solvable.
@@ -248,7 +246,9 @@ unsigned int analyzeRefMat(const mat<R, C, P>& m)
 */
 
 ///\relates nytl::mat
-///\brief Brings a given matrix in the reduced-row-echolon-form (rref).
+///\brief Brings a given matrix in the reduced-row-echolon-form (rref). 
+///\details The mat will first be brought into the row-echolon-form, so it does not have
+///to fulfill any requirements.
 template<size_t R, size_t C, typename P>
 void rrefMat(mat<R, C, P>& m)
 {
