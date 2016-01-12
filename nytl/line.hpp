@@ -28,7 +28,7 @@
 #pragma once
 
 #include <nytl/vec.hpp>
-#include <nytl/constants.hpp>
+#include <nytl/scalar.hpp>
 #include <nytl/simplex.hpp>
 #include <nytl/log.hpp>
 
@@ -73,10 +73,12 @@ public:
     double size() const { return distance(a, b); }
 	vec_type center() const { return (a + b) / 2; }
 	vec<2, double> barycentric(const vec_type& v) const;
-	bool sameSpace(const vec_type& v) const;
+	bool valid() const;
 
-	vec<3, vec_type>& asVec(){ return *reinterpret_cast<vec_type*>(this); }
-	const vec<3, vec_type>& asVec() const { return *reinterpret_cast<const vec_type*>(this); }
+	vec<2, vec_type>& points()
+		{ return reinterpret_cast<vec<2, vec_type>&>(*this); }
+	const vec<2, vec_type>& points() const 
+		{ return reinterpret_cast<const vec<2, vec_type>&>(*this); }
 
     template<size_t OD, typename OP>
 	operator line<OD, OP>() const { return line<OD, OP>(a, b); }

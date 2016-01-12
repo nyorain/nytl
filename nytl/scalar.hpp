@@ -85,27 +85,9 @@ constexpr prec mix(const prec& x, const prec& y, double a)
 
 #endif // c++14
 
-namespace detail
+constexpr unsigned long fac(unsigned long n)
 {
-
-template<unsigned long N>
-struct Fac
-{
-    static constexpr unsigned long value = N * Fac<N - 1>::value;
-};
-
-template<>
-struct Fac<0> 
-{
-	static constexpr unsigned long value = 1;
-};
-
-} //detail
-
-template<unsigned long N>
-unsigned long fac()
-{
-	return detail::Fac<N>::value;
+	return (n <= 1ul) ? 1ul : n * fac(n - 1);
 }
 
 }

@@ -43,7 +43,7 @@ template<class... T> void unused(T&&...)
 { }
 
 template<class U, class V, class ...t> 
-std::function<U(t...)> memberCallback(U (V::*func)(t ...), V* obj)
+std::function<U(t...)> memberCallback(U (V::*func)(t ...), typename std::remove_const<V>::type* obj)
 {
     return ([func, obj](t ... params)
     {
@@ -52,11 +52,31 @@ std::function<U(t...)> memberCallback(U (V::*func)(t ...), V* obj)
 }
 
 template<class U, class V, class ...t> 
-std::function<U(t...)> memberCallback(U (V::*func)(t ...), V& obj)
+std::function<U(t...)> memberCallback(U (V::*func)(t ...) const, const V* obj)
 {
+    return ([func, obj](t ... params)
+    {
+        return (obj->*func)(params ...);
+    });
+}
+
+template<class U, class V, class ...t> 
+std::function<U(t...)> memberCallback(U (V::*func)(t ...), typename std::remove_const<V>::type& obj)
+{
+	auto* tmp = &obj;
     return ([=](t ... params)
     {
-        return (obj.*func)(params ...);
+        return (tmp->*func)(params ...);
+    });
+}
+
+template<class U, class V, class ...t> 
+std::function<U(t...)> memberCallback(U (V::*func)(t ...) const, const V& obj)
+{
+	auto* tmp = &obj;
+    return ([=](t ... params)
+    {
+        return (tmp->*func)(params ...);
     });
 }
 

@@ -44,9 +44,9 @@ vec<4, double> tetrahedron<D, P>::barycentric(const vec<D, P>& v) const
 }
 
 template<std::size_t D, typename P>
-bool tetrahedron<D, P>::sameSpace(const vec<D, P>& v) const
+bool tetrahedron<D, P>::valid() const
 {
-	return detail::simplexSameSpace(*this, v);
+	return detail::simplexValid(*this);
 }
 
 //operators

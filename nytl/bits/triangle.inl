@@ -44,9 +44,9 @@ vec<3, double> triangle<D, P>::barycentric(const vec<D, P>& v) const
 }
 
 template<std::size_t D, typename P>
-bool triangle<D, P>::sameSpace(const vec<D, P>& v) const
+bool triangle<D, P>::valid() const
 {
-	return detail::simplexSameSpace(*this, v);
+	return detail::simplexValid(*this);
 }
 
 //operators

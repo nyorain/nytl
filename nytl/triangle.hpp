@@ -82,10 +82,12 @@ public:
     double size() const;
 	vec_type center() const;
 	vec<3, double> barycentric(const vec_type& v) const;
-	bool sameSpace(const vec_type& v) const;
+	bool valid() const;
 
-	vec<3, vec_type>& asVec(){ return *reinterpret_cast<vec_type*>(this); }
-	const vec<3, vec_type>& asVec() const { return *reinterpret_cast<const vec_type*>(this); }
+	vec<3, vec_type>& points()
+		{ return reinterpret_cast<vec<3, vec_type>&>(*this); }
+	const vec<3, vec_type>& points() const 
+		{ return reinterpret_cast<const vec<3, vec_type>&>(*this); }
 
     template<size_t OD, typename OP> constexpr
     operator triangle<OD, OP>() const { return triangle<OD, OP>(a, b, c); }

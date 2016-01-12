@@ -28,7 +28,7 @@
 #pragma once
 
 #include <nytl/tmp.hpp>
-#include <nytl/constants.hpp>
+#include <nytl/scalar.hpp>
 #include <nytl/integer_sequence.hpp>
 
 #include <iostream>
@@ -117,7 +117,7 @@ public:
     using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
 
-    using vec_type = vec<dim, value_type>;
+    using vec_type = vec<D, T>;
 
 public:
     constexpr size_t size() const noexcept { return dim; }
@@ -135,7 +135,7 @@ public:
 				typename type_tuple<value_type, dim>::type
 			>::value
 		>::type>
-    vec(Args&&... args) noexcept : data_{std::forward<Args>(args)...} {}
+    vec(Args&&... args) noexcept : data_{value_type(args)...} {}
 	vec(size_type) noexcept {}
 
     vec() noexcept = default;

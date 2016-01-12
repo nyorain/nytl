@@ -34,7 +34,7 @@
 #include <nytl/mat.hpp>
 #include <nytl/vec.hpp>
 #include <nytl/rect.hpp>
-#include <nytl/constants.hpp>
+#include <nytl/scalar.hpp>
 
 #include <cmath>
 

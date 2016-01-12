@@ -23,7 +23,12 @@
 
 #pragma once
 
+#ifdef DOXYGEN
+namespace nytl{
+#endif
+
 //exception////////////////////////////////////////////////////////////////////////////////
+///\relates simplex
 ///\brief This exception is thrown when two given arguments do not lay in the same spaces.
 ///\details For some computations (i.e. barycentric coordinates) it is required that two
 ///geometric areas (e.g. simplex and point) lay in the same space.
@@ -35,6 +40,7 @@ public:
 		: std::invalid_argument("Invalid argument given: different space at function " + func) {}  
 };
 
+///\relates simplex
 ///\brief This exception is thrown if a given simplex object argument is not valid.
 ///\details Needed because some computations (e.g. barycentric coordinates or sameSpace-check)
 ///can not be done swith an invalid simplex object.
@@ -60,7 +66,7 @@ double simplexSize(const simplex<D, P, A>& s)
 		m.col(i) = s.points[i] - s.points[0];
 	}
 
-	return det(m) / fac<D>();
+	return det(m) / fac(D);
 }
 
 template<std::size_t D, typename P, std::size_t A>
@@ -75,28 +81,28 @@ vec<A + 1, double> simplexBarycentric(const simplex<D, P, A>& s, const vec<D, P>
 {
 	if(!s.valid())
 	{
-		throw std::invalid_simplex("simplexBarycentric");
+		throw invalid_simplex("simplexBarycentric");
 	}
 
 	mat<D, A + 1, double> m;
 	for(std::size_t c(0); c < A; ++c)
 	{
-		m.col(c) = s.points[c] - s.points[A];
+		m.col(c) = s.points()[c] - s.points()[A];
 	}
 
-	m.col(A) = v - s.points[A];
+	m.col(A) = v - s.points()[A];
 
 	auto& les = reinterpret_cast<linearEquotationSystem<D, A, double>&>(m);
 	auto sol = les.solve();
 
 	if(!sol.solvable())
 	{
-		throw std::invalid_space("simplexBarycentric");
+		throw invalid_space("simplexBarycentric");
 	}
 	else if(!sol.unambigouosSolvable())
 	{
 		//should never happen since simplex is previously checked for validity.
-		throw std::invalid_simplex("simplexBarycentric, :2");
+		throw invalid_simplex("simplexBarycentric, :2");
 	}
 
 	return sol.solution();
@@ -108,16 +114,16 @@ bool simplexSameSpace(const simplex<D, P, A>& s, const vec<D, P>& v)
 {
 	if(!s.valid())
 	{
-		throw std::invalid_simplex("simplexSameSpace");
+		throw invalid_simplex("simplexSameSpace");
 	}
 
 	mat<D, A + 1, double> m;
 	for(std::size_t c(0); c < A; ++c)
 	{
-		m.col(c) = s.points[c] - s.points[A];
+		m.col(c) = s.points()[c] - s.points()[A];
 	}
 
-	m.col(A) = v - s.points[A];
+	m.col(A) = v - s.points()[A];
 
 	auto& les = reinterpret_cast<linearEquotationSystem<D, A, double>&>(m);
 	auto sol = les.solve();
@@ -129,7 +135,7 @@ bool simplexSameSpace(const simplex<D, P, A>& s, const vec<D, P>& v)
 	else if(!sol.unambigouosSolvable())
 	{
 		//should never happen since simplex is previously checked for validity.
-		throw std::invalid_simplex("simplexSameSpace, :2");
+		throw invalid_simplex("simplexSameSpace, :2");
 	}
 
 	return true;
@@ -138,7 +144,13 @@ bool simplexSameSpace(const simplex<D, P, A>& s, const vec<D, P>& v)
 template<std::size_t OD, typename OP, std::size_t D, typename P, std::size_t A>
 simplex<OD, OP, A> simplexConversion(const simplex<D, P, A>& s)
 {
-	return simplex<OD, OP, A>{s.points};
+	return simplex<OD, OP, A>{s.points()};
+}
+
+template<std::size_t D, typename P, std::size_t A>
+bool simplexValid(const simplex<D, P, A>& s)
+{
+	return (s.size() >= 0);
 }
 
 //tests
@@ -167,6 +179,8 @@ struct SimplexContainsPoint<D, P, 0>
 		return all(s[0] == v);
 	}
 };
+
+
 
 
 } //detail
@@ -203,12 +217,12 @@ simplex<D, P, A>::operator simplex<OD, OP, A>() const
 template<std::size_t D, typename P, std::size_t A>
 bool simplex<D, P, A>::valid() const
 {
-	return (size() > 0); //TODO: more efficient way to do this.
+	return detail::simplexValid(*this);
 }
 
 
 //tests/////////////////////////////////////
-///\relates nytl::simplex
+///\relates simplex
 ///Returns whether the simplex lays in the same space as the given point.
 ///If e.g. the simplexes D == 2 it checks whether they lay on the same plane.
 ///If D == A for the simplex object, this function will always return true.
@@ -217,11 +231,11 @@ bool simplex<D, P, A>::valid() const
 template<std::size_t D, typename P, std::size_t A> bool
 	sameSpace(const simplex<D, P, A>& s, const vec<D, P>& v)
 {
-	return detail::simplexSameSpace(*this, v);
+	return detail::simplexSameSpace(s, v);
 }
 
 ///\TODO: intersection does not check for containment atm. Probably unexpected.
-///\relates nytl::simplex
+///\relates simplex
 ///Tests if the given simplex contains the given point.
 template<std::size_t D, typename P, std::size_t A> bool 
 	contains(const simplex<D, P, A>& s, const vec<D, P>& v)
@@ -229,7 +243,7 @@ template<std::size_t D, typename P, std::size_t A> bool
 	return detail::SimplexContainsPoint<D, P, A>::test(s, v);
 }
 
-///\relates nytl::simplex
+///\relates simplex
 ///Tests two simplexs for intersection. Symmetrical operator.
 template<std::size_t D, typename P, std::size_t A> bool 
 	intersects(const simplex<D, P, A>& s1, const simplex<D, P, A>& s2)
@@ -240,7 +254,7 @@ template<std::size_t D, typename P, std::size_t A> bool
 	return 0;
 }
 
-///\relates nytl::simplex
+///\relates simplex
 ///Tests if the first simplex fully contains the second one. Asymmetrical operator.
 template<std::size_t D, typename P, std::size_t A> bool 
 	contains(const simplex<D, P, A>& s1, const simplex<D, P, A>& s2)
@@ -251,7 +265,7 @@ template<std::size_t D, typename P, std::size_t A> bool
 	return 1;
 }
 
-///\relates nytl::simplexRegion
+///\relates simplexRegion
 ///Tests if a simplexRegion intersects with a simplex. Symmetrical operator.
 template<std::size_t D, typename P, std::size_t A> bool 
 	intersects(const simplexRegion<D, P, A>& r, const simplex<D, P, A>& s)
@@ -262,7 +276,7 @@ template<std::size_t D, typename P, std::size_t A> bool
 	return 0;
 }
 
-///\relates nytl::simplexRegion
+///\relates simplexRegion
 ///Tests two simplexRegions for intersection. Symmetrical operator.
 template<std::size_t D, typename P, std::size_t A> bool 
 	intersects(const simplexRegion<D, P, A>& r1, const simplexRegion<D, P, A>& r2)
@@ -273,7 +287,7 @@ template<std::size_t D, typename P, std::size_t A> bool
 	return 0;
 }
 
-///\relates nytl::simplexRegion
+///\relates simplexRegion
 ///Tests if the given simplexRegion fully contains the given simplex. Asymmetrical operator.
 template<std::size_t D, typename P, std::size_t A>bool 
 	contains(const simplexRegion<D, P, A>& r, const simplex<D, P, A>& s)
@@ -283,7 +297,7 @@ template<std::size_t D, typename P, std::size_t A>bool
 
 	return 1;
 }
-///\relates nytl::simplexRegion
+///\relates simplexRegion
 ///Tests if the first simplexRegion fully contains the second one. Asymmetrical operator.
 template<std::size_t D, typename P, std::size_t A>bool 
 	contains(const simplexRegion<D, P, A>& r1, const simplexRegion<D, P, A>& r2)
@@ -294,7 +308,7 @@ template<std::size_t D, typename P, std::size_t A>bool
 	return 1;
 }
 
-///\relates nytl::simplexRegion
+///\relates simplexRegion
 ///Tests if the given simplexRegion contains the given point.
 template<std::size_t D, typename P, std::size_t A> bool 
 	contains(const simplexRegion<D, P, A>& r, const vec<D, P>& v)
@@ -307,7 +321,7 @@ template<std::size_t D, typename P, std::size_t A> bool
 
 
 //operators
-///\relates nytl::simplex
+///\relates simplex
 ///Returns the region of intersection between the two given simplexs. Result is not guaranteed
 ///to be representable by a simplex and therefore a simplexRegion (i.e. the intersection of two
 ///triangles is not guaranteed to be a triangle). Symmetrical operator. [AND]
@@ -316,7 +330,7 @@ template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A>
 {
 }
 
-///\relates nytl::simplex
+///\relates simplex
 ///Combines the first and the second area (Offically called union but this name is not available 
 ///in c++). Result is not guaranteed to be representable by one
 ///single simplex and is therefore a simplexRegion. Symmetrical operator. [OR]
@@ -325,7 +339,7 @@ template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A>
 {
 }
 
-///\relates nytl::simplex
+///\relates simplex
 ///Returns the symmetric difference of the two given simplexs, so basically the region
 ///in the given space where exactly one of the two given areas are located.
 ///Symmetrical operator. [XOR]
@@ -334,7 +348,7 @@ template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A>
 {
 }
 
-///\relates nytl::simplex
+///\relates simplex
 ///Subtracts the second area from the first one and returns the "rest" of the first area.
 ///Return type is a simplexRegion since the result is not guaranteed to be representable by one
 ///single simplex. Asymmetrical operator. [AND NOT]
@@ -344,27 +358,30 @@ template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A>
 }
 
 
-///\relates nytl::simplexRegion
+///\relates simplexRegion
 template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A> 
 	intersection(const simplexRegion<D, P, A>&, const simplexRegion<D, P, A>&)
 {
 }
 
-///\relates nytl::simplexRegion
+///\relates simplexRegion
 template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A> 
 	combination(const simplexRegion<D, P, A>&, const simplexRegion<D, P, A>&)
 {
 }
 
-///\relates nytl::simplexRegion
+///\relates simplexRegion
 template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A> 
 	symmetricDifference(const simplexRegion<D, P, A>&, const simplexRegion<D, P, A>&)
 {
 }
 
-///\relates nytl::simplexRegion
+///\relates simplexRegion
 template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A> 
 	difference(const simplexRegion<D, P, A>&, const simplexRegion<D, P, A>&)
 {
 }
 
+#ifdef DOXYGEN
+} //nytl
+#endif

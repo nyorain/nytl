@@ -24,6 +24,10 @@
 
 #pragma once
 
+#ifdef DOXYGEN
+namespace nytl{
+#endif
+
 //members
 template<std::size_t R, std::size_t C, typename P>
 template<std::size_t OR, std::size_t OC, typename OP>
@@ -35,12 +39,15 @@ mat<R, C, P>::operator mat<OR, OC, OP>() const
 }
 
 template<std::size_t R, std::size_t C, typename P>
-std::enable_if<mat<R, C, P>::is_squared, void>::type mat<R, C, P>::invert()
+template<typename TD>
+typename std::enable_if<mat<R, C, P>::is_squared, TD>::type mat<R, C, P>::invert()
 {
 	//TODO	
 }
 
+
 //exceptions
+///\relates mat
 ///\brief Exception class deriving std::invalid_argument.
 ///\detail Thrown by operational matrix functions that do not work for singular matrices
 ///but receive a singular matrix as argument.
@@ -55,7 +62,7 @@ public:
 };
 
 
-///\relates nytl::mat
+///\relates mat
 ///Returns the identityMatrix for the given dimension and precision.
 template<std::size_t D, typename P = float>
 squareMat<D, P> identityMat()
@@ -65,7 +72,7 @@ squareMat<D, P> identityMat()
 	return ret;
 }
 
-///\relates nytl::mat
+///\relates mat
 ///\return The inverse of the given square matrix
 template<std::size_t D, typename P> 
 squareMat<D, P> inverse(const squareMat<D, P>& m)
@@ -77,7 +84,7 @@ squareMat<D, P> inverse(const squareMat<D, P>& m)
 //XXX: correct implementation?
 //full pivot?
 
-///\relates nytl::mat
+///\relates mat
 ///\brief Rearranges the matrix rows.
 ///\return The sign of the used pivot matrix.
 template<std::size_t R, std::size_t C, typename P>
@@ -104,7 +111,7 @@ int pivot(mat<R, C, P>& m)
 	return ret;
 }
 
-///\relates nytl::mat
+///\relates mat
 ///\brief Computes a luDecomposition of a non-singular matrix.
 ///\return 2 mats, The lower (l, first mat) and the upper one(u, second mat).
 ///\warning May throw a nytl::invalid_matrix exception if the given matrix is
@@ -152,7 +159,7 @@ vec2<mat<D, D, double>> luDecomposition(const mat<D, D, P>& m)
 	return lu;	
 }
 
-///\relates nytl::mat
+///\relates mat
 ///\brief Composutes the product of all diagonal elements of a square-mat.
 template<std::size_t D, typename P>
 P diagonalMult(const mat<D, D, P>& m)
@@ -164,7 +171,7 @@ P diagonalMult(const mat<D, D, P>& m)
 	return ret;
 }
 
-///\relates nytl::mat
+///\relates mat
 ///\brief Computes the determinant of a given non-singular matrix.
 ///\todo May throw (since lu-algorithm is used). Determinant always computable.
 template<std::size_t D, typename P>
@@ -178,7 +185,7 @@ double det(const mat<D, D, P>& m)
 }
 
 
-///\relates nytl::mat
+///\relates mat
 ///\brief Brings a given mat in the row-echolon-form (ref).
 ///\details The given mat does not have to be pivotized.
 template<std::size_t R, std::size_t C, typename P>
@@ -199,7 +206,7 @@ void refMat(mat<R, C, P>& m)
 
 			if(m[maxR][c] != 0)
 			{
-				if(r != maxR) m.swapRow(m, r, maxR);
+				if(r != maxR) m.swapRow(r, maxR);
 				break;
 			}
 			else if(c == C - 1)
@@ -220,7 +227,7 @@ void refMat(mat<R, C, P>& m)
 	}
 }
 
-///\relates nytl::mat
+///\relates mat
 ///\brief Returns the row-echolon-form (ref) of a given mat.
 template<size_t R, size_t C, typename P>
 mat<R, C, P> refMatCopy(mat<R, C, P> m)
@@ -231,7 +238,7 @@ mat<R, C, P> refMatCopy(mat<R, C, P> m)
 
 /*
 //TODO: Some kind of solution set class for possible matrix solutions?
-///\relates nytl::mat
+///\relates mat
 ///Analzyes a matrix in row echelon form
 ///\return
 ///Returns 0 if the corresponding linear equotation system is not solvable.
@@ -245,7 +252,7 @@ unsigned int analyzeRefMat(const mat<R, C, P>& m)
 }
 */
 
-///\relates nytl::mat
+///\relates mat
 ///\brief Brings a given matrix in the reduced-row-echolon-form (rref). 
 ///\details The mat will first be brought into the row-echolon-form, so it does not have
 ///to fulfill any requirements.
@@ -304,7 +311,7 @@ inline unsigned int getNumberOfDigits(double i)
 
 }
 
-///\relates nytl::mat
+///\relates mat
 template<size_t R, size_t C, class P>
 std::ostream& operator<<(std::ostream& os, const mat<R, C, P>& obj)
 {
@@ -336,7 +343,7 @@ std::ostream& operator<<(std::ostream& os, const mat<R, C, P>& obj)
 
 //todo: more efficiency with wrapper classes for operations
 //+
-///\relates nytl::mat
+///\relates mat
 template<size_t R, size_t C, typename P>
 mat<R, C, P> operator+(mat<R, C, P> ma, const mat<R, C, P>& mb)
 {
@@ -345,7 +352,7 @@ mat<R, C, P> operator+(mat<R, C, P> ma, const mat<R, C, P>& mb)
 
 
 //-
-///\relates nytl::mat
+///\relates mat
 template<size_t R, size_t C, typename P> mat<R, C, P>
 operator-(mat<R, C, P> ma, const mat<R, C, P>& mb)
 {
@@ -355,14 +362,14 @@ operator-(mat<R, C, P> ma, const mat<R, C, P>& mb)
 
 //*
 //mat and value
-///\relates nytl::mat
+///\relates mat
 template<size_t R, size_t C, typename P>
 mat<R, C, P> operator*(mat<R, C, P> ma, const P& other)
 {
     return std::move(ma *= other);
 }
 
-///\relates nytl::mat
+///\relates mat
 template<size_t R, size_t C, typename P>
 mat<R, C, P> operator*(const P& other, mat<R, C, P> ma)
 {
@@ -370,7 +377,7 @@ mat<R, C, P> operator*(const P& other, mat<R, C, P> ma)
 }
 
 //mat and mat
-///\relates nytl::mat
+///\relates mat
 template <size_t RA, size_t CA, size_t CB, typename P> mat<RA, CB, P> 
 operator*(const mat<RA, CA, P>& ma, const mat<CA, CB, P>& mb)
 {
@@ -384,7 +391,7 @@ operator*(const mat<RA, CA, P>& ma, const mat<CA, CB, P>& mb)
 }
 
 //mat and vector
-///\relates nytl::mat
+///\relates mat
 template<size_t R, size_t C, typename P>
 vec<R, P> operator*(const mat<R, C, P>& ma, const vec<C, P>& v)
 {
@@ -397,10 +404,13 @@ vec<R, P> operator*(const mat<R, C, P>& ma, const vec<C, P>& v)
     return ret;
 }
 
-///\relates nytl::mat
+///\relates mat
 template<size_t R, size_t C, typename P>
 vec<R, P> operator*(const vec<C, P>& v, const mat<R, C, P>& ma)
 {
     return (ma * v);
 }
 
+#ifdef DOXYGEN
+}
+#endif

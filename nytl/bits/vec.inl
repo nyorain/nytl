@@ -116,7 +116,7 @@ template<std::size_t D, typename T, typename OT>
 auto operator-(const OT& other, const vec<D, T>& mvec)
 	-> vec<D, decltype(other - mvec[0])>
 {
-	vec<D, decltype(other - mvec[0]) ret(mvec.size());
+	vec<D, decltype(other - mvec[0])> ret(mvec.size());
 	for(std::size_t i(0); i < ret.size(); ++i)
 		ret[i] = other - mvec[i];
 
@@ -182,7 +182,7 @@ template<std::size_t D, typename T, typename OT>
 auto operator/(const OT& other, const vec<D, T>& mvec)
 	-> vec<D, decltype(other / mvec[0])>
 {
-	vec<D, decltype(other / mvec[0]) ret(mvec.size());
+	vec<D, decltype(other / mvec[0])> ret(mvec.size());
 	for(std::size_t i(0); i < ret.size(); ++i)
 		ret[i] = other / mvec[i];
 
@@ -216,7 +216,7 @@ template<std::size_t D, typename T, typename OT>
 auto operator%(const OT& other, const vec<D, T>& mvec)
 	-> vec<D, decltype(other % mvec[0])>
 {
-	vec<D, decltype(other % mvec[0]) ret(mvec.size());
+	vec<D, decltype(other % mvec[0])> ret(mvec.size());
 	for(std::size_t i(0); i < ret.size(); ++i)
 		ret[i] = other % mvec[i];
 
@@ -402,42 +402,42 @@ vec<detail::dMin(DA, DB), bool> operator>=(const vec<DA, TA>& veca, const vec<DB
 
 ///\relates nytl::vec
 template<std::size_t DA, typename TA, typename TB> 
-vec<detail::dMin(DA, DB), bool> operator==(const vec<DA, TA>& veca, const TB& b)
+vec<DA, bool> operator==(const vec<DA, TA>& veca, const TB& b)
 {
     return equal(veca, b);
 }
 
 ///\relates nytl::vec
 template<std::size_t DA, typename TA, typename TB> 
-vec<detail::dMin(DA, DB), bool> operator!=(const vec<DA, TA>& veca, const TB& b)
+vec<DA, bool> operator!=(const vec<DA, TA>& veca, const TB& b)
 {
     return notEqual(veca, b);
 }
 
 ///\relates nytl::vec
 template<std::size_t DA, typename TA, typename TB> 
-vec<detail::dMin(DA, DB), bool> operator<(const vec<DA, TA>& veca, const TB& b)
+vec<DA, bool> operator<(const vec<DA, TA>& veca, const TB& b)
 {
     return lessThan(veca, b);
 }
 
 ///\relates nytl::vec
 template<std::size_t DA, typename TA, typename TB> 
-vec<detail::dMin(DA, DB), bool> operator>(const vec<DA, TA>& veca, const TB& b)
+vec<DA, bool> operator>(const vec<DA, TA>& veca, const TB& b)
 {
     return greaterThan(veca, b);
 }
 
 ///\relates nytl::vec
 template<std::size_t DA, typename TA, typename TB> 
-vec<detail::dMin(DA, DB), bool> operator<=(const vec<DA, TA>& veca, const TB& b)
+vec<DA, bool> operator<=(const vec<DA, TA>& veca, const TB& b)
 {
     return lessThanEqual(veca, b);
 }
 
 ///\relates nytl::vec
 template<std::size_t DA, typename TA, typename TB> 
-vec<detail::dMin(DA, DB), bool> operator>=(const vec<DA, TA>& veca, const TB& b)
+vec<DA, bool> operator>=(const vec<DA, TA>& veca, const TB& b)
 {
     return greaterThanEqual(veca, b);
 }

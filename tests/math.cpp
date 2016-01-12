@@ -1,4 +1,12 @@
-#include <nytl/math.hpp>
+#include <nytl/vec.hpp>
+#include <nytl/simplex.hpp>
+#include <nytl/mat.hpp>
+#include <nytl/transform.hpp>
+#include <nytl/line.hpp>
+#include <nytl/triangle.hpp>
+#include <nytl/tetrahedron.hpp>
+#include <nytl/refVec.hpp>
+#include <nytl/dynVec.hpp>
 using namespace nytl;
 
 #include <type_traits>
@@ -17,7 +25,6 @@ int main()
 		static_assert(std::is_same<decltype(b - a), vec3f>::value, "");
 		static_assert(std::is_same<decltype(a * b), vec3f>::value, "");
 		static_assert(std::is_same<decltype(b / a), vec3f>::value, "");
-		static_assert(std::is_same<decltype(a % b), vec3f>::value, "");
 	}
 
 	//vec operations test
@@ -40,16 +47,16 @@ int main()
 			line3f a({0.f, 0.f, 0.f}, {100.f, -100.f, 50.f});
 
 			assert(contains(a, vec3f{50.f, -50.f, 25.f}));
-			assert(contains(a, vec2i{0, -0}));
-			assert(contains(a, vec1f{0.f}));
+			//assert(contains(a, vec2i{0, -0}));
+			//assert(contains(a, vec1f{0.f}));
 
-			assert(!contains(a, vec4f{50.f, 50.f, 25.f, -44.6f}));
+			//assert(!contains(a, vec4f{50.f, 50.f, 25.f, -44.6f}));
 			assert(!contains(a, vec3f{101.f, -101.f, 50.5f}));
-			assert(!contains(a, vec1f{10.f}));
+			//assert(!contains(a, vec1f{10.f}));
 
-			assert(a.barycentric(vec3f{50.f, -50.f, 25.f}) == vec2f(0.5, 0.5));
-			assert(a.barycentric(vec3f{0.f, 0.f, 0.f}) == vec2f(1, 0));
-			assert(a.barycentric(vec3f{100.f, -100.f, 50.f}) == vec2f(0, 1));
+			assert(all(a.barycentric(vec3f{50.f, -50.f, 25.f}) == vec2f(0.5, 0.5)));
+			assert(all(a.barycentric(vec3f{0.f, 0.f, 0.f}) == vec2f(1, 0)));
+			assert(all(a.barycentric(vec3f{100.f, -100.f, 50.f}) == vec2f(0, 1)));
 
 			bool thrown = 0;
 			try

@@ -40,6 +40,9 @@
 namespace nytl
 {
 
+//Not specified, use the function-signature template <Ret(Args...)> like std::function.
+template<typename> class compatibleFunction;
+
 ///\brief A Function object that is able to hold all functions with a compatible signature.
 ///\ingroup function
 template<typename Ret, typename... Args>
@@ -87,7 +90,7 @@ public:
         static_assert(mapT::seq::size() == newTraits::arg_size, "Arguments not compatible");
 
         func_ = [=](Args&&... args) -> Ret {
-                return static_cast<Ret(apply(func, mapT::map(std::forward<Args>(args)...)));
+                return static_cast<Ret>(apply(func, mapT::map(std::forward<Args>(args)...)));
             };
     }
 
@@ -95,16 +98,18 @@ public:
     func_type function() const noexcept { return func_; }
 
     //call
-    RetOrg call(ArgsOrg... args) const { return func_(args...); }
-    RetOrg operator()(ArgsOrg... args) const { return func_(args...); }
+    Ret call(Args... args) const { return func_(args...); }
+    Ret operator()(Args... args) const { return func_(args...); }
+
+	operator bool() const { return function(); }
 };
 
-template<typename... ArgsOrg>
-class compatibleFunction<void(ArgsOrg...)>
+template<typename... Args>
+class compatibleFunction<void(Args...)>
 {
 public:
-	using func_type = std::function<void(ArgsOrg...)>;
-	using comp_func_type = compatibleFunction<void(ArgsOrg...)>;
+	using func_type = std::function<void(Args...)>;
+	using comp_func_type = compatibleFunction<void(Args...)>;
 
 protected:
 	func_type func_;
@@ -135,15 +140,15 @@ public:
     template<typename F>
     void set(F func) noexcept
     {
-        using orgArgsT = std::tuple<ArgsOrg...>;
+        using orgArgsT = std::tuple<Args...>;
         using newTraits = function_traits<F>;
         using newArgsT = typename newTraits::arg_tuple;
-        using mapT = tupleMap<orgArgsT, newArgsT>;
+        using mapT = detail::tupleMap<orgArgsT, newArgsT>;
 
         static_assert(mapT::seq::size() == newTraits::arg_size, "Arguments not compatible");
 
-        func_ = [=](ArgsOrg&&... args) -> void {
-                apply(func, mapT::map(std::forward<ArgsOrg>(args)...));
+        func_ = [=](Args&&... args) -> void {
+                apply(func, mapT::map(std::forward<Args>(args)...));
             };
     }
 
@@ -151,8 +156,10 @@ public:
     func_type function() const noexcept { return func_; }
 
     //call
-    void call(ArgsOrg... args) const { func_(args...); }
-    void operator()(ArgsOrg... args) const { func_(args...); }
+    void call(Args... args) const { func_(args...); }
+    void operator()(Args... args) const { func_(args...); }
+
+	operator bool() const { return function(); }
 };
 
 //typedef compFunc

@@ -70,7 +70,6 @@ int main()
 			{
 				assert(var == 8.f);
 			};
-
 		cp1(nullptr, 8., 4.f);
 		cp1 = testFunc1;
 		cp1 = &testFunc1;

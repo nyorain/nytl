@@ -38,7 +38,8 @@ intersects(const rect<D, P>& r1, const line<D, P>& l2)
 {
     //TODO: algorithm might be wrong, might have bugs, !important
     if(contains(r1, l2.a) || contains(r1, l2.b)) return 1;
-    if(!l2.definedFor(r1.position[0], 0) || !l2.definedFor(r1.position[0] + r1.size[0], 0)) return 0;
+    if(!l2.definedFor(r1.position[0], 0) || !l2.definedFor(r1.position[0] + r1.size[0], 0)) 
+		return 0;
 
     auto st = l2.valueAt(r1.position[0]);
     auto en = l2.valueAt(r1.position[0] + r1.size[0]);
@@ -212,8 +213,9 @@ std::vector<rect<D, P>> operator|(const rect<D, P>& recta, const rect<D, P>& rec
 ///returns one of them.
 ///\return A vec with D! simplexes of the same dimension and precision as the given rect.
 template<std::size_t D, typename P>
-vec<fac<D>::value, simplex<D, P>> split(const rect<D, P>& r)
+vec<fac(D), simplex<D, P>> split(const rect<D, P>& r)
 {
+	//TODO
 }
 
 ///\relates nytl::rect

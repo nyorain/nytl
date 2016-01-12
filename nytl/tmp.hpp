@@ -37,6 +37,7 @@ namespace nytl
 ///\details Really useful for template classes that use SFINAE.
 template<typename...> struct deriveDummy {};
 template<typename...> using void_t = void;
+
 //TUPLE
 //tuple_erase_first
 template<typename T> struct tuple_erase_first;

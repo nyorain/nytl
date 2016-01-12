@@ -42,13 +42,10 @@
 #include <nytl/misc.hpp>
 #include <nytl/nonCopyable.hpp>
 #include <nytl/potential_ptr.hpp>
-#include <nytl/serialize.hpp>
 #include <nytl/system.hpp>
-#include <nytl/sequence.hpp>
 #include <nytl/simplex.hpp>
 #include <nytl/time.hpp>
 #include <nytl/tetrahedron.hpp>
 #include <nytl/tmp.hpp>
-#include <nytl/typemap.hpp>
 #include <nytl/versionControl.hpp>
 #include <nytl/watchable.hpp>

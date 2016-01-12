@@ -47,9 +47,10 @@ class mat;
 #include <nytl/bits/matmp.inl>
 #include <nytl/bits/matypes.inl>
 
-//mat class
-template<std::size_t R, std::size_t C, typename P>
-class mat : deriveDummy<std::enable_if<(R > 0) && (C > 0) && (!std::is_reference<P>::value)>::type>
+///\ingroup math
+///\brief Matrix template class.
+template<std::size_t R, std::size_t C, typename P> class mat : 
+	deriveDummy<typename std::enable_if<(R > 0) && (C > 0) && (!std::is_reference<P>::value)>::type>
 {
 public:
     using value_type = P;
@@ -155,16 +156,18 @@ public:
 	}
     mat<R, C, P>& operator *=(const P& other){ for(auto& val : *this) val *= other; }
 
-    //invert
+    //invert TODO
 	///\brief Only available for squared (R == C) mat objects.
 	///\return Returns whether the mat object is invertible. 
-	std::enable_if<is_squared, bool> invertable() const { return 0; }
+	template<typename TD = bool>
+		typename std::enable_if<is_squared, TD>::type invertable() const { return 0; }
 
 	///\brief Inverts the mat object.
 	///\details Only available for squared (R == C) mat objects.
 	///\warning Will throw nytl::invalid_matrix if the matrix is not invertable.
 	///Check this with invertable() before using invert().
-    std::enable_if<is_squared, void> invert();
+    template<typename TD = void>
+		typename std::enable_if<is_squared, TD>::type invert();
 
 	///\brief Converts the mat object to a mat object with different template parameters.
     template<std::size_t OR, std::size_t OC, class OP> operator mat<OR, OC, OP>() const;

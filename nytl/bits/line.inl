@@ -47,7 +47,7 @@ line<D, P>::definedAt(const P& value, std::size_t dim) const
 template<size_t D, typename P> vec<D, P>
 line<D, P>::valueAt(const P& value, std::size_t dim) const
 {
-    if(!definedFor(value, dim))
+    if(!definedAt(value, dim))
     {
 		sendWarning("nytl::line::valueAt: line not defined at ", value, ", dim ", dim);
         return {};
@@ -73,9 +73,9 @@ vec<2, double> line<D, P>::barycentric(const vec<D, P>& v) const
 }
 
 template<std::size_t D, typename P>
-bool line<D, P>::sameSpace(const vec<D, P>& v) const
+bool line<D, P>::valid() const
 {
-	return detail::simplexSameSpace(*this, v);
+	return detail::simplexValid(*this);
 }
 
 //utility
