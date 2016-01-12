@@ -65,7 +65,7 @@ public:
 
 	template<std::size_t D, typename P>
 	vec<N, double> solution(const vec<D, P>& variables) const;
-	vec<N, double> solution() const { return solution(vec2i(0, 0)); }
+	vec<N, double> solution() const;
 };
 
 ///\brief A linear equtations with variable coefficients and a result.

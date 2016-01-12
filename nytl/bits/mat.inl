@@ -25,38 +25,39 @@
 #pragma once
 
 //members
-template<std::size_t R, std::size_t C, typename P, typename Cond>
+template<std::size_t R, std::size_t C, typename P>
 template<std::size_t OR, std::size_t OC, typename OP>
-mat<R, C, P, Cond>::operator mat<OR, OC, OP>() const
+mat<R, C, P>::operator mat<OR, OC, OP>() const
 {
 	mat<OR, OC, OP> ret({});
 	detail::initMatData<min(OR, R) * min(OC, C)>::call(ret.data_, asTuple());
 	return ret;
 }
 
-///\relates nytl::mat
 template<std::size_t R, std::size_t C, typename P>
-void swapRow(mat<R, C, P>& m, std::size_t a, std::size_t b)
+std::enable_if<mat<R, C, P>::is_squared, void>::type mat<R, C, P>::invert()
 {
-	for(std::size_t i(0); i < C; ++i)
-	{
-		std::swap(m[a][i], m[b][i]);
-	}
+	//TODO	
 }
 
-///\relates nytl::mat
-template<std::size_t R, std::size_t C, typename P>
-void swapCol(mat<R, C, P>& m, std::size_t a, std::size_t b)
+//exceptions
+///\brief Exception class deriving std::invalid_argument.
+///\detail Thrown by operational matrix functions that do not work for singular matrices
+///but receive a singular matrix as argument.
+class invalid_matrix : public std::invalid_argument
 {
-	for(std::size_t i(0); i < R; ++i)
-	{
-		std::swap(m[i][a], m[i][b]);
-	}
-}
+public:
+	invalid_matrix()
+		: std::invalid_argument("Invalid matrix argument") {}
+
+	invalid_matrix(const std::string& func)
+		: std::invalid_argument("Invalid matrix argument in function " + func) {}
+};
+
 
 ///\relates nytl::mat
 ///Returns the identityMatrix for the given dimension and precision.
-template<size_t D, typename P = float>
+template<std::size_t D, typename P = float>
 squareMat<D, P> identityMat()
 {
 	squareMat<D, P> ret(0);
@@ -64,10 +65,21 @@ squareMat<D, P> identityMat()
 	return ret;
 }
 
-//XXX: correct implementation.
-//full pivot?
 ///\relates nytl::mat
-///Returns the sign of the used pivot matrix.
+///\return The inverse of the given square matrix
+template<std::size_t D, typename P> 
+squareMat<D, P> inverse(const squareMat<D, P>& m)
+{
+	auto cpy = m;
+	return m.invert();
+}
+
+//XXX: correct implementation?
+//full pivot?
+
+///\relates nytl::mat
+///\brief Rearranges the matrix rows.
+///\return The sign of the used pivot matrix.
 template<std::size_t R, std::size_t C, typename P>
 int pivot(mat<R, C, P>& m)
 {
@@ -84,7 +96,7 @@ int pivot(mat<R, C, P>& m)
 
 		if(maxR != c)
 		{
-			swapRow(m, c, maxR);
+			m.swapRow(c, maxR);
 			ret *= -1;
 		}
 	}
@@ -93,6 +105,10 @@ int pivot(mat<R, C, P>& m)
 }
 
 ///\relates nytl::mat
+///\brief Computes a luDecomposition of a non-singular matrix.
+///\return 2 mats, The lower (l, first mat) and the upper one(u, second mat).
+///\warning May throw a nytl::invalid_matrix exception if the given matrix is
+///not correctly pivotized.
 template<std::size_t D, typename P>
 vec2<mat<D, D, double>> luDecomposition(const mat<D, D, P>& m)
 {
@@ -118,6 +134,11 @@ vec2<mat<D, D, double>> luDecomposition(const mat<D, D, P>& m)
 			//l
 			else
 			{
+				if(lu[1][c][c] == 0)
+				{
+					throw invalid_matrix("nytl::luDecomposition, needs pivoting");
+				}
+
 				vsum = 0;
 
 				for(std::size_t k(0); k < c; ++k)
@@ -132,6 +153,7 @@ vec2<mat<D, D, double>> luDecomposition(const mat<D, D, P>& m)
 }
 
 ///\relates nytl::mat
+///\brief Composutes the product of all diagonal elements of a square-mat.
 template<std::size_t D, typename P>
 P diagonalMult(const mat<D, D, P>& m)
 {
@@ -143,6 +165,8 @@ P diagonalMult(const mat<D, D, P>& m)
 }
 
 ///\relates nytl::mat
+///\brief Computes the determinant of a given non-singular matrix.
+///\todo May throw (since lu-algorithm is used). Determinant always computable.
 template<std::size_t D, typename P>
 double det(const mat<D, D, P>& m)
 {
@@ -155,6 +179,8 @@ double det(const mat<D, D, P>& m)
 
 
 ///\relates nytl::mat
+///\brief Brings a given mat in the row-echolon-form (ref).
+///\details The given mat does not have to be pivotized.
 template<std::size_t R, std::size_t C, typename P>
 void refMat(mat<R, C, P>& m)
 {
@@ -163,6 +189,7 @@ void refMat(mat<R, C, P>& m)
     {
 		for(; c < C; ++c)
 		{
+			//basically pivotize
 			std::size_t maxR = r;
 			for(std::size_t r2 = r + 1; r2 < R; ++r2)
 			{
@@ -172,7 +199,7 @@ void refMat(mat<R, C, P>& m)
 
 			if(m[maxR][c] != 0)
 			{
-				if(r != maxR) swapRow(m, r, maxR);
+				if(r != maxR) m.swapRow(m, r, maxR);
 				break;
 			}
 			else if(c == C - 1)
@@ -194,6 +221,7 @@ void refMat(mat<R, C, P>& m)
 }
 
 ///\relates nytl::mat
+///\brief Returns the row-echolon-form (ref) of a given mat.
 template<size_t R, size_t C, typename P>
 mat<R, C, P> refMatCopy(mat<R, C, P> m)
 {
@@ -201,7 +229,8 @@ mat<R, C, P> refMatCopy(mat<R, C, P> m)
 	return m;
 }
 
-//XXX: Some kind of solution set class for possible matrix solutions?
+/*
+//TODO: Some kind of solution set class for possible matrix solutions?
 ///\relates nytl::mat
 ///Analzyes a matrix in row echelon form
 ///\return
@@ -214,8 +243,12 @@ unsigned int analyzeRefMat(const mat<R, C, P>& m)
 	//TODO
 	return 0;
 }
+*/
 
 ///\relates nytl::mat
+///\brief Brings a given matrix in the reduced-row-echolon-form (rref). 
+///\details The mat will first be brought into the row-echolon-form, so it does not have
+///to fulfill any requirements.
 template<size_t R, size_t C, typename P>
 void rrefMat(mat<R, C, P>& m)
 {
@@ -243,7 +276,8 @@ void rrefMat(mat<R, C, P>& m)
     }
 }
 
-///\relates nytl::mat
+///\relates mat
+///\brief Computes the reduced-row-echolon-form (rref) of a given mat.
 template<size_t R, size_t C, typename P>
 mat<R, C, P> rrefMatCopy(mat<R, C, P> m)
 {

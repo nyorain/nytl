@@ -48,6 +48,27 @@ vec<N, double> solutionSet<N>::solution(const vec<D, P>& vars) const
 	return ret;
 }
 
+template<std::size_t N>
+vec<N, double> solutionSet<N>::solution() const
+{
+	vec<N, double> ret;
+	if(!solvable())
+	{
+		ret.fill(std::numeric_limits<double>::quiet_NaN());
+	}
+	else if(unambigouosSolvable())
+	{
+		for(std::size_t i(0); i < N; ++i)
+			ret[i] = solution_[i].constPart;		
+	}
+	else
+	{
+		//will convert to vec of needed size, full of 0's
+		return solution(vec2i(0, 0));
+	}
+	return ret;
+}
+
 //linearEquotationSystem
 template<std::size_t E, std::size_t V, typename P>
 solutionSet<V> linearEquotationSystem<E, V, P>::solve() const

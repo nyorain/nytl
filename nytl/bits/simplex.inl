@@ -23,15 +23,38 @@
 
 #pragma once
 
-//detail implementation
+//exception////////////////////////////////////////////////////////////////////////////////
+///\brief This exception is thrown when two given arguments do not lay in the same spaces.
+///\details For some computations (i.e. barycentric coordinates) it is required that two
+///geometric areas (e.g. simplex and point) lay in the same space.
+class invalid_space : public std::invalid_argument
+{
+public:
+	invalid_space() : std::invalid_argument("Invalid argument given: different space") {}
+	invalid_space(const std::string& func) 
+		: std::invalid_argument("Invalid argument given: different space at function " + func) {}  
+};
+
+///\brief This exception is thrown if a given simplex object argument is not valid.
+///\details Needed because some computations (e.g. barycentric coordinates or sameSpace-check)
+///can not be done swith an invalid simplex object.
+class invalid_simplex : public std::invalid_argument
+{
+public:
+	invalid_simplex() : std::invalid_argument("Invalid simplex object parameter") {}
+	invalid_simplex(const std::string& func) 
+		: std::invalid_argument("Invalid simplex object parameter given at function " + func) {}  
+};
+
+
+//detail implementation///////////////////////////////////////////////
 namespace detail
 {
 
-//members
 template<std::size_t D, typename P, std::size_t A>
 double simplexSize(const simplex<D, P, A>& s)
 {
-	squareMat<D, P> m({});
+	squareMat<D, P> m;
 	for(std::size_t i(1); i <= A; ++i)
 	{
 		m.col(i) = s.points[i] - s.points[0];
@@ -46,37 +69,70 @@ vec<D, P> simplexCenter(const simplex<D, P, A>& s)
 	return (sum(s.points) / s.points.size());
 }
 
-//XXX !important
+//throws invalid_space if given point does not lay in space(line, plane, area ...) of simplex
 template<std::size_t D, typename P, std::size_t A>
 vec<A + 1, double> simplexBarycentric(const simplex<D, P, A>& s, const vec<D, P>& v)
 {
-	//XXX: assure valid object
-	mat<D, A + 1, double> m;
+	if(!s.valid())
+	{
+		throw std::invalid_simplex("simplexBarycentric");
+	}
 
+	mat<D, A + 1, double> m;
 	for(std::size_t c(0); c < A; ++c)
 	{
 		m.col(c) = s.points[c] - s.points[A];
 	}
 
 	m.col(A) = v - s.points[A];
-	if(!rrefMat(m))
+
+	auto& les = reinterpret_cast<linearEquotationSystem<D, A, double>&>(m);
+	auto sol = les.solve();
+
+	if(!sol.solvable())
 	{
-		//XXX: throw here, catch rref throw, document it.
-		return vec<D, double>({});
+		throw std::invalid_space("simplexBarycentric");
+	}
+	else if(!sol.unambigouosSolvable())
+	{
+		//should never happen since simplex is previously checked for validity.
+		throw std::invalid_simplex("simplexBarycentric, :2");
 	}
 
-	//XXX: analyze matrix. might be wrong! throw then (document it!)
-	vec<A + 1, double> ret = m.col(A);
-	ret[A] = 1 - sum(ret);
-
-	return ret;
+	return sol.solution();
 }
 
+///TODO: should this function really throw? not just return false?
 template<std::size_t D, typename P, std::size_t A>
 bool simplexSameSpace(const simplex<D, P, A>& s, const vec<D, P>& v)
 {
-	//needs valid/all-informational rref/ref implementation.
-	//pivot
+	if(!s.valid())
+	{
+		throw std::invalid_simplex("simplexSameSpace");
+	}
+
+	mat<D, A + 1, double> m;
+	for(std::size_t c(0); c < A; ++c)
+	{
+		m.col(c) = s.points[c] - s.points[A];
+	}
+
+	m.col(A) = v - s.points[A];
+
+	auto& les = reinterpret_cast<linearEquotationSystem<D, A, double>&>(m);
+	auto sol = les.solve();
+
+	if(!sol.solvable())
+	{
+		return false;
+	}
+	else if(!sol.unambigouosSolvable())
+	{
+		//should never happen since simplex is previously checked for validity.
+		throw std::invalid_simplex("simplexSameSpace, :2");
+	}
+
+	return true;
 }
 
 template<std::size_t OD, typename OP, std::size_t D, typename P, std::size_t A>
@@ -96,9 +152,9 @@ struct SimplexContainsPoint
 			auto bv = s.barycentric(v);
 			return (sum(bv) == 1 && none(bv > 1) && none(bv < 0));
 		}
-		catch(const std::exception& err)
+		catch(const invalid_space& err)
 		{
-			return 0;
+			return false;
 		}
 	}
 };
@@ -115,42 +171,56 @@ struct SimplexContainsPoint<D, P, 0>
 
 } //detail
 
-//member
-template<std::size_t D, typename P, std::size_t A, typename Cond>
-double simplex<D, P, A, Cond>::size() const
+
+
+//member///////////////////////////////////////////////
+template<std::size_t D, typename P, std::size_t A>
+double simplex<D, P, A>::size() const
 {
 	return detail::simplexSize(*this);
 }
 
 
-template<std::size_t D, typename P, std::size_t A, typename Cond>
-vec<D, P> simplex<D, P, A, Cond>::center() const
+template<std::size_t D, typename P, std::size_t A>
+vec<D, P> simplex<D, P, A>::center() const
 {
 	return detail::simplexCenter(*this);
 }
 
-template<std::size_t D, typename P, std::size_t A, typename Cond>
-vec<A + 1, double> simplex<D, P, A, Cond>::barycentric(const vec<D, P>& v) const
+template<std::size_t D, typename P, std::size_t A>
+vec<A + 1, double> simplex<D, P, A>::barycentric(const vec<D, P>& v) const
 {
 	return detail::simplexBarycentric(*this, v);
 }
 
-template<std::size_t D, typename P, std::size_t A, typename Cond>
-bool simplex<D, P, A, Cond>::sameSpace(const vec<D, P>& v) const
-{
-	return detail::simplexSameSpace(*this, v);
-}
-
-template<std::size_t D, typename P, std::size_t A, typename Cond>
+template<std::size_t D, typename P, std::size_t A>
 template<std::size_t OD, typename OP>
-simplex<D, P, A, Cond>::operator simplex<OD, OP, A>() const
+simplex<D, P, A>::operator simplex<OD, OP, A>() const
 {
 	return detail::simplexConversion<OD, OP>(*this);
 }
 
-//tests
-//XXX: intersection does not check for containment atm. Probably unexpected 
+template<std::size_t D, typename P, std::size_t A>
+bool simplex<D, P, A>::valid() const
+{
+	return (size() > 0); //TODO: more efficient way to do this.
+}
 
+
+//tests/////////////////////////////////////
+///\relates nytl::simplex
+///Returns whether the simplex lays in the same space as the given point.
+///If e.g. the simplexes D == 2 it checks whether they lay on the same plane.
+///If D == A for the simplex object, this function will always return true.
+///\warning Will throw nytl::invalid_simplex if the simplex object is not valid (i.e. size
+///<= 0).
+template<std::size_t D, typename P, std::size_t A> bool
+	sameSpace(const simplex<D, P, A>& s, const vec<D, P>& v)
+{
+	return detail::simplexSameSpace(*this, v);
+}
+
+///\TODO: intersection does not check for containment atm. Probably unexpected.
 ///\relates nytl::simplex
 ///Tests if the given simplex contains the given point.
 template<std::size_t D, typename P, std::size_t A> bool 

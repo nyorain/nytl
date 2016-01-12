@@ -33,13 +33,10 @@
 namespace nytl
 {
 
-template<typename...> using void_t = void;
-
 ///\brief Class that can be derived from to check if given template parameters are valid.
 ///\details Really useful for template classes that use SFINAE.
-template<typename...> class sfinaeDeriveDummy {};
-
-
+template<typename...> struct deriveDummy {};
+template<typename...> using void_t = void;
 //TUPLE
 //tuple_erase_first
 template<typename T> struct tuple_erase_first;
