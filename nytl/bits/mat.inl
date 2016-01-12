@@ -35,7 +35,7 @@ mat<R, C, P>::operator mat<OR, OC, OP>() const
 }
 
 template<std::size_t R, std::size_t C, typename P>
-std::enable_if<mat<R, C, P, Cond> mat<R, C, P>::invert()
+std::enable_if<mat<R, C, P>::is_squared, void>::type mat<R, C, P>::invert()
 {
 	//TODO	
 }
@@ -137,7 +137,7 @@ vec2<mat<D, D, double>> luDecomposition(const mat<D, D, P>& m)
 			{
 				if(lu[1][c][c] == 0)
 				{
-					throw invalid_matrix("nytl::luDecomposition");
+					throw invalid_matrix("nytl::luDecomposition, needs pivoting");
 				}
 
 				vsum = 0;

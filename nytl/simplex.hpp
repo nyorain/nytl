@@ -27,11 +27,14 @@
 #include <nytl/mat.hpp>
 #include <nytl/tmp.hpp>
 #include <nytl/constants.hpp>
+#include <nytl/linearSolver.hpp>
 
 #include <vector>
 #include <type_traits>
 #include <utility>
 #include <cmath>
+#include <stdexcept>
+#include <string>
 
 namespace nytl
 {
@@ -47,15 +50,15 @@ template<std::size_t D, std::size_t A> using DimMatch = typename std::enable_if<
 ///The area is called unique, since it does have a variable number of points defining it; always
 ///enough to describe exactly one, unambigous area with the given dimension and precision in
 ///the given space.
-template<std::size_t D, typename P = float, std::size_t A = D, typename = DimMatch<D, A>>
-class simplex
+template<std::size_t D, typename P = float, std::size_t A = D>
+class simplex : public deriveDummy<DimMatch<D, A>>
 {
 public:
 	using vec_type = vec<D, P>;
 
 public:
 	///Holds the points that define the area.
-	vec<A + 1, vec_type> points;
+	vec<A + 1, vec_type> points_;
 
 public:
 	template<typename... Args, typename = typename
@@ -65,33 +68,36 @@ public:
 				type_tuple_t<vec_type, A + 1>
 			>::value
 		>::type>		
-	simplex(Args&&... args) noexcept : points{std::forward<Args>(args)...} {}
+	simplex(Args&&... args) noexcept : points_{std::forward<Args>(args)...} {}
 	simplex() noexcept = default;
 
-	///Returns the size of the area (e.g. for a 3-dimensional area this would be the volume)
+	///Returns the size of the area (e.g. for a 3-dimensional simplex this would be the volume)
 	double size() const;
 
 	///Returns the center point of the area.
 	vec_type center() const;
 
-	///Returns whether the simplex lays in the same space as the given point.
-	///If e.g. D==2 it checks whether they lay on the same plane.
-	///If D==A this will always return true.
-	bool sameSpace(const vec_type& val) const;
+	///Returns whether the defined simplex is valid (i.e. size > 0).
+	bool valid() const;
 
 	///Converts the given normal coordinates into barycentric coordinates for the simplex
 	///object. If the given point does not lay in the same space as the simplex object,
 	///the function will throw an exception.
 	///This can be checked before with sameSpace().
+	///\warning Will throw nytl::invalid_simplex if the simplex object is not valid. Can be 
+	///checked with (simplex.valid()) or (simplex.size() >= 0).
+	///\warning Will throw nytl::invalid_space if the given point does not lay in the simplex's 
+	///space (e.g. the simplex is a triangle in a 3-dimensional room and the triangle and the given
+	///point do not lay on the same plane). Can be checked with sameSpace(simplex, point).
 	vec<A + 1, double> barycentric(const vec_type& val) const;
 
 	///Converts the object into a vec of points. Can be used to acces (read/change/manipulate) the
 	///points.
-	vec<A + 1, vec_type>& asVec(){ return points; }
+	vec<A + 1, vec_type>& points(){ return points_; }
 
 	///Converts the object into a const vec of poitns. Can be used to const_iterate/read the 
 	///points.
-	const vec<A + 1, vec_type>& asVec() const { return points; }
+	const vec<A + 1, vec_type>& points() const { return points_; }
 
 	///Converts the object to a simplex with a different dimension or precision.
 	///Note that the area dimension A cannot be changed, only the space dimension D.
@@ -103,7 +109,7 @@ public:
 ///Describes a region of multiple unique areas.
 ///Look at simplex for more information.
 template<std::size_t D, typename P = float, std::size_t A = D, typename = DimMatch<D, A>>
-class simplexRegion
+class simplexRegion : public deriveDummy<DimMatch<D, A>>
 {
 public:
 	using simplex_type = simplex<D, P, A>;
@@ -114,7 +120,7 @@ public:
 public:
 	///Vector of simplexs that holds the areas that define this region.
 	///None of the simplexs in this vector should intersect with each other.
-	vector_type areas;
+	vector_type areas_;
 
 public:
 	///Adds a simplex to this region. Effectively only adds the part of the simplex that
@@ -136,6 +142,9 @@ public:
 
 	///Returns the number of simplexs this region contains.
 	size_type count() const;
+
+	///Returns a vector with the given simplexes.
+	const vector_type& areas() const { return areas_; }
 
 	///Converts the region to a region object of different precision and space dimension.
 	template<std::size_t ND, typename NP, typename = DimMatch<D, A>> 

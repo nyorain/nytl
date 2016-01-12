@@ -31,6 +31,9 @@
 namespace nytl
 {
 
+//deriveDummy
+template<typename...> struct deriveDummy {};
+
 //TUPLE
 //tuple_erase_first//////////////////////////////////////////////////////////////////////
 template<typename T> struct tuple_erase_first;
