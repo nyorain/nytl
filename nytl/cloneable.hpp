@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+///\file
+///\brief Small utilities for defining/using cloneable clases.
+
 #pragma once
 
 #include <nytl/make_unique.hpp>
@@ -32,32 +35,32 @@
 namespace nytl
 {
 
-//derive cloneable
-template<typename Base, typename Derived> class deriveCloneable : public Base
+///\brief Utility template to derive from a class with a virtual clone function.
+///\ingroup utility
+template<typename Base, typename Derived> 
+class deriveCloneable : public Base
 {
-protected:
-    constexpr deriveCloneable() noexcept
-    {
-        static_assert(std::is_copy_constructible<Derived>::value,
-				"Your class must be copy constructible");
-    }
-
 public:
     virtual std::unique_ptr<Base> clone() const override
 		{ return make_unique<Derived>(*(static_cast<const Derived*>(this))); }
 };
 
 
-#define NYTL_CLONE_FUNC(Base, Derived) virtual std::unique_ptr<Base> clone() const override { return nytl::make_unique<Derived>(*this); }
-
-//cloneVector - mainly for unique pointers
-template<class A> std::vector<A> cloneVector(const std::vector<A>& a)
+///\brief Utility function to copy a vector of cloneable objects by cloning.
+///\details This can be useful if one has a vector of polymorph objects which
+///can not be copy constructed (e.g. vector<SomeAbstractBaseClass*>), especially
+///when dealing with smart pointers like std::unique_ptr.
+///\param vectorObject A vector of cloneable objects (objects with a clone() member function).
+///\return A std::vector of cloned objects.
+template<class A> auto cloneVector(const std::vector<A>& vectorObject)
+	-> std::vector<typename std::result_of<decltype(vectorObject[0]->clone())>::type>
 {
     std::vector<A> ret;
-    ret.reserve(a.size());
+    ret.reserve(vectorObject.size());
 
-    for(auto& val : a)
+    for(auto& val : vectorObject)
     {
+		//? what is this implementation?
         auto&& cpy = val->clone();
         auto& cpy2 = (A&) cpy;
         ret.emplace_back(std::move(cpy2));

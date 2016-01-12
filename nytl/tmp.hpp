@@ -22,8 +22,10 @@
  * SOFTWARE.
  */
 
+///\file
+///\brief Header that implementes several useful metaprogramming templates.
+
 #pragma once
-//header for template metaprogramming
 
 #include <utility>
 #include <ostream>
@@ -31,11 +33,12 @@
 namespace nytl
 {
 
-//deriveDummy
+///\brief Class that can be derived from to check if given template parameters are valid.
+///\details Really useful for template classes that use SFINAE.
 template<typename...> struct deriveDummy {};
-
+template<typename...> using void_t = void;
 //TUPLE
-//tuple_erase_first//////////////////////////////////////////////////////////////////////
+//tuple_erase_first
 template<typename T> struct tuple_erase_first;
 
 template<template<typename...> class T, typename Head, typename ... Tail>
@@ -46,7 +49,7 @@ struct tuple_erase_first<T<Head, Tail...>>
 
 template<typename T> using tuple_erase_first_t = typename tuple_erase_first<T>::type;
 
-//tuple_append////////////////////////////////////////////////////////////////////////////
+//tuple_append
 template<typename T, typename Append> struct tuple_append;
 
 template<template<typename...> class T, typename... Body, typename Append>
@@ -57,7 +60,7 @@ struct tuple_append<T<Body...>, Append>
 
 template<typename T, typename Append> using tuple_append_t = typename tuple_append<T, Append>::type;
 
-//tuple_prepend////////////////////////////////////////////////////////////////////////////
+//tuple_prepend
 template<typename T, typename Append> struct tuple_prepend;
 
 template<template<typename...> class T, typename... Body, typename Prepend>
@@ -68,7 +71,7 @@ struct tuple_prepend<T<Body...>, Prepend>
 
 template<typename T, typename Prepend> using tuple_prepend_t = typename tuple_prepend<T, Prepend>::type;
 
-//type_tuple////////////////////////////////////////////////////////////////////////////////
+//type_tuple
 template<typename T, std::size_t size, template<typename...> class Tuple = std::tuple> struct type_tuple
 {
     using type = typename tuple_prepend<typename type_tuple<T, size - 1>::type, T>::type;
@@ -86,7 +89,7 @@ using type_tuple_t = typename type_tuple<T, size, Tuple>::type;
 
 
 //SEQEUNCE
-//seq_erase_first/////////////////////////////////////////////////////////////////////////
+//seq_erase_first
 template<typename T> struct seq_erase_first;
 
 template<typename I, template<typename, I...> class T, I Head, I... Tail>
@@ -98,7 +101,7 @@ struct seq_erase_first<T<I, Head, Tail...>>
 template<typename T> using seq_erase_first_t = typename seq_erase_first<T>::type;
 
 
-//seq_append////////////////////////////////////////////////////////////////////////////////
+//seq_append
 template<typename T, typename T::value_type Append> struct seq_append;
 
 template<typename I, template<typename, I...> class T, I... Body, I Append>
@@ -109,7 +112,7 @@ struct seq_append<T<I, Body...>, Append>
 
 template<typename T, typename T::value_type Append> using seq_append_t = typename seq_append<T, Append>::type;
 
-//seq_prepend////////////////////////////////////////////////////////////////////////////////
+//seq_prepend
 template<typename T, typename T::value_type Prepend> struct seq_prepend;
 
 template<typename I, template<typename, I...> class T, I... Body, I Prepend>
@@ -120,7 +123,7 @@ struct seq_prepend<T<I, Body...>, Prepend>
 
 template<typename T, typename T::value_type Prepend> using seq_prepend_t = typename seq_prepend<T, Prepend>::type;
 
-//seq_merge//////////////////////////////////////////////////////////////////////////////////
+//seq_merge
 template<typename A, typename B> struct seq_merge;
 template<typename I, template<typename, I...> class T, I... IdxA, I... IdxB>
 struct seq_merge<T<I, IdxA...>, T<I, IdxB...>>
@@ -130,7 +133,7 @@ struct seq_merge<T<I, IdxA...>, T<I, IdxB...>>
 
 template<typename A, typename B> using seq_merge_t = typename seq_merge<A, B>::type;
 
-//seq_merge_renumber//////////////////////////////////////////////////////////////////////////
+//seq_merge_renumber
 template<typename A, typename B> struct seq_merge_renumber;
 template<typename I, template<typename, I...> class T, I... IdxA, I... IdxB>
 struct seq_merge_renumber<T<I, IdxA...>, T<I, IdxB...>>
@@ -140,7 +143,7 @@ struct seq_merge_renumber<T<I, IdxA...>, T<I, IdxB...>>
 
 template<typename A, typename B> using seq_merge_renumber_t = typename seq_merge_renumber<A, B>::type;
 
-//seq_print/////////////////////////////////////////////////////////////////////////////////////
+//seq_print
 template<typename T> struct seq_print;
 template<typename I, template<typename, I...> class T, I... idx>
 struct seq_print<T<I, idx...>>
@@ -153,7 +156,7 @@ struct seq_print<T<I, idx...>>
     };
 };
 
-//raw///////////////////////////////////////////////////////////////////////////////////////////
+//raw
 namespace detail
 {
 

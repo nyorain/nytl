@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+///\file
+///\brief This files provides an c++14 std::make_unique implementation for c++11 compilers.
+
 #pragma once
 
 #include <memory>

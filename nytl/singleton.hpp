@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+///\file
+///\brief Provides utility classes for creating singletong types.
+
 #pragma once
 
 namespace nytl
@@ -39,8 +42,7 @@ public:
     }
 
 protected:
-    ~singleton();
-
+    ~singleton() = default;
 };
 
 //dynamicSingleton
@@ -62,7 +64,8 @@ public:
     }
 
 protected:
-    ~singleton();
+	dynamicSingleton(){ if(!instance()) singletonInstance(this, 1); }
+    ~dynamicSingleton(){ if(instance() == this) singletonInstance(nullptr, 1); };
 };
 
 }

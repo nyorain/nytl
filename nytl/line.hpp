@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+///\file
+///\brief The one-dimensional simplex specialization (line).
+
 #pragma once
 
 #include <nytl/vec.hpp>
@@ -51,8 +54,6 @@ using line3ui = line<3, unsigned int>;
 using line4ui = line<4, unsigned int>;
 
 
-///Simplex specialization for a 2-dimensional area (line).
-///Look at simplex for more information.
 template<size_t D, typename P>
 class simplex<D, P, 1>
 {

@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+///\file
+///\brief Includes the matrix template class as well as operations and typedefs for it.
+
 #pragma once
 
 #include <nytl/vec.hpp>

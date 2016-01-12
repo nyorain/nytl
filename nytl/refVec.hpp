@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+///\file
+///\brief Makes the vec specialization for reference types work.
+
 #pragma once
 
 #include <nytl/vec.hpp>
@@ -64,7 +67,7 @@ typedef refVec4<long> refVec4l;
 typedef refVec4<unsigned long> refVec4ul;
 
 
-///Vec specialization for a reference type. Tries to behave like a normal vec type for operations.
+///Vec specialization for reference types.
 template<size_t dimension, typename T> 
 class vec<dimension, T&>
 {
@@ -213,8 +216,6 @@ public:
 	friend void swap(ref_vec_type& a, ref_vec_type& b) { a.swap(b); }
 };
 
-
-///2-dimensional refVec specialization. 
 template<typename T> class vec<2, T&>
 {
 public:
@@ -353,7 +354,6 @@ public:
 	friend void swap(ref_vec_type& a, ref_vec_type& b) { a.swap(b); }
 };
 
-///3-dimensional refVec specialization.
 template<typename T> class vec<3, T&>
 {
 public:
@@ -501,9 +501,6 @@ public:
     vec2<reference> xz() const noexcept { return vec2<reference>(x,z); }
 };
 
-
-//4
-//vec
 template<typename T> class vec<4, T&>
 {
 public:

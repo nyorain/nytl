@@ -92,7 +92,6 @@ int pivot(mat<R, C, P>& m)
 		{
 			if(std::abs(m[r][c]) > std::abs(m[maxR][c]))
 			maxR = r;
-
 		}
 
 		if(maxR != c)
@@ -234,6 +233,7 @@ mat<R, C, P> refMatCopy(mat<R, C, P> m)
 //TODO: Some kind of solution set class for possible matrix solutions?
 ///\relates nytl::mat
 ///Analzyes a matrix in row echelon form
+///\return
 ///Returns 0 if the corresponding linear equotation system is not solvable.
 ///Returns 1 if it is unabiguously solveavle by exactly one solution.
 ///Returns 2 if it has infinity solutions.

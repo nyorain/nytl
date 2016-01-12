@@ -21,6 +21,9 @@
  * SOFTWARE.
  */
 
+///\file
+///\brief Includes the unspecialized simplex template class with operations and typedefs.
+
 #pragma once
 
 #include <nytl/vec.hpp>
@@ -42,7 +45,9 @@ namespace nytl
 ///Short enable-if typedef
 template<std::size_t D, std::size_t A> using DimMatch = typename std::enable_if<D >= A>::type;
 
-///The simplex<D, P, A> template class defines an unique area with \cA dimensions
+///\brief Templated abstraction of the simplex concept.
+///\ingroup math
+///\details The simplex<D, P, A> template class defines an unique area with \cA dimensions
 ///of \cP precision in an \cD dimensional space.
 ///So e.g. simplex<3, float, 2> describes a triangle in a 3-dimensional space.
 ///This template class does only works if D >= A, since the dimension of the area
@@ -106,8 +111,7 @@ public:
 		operator simplex<OD, OP, A>() const;
 };
 
-///Describes a region of multiple unique areas.
-///Look at simplex for more information.
+///Describes a region of multiple simplexes. 
 template<std::size_t D, typename P = float, std::size_t A = D, typename = DimMatch<D, A>>
 class simplexRegion : public deriveDummy<DimMatch<D, A>>
 {
@@ -151,7 +155,7 @@ public:
 		operator simplexRegion<ND, NP, A>() const;
 };
 
-//To get the additional features for each specialization, include the according headers:
+//To get the additional features for each specialization, include the corresponding headers:
 //#include <nytl/line.hpp>
 template<std::size_t D, typename P = float> using line = simplex<D, P, 1>;
 //#include <nytl/triangle.hpp>

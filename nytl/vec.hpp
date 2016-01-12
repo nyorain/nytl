@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+///\file
+///\brief Includes the vec template class as well as vec typedefs and utility functions.
+
 #pragma once
 
 #include <nytl/tmp.hpp>
@@ -40,9 +43,10 @@ namespace nytl
 {
 
 
-template<size_t dim, typename T> class vec;
+template<size_t D, typename T> class vec;
 
 //typedefs
+///\brief Typedefs a vector with 2 components.
 template<typename T = float> using vec2 = vec<2, T>;
 template<typename T = float> using vec3 = vec<3, T>;
 template<typename T = float> using vec4 = vec<4, T>;
@@ -94,21 +98,13 @@ constexpr std::size_t dynamicSize = std::numeric_limits<std::size_t>::max();
 //devided by difference values, since v[0] changes during the operation. If we pass it as
 //copy instead, it might be more expensive, but we get at least the expected results.
 
-///The vec class represents a fixed-sized group of \c dim values of type \ T.
-///Since it is fixed-size is is not a replacement or alternative to std::vector or any
-///dynamic container. The vec template class is a pod class and entirely allocated on the stack.
-///In difference to std::array it is meant like a representation of a mathematical vector, it
-///also has specializations for vec2, vec3 and vec4 which mache dealing with them easier.
-///The available functions for dealing with vec and the design of vec itself is closely
-///related to the design of vec in glsl (free functional operators, mathematical operators)
-///while still oferring modern c++ features that make using them easier (e.g. iterators, tmp 
-///constructors or conversion operators).
-///This is the most important class for all further mathematical classes and operations in nytl.
-template<size_t dimension, typename T> class vec
+///\brief The vec class represents a sized group of \c D values of type \c T.
+///\ingroup math
+template<size_t D, typename T> class vec
 {
 public:
     using value_type = T;
-    constexpr static size_t dim = dimension;
+    constexpr static size_t dim = D;
 
     using reference = value_type&;
     using const_reference = const value_type&;
@@ -121,7 +117,7 @@ public:
     using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
 
-    using vec_type = vec<dimension, value_type>;
+    using vec_type = vec<dim, value_type>;
 
 public:
     constexpr size_t size() const noexcept { return dim; }
@@ -247,9 +243,6 @@ public:
 	void swap(vec_type& other){ std::swap(data_, other.data_); }
 };
 
-///2-dimensional vec specialization.
-///Offers all vec functionality, but to the 2 components can be refered to with
-///vec.x and vec.y.
 template<typename T> class vec<2, T>
 {
 public:
@@ -379,9 +372,6 @@ public:
 };
 
 
-///3-dimensional vec specialization.
-///Offers all vec functionality, but to the 3 components can be refered to with 
-///vec.x, vec.y and vec.z.
 template<typename T> class vec<3, T>
 {
 public:
@@ -518,10 +508,6 @@ public:
 };
 
 
-
-///4-dimensional vec specialization.
-///Offers all vec functionality, but to the 4 components can be refered to with 
-///vec.x, vec.y, vec.z and vec.w.
 template<typename T> class vec<4, T>
 {
 public:
@@ -667,27 +653,75 @@ public:
     vec3<T> yzw() const noexcept { return vec3<T>(y,z,w); }
 };
 
-template<size_t dim, typename T> constexpr size_t vec<dim, T>::dim;
-template<typename T> constexpr size_t vec<2, T>::dim;
-template<typename T> constexpr size_t vec<3, T>::dim;
-template<typename T> constexpr size_t vec<4, T>::dim;
+template<std::size_t D, typename T> constexpr std::size_t vec<D, T>::dim;
+template<typename T> constexpr std::size_t vec<2, T>::dim;
+template<typename T> constexpr std::size_t vec<3, T>::dim;
+template<typename T> constexpr std::size_t vec<4, T>::dim;
 
 //invalid specialization - therefore not specified
 template<typename T> class vec<0, T>;
 
 //reference vec, include <nytl/refVec.hpp> to make those work!
-template<size_t dim, typename T> class vec<dim, T&>;
+template<std::size_t D, typename T> class vec<D, T&>;
 template<typename T> class vec<2, T&>;
 template<typename T> class vec<3, T&>;
 template<typename T> class vec<4, T&>;
 
 //Dynamic storage vec, include <nytl/dynVec.hpp> to make this work!
 template<typename T> class vec<dynamicSize, T>;
-template<typename T> class vec<dynamicSize, T&>; //where to put this? <nytl/dynRefVec>?
+template<typename T> class vec<dynamicSize, T&>; //where to put this? <nytl/dynRefVec>? TODO
 
 //operators/utility
 #include <nytl/bits/vec.inl>
 
 }
 
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+/// \class nytl::vec
+/// \ingroup math
+///
+/// The template parameter D defines the dimension of the vector.
+/// The template parameter T defines the type of the vectors components.
+///
+/// In most of the cases you do not have to care about the template parameters because there are
+/// typedefs for the common used types, e.g.:
+/// \li nytl::vec2f, nytl::vec3f and nytl::vec4f for float vecs
+/// \li nytl::vec2i, nytl::vec3i and nytl::vec4i for int vecs
+///
+/// There are much more vec typedefs. All of them are named after a common pattern:
+/// \c "nytl::vec" + \c D + \c T with \c D = {2, 3, 4} and \c T of: 
+/// \li f for float
+/// \li i for int
+/// \li ui for unsigned int 
+/// \li d for double
+/// \li b for bool
+/// \li c for char
+/// \li uc for unsigned char
+/// \li l for long
+/// \li ul for unsigned long
+///
+/// Additionally there are nytl::vec2<T>, nytl::vec3<T> and nytl::vec4<T> typedefs.
+/// There are vector specializations for 2;3 and 4 dimensional vectors, as well as for a dynamic
+/// dimension (indicated by nytl::dynamicSize as D) or a reference type.
+/// All specializations behave like normal vecs and provide the same operations. To make
+/// the extra specializations work you have to include the corresponding headers,
+/// <nytl/refVec.hpp> for reference-typed vectors or <nytl/dynVec.hpp> for dynamic-sized vectors.
+///
+/// Except for the special dimension dynamicSize which make the vec object more like a
+/// std::vector with the possibility to add and remove components, vec objects are usually
+/// fixed-size and therefore entirely allocated on the stack. Fixed-size vec specializations
+/// are always pod classes which means they can be safely casted to other pod types (one can
+/// e.g. safely cast a vec3<vec2f> into a mat32f).
+/// 
+/// In difference to std::array it is meant like a representation of a mathematical vector, it
+/// also has specializations for vec2, vec3 and vec4 which mache dealing with them easier.
+/// The available functions for dealing with vec and the design of vec itself is closely
+/// related to the design of vec in glsl (free functional operators, mathematical operators)
+/// while still oferring modern c++ features that make using them easier (e.g. iterators, tmp 
+/// constructors or conversion operators).
+/// This is the most important class for all further mathematical classes and operations in nytl
+/// since it can be used for storing position, size or as a general fixed- (or even dynamic-) sized
+/// container.
+////////////////////////////////////////////////////////////////////////////////////////////////// 
 

@@ -3,7 +3,8 @@
 #include <type_traits>
 
 ///\file
-///Inlcuding this file enables all binary operations for c++ enums.
+///\brief Defines binary operators for enums.
+///\details Inlcuding this file enables all binary operations for strongly-typed c++11 enum classes.
 ///If you want to use them using the real c++ operators (not explicitly calling the namespaced
 ///functions) you have to use the nytl::enumOps namespace.
 
