@@ -63,7 +63,7 @@ double simplexSize(const simplex<D, P, A>& s)
 	squareMat<D, P> m;
 	for(std::size_t i(1); i <= A; ++i)
 	{
-		m.col(i) = s.points[i] - s.points[0];
+		m.col(i) = s.points()[i] - s.points()[0];
 	}
 
 	return det(m) / fac(D);

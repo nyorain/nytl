@@ -27,9 +27,9 @@
 
 #pragma once
 
+#include <nytl/make_unique.hpp>
 #include <unordered_map>
 #include <memory>
-#include <nytl/make_unique.hpp>
 
 namespace nytl
 {
@@ -96,7 +96,7 @@ public:
 
 	///Gets a cache object pointer for a given key if existent.
 	///\return The associated cache for a given key, nullptr if none is found for that key.
-	const Base* getCache(const Key& id) const
+	Base* getCache(const Key& id) const
 	{
         auto it = cache_.find(id);
 		if(it != cache_.end())
@@ -108,9 +108,9 @@ public:
 	///Stores a cache object with for a given key. If there exists already some cache object for
 	///the given key it will be replaced. 
 	///\return A reference to the moved cache object.
-	Base& storeCache(const Key& id, std::unique_ptr<Base> c) const
+	Base& storeCache(const Key& id, std::unique_ptr<Base>&& c) const
 	{
-		auto ret = *c;
+		auto& ret = *c;
 
         auto it = cache_.find(id);
         if(it != cache_.end())
@@ -122,7 +122,7 @@ public:
             cache_[id] = std::move(c);
         }
 
-		return c;
+		return ret;
 	}
 
 	///Clears the set cache object for the given key. 

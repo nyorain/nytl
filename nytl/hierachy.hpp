@@ -48,7 +48,7 @@ protected:
         children_.push_back(&child);
     }
 
-	virtual bool removeChild(T& child) //return if child was found
+	virtual bool removeChild(T& child) //return true if child was found
 	{
 	    for(auto it = children_.cbegin(); it != children_.cend(); ++it)
 	    {
@@ -94,13 +94,26 @@ public:
 	    parent_ = nullptr;
     }
 
-	virtual T* getParent() const { return parent_; } //virtual to make it convariant
+	virtual T* parent() const { return parent_; } //virtual to make it convariant
     virtual bool valid() const { return (parent_ != nullptr) && parent_->valid(); }
 
-	std::vector<T*> getChildren() const { return children_; } //virtual?
-	std::size_t getChildrenSize() const { return children_.size(); }
+	std::vector<T*> children() const { return children_; } //virtual?
+	std::size_t childrenCount() const { return children_.size(); }
 };
 
+//todo, correct design?
+template<typename T>
+class hierachyRoot : public T
+{
+private:
+	using hierachyNode<T>::create;
+	using hierachyNode<T>::reparent;
+	virtual T* parent() const override { return nullptr; }
 
+public:
+	hierachyRoot() = default;
+
+	virtual bool valid() const override { return 1; }
+};
 
 }

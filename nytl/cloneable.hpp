@@ -38,12 +38,13 @@ namespace nytl
 template<typename T>
 class cloneable
 {
-protected:
+private:
 	virtual T* clone() const { return new T(static_cast<const T&>(*this)); }
 
 	template<typename X> 
 	friend std::unique_ptr<X> clone(const X&);
 
+protected:
 	virtual ~cloneable() = default;
 };
 
@@ -51,12 +52,13 @@ protected:
 template<typename T>
 class abstractCloneable
 {
-protected:
+private:
 	virtual T* clone() const = 0;
 
 	template<typename X> 
 	friend std::unique_ptr<X> clone(const X&);
 
+protected:
 	virtual ~abstractCloneable() = default;
 };
 
@@ -65,9 +67,15 @@ protected:
 template<typename Base, typename Derived> 
 class deriveCloneable : public Base
 {
-protected:
-    virtual Derived* clone() const override
+private:
+    virtual Base* clone() const override
 		{ return new Derived(*(static_cast<const Derived*>(this))); }
+
+	template<typename X> 
+	friend std::unique_ptr<X> clone(const X&);
+
+public:
+	using Base::Base;
 };
 
 ///\brief Clones the given (cloneable) object in a unique_ptr.
@@ -78,7 +86,7 @@ protected:
 template<typename T>
 std::unique_ptr<T> clone(const T& value)
 {
-	return std::unique_ptr<T>(value.clone());
+	return std::unique_ptr<T>(static_cast<T*>(value.clone()));
 }
 
 template<typename T>

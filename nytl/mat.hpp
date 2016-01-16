@@ -126,10 +126,10 @@ public:
 	vec<R, P> col(size_t i) const { return detail::makeRowVec<R>::call(data_, i); }
 
     ///Returns a plain pointer to the data of the matrix.
-    pointer data(){ return (pointer) &data_.data(); }
+    pointer data(){ return (pointer) data_.data(); }
 
 	///Returns a const plain pointer to the data of the matrix.
-	const_pointer data() const { return (pointer) &data_.data(); }
+	const_pointer data() const { return (const_pointer) data_.data(); }
 
 	///Copys the data of the matrix as plain unique ptr on the heap.
 	std::unique_ptr<P[]> copyData() const { return detail::copyMatData<R * C>::call(data_); }
