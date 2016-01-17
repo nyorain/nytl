@@ -1,7 +1,5 @@
 sudo: required
 dist: trusty
-
-os: linux
 language: cpp
 
 matrix:
@@ -14,17 +12,9 @@ matrix:
           packages:
             - g++-5
       env: COMPILER=g++-5
-    - compiler: clang
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.7
-          packages:
-            - clang-3.7
-      env: COMPILER=clang++-3.7
-
+      
 script:
   - mkdir build
   - cd build
-  - cmake -DCMAKE_CXX_COMPILER=$COMPILER .. && make
+  - cmake -DCMAKE_CXX_COMPILER=$COMPILER .. 
+  - make
