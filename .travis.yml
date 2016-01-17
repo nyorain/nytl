@@ -4,16 +4,6 @@ dist: trusty
 os: linux
 language: cpp
 
-addons:
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    - llvm-toolchain-precise-3.6
-    packages:
-    - gcc-5
-    - g++-5
-    - clang-3.6
-    
 matrix:
     include:
     - compiler: gcc
