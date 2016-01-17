@@ -30,7 +30,7 @@ cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..
 
 If you now want to configure and install everything just do:
 ```
-make install #try it with sudo if needed
+make install 
 ```
 
 If you just want to make the documentation (remember that you need doxygen installed for that) just type `make doc`.
