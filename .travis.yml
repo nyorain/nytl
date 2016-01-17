@@ -19,7 +19,7 @@ addons:
     - clang-3.6
     
 matrix:
-  	include:
+    include:
     - compiler: gcc
       addons:
         apt:
