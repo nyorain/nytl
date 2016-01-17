@@ -25,7 +25,6 @@ matrix:
       env: COMPILER=clang++-3.7
 
 before_script:
-  - gcc --version
   - mkdir build
   - cd build
   - cmake -DCMAKE_CXX_COMPILER=$COMPILER .. && make
