@@ -1,12 +1,12 @@
 add_executable(test_func func.cpp)
-target_compile_features(test_func PRIVATE cxx_range_for)
+set_property(TARGET test_func PROPERTY CXX_STANDARD 11)
 
 add_executable(test_math math.cpp)
-target_compile_features(test_math PRIVATE cxx_range_for)
+set_property(TARGET test_math PROPERTY CXX_STANDARD 11)
 
 add_executable(test_utility utility.cpp)
-target_compile_features(test_utility PRIVATE cxx_range_for)
+set_property(TARGET test_utility PROPERTY CXX_STANDARD 11)
 
 #private test for new features
 add_executable(test_private test.cpp)
-target_compile_features(test_private PRIVATE cxx_range_for)
+set_property(TARGET test_private PROPERTY CXX_STANDARD 11)
