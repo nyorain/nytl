@@ -203,18 +203,16 @@ public:
     }
 
     ///Registers a function without returning a connection object.
-    callback<Ret(Args...)>& operator+=(compFunc<Ret(const connectionRef&, Args ...)> func)
+    connection operator+=(compFunc<Ret(const connectionRef&, Args ...)> func)
     {
-        add(func);
-        return *this;
+        return add(func);
     };
 
 	///Resets all registered function and sets the given one as only callback function.
-    callback<Ret(Args...)>& operator=(compFunc<Ret(const connectionRef&, Args ...)> func)
+    connection operator=(compFunc<Ret(const connectionRef&, Args ...)> func)
     {
         clear();
-        add(func);
-        return *this;
+        return add(func);
     };
 
 	///\brief Registers a callback function.
@@ -300,17 +298,15 @@ public:
         clear();
     }
 
-    callback<void(Args...)>& operator+=(compFunc<void(const connectionRef&, Args ...)> func)
+    connection operator+=(compFunc<void(const connectionRef&, Args ...)> func)
     {
-        add(func);
-        return *this;
+        return add(func);
     };
 
-    callback<void(Args...)>& operator=(compFunc<void(const connectionRef&, Args ...)> func)
+    connection operator=(compFunc<void(const connectionRef&, Args ...)> func)
     {
         clear();
-        add(func);
-        return *this;
+        return add(func);
     };
 
     connection add(compFunc<void(const connectionRef&, Args ...)> func)

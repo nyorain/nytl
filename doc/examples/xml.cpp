@@ -2,7 +2,7 @@
 #include <string>
 #include <iostream>
 
-class xmlNode : public nytl::hierachyNode<xmlNode>
+class xmlNode : public nytl::hierachyNode<nytl::hierachyBase<xmlNode>>
 {
 protected:
 	std::string name_;

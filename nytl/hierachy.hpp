@@ -28,7 +28,7 @@
 #pragma once
 
 #include <nytl/nonCopyable.hpp>
-#include <nytl/referenceIteration.hpp>
+#include <nytl/bits/referenceIteration.inl>
 #include <nytl/bits/recursiveIteration.inl>
 #include <vector>
 
@@ -37,12 +37,12 @@ namespace nytl
 
 ///\brief Virtual utility base template class for objects that are part of a hierachy.
 ///\ingroup utility
-template <typename T>
-class hierachyNode
+template <typename Root, typename Child = Root>
+class hierachyBase
 {
 public:
-	using node_type = hierachyNode<T>;
-	using vector_type = std::vector<T*>;
+	using node_type = hierachyBase<Root, Child>;
+	using vector_type = std::vector<Child*>;
 
 	using iterator = referenceIterator<typename vector_type::iterator>;
 	using const_iterator = referenceIterator<typename vector_type::const_iterator>;
@@ -55,58 +55,17 @@ public:
 	using const_reverse_rec_iterator = std::reverse_iterator<const_rec_iterator>;
 
 	using recursive_iteration = recursiveIteration<node_type>;
+	using const_recursive_iteration = recursiveIteration<const node_type>;
+
+	using root_type = Root;
+	using child_type = Child;
 		
 private:
 	vector_type children_;
-	T* parent_ {nullptr};
 
 protected:
-    hierachyNode() = default;
-    hierachyNode(T& parent){ create(parent); }
-	virtual ~hierachyNode(){ destroy(); }
-
-    virtual void addChild(T& child) { children_.push_back(&child); }
-	virtual bool removeChild(T& child)	
-	{
-	    for(auto it = children_.cbegin(); it != children_.cend(); ++it)
-	    {
-            if(*it == &child)
-            {
-                children_.erase(it);
-                return 1;
-            }
-        }
-	    return 0;
-	}
-
-	virtual void create(T& parent)
-	{
-		parent_ = &parent;
-		parent_->addChild(static_cast<T&>(*this));
-	}
-    virtual void reparent(T& parent)
-	{  
-        if(parent_) parent_->removeChild(static_cast<T&>(*this));
-
-        parent_ = &parent;
-        parent_->addChild((static_cast<T&>(*this)));
-	}
-	virtual void destroy()
-	{
-	    for(auto* c : children_)
-        {
-            c->parent_ = nullptr; 
-            c->destroy();
-        }
-
-	    children_.clear();
-
-	    if(parent_) 
-		{
-			parent_->removeChild(static_cast<T&>(*this));
-			parent_ = nullptr;
-		}
-    };
+    hierachyBase() = default;
+	virtual ~hierachyBase(){ destroy(); }
 
 public:
 	//iterator
@@ -153,30 +112,77 @@ public:
 
 	//
 	recursive_iteration recursive() { return recursive_iteration(*this); }
-	const recursive_iteration recursive() const { return recursive_iteration(*this); }
-
-	//
-	virtual T* parent() const { return parent_; } //virtual to make it convariant
-    virtual bool valid() const { return (parent_ != nullptr) && parent_->valid(); }
+	const_recursive_iteration recursive() const { return const_recursive_iteration(*this); }
 
 	const vector_type& children() const { return children_; } 
 	std::size_t childrenCount() const { return children_.size(); }
+
+    virtual void addChild(Child& child) { children_.push_back(&child); }
+	virtual bool removeChild(Child& child)	
+	{
+	    for(auto it = children_.cbegin(); it != children_.cend(); ++it)
+	    {
+            if(*it == &child)
+            {
+                children_.erase(it);
+                return 1;
+            }
+        }
+	    return 0;
+	}
+
+	virtual void destroy()
+	{
+		//c->destroy will trigger removeChild for this object, which may invalidate iterators
+		auto cpy = children_;
+	    for(auto* c : cpy)
+        {
+            c->destroy();
+        }
+
+	    children_.clear();
+    };
+
+	virtual Root& root() const = 0;
 };
 ///\example xml.cpp A simple example on how to use the nytl::hierachy templates.
 
-//todo, correct design?
-template<typename T>
-class hierachyRoot : public T
+template<typename T, typename Root = typename T::root_type, typename Child = typename T::child_type>
+class hierachyNode : public T
 {
-private:
-	virtual void create(T&) override {}
-	virtual void reparent(T&) override {}
-	virtual T* parent() const override { return nullptr; }
+public:
+	using root_type = Root;
+	using child_type = Child;
+
+protected:
+	T* parent_;
+
+	virtual void destroy() override
+	{
+		T::destroy();
+	    if(parent_) 
+		{
+			parent_->removeChild(static_cast<T&>(*this));
+			parent_ = nullptr;
+		}
+	}
 
 public:
-	hierachyRoot() = default;
+	hierachyNode(T& parent) : parent_(&parent) {}
 
-	virtual bool valid() const override { return 1; }
+	virtual root_type& root() const override { return parent_->root(); }
+	T& parent() const { return *parent_; }
+};
+
+template<typename T, typename Root = typename T::root_type, typename Child = typename T::child_type>
+class hierachyRoot : public T
+{
+public:
+	using root_type = Root;
+	using child_type = Child;
+
+public:
+	virtual root_type& root() const override { return static_cast<root_type&>(*this); }
 };
 
 }

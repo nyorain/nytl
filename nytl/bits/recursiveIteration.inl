@@ -132,19 +132,15 @@ public:
 public:
 	recursiveIteration(T& object) : object_(&object) {}
 
-	iterator begin(){ object_->recursive_begin(); }	
-	const_iterator begin() const { return object_->recursive_begin(); }
-	const_iterator cbegin() const { return object_->recursive_cbegin(); }
-	reverse_iterator rbegin() { return object_->recursive_rbegin(); }
-	const_reverse_iterator rbegin() const { return object_->recursive_rbegin(); }
-	const_reverse_iterator crbegin() const { return object_->recursive_crbegin(); }
+	auto begin() -> decltype(object_->recursive_begin()) { object_->recursive_begin(); }	
+	auto cbegin() -> decltype(object_->recursive_cbegin()) { object_->recursive_cbegin(); }	
+	auto rbegin() -> decltype(object_->recursive_rbegin()) { object_->recursive_rbegin(); }	
+	auto crbegin() -> decltype(object_->recursive_crbegin()) { object_->recursive_crbegin(); }	
 
-	iterator end(){ object_->recursive_end(); }	
-	const_iterator end() const { return object_->recursive_end(); }
-	const_iterator cend() const { return object_->recursive_cend(); }
-	reverse_iterator rend(){ return object_->recursive_rend(); }
-	const_reverse_iterator rend() const { return object_->recursive_rend(); }
-	const_reverse_iterator crend() const { return object_->recursive_crend(); }
+	auto end() -> decltype(object_->recursive_end()) { object_->recursive_end(); }	
+	auto cend() -> decltype(object_->recursive_cend()) { object_->recursive_cend(); }	
+	auto rend() -> decltype(object_->recursive_rend()) { object_->recursive_rend(); }	
+	auto crend() -> decltype(object_->recursive_crend()) { object_->recursive_crend(); }	
 };
 
 }

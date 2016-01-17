@@ -1,4 +1,7 @@
 #nytl
+
+![Travis Build](https://travis-ci.org/nyorain/nytl.svg?branch=master)
+
 nytl is a header-only utility library for c++11. It includes math classes and operations like vec, mat or rect, a smaller part about functions and function-conversions with classes like compatibilityFunction, callback or function_traits, and additionally some general utility stuff, like some c++14 stl implementations (if your compiler still just supports c++11, but you often need features like make_unique or integer_sequence) or serializing-helper class and macros.
 The name nytl does stand for ny-utility as well as ny-template-library, since it was originally created for the _ny_ gui library.
 nytl is really lightweight, yet it offers some pretty useful features for most modern c++ projects.

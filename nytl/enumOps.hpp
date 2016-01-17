@@ -40,6 +40,7 @@ template<typename E, typename = dt::EnableEnum<E>> E& operator&=(E& a, E b)
 
 template<typename E, typename = dt::EnableEnum<E>> E& operator^=(E& a, E b) 
 	{ a = a ^ b; return a; } 
+
 }
 
 }
