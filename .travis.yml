@@ -1,10 +1,6 @@
 sudo: required
 dist: trusty
 
-compiler:
-  - clang
-  - gcc
-
 os: linux
 language: cpp
 
