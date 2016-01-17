@@ -9,14 +9,15 @@ os: linux
 language: cpp
 
 addons:
-	apt:
-		sources:
-			- llvm-toolchain-precise
-			- ubuntu-toolchain-r-test
-        packages:
-        	- clang-3.7
-        	- g++-5
-        	- gcc-5
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    - llvm-toolchain-precise-3.6
+    packages:
+    - gcc-5
+    - g++-5
+    - clang-3.6
+    
 matrix:
   	include:
     - compiler: gcc
