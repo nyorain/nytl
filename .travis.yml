@@ -1,23 +1,43 @@
 sudo: required
 dist: trusty
 
+compiler:
+  - clang
+  - gcc
+
 os: linux
 language: cpp
 
 addons:
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    packages:
-    - gcc-5
-    - g++-5
-    
-before_install:
-  - sudo apt-get -qq update
-  - sudo apt-get install -y cmake
+	apt:
+		sources:
+			- llvm-toolchain-precise
+			- ubuntu-toolchain-r-test
+        packages:
+        	- clang-3.7
+        	- g++-5
+        	- gcc-5
+matrix:
+  	include:
+    - compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-5
+      env: COMPILER=g++-5
+    - compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.7
+          packages:
+            - clang-3.7
+      env: COMPILER=clang++-3.7
 
 before_script:
-  - sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-5 /usr/bin/gcc
   - gcc --version
   - mkdir build
   - cd build
