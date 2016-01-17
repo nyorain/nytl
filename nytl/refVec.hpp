@@ -79,8 +79,8 @@ public:
     using const_reference = const value_type&;
     using pointer = value_type*;
     using const_pointer = const value_type*;
-    using iterator = refvec_iterator<dim, value_type>;
-    using const_iterator = const_refvec_iterator<dim, value_type>;
+    using iterator = refVecIterator<dim, value_type>;
+    using const_iterator = constRefVecIterator<dim, value_type>;
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
     using size_type = std::size_t;
@@ -226,8 +226,8 @@ public:
     using const_reference = const value_type&;
     using pointer = value_type*;
     using const_pointer = const value_type*;
-    using iterator = refvec_iterator<dim, value_type>;
-    using const_iterator = const_refvec_iterator<dim, value_type>;
+    using iterator = refVecIterator<dim, value_type>;
+    using const_iterator = constRefVecIterator<dim, value_type>;
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
     using size_type = std::size_t;
@@ -364,8 +364,8 @@ public:
     using const_reference = const value_type&;
     using pointer = value_type*;
     using const_pointer = const value_type*;
-    using iterator = refvec_iterator<dim, value_type>;
-    using const_iterator = const_refvec_iterator<dim, value_type>;
+    using iterator = refVecIterator<dim, value_type>;
+    using const_iterator = constRefVecIterator<dim, value_type>;
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
     using size_type = std::size_t;
@@ -511,8 +511,8 @@ public:
     using const_reference = const value_type&;
     using pointer = value_type*;
     using const_pointer = const value_type*;
-    using iterator = refvec_iterator<dim, value_type>;
-    using const_iterator = const_refvec_iterator<dim, value_type>;
+    using iterator = refVecIterator<dim, value_type>;
+    using const_iterator = constRefVecIterator<dim, value_type>;
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
     using size_type = std::size_t;
