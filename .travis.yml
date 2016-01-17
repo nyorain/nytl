@@ -28,6 +28,6 @@ before_script:
   - gcc --version
   - mkdir build
   - cd build
-  - cmake ..
+  - cmake -DCMAKE_CXX_COMPILER=$COMPILER .. && make
 
 script: make
