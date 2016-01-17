@@ -8,6 +8,9 @@ option(NYTL_TEST "Build the nytl tests" ON)
 
 include_directories(${CMAKE_SOURCE_DIR})
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED on)
+
 if(NYTL_TEST)
 	add_subdirectory(tests)
 	enable_testing()

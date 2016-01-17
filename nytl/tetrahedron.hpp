@@ -35,7 +35,6 @@ namespace nytl
 
 //typedefs
 ///Defines the 3 dimensional simplex specialization.
-template<size_t D, typename P> using tetrahedron = simplex<D, P, 3>;
 template<typename P> using tetrahedron3 = tetrahedron<3, P>;
 template<typename P> using tetrahedron4 = tetrahedron<4, P>;
 

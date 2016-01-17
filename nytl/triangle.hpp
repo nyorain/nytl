@@ -34,7 +34,6 @@ namespace nytl
 {
 
 //typedefs
-template<size_t D, typename P> using triangle = simplex<D, P, 2>;
 template<typename P> using triangle2 = triangle<2, P>;
 template<typename P> using triangle3 = triangle<3, P>;
 template<typename P> using triangle4 = triangle<4, P>;

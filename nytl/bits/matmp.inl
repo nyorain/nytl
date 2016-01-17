@@ -56,13 +56,13 @@ template<std::size_t size, std::size_t... idx> struct initMatData<size, index_se
     template<size_t rows, size_t cols, typename prec, typename... Args>
     static void call(vec<rows, vec<cols, prec>>& v, std::tuple<Args...> args)
     {
-        expander{0, ((v[idx / cols][idx % cols] = std::get<idx>(args)), 0)... }[0];
+        unused(expander{0, ((v[idx / cols][idx % cols] = std::get<idx>(args)), 0)... }[0]);
     }
 
     template<size_t rows, size_t cols, typename prec>
     static void call(vec<rows, vec<cols, prec>>& v, const prec& val)
     {
-        expander{0, ((v[idx / cols][idx % cols] = val), 0)... }[0];
+        unused(expander{0, ((v[idx / cols][idx % cols] = val), 0)... }[0]);
     }
 };
 

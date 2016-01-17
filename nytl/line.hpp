@@ -36,7 +36,6 @@ namespace nytl
 {
 
 //typedefs
-template<size_t D, typename P = float> using line = simplex<D, P, 1>;
 template<typename P = float> using line2 = line<2, P>;
 template<typename P = float> using line3 = line<3, P>;
 template<typename P = float> using line4 = line<4, P>;

@@ -30,6 +30,7 @@
 #include <nytl/tmp.hpp>
 #include <nytl/scalar.hpp>
 #include <nytl/integer_sequence.hpp>
+#include <nytl/misc.hpp>
 
 #include <iostream>
 #include <algorithm>
@@ -38,6 +39,7 @@
 #include <utility>
 #include <type_traits>
 #include <limits>
+#include <stdexcept>
 
 namespace nytl
 {
