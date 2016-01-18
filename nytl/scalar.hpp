@@ -48,8 +48,7 @@ constexpr auto radians(const prec& deg) -> decltype(deg * cDeg)
 }
 
 //clamp
-template<typename prec>
-constexpr prec clamp(const prec& val, const prec& minVal, const prec& maxVal)
+constexpr double clamp(double val, double minVal, double maxVal)
 {
     return
         val <= minVal ? minVal :
@@ -58,8 +57,7 @@ constexpr prec clamp(const prec& val, const prec& minVal, const prec& maxVal)
 }
 
 //mix
-template<typename prec>
-constexpr prec mix(const prec& x, const prec& y, double a)
+constexpr double mix(double x, double y, double a)
 {
     return (x * (1 - a)) + (y * a);
 }

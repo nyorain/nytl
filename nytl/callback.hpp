@@ -81,6 +81,7 @@ protected:
 		: callback_(&call), data_(data) {}
 
 public:
+	connection() = default;
     ~connection() = default;
 
     connection(const connection&) = default;

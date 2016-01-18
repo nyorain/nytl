@@ -593,7 +593,7 @@ vec<D, T> abs(vec<D, T> veca)
 template<std::size_t D, typename TA, typename TB, typename Tc>  
 vec<D, TA> clamp(vec<D, TA> val, const vec<D, TB>& minVal, const vec<D, Tc>& maxVal)
 {
-    for(std::size_t i(0); i < min(min(val.size()), minVal.size(), maxVal.size()); ++i) 
+    for(std::size_t i(0); i < min(min(val.size(), minVal.size()), maxVal.size()); ++i) 
 		val[i] = clamp(val[i], minVal[i], maxVal[i]);
     return val;
 }
