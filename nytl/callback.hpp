@@ -138,8 +138,8 @@ public:
 };
 
 
-///\todo: make callback threadsafe using a lockfree list as container. There are already shared
-///pointers anyway so it should not be that expensive.
+//TODO make callback threadsafe using a lockfree list as container. There are already shared
+//pointers anyway so it should not be that expensive.
 
 ///\brief Represents a callback for which listener functions can be registered.
 ///\ingroup function

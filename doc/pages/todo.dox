@@ -1,0 +1,7 @@
+///\page Todo-Features nytl - todo
+///
+///\li Implement all missing operations and tests
+///\li Add utf-8 support (some utility classes/functions)
+///\li add serialize (class naming) support
+///\li improve docs, tests, examples
+///\li convex-set support in association with simplexes (regions i.e.)

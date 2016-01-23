@@ -49,7 +49,7 @@ typename std::enable_if<mat<R, C, P>::is_squared, TD>::type mat<R, C, P>::invert
 //exceptions
 ///\relates mat
 ///\brief Exception class deriving std::invalid_argument.
-///\detail Thrown by operational matrix functions that do not work for singular matrices
+///\details Thrown by operational matrix functions that do not work for singular matrices
 ///but receive a singular matrix as argument.
 class invalid_matrix : public std::invalid_argument
 {
@@ -173,7 +173,6 @@ P diagonalMult(const mat<D, D, P>& m)
 
 ///\relates mat
 ///\brief Computes the determinant of a given non-singular matrix.
-///\todo May throw (since lu-algorithm is used). Determinant always computable.
 template<std::size_t D, typename P>
 double det(const mat<D, D, P>& m)
 {

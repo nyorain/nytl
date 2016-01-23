@@ -139,7 +139,7 @@ domainedSolutionSet<N>::domainedSolutionSet(const solutionSet<N>& sset,
 	}
 	catch(const std::exception& err)
 	{
-		///\todo warning and/or rethrow here
+		//TODO: warning and/or rethrow here
 	}
 }
 
