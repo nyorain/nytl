@@ -1,0 +1,193 @@
+//mockup #1
+//generally ok; problem: "triangulation" (simplexiation) may fail
+//improssible to generate simplexes from a set of points (rather sth like lines)
+template<std::size_t D, typename P, std::size_t A>
+simplexRegion<D, P, A> intersection(const simplex<D, P, A>& sa, const simplex<D, P, A>& sb)
+{
+	std::vector<vec<D, P>> points;
+	for(auto line : lines(sa)) //all lines that construct sa
+	{
+		//simplex-line specialization neded for this intersection -> easier
+		auto p = intersection(sb, line); //intersection points line - simplex (max 2)
+		points.insert(points.cend(), p.cbegin(), p.cend());
+	}
+
+	for(auto& point : sa.points())
+	{
+		if(contains(sb, point))
+		{
+			points.push_back(point);
+		}
+	}
+
+	for(auto& point : sb.points())
+	{
+		if(contains(sa, point))
+		{
+			points.push_back(point);
+		}
+	}
+
+	simplexRegion<D, P, A> ret;
+	for(std::size_t i(0); i < points.size(); i += A + 1)
+	{
+		simplex<D, P, A> simp;
+		for(std::size_t o(i); o < i + A + 1; ++o)
+		{
+			simp.points()[o] = points[o];
+		}
+
+		ret.emplace_back(simp);
+	}
+	return ret;
+}
+
+
+//mockup #2
+//trying to capture lines instead of points to allow correct simplexiation
+template<std::size_t D, typename P, std::size_t A>
+simplexRegion<D, P, A> intersection(const simplex<D, P, A>& sa, const simplex<D, P, A>& sb)
+{
+
+	//find the outlining lines
+	std::vector<line<D, P>> lines;
+
+	//sa lines
+	for(auto line : lines(sa))
+	{
+		auto p = intersection(sb, line); //specialization needed
+		if(p.empty()) 
+		{
+			continue;
+		}
+		else if(p.size() == 1)
+		{
+			if(contains(sb, line.a)) p.push_back(line.a);
+			else if(contains(sb, line.b)) p.push_back(line.b);
+			else continue; //this should never happen logically -- error?
+		}
+
+		lines.push_back({p[0], p[1]});
+	}
+
+	//sb lines
+	for(auto line : lines(sb))
+	{
+		auto p = intersection(sa, line); //specialization needed
+		if(p.empty()) 
+		{
+			continue;
+		}
+		else if(p.size() == 1)
+		{
+			if(contains(sa, line.a)) p.push_back(line.a);
+			else if(contains(sa, line.b)) p.push_back(line.b);
+			else continue; //this should never happen logically -- error?
+		}
+
+		lines.push_back({p[0], p[1]});
+	}
+
+	//construct simplexes from these outlines
+	simplexRegion<D, P, A> ret;
+	for(auto it = lines.begin(); it != lines.end(); ++it)
+	{
+		auto& line = *it;
+
+		simplex<D, P, A> simp;
+		simp.points()[0] = line.a;
+		simp.points()[1] = line.b;
+		
+		std::size_t idx = 1;
+		for(auto it2 = lines.begin(); it2 != lines.end(); ++it2)
+		{
+			auto& line2 = *it2;
+			if(line2.a == line.a)
+			{
+				simp.points()[++idx] = line2.b;
+				it2 = lines.erase(it2);
+			}
+			else if(line2.b == line.a)
+			{
+				simp.points()[++idx] = line2.a;
+				it2 = lines.erase(it2);
+			}
+		
+			if(idx == A) break; //all found
+		}
+
+		assert(idx == A); //error here! could not construct simplex
+		ret.add(simp);
+	}
+
+	assert(); //error here! not all lines used?
+	return ret;
+}
+
+//mockup #2 should generally work.
+//problem: specialization needed to detect the intersection point(s) of line and simplex
+template<std::size_t D, typename P, std::size_t A>
+std::vector<vec<D, P>> intersection(const simplex<D, P, A>& sa, const line<D, P>& lb)
+{
+	//really complex to find an algorithm here
+}
+
+
+//mockup #3: use the magic - barycentric coordinates
+//if not working for simplexes in general, this can at least be used to implement the
+//simplex-line test from #2
+template<std::size_t D, typename P, std::size_t A>
+simplexRegion<D, P, A> intersection(const simplex<D, P, A>& sa, const simplex<D, P, A>& sb)
+{
+	//general equotation system that is fulfilled by all points in the intersectio area	
+	mat<D + 2, (A + 1) * 2 + 1, P> eqs;
+	for(std::size_t i(0); i < A + 1; ++i)
+	{
+		eqs.col(i) = sa.points()[i];
+		eqs.col(A + 1 + i) = -sb.points()[i];
+
+		eqs.row(D)[i] = 1;
+		eqs.row(D)[A + 1 + i] = 0;
+
+		eqs.row(D + 1)[i] = 0;
+		eqs.row(D + 1)[A + 1 + i] = 1;
+	}
+
+	eqs.col((A + 1) * 2).fill(0);
+
+	eqs.row(D)[(A + 1) * 2] = 1;
+	eqs.row(D + 1)[(A + 1) * 2] = 1;
+
+	//les
+	auto les = linearEquationSystem<D + 2, (A + 1) * 2, P>(eqs);
+	auto solution = les.solve();
+
+	//analzye solutionSet
+	if(!solution.solveable()) //no intersection
+	{
+		return {};
+	}
+	else if(solution.unambigousSolveable()) //baiscally just a point
+	{
+		//return cartesian(sa, static_cast<vec<D, P>>(solution.solution()));
+		return {};
+	}
+	else //area
+	{
+		assert(solution.numberVaraibles() == 1 && "should always be true (logically)");
+
+		//0 <= x <= 1 for all values in the solution set
+		auto highest = 1.;
+		auto lowest = 0.;
+
+		for(auto& exp : solution.solution_)
+		{
+			if(exp.variablePart[0] == 0) continue;
+			auto val1 = (-exp.constPart) / variablePart[0];
+			auto val2 = (1 - exp.constPart) / variablePart[0];
+
+			highest = std::min(highest, std::min(val1, val2));
+			lowest = std::max(lowest, std::max(val1, val2));
+		}
+	}
+}

@@ -325,7 +325,7 @@ std::ostream& operator<<(std::ostream& os, const mat<R, C, P>& obj)
         {
 			using namespace detail;
             os	<< std::setw(cDWidth) 
-				<< std::setprecision(cDWidth - getNumberOfDigits(obj[i][o])) 
+				<< std::setprecision(cDWidth - getNumberOfDigits(obj[i][o]) + 4) 
 				<< obj[i][o];
 
             if(o != C - 1)

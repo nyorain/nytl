@@ -78,7 +78,7 @@ public:
     bool empty() const noexcept { return size() == 0; }
 
 public:
-	vector_type data_;
+	vector_type data_ {};
 
 public:
 	explicit vec(std::initializer_list<T> init) : data_(init) {}
@@ -91,11 +91,11 @@ public:
 		for(std::size_t i(0); i < other.size(); ++i) data_[i] = other[i];
 	}
 
-    vec() noexcept = default;
+    vec() = default;
     ~vec() noexcept = default;
 
-    vec(const vec_type& other) noexcept = default;
-    vec_type& operator=(const vec_type& other) noexcept = default;
+    vec(const vec_type& other) = default;
+    vec_type& operator=(const vec_type& other) = default;
 
     vec(vec_type&& other) noexcept = default;
     vec_type& operator=(vec_type&& other) noexcept = default;
@@ -149,9 +149,9 @@ public:
     template <std::size_t OD, typename ot, typename = typename 
 		std::enable_if<!std::is_reference<ot>::value>::type> operator vec<OD, ot>() const 
 		{ 
-			vec<OD, ot> ret; 
+			vec<OD, ot> ret(size()); 
 			ret.fill(ot()); 
-			for(size_t i(0); i < min(OD, size()); i++) 
+			for(size_t i(0); i < min(ret.size(), size()); i++) 
 				ret[i] = (*this)[i]; 
 			return ret; 
 		}

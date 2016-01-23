@@ -134,6 +134,9 @@ public:
 	///Makes this region object the union of itself and the argument-given region.
 	void add(const region_type& region);
 
+	///Adds a simplex without checking for intersection
+	void addNoCheck(const simplex_type& simplex) { areas_.push_back(simplex); }
+
 	///Subtracts a simplex from this region. Effectively checks every simplex of this region
 	///for intersection and resizes it if needed.
 	void subtract(const simplex_type& area);

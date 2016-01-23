@@ -99,7 +99,7 @@ vec<A + 1, double> simplexBarycentric(const simplex<D, P, A>& s, const vec<D, P>
 	{
 		throw invalid_space("simplexBarycentric");
 	}
-	else if(!sol.unambigouosSolvable())
+	else if(!sol.unambigouoslySolvable())
 	{
 		//should never happen since simplex is previously checked for validity.
 		throw invalid_simplex("simplexBarycentric, :2");
@@ -180,7 +180,14 @@ struct SimplexContainsPoint<D, P, 0>
 	}
 };
 
-
+template<std::size_t D, typename P, std::size_t A>
+struct SimplexIntersects
+{
+	static bool test(const simplex<D, P, A>& sa, const simplex<D, P, A>& sb)
+	{
+		return 0;
+	};
+};
 
 
 } //detail
@@ -248,8 +255,7 @@ template<std::size_t D, typename P, std::size_t A> bool
 template<std::size_t D, typename P, std::size_t A> bool 
 	intersects(const simplex<D, P, A>& s1, const simplex<D, P, A>& s2)
 {
-	for(auto& v : s2.points)
-		if(contains(s1, v)) return 1;
+	return detail::SimplexIntersects<D, P, A>::test(s1, s2);
 
 	return 0;
 }
@@ -259,7 +265,7 @@ template<std::size_t D, typename P, std::size_t A> bool
 template<std::size_t D, typename P, std::size_t A> bool 
 	contains(const simplex<D, P, A>& s1, const simplex<D, P, A>& s2)
 {
-	for(auto& v : s2.points)
+	for(auto& v : s2.points())
 		if(!contains(s1, v)) return 0;
 
 	return 1;

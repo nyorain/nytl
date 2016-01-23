@@ -35,6 +35,28 @@ struct SimplexContainsPoint<D, P, 1>
 	}
 };
 
+template<std::size_t D, typename P>
+struct SimplexIntersects<D, P, 1>
+{
+	static bool test(const simplex<D, P, 1>& la, const simplex<D, P, 1>& lb)
+	{  
+		mat<D, 3, double> eqs;
+		eqs.col(0) = la.b - la.a;
+		eqs.col(1) = -lb.b + lb.a;
+		eqs.col(2) = lb.a - la.a;
+
+		rrefMat(eqs);
+
+		//unsolveable
+		if((all(vec2d(eqs.row(D - 1)) == 0) && eqs.row(D - 1)[2] != 0)) return false;
+
+		//solveable, but not in line segment
+		if(any(eqs.col(2) >= 1) || any(eqs.col(2) <= 0)) return false;
+
+		return true;
+	};
+};
+
 } //detail
 
 template<size_t D, typename P> bool 

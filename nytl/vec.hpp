@@ -280,8 +280,8 @@ public:
 	vec() noexcept = default;
 	~vec() noexcept = default;
 
-	vec(const vec_type& lhs) noexcept = default;
-	vec_type& operator=(const vec_type& lhs) noexcept = default;
+	vec(const vec_type& lhs) = default;
+	vec_type& operator=(const vec_type& lhs) = default;
 
     vec(vec_type&& lhs) noexcept = default;
     vec_type& operator=(vec_type&& lhs) noexcept = default;

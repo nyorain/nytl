@@ -34,7 +34,7 @@ vec<N, double> solutionSet<N>::solution(const vec<D, P>& vars) const
 	{
 		ret.fill(std::numeric_limits<double>::quiet_NaN());
 	}
-	else if(unambigouosSolvable())
+	else if(unambigouoslySolvable())
 	{
 		for(std::size_t i(0); i < N; ++i)
 			ret[i] = solution_[i].constPart;		
@@ -56,7 +56,7 @@ vec<N, double> solutionSet<N>::solution() const
 	{
 		ret.fill(std::numeric_limits<double>::quiet_NaN());
 	}
-	else if(unambigouosSolvable())
+	else if(unambigouoslySolvable())
 	{
 		for(std::size_t i(0); i < N; ++i)
 			ret[i] = solution_[i].constPart;		

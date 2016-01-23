@@ -60,7 +60,7 @@ public:
 	const expression& operator[](std::size_t i) const { return solution_[i]; }
 
 	bool solvable() const { return (solvable_ != -1); }
-	bool unambigouosSolvable() const { return (solvable_ == 0); }
+	bool unambigouoslySolvable() const { return (solvable_ == 0); }
 	std::size_t numberVariables() const { return (solvable()) ? solvable_ : 0; }
 
 	template<std::size_t D, typename P>
