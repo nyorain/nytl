@@ -1019,16 +1019,15 @@ tr.heading h2 {
 .tabs, .tabs2, .tabs3 {
     width: 100%;
     z-index: 101;
-    font-size: 11pt;
     padding: 0;
     margin: 0;
 }
 
 .tabs2 {
-    font-size: 10pt;
+    font-size: 0.9em;
 }
 .tabs3 {
-    font-size: 9pt;
+    font-size: 0.8em;
 }
 
 #navrow1 .tablist, #navrow2 .tablist, #navrow3 .tablist, #navrow4 .tablist {
@@ -1079,15 +1078,39 @@ body {
     height: 60px;
     line-height: 54px;
     margin: 0 auto;
-    text-align: center;
+    text-align: left;
 }
 
 #banner #nytl {
     display: inline;
     vertical-align: top;
     margin-left: 15px;
-    color: #ccc;
-    font-size: 25pt;
+    color: #fff;
+    font-size: 2.2em;
+	text-decoration: none;
+	transition: color 0.2s;
+	-webkit-transition: color 0.2s;
+}
+
+#banner #nytl:hover {
+	color: #999;
+}
+
+#banner #githublink
+{
+    display: inline;
+    vertical-align: bottom;
+    margin-left: 20px;
+    color: #fff;
+    font-size: 1.1em;
+	text-decoration: none;
+	transition: color 0.2s;
+	-webkit-transition: color 0.2s;
+}
+
+#banner #githublink:hover
+{
+	color: #999;
 }
 
 #footer-container {
@@ -1112,7 +1135,8 @@ body {
 }
 
 #footer a:hover {
-    text-decoration: underline;
+    /*text-decoration: underline;*/
+	text-decoration: bold;
 }
 
 div.contents, #content {

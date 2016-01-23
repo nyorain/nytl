@@ -85,23 +85,12 @@ public:
 	///Returns whether the defined simplex is valid (i.e. size > 0).
 	bool valid() const;
 
-	///Converts the given normal coordinates into barycentric coordinates for the simplex
-	///object. If the given point does not lay in the same space as the simplex object,
-	///the function will throw an exception.
-	///This can be checked before with sameSpace().
-	///\warning Will throw nytl::invalid_simplex if the simplex object is not valid. Can be 
-	///checked with (simplex.valid()) or (simplex.size() >= 0).
-	///\warning Will throw nytl::invalid_space if the given point does not lay in the simplex's 
-	///space (e.g. the simplex is a triangle in a 3-dimensional room and the triangle and the given
-	///point do not lay on the same plane). Can be checked with sameSpace(simplex, point).
-	vec<A + 1, double> barycentric(const vec_type& val) const;
-
-	///Converts the object into a vec of points. Can be used to acces (read/change/manipulate) the
-	///points.
+	///Converts the object into a vec of points. 
+	///Can be used to acces (read/change/manipulate) the points.
 	vec<A + 1, vec_type>& points(){ return points_; }
 
-	///Converts the object into a const vec of poitns. Can be used to const_iterate/read the 
-	///points.
+	///Converts the object into a const vec of poitns. 
+	///Can be used to const_iterate/read the points.
 	const vec<A + 1, vec_type>& points() const { return points_; }
 
 	///Converts the object to a simplex with a different dimension or precision.
@@ -112,7 +101,7 @@ public:
 };
 
 ///Describes a region of multiple simplexes. 
-template<std::size_t D, typename P = float, std::size_t A = D, typename = DimMatch<D, A>>
+template<std::size_t D, typename P = float, std::size_t A = D>
 class simplexRegion : public deriveDummy<DimMatch<D, A>>
 {
 public:
@@ -168,6 +157,7 @@ template<std::size_t D, typename P = float> using tetrahedron = simplex<D, P, 3>
 
 //operators/utility
 #include <nytl/bits/simplex.inl>
+#include <nytl/bits/simplexRegion.inl>
 
 }
 

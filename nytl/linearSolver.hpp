@@ -29,13 +29,14 @@
 
 #include <nytl/mat.hpp>
 #include <nytl/vec.hpp>
+#include <nytl/dynVec.hpp>
 
 #include <climits>
 
 namespace nytl
 {
 
-///\brief Represents the solutions a linear equotation system can have.
+///Represents the solutions a linear equotation system can have.
 ///\ingroup math
 template<std::size_t N>
 class solutionSet
@@ -68,9 +69,70 @@ public:
 	vec<N, double> solution() const;
 };
 
-///\brief A linear equtations with variable coefficients and a result.
+///Represents a linear domain that can is used for domainedSolutionSet components.
 ///\ingroup math
-///\details Represents a linear equotation with V variables and a result that have a precision of P.
+class linearDomain
+{
+public:
+	double minimum;
+	double maximum;
+};
+
+///Represents a linear solution set with specified domains for each set componnent.
+///Useful for computing the range the variables can take for a given domain.
+///\ingroup math
+template<std::size_t N>
+class domainedSolutionSet
+{
+public:
+	using expressionType = typename solutionSet<N>::expression;
+
+public:
+	solutionSet<N> solutionSet_;
+	vec<N, linearDomain> domains_;
+	std::vector<vec2<std::vector<expressionType>>> dependentDomains_;
+
+public:
+	domainedSolutionSet() = default;
+
+	///Constructs the object and bakes its internal data.
+	domainedSolutionSet(const solutionSet<N>& sset, const vec<N, linearDomain>& domains);
+
+	///Computes its internal representation of the solutionSets components.
+	///\exception nytl::invalid_solution_set if the solutionSet has no solution at all.
+	///\exception nytl::invalid_domained_solution_set if there is no solutions for the given
+	///combination of solutionSet and domains.
+	void bake();
+
+	///Returns a solution for the given parameters.
+	///\paran seq Specifies the order in which the variables should be chosen. Must have
+	///as many components as the solutionSet has variables.
+	///\param minmax Specifies for each solutionSet variable whether the minimum or the maximum 
+	///of the variables range should be chosen. Must have as many components as the solutionSet
+	///has variables.
+	///\param bake Specifies whether the internal representation should be baked before computing
+	///the solution. If multiple solutions are computing wihthout changing the solutionSet in
+	///the domains in the meantime this parameter can be 0 (for optimization).
+	///\return A solution whose components are in their given domains while still 
+	///matching the solutionSet.
+	///\exception nytl::invalid_vector_size if seq or minmax have less components than
+	///the objects solutionSet has variables.
+	///\exception nytl::no_baked_data if there is no/invalid internal data representation to use.
+	///Can occur if bake == 0 and the data has never been succesfully baked or changed since 
+	///the last bake.
+	///\warning If bake == 1 the bake() member function is called so all all exceptions from
+	///this function might be thrown then.
+	dynVecd solution(const dynVecui& seq, const dynVecb& minmax, bool bake = 1);
+
+	///\copydoc solution(const dynVecui&,const dynVecb&,bool)
+	///Const overload for just getting a solution without the possibility to bake it first.
+	dynVecd solution(const dynVecui& seq, const dynVecb& minmax) const;
+};
+
+
+///A linear equtations with variable coefficients and a result.
+///Represents a linear equotation with V variables and a result that have a precision of P.
+///\ingroup math
 template<std::size_t V, typename P>
 class linearEquotation
 {

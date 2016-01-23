@@ -71,7 +71,6 @@ public:
 	//simplex
     double size() const { return distance(a, b); }
 	vec_type center() const { return (a + b) / 2; }
-	vec<2, double> barycentric(const vec_type& v) const;
 	bool valid() const;
 
 	vec<2, vec_type>& points()

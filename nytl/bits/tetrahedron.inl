@@ -24,7 +24,6 @@
 
 #pragma once
 
-//member
 template<std::size_t D, typename P>
 double tetrahedron<D, P>::size() const
 {
@@ -38,23 +37,7 @@ vec<D, P> tetrahedron<D, P>::center() const
 }
 
 template<std::size_t D, typename P>
-vec<4, double> tetrahedron<D, P>::barycentric(const vec<D, P>& v) const
-{
-	return detail::simplexBarycentric(*this, v);
-}
-
-template<std::size_t D, typename P>
 bool tetrahedron<D, P>::valid() const
 {
 	return detail::simplexValid(*this);
 }
-
-//operators
-///\relates tetrahedron
-template<size_t D, typename P>
-std::ostream& operator<<(std::ostream& os, const tetrahedron<D, P>& obj)
-{
-    os << obj.a << " " << obj.b << " " << obj.c << " " << obj.d;
-    return os;
-}
-

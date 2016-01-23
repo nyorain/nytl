@@ -27,7 +27,7 @@
 namespace nytl{
 #endif
 
-//exception////////////////////////////////////////////////////////////////////////////////
+//exceptions
 ///\relates simplex
 ///\brief This exception is thrown when two given arguments do not lay in the same spaces.
 ///\details For some computations (i.e. barycentric coordinates) it is required that two
@@ -52,11 +52,11 @@ public:
 		: std::invalid_argument("Invalid simplex object parameter given at function " + func) {}  
 };
 
-
-//detail implementation///////////////////////////////////////////////
+//detail implementation
 namespace detail
 {
 
+//member
 template<std::size_t D, typename P, std::size_t A>
 double simplexSize(const simplex<D, P, A>& s)
 {
@@ -74,73 +74,6 @@ vec<D, P> simplexCenter(const simplex<D, P, A>& s)
 {
 	return (sum(s.points) / s.points.size());
 }
-
-//throws invalid_space if given point does not lay in space(line, plane, area ...) of simplex
-template<std::size_t D, typename P, std::size_t A>
-vec<A + 1, double> simplexBarycentric(const simplex<D, P, A>& s, const vec<D, P>& v)
-{
-	if(!s.valid())
-	{
-		throw invalid_simplex("simplexBarycentric");
-	}
-
-	mat<D, A + 1, double> m;
-	for(std::size_t c(0); c < A; ++c)
-	{
-		m.col(c) = s.points()[c] - s.points()[A];
-	}
-
-	m.col(A) = v - s.points()[A];
-
-	auto& les = reinterpret_cast<linearEquotationSystem<D, A, double>&>(m);
-	auto sol = les.solve();
-
-	if(!sol.solvable())
-	{
-		throw invalid_space("simplexBarycentric");
-	}
-	else if(!sol.unambigouoslySolvable())
-	{
-		//should never happen since simplex is previously checked for validity.
-		throw invalid_simplex("simplexBarycentric, :2");
-	}
-
-	return sol.solution();
-}
-
-///TODO: should this function really throw? not just return false?
-template<std::size_t D, typename P, std::size_t A>
-bool simplexSameSpace(const simplex<D, P, A>& s, const vec<D, P>& v)
-{
-	if(!s.valid())
-	{
-		throw invalid_simplex("simplexSameSpace");
-	}
-
-	mat<D, A + 1, double> m;
-	for(std::size_t c(0); c < A; ++c)
-	{
-		m.col(c) = s.points()[c] - s.points()[A];
-	}
-
-	m.col(A) = v - s.points()[A];
-
-	auto& les = reinterpret_cast<linearEquotationSystem<D, A, double>&>(m);
-	auto sol = les.solve();
-
-	if(!sol.solvable())
-	{
-		return false;
-	}
-	else if(!sol.unambigouosSolvable())
-	{
-		//should never happen since simplex is previously checked for validity.
-		throw invalid_simplex("simplexSameSpace, :2");
-	}
-
-	return true;
-}
-
 template<std::size_t OD, typename OP, std::size_t D, typename P, std::size_t A>
 simplex<OD, OP, A> simplexConversion(const simplex<D, P, A>& s)
 {
@@ -153,15 +86,91 @@ bool simplexValid(const simplex<D, P, A>& s)
 	return (s.size() >= 0);
 }
 
-//tests
+//free
+//throws invalid_space if given point does not lay in space(line, plane, area ...) of simplex
+template<std::size_t D, typename P, std::size_t A>
+struct SimplexBarycentric
+{
+	static vec<A + 1, double> call(const simplex<D, P, A>& s, const vec<D, P>& v)
+	{
+		if(!s.valid())
+		{
+			throw invalid_simplex("simplexBarycentric");
+		}
+	
+		mat<D, A + 1, double> m;
+		for(std::size_t c(0); c < A; ++c)
+		{
+			m.col(c) = s.points()[c] - s.points()[A];
+		}
+	
+		m.col(A) = v - s.points()[A];
+	
+		auto& les = reinterpret_cast<linearEquotationSystem<D, A, double>&>(m);
+		auto sol = les.solve();
+	
+		if(!sol.solvable())
+		{
+			throw invalid_space("simplexBarycentric");
+		}
+		else if(!sol.unambigouoslySolvable())
+		{
+			//should never happen since simplex is previously checked for validity.
+			throw invalid_simplex("simplexBarycentric, :2");
+		}
+	
+		return sol.solution();
+	}
+
+};
+
+template<std::size_t D, typename P, std::size_t A>
+struct SimplexSameSpace
+{
+
+	static bool call(const simplex<D, P, A>& s, const vec<D, P>& v)
+	{
+		if(!s.valid())
+		{
+			//throw invalid_simplex("simplexSameSpace");
+			return false;
+		}
+	
+		mat<D, A + 1, double> m;
+		for(std::size_t c(0); c < A; ++c)
+		{
+			m.col(c) = s.points()[c] - s.points()[A];
+		}
+	
+		m.col(A) = v - s.points()[A];
+	
+		auto& les = reinterpret_cast<linearEquotationSystem<D, A, double>&>(m);
+		auto sol = les.solve();
+	
+		if(!sol.solvable())
+		{
+			return false;
+		}
+		else if(!sol.unambigouosSolvable())
+		{
+			//should never happen since simplex is previously checked for validity.
+			//throw invalid_simplex("simplexSameSpace, :2");
+			return false;
+		}
+	
+		return true;
+	}
+};
+
+
 template<std::size_t D, typename P, std::size_t A>
 struct SimplexContainsPoint
 {
-	static bool test(const simplex<D, P, A>& s, const vec<D, P>& v)
+	static bool call(const simplex<D, P, A>& s, const vec<D, P>& v)
 	{
 		try
 		{
-			auto bv = s.barycentric(v);
+			auto bv = barycentric(s, v);
 			return (sum(bv) == 1 && none(bv > 1) && none(bv < 0));
 		}
 		catch(const invalid_space& err)
@@ -174,44 +183,54 @@ struct SimplexContainsPoint
 template<std::size_t D, typename P>
 struct SimplexContainsPoint<D, P, 0>
 {
-	static bool test(const simplex<D, P, 0>& s, const vec<D, P>& v)
+	static bool call(const simplex<D, P, 0>& s, const vec<D, P>& v)
 	{
 		return all(s[0] == v);
 	}
 };
 
+//TODO
 template<std::size_t D, typename P, std::size_t A>
 struct SimplexIntersects
 {
-	static bool test(const simplex<D, P, A>& sa, const simplex<D, P, A>& sb)
+	static bool call(const simplex<D, P, A>& sa, const simplex<D, P, A>& sb)
 	{
-		return 0;
+		mat<D + 2, (A * 2) + 1, double> eqs;
+		for(std::size_t i(0); i < A * 2; ++i)
+		{
+			eqs.col(i) = sa.points()[i];
+			eqs.col(A + 1 + i) = -sb.points()[i];
+
+			eqs.row(D)[i] = 1;
+			eqs.row(D)[A + 1 + i] = 0;
+
+			eqs.row(D + 1)[i] = 0;
+			eqs.row(D + 1)[A + 1 + i] = 1;
+		}	
+
+		eqs.col((A + 1) * 2).fill(0);
+		eqs.row(D)[(A + 1) * 2] = 1;
+		eqs.row(D + 1)[(A + 1) * 2] = 1;
+
+		rrefMat(eqs);
+		//TODO
 	};
 };
-
 
 } //detail
 
 
-
-//member///////////////////////////////////////////////
+//member
 template<std::size_t D, typename P, std::size_t A>
 double simplex<D, P, A>::size() const
 {
 	return detail::simplexSize(*this);
 }
 
-
 template<std::size_t D, typename P, std::size_t A>
 vec<D, P> simplex<D, P, A>::center() const
 {
 	return detail::simplexCenter(*this);
-}
-
-template<std::size_t D, typename P, std::size_t A>
-vec<A + 1, double> simplex<D, P, A>::barycentric(const vec<D, P>& v) const
-{
-	return detail::simplexBarycentric(*this, v);
 }
 
 template<std::size_t D, typename P, std::size_t A>
@@ -227,27 +246,64 @@ bool simplex<D, P, A>::valid() const
 	return detail::simplexValid(*this);
 }
 
+//utility
+///\relates simplex
+///Converts the given cartesian coordinates into barycentric coordinates for the given simplex.
+///If the given point does not lay in the same space as the simplex object,
+///the function will throw an exception.
+///This can be checked before with sameSpace().
+///Reverse function to cartesian().
+///\exception nytl::invalid_simplex If the simplex object is not valid. Can be 
+///checked with (simplex.valid()) or (simplex.size() >= 0).
+///\exception nytl::invalid_space If the given point does not lay in the simplex's 
+///space (e.g. the simplex is a triangle in a 3-dimensional room and the triangle and the given
+///point do not lay on the same plane). Can be checked with sameSpace(simplex, point).
+template<std::size_t D, typename P, std::size_t A>
+vec<A + 1, double> barycentric(const simplex<D, P, A>& s, const vec<D, P>& cart)
+{
+	return detail::SimplexBarycentric<D, P, A>::call(s, cart);
+}
 
-//tests/////////////////////////////////////
+
+///Converts the given barycentric coordinates of the given simplex to cartesian coordinates.
+///Reverse function to barycentric().
+template<std::size_t D, typename P, std::size_t A>
+vec<D, double> cartesian(const simplex<D, P, A>& s, const vec<A + 1, double>& bary)
+{
+	vec<D, double> ret;
+	for(std::size_t i(0); i < A + 1; ++i)
+		ret += bary[i] * s.points()[i];
+
+	return ret;
+}
+
+
+///\relates simplex
+///Outputs all simplex points to an ostream.
+template<std::size_t D, typename P, std::size_t A>
+std::ostream& operator<<(std::ostream& os, const simplex<D, P, A>& s)
+{
+	for(auto& p : s.points())
+		os << p;
+}
+
+//tests
 ///\relates simplex
 ///Returns whether the simplex lays in the same space as the given point.
 ///If e.g. the simplexes D == 2 it checks whether they lay on the same plane.
 ///If D == A for the simplex object, this function will always return true.
-///\warning Will throw nytl::invalid_simplex if the simplex object is not valid (i.e. size
-///<= 0).
 template<std::size_t D, typename P, std::size_t A> bool
 	sameSpace(const simplex<D, P, A>& s, const vec<D, P>& v)
 {
-	return detail::simplexSameSpace(s, v);
+	return detail::SimplexSameSpace<D, P, A>::call(s, v);
 }
 
-///\TODO: intersection does not check for containment atm. Probably unexpected.
 ///\relates simplex
 ///Tests if the given simplex contains the given point.
 template<std::size_t D, typename P, std::size_t A> bool 
 	contains(const simplex<D, P, A>& s, const vec<D, P>& v)
 {
-	return detail::SimplexContainsPoint<D, P, A>::test(s, v);
+	return detail::SimplexContainsPoint<D, P, A>::call(s, v);
 }
 
 ///\relates simplex
@@ -255,9 +311,7 @@ template<std::size_t D, typename P, std::size_t A> bool
 template<std::size_t D, typename P, std::size_t A> bool 
 	intersects(const simplex<D, P, A>& s1, const simplex<D, P, A>& s2)
 {
-	return detail::SimplexIntersects<D, P, A>::test(s1, s2);
-
-	return 0;
+	return detail::SimplexIntersects<D, P, A>::call(s1, s2);
 }
 
 ///\relates simplex
@@ -270,61 +324,6 @@ template<std::size_t D, typename P, std::size_t A> bool
 
 	return 1;
 }
-
-///\relates simplexRegion
-///Tests if a simplexRegion intersects with a simplex. Symmetrical operator.
-template<std::size_t D, typename P, std::size_t A> bool 
-	intersects(const simplexRegion<D, P, A>& r, const simplex<D, P, A>& s)
-{
-	for(auto& rs : r)
-		if(intersects(rs, s)) return 1;
-
-	return 0;
-}
-
-///\relates simplexRegion
-///Tests two simplexRegions for intersection. Symmetrical operator.
-template<std::size_t D, typename P, std::size_t A> bool 
-	intersects(const simplexRegion<D, P, A>& r1, const simplexRegion<D, P, A>& r2)
-{
-	for(auto& rs : r2)
-		if(intersects(r1, rs)) return 1;
-
-	return 0;
-}
-
-///\relates simplexRegion
-///Tests if the given simplexRegion fully contains the given simplex. Asymmetrical operator.
-template<std::size_t D, typename P, std::size_t A>bool 
-	contains(const simplexRegion<D, P, A>& r, const simplex<D, P, A>& s)
-{
-	for(auto& rs : r)
-		if(!contains(rs, s)) return 0;
-
-	return 1;
-}
-///\relates simplexRegion
-///Tests if the first simplexRegion fully contains the second one. Asymmetrical operator.
-template<std::size_t D, typename P, std::size_t A>bool 
-	contains(const simplexRegion<D, P, A>& r1, const simplexRegion<D, P, A>& r2)
-{
-	for(auto& s : r2)
-		if(!contains(r1, s)) return 0;
-
-	return 1;
-}
-
-///\relates simplexRegion
-///Tests if the given simplexRegion contains the given point.
-template<std::size_t D, typename P, std::size_t A> bool 
-	contains(const simplexRegion<D, P, A>& r, const vec<D, P>& v)
-{
-	for(auto& s : r)
-		if(contains(s, v)) return 1;
-
-	return 0;
-}
-
 
 //operators
 ///\relates simplex
@@ -360,31 +359,6 @@ template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A>
 ///single simplex. Asymmetrical operator. [AND NOT]
 template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A> 
 	difference(const simplex<D, P, A>&, const simplex<D, P, A>&)
-{
-}
-
-
-///\relates simplexRegion
-template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A> 
-	intersection(const simplexRegion<D, P, A>&, const simplexRegion<D, P, A>&)
-{
-}
-
-///\relates simplexRegion
-template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A> 
-	combination(const simplexRegion<D, P, A>&, const simplexRegion<D, P, A>&)
-{
-}
-
-///\relates simplexRegion
-template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A> 
-	symmetricDifference(const simplexRegion<D, P, A>&, const simplexRegion<D, P, A>&)
-{
-}
-
-///\relates simplexRegion
-template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A> 
-	difference(const simplexRegion<D, P, A>&, const simplexRegion<D, P, A>&)
 {
 }
 

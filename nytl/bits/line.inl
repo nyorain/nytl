@@ -29,7 +29,7 @@ namespace detail
 template<std::size_t D, typename P>
 struct SimplexContainsPoint<D, P, 1>
 {
-	static bool test(const simplex<D, P, 1>& a, const vec<D, P>& v)
+	static bool call(const simplex<D, P, 1>& a, const vec<D, P>& v)
 	{
 		return (a.definedAt(v[0]) && all(a.valueAt(v[0]) == v));
 	}
@@ -38,7 +38,7 @@ struct SimplexContainsPoint<D, P, 1>
 template<std::size_t D, typename P>
 struct SimplexIntersects<D, P, 1>
 {
-	static bool test(const simplex<D, P, 1>& la, const simplex<D, P, 1>& lb)
+	static bool call(const simplex<D, P, 1>& la, const simplex<D, P, 1>& lb)
 	{  
 		mat<D, 3, double> eqs;
 		eqs.col(0) = la.b - la.a;
@@ -87,32 +87,9 @@ line<D, P>::valueAt(const P& value, std::size_t dim) const
     }
 }
 
-//member
-template<std::size_t D, typename P>
-vec<2, double> line<D, P>::barycentric(const vec<D, P>& v) const
-{
-	return detail::simplexBarycentric(*this, v);
-}
-
 template<std::size_t D, typename P>
 bool line<D, P>::valid() const
 {
 	return detail::simplexValid(*this);
-}
-
-//utility
-///\relates nytl::line
-template<size_t D, typename P>
-std::ostream& operator<<(std::ostream& os, const line<D, P>& obj)
-{
-    os << obj.a << " " << obj.b; 
-    return os;
-}
-
-///\relates nytl::line
-template<size_t D, typename P>
-double length(const line<D, P>& l)
-{
-    return l.length();
 }
 

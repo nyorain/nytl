@@ -54,14 +54,14 @@ int main()
 			assert(!contains(a, vec3f{101.f, -101.f, 50.5f}));
 			//assert(!contains(a, vec1f{10.f}));
 
-			assert(all(a.barycentric(vec3f{50.f, -50.f, 25.f}) == vec2f(0.5, 0.5)));
-			assert(all(a.barycentric(vec3f{0.f, 0.f, 0.f}) == vec2f(1, 0)));
-			assert(all(a.barycentric(vec3f{100.f, -100.f, 50.f}) == vec2f(0, 1)));
+			assert(all(barycentric(a, vec3f{50.f, -50.f, 25.f}) == vec2f(0.5, 0.5)));
+			assert(all(barycentric(a, vec3f{0.f, 0.f, 0.f}) == vec2f(1, 0)));
+			assert(all(barycentric(a, vec3f{100.f, -100.f, 50.f}) == vec2f(0, 1)));
 
 			bool thrown = 0;
 			try
 			{
-				a.barycentric(vec3f{0.f, 0.f, -5.f}); //do not exist
+				barycentric(a, vec3f{0.f, 0.f, -5.f}); //do not exist
 			}
 			catch(const std::exception&) //TODO: specify exception
 			{

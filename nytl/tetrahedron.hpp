@@ -78,7 +78,6 @@ public:
 	//default
     double size() const;
 	vec_type center() const;
-	vec<4, double> barycentric(const vec_type& v) const;
 	bool valid() const;
 
 	vec<4, vec_type>& points()

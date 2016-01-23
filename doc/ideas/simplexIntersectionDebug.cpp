@@ -9,6 +9,172 @@ using namespace nytl;
 
 using vec1d = vec<1, double>;
 
+//
+class linearDomain
+{
+public:
+	double minimum;
+	double maximum;
+
+	void newMin(double nmin){ minimum = std::max(nmin, minimum); }
+	void newMax(double nmax){ maximum = std::min(nmax, maximum); }
+};
+
+template<std::size_t N>
+class domainedSolutionSet
+{
+public:
+	using expressionType = typename solutionSet<N>::expression;
+
+public:
+	solutionSet<N> solutionSet_;
+	vec<N, linearDomain> domains_;
+	std::vector<vec2<std::vector<expressionType>>> dependentDomains_;
+
+public:
+	void bake();
+	dynVecd solution(const dynVecui& seq, const dynVecb& minmax) const;
+};
+
+template<std::size_t N>
+void domainedSolutionSet<N>::bake()
+{
+	dependentDomains_.resize(solutionSet_.numberVariables());
+
+	for(std::size_t i(0); i < N; ++i)
+	{
+		auto& expr = solutionSet_.solution_[i];
+		if(all(expr.variablePart == 0)) //const
+		{
+			if(domains_[i].minimum > expr.constPart || domains_[i].maximum < expr.constPart)
+			{
+				//does not match domain (no variable part -> NEVER matches domain), throw
+				throw std::invalid_argument("domainedSolutionSet::solution");
+			}
+		}
+
+		//variablePart
+		for(std::size_t v(0); v < solutionSet_.numberVariables(); ++v)
+		{
+			if(expr.variablePart[v] == 0) continue;
+
+			auto exp = expressionType{};
+
+			exp.constPart = (domains_[i].minimum - expr.constPart) / expr.variablePart[v];
+			exp.variablePart = -expr.variablePart / expr.variablePart[v];
+			exp.variablePart[v] = 0;
+			dependentDomains_[v][(expr.variablePart[v] < 0)].push_back(exp); 
+
+			exp.constPart = (domains_[i].maximum - expr.constPart) / expr.variablePart[v];
+			exp.variablePart = -expr.variablePart / expr.variablePart[v];
+			exp.variablePart[v] = 0;
+			dependentDomains_[v][(expr.variablePart[v] > 0)].push_back(exp); 
+		}
+	}
+
+	/*
+	std::size_t imm(0);
+	std::cout << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n";
+
+	for(auto& d : dependentDomains_)
+	{
+		for(auto& d2 : d[0])
+		{
+			std::cout << imm << " >= " << d2.constPart << " + " << d2.variablePart << "\n";
+		}
+
+		for(auto& d2 : d[1])
+		{
+			std::cout << imm << " <= " << d2.constPart << " + " << d2.variablePart << "\n";
+		}
+		imm++;
+	}
+
+	std::cout << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n";
+	*/
+
+	return;
+}
+
+template<std::size_t N>
+dynVecd domainedSolutionSet<N>::solution(const dynVecui& seq, const dynVecb& minmax) const
+{
+	auto vars = dynVecd(solutionSet_.numberVariables());
+	for(std::size_t i(0); i < solutionSet_.numberVariables(); ++i)
+	{
+		auto s = seq[i];
+		auto m = minmax[s];
+		vars[s] = double(m);
+
+		for(auto& d : dependentDomains_[s][m])
+		{
+			//ignore(skip) dependentcomains with unresolved variables
+			bool skip = 0;
+			for(std::size_t vp(i); vp < solutionSet_.numberVariables(); ++vp)
+			{
+				if(d.variablePart[seq[vp]] != 0) skip = 1;
+			}
+			if(skip) continue;
+
+			if(m)
+			{
+				auto n = d.constPart + sum(d.variablePart * vars);
+				vars[s] = std::min(vars[s], n);
+				std::cout << "min: " << s << " " << vars[s] << " " << n << "\n"; 
+			}
+			else
+			{
+				auto n = d.constPart + sum(d.variablePart * vars);
+				vars[s] = std::max(vars[s], n);
+				std::cout << "max: " << s << " " << vars[s] << " " << n << "\n"; 
+			}
+		}
+
+		//check
+		for(auto& d : dependentDomains_[s][!m])
+		{
+			//ignore(skip) dependentcomains with unresolved variables
+			bool skip = 0;
+			for(std::size_t vp(i); vp < solutionSet_.numberVariables(); ++vp)
+			{
+				if(d.variablePart[seq[vp]] != 0) skip = 1;
+			}
+			if(skip) continue;
+
+			if(m)
+			{
+				auto n = d.constPart + sum(d.variablePart * vars);
+				if(vars[s] < n)
+				{
+					throw std::invalid_argument("dependentSolutionSet::solution :not solveable");
+				}
+			}
+			else
+			{
+				auto n = d.constPart + sum(d.variablePart * vars);
+				if(vars[s] > n)
+				{
+					throw std::invalid_argument("dependentSolutionSet::solution :not solveable");
+				}
+			}
+		}
+	}
+
+	return vars;
+}
+
+//
+template<std::size_t D, typename P, std::size_t A>
+vec<D, double> cartesian(const simplex<D, P, A>& sa, const vec<A + 1, double>& barycentric)
+{
+	auto ret = vec<D, double>{};
+	for(std::size_t i(0); i < A + 1; ++i)
+	{
+		ret += barycentric[i] * sa.points()[i];
+	}
+	return ret;
+}
+
 template<std::size_t D, typename P, std::size_t A = D>
 simplexRegion<D, P, A> convexFromPoints(const std::vector<vec<D, P>>& points)
 {
@@ -184,13 +350,13 @@ simplexRegion<D, double, A> intersection2(const simplex<D, P, A>& sa, const simp
 		std::vector<vec<D, double>> cartesianPoints;
 		for(auto& comb : sequences)
 		{
-			auto sol = dss.solution(dynVeci{0, 1}, comb, 0);
-			auto cart = cartesian(sa, vec<A + 1, double>(solution.solution(sol)));
+			auto sol = dss.solution(dynVeci{0, 1}, comb);
+			auto cart = cartesian(sa, solution.solution(sol));
 			cartesianPoints.push_back(cart);
 			//std::cout << "{0, 1}, " << comb << " --> " << sol << " --> " << cart << "\n";
 
-			sol = dss.solution(dynVeci{1, 0}, comb, 0);
-			cart = cartesian(sa, vec<A + 1, double>(solution.solution(sol)));
+			sol = dss.solution(dynVeci{1, 0}, comb);
+			cart = cartesian(sa, solution.solution(sol));
 			cartesianPoints.push_back(cart);
 			//std::cout << "{1, 0}, " << comb << " --> " << sol << " --> " << cart << "\n";
 		}

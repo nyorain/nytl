@@ -38,23 +38,8 @@ vec<D, P> triangle<D, P>::center() const
 }
 
 template<std::size_t D, typename P>
-vec<3, double> triangle<D, P>::barycentric(const vec<D, P>& v) const
-{
-	return detail::simplexBarycentric(*this, v);
-}
-
-template<std::size_t D, typename P>
 bool triangle<D, P>::valid() const
 {
 	return detail::simplexValid(*this);
-}
-
-//operators
-///\relates triangle
-template<size_t D, typename P>
-std::ostream& operator<<(std::ostream& os, const triangle<D, P>& obj)
-{
-    os << obj.a << " " << obj.b << " " << obj.c;
-    return os;
 }
 
