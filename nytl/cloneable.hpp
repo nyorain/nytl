@@ -74,6 +74,9 @@ private:
 	template<typename X> 
 	friend std::unique_ptr<X> clone(const X&);
 
+protected:
+	using cloneableBase = deriveCloneable;
+
 public:
 	using Base::Base;
 };

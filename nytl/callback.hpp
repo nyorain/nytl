@@ -137,6 +137,23 @@ public:
 		{ return (callback_) && (data_->id.load() != 0); }
 };
 
+///RAII connection class that will disconnect automatically on destruction.
+class raiiConnection
+{
+protected:
+	connection connection_;
+
+public:
+	raiiConnection(const connection& conn) : connection_(conn) {}
+	~raiiConnection() { connection_.destroy(); }
+
+	connection& get() { return connection_; }
+	const connection& get() const { return connection_; }
+
+	bool connected() const { return connection_.connected(); }
+	void destroy() { connection_.destroy(); }
+};
+
 
 //TODO make callback threadsafe using a lockfree list as container. There are already shared
 //pointers anyway so it should not be that expensive.

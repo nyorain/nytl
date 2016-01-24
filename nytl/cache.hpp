@@ -28,6 +28,7 @@
 #pragma once
 
 #include <nytl/make_unique.hpp>
+#include <nytl/cloneable.hpp>
 #include <unordered_map>
 #include <memory>
 
@@ -35,24 +36,10 @@ namespace nytl
 {
 
 ///Default cache base class used by the multiCache template.
-class cache
+class cache : public cloneable<cache>
 {
-public:
-	virtual ~cache() noexcept = default;
-	virtual std::unique_ptr<cache> cacheClone() const = 0;
 };
 
-///\brief Helper template that make deriving from cache easier.
-///\ingroup utility
-///\details Implements the pure virtual cache::cacheClione() function depending on the given Derived 
-///class template paremeter.
-template<typename Derived>
-class cacheBase : public cache
-{
-public:
-    virtual std::unique_ptr<cache> cacheClone() const override 
-		{ return make_unique<Derived>(static_cast<const Derived&>(*this)); }
-};
 
 ///\brief Base class for classes that carry associated cache objects.
 ///\details Objects of classes dervied from multiCache are able to hold multiple associated cache 
