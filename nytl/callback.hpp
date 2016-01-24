@@ -141,7 +141,7 @@ public:
 class raiiConnection
 {
 protected:
-	connection connection_;
+	connection connection_ {};
 
 public:
 	raiiConnection(const connection& conn) : connection_(conn) {}
@@ -149,6 +149,7 @@ public:
 
 	connection& get() { return connection_; }
 	const connection& get() const { return connection_; }
+	void release(){ connection_ = {}; }
 
 	bool connected() const { return connection_.connected(); }
 	void destroy() { connection_.destroy(); }

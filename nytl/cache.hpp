@@ -35,6 +35,8 @@
 namespace nytl
 {
 
+//TODO: implement copy on write with shared ptr instead of always-copy
+
 ///Default cache base class used by the multiCache template.
 class cache : public cloneable<cache>
 {

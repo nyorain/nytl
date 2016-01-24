@@ -138,7 +138,7 @@ public:
 			>::value
 		>::type>
     vec(Args&&... args) noexcept : data_{value_type(args)...} {}
-	vec(size_type) noexcept {}
+	explicit vec(size_type) noexcept {}
 
     vec() noexcept = default;
     ~vec() noexcept = default;
@@ -275,7 +275,7 @@ public:
 
 public:
 	vec(value_type a, value_type b) noexcept : x(a), y(b) {}
-	vec(size_type) noexcept {}
+	explicit vec(size_type) noexcept {}
 
 	vec() noexcept = default;
 	~vec() noexcept = default;
@@ -405,7 +405,7 @@ public:
 
 public:
 	vec(value_type a, value_type b, value_type c) noexcept : x(a), y(b), z(c) {}
-	vec(size_type) noexcept {}
+	explicit vec(size_type) noexcept {}
 
     vec() noexcept = default;
 	~vec() noexcept = default;
@@ -542,7 +542,7 @@ public:
 
 public:
 	vec(value_type a, value_type b, value_type c, value_type d) noexcept : x(a), y(b), z(c), w(d) {}
-	vec(size_type) noexcept {}
+	explicit vec(size_type) noexcept {}
 
     vec() noexcept = default;
 	~vec() noexcept = default;

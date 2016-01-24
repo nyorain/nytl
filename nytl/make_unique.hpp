@@ -29,6 +29,7 @@
 
 #include <memory>
 #include <functional>
+#include <type_traits>
 
 namespace nytl
 {
@@ -37,17 +38,29 @@ namespace nytl
  using std::make_unique;
 #else
 
-template<typename T, class... Args >
-std::unique_ptr<T> make_unique(Args&&... args)
+namespace detail
+{
+
+template<typename T> struct uniqueType { using singleObject = std::unique_ptr<T>; };
+template<typename T> struct uniqueType<T[]> { using unknownBound = std::unique_ptr<T[]>; };
+template<typename T, std::size_t N> struct uniqueType<T[N]> { using knownBound = void; };
+
+}
+
+template<typename T, typename... Args >
+typename detail::uniqueType<T>::singleObject make_unique(Args&&... args)
 {
     return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
 }
 
 template<typename T>
-std::unique_ptr<T> make_unique(std::size_t size)
+typename detail::uniqueType<T>::unknownBound make_unique(std::size_t size)
 {
     return std::unique_ptr<T>(new typename std::remove_extent<T>::type[size]());
 }
+
+template<typename T, typename... Args>
+typename detail::uniqueType<T>::knownBound make_unique(std::size_t size) = delete;
 
 #endif // __cplusplus
 }
