@@ -71,8 +71,8 @@ int main()
 				assert(var == 8.f);
 			};
 		cp1(nullptr, 8., 4.f);
-		cp1 = testFunc1;
-		cp1 = &testFunc1;
+		cp1 = testFunc2;
+		cp1 = &testFunc3;
 
 		cp1.set(memberCallback(&testClass1::func1, &obj));
 		assert(cp1.function());

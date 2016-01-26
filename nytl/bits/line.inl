@@ -71,7 +71,7 @@ line<D, P>::valueAt(const P& value, std::size_t dim) const
 {
     if(!definedAt(value, dim))
     {
-		sendWarning("nytl::line::valueAt: line not defined at ", value, ", dim ", dim);
+		//throw?
         return {};
     }
     else if(gradient()[dim] == 0)

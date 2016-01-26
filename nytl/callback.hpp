@@ -147,6 +147,10 @@ public:
 	raiiConnection(const connection& conn) : connection_(conn) {}
 	~raiiConnection() { connection_.destroy(); }
 
+	raiiConnection(raiiConnection&& other) : connection_(std::move(other.connection_)) {}
+	raiiConnection& operator=(raiiConnection&& other) 
+		{ release(); connection_ = std::move(other.connection_); return *this; }
+
 	connection& get() { return connection_; }
 	const connection& get() const { return connection_; }
 	void release(){ connection_ = {}; }

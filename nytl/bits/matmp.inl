@@ -43,7 +43,7 @@ template<std::size_t size, typename seq = make_index_sequence<size>> struct make
 template<std::size_t size, size_t... idx> struct makeRowVec<size, index_sequence<idx...>>
 {
     template<size_t rows, size_t cols, typename prec>
-    static vec<sizeof...(idx), prec> call(vec<rows, vec<cols, prec>>& v, size_t i)
+    static vec<sizeof...(idx), prec> call(const vec<rows, vec<cols, prec>>& v, size_t i)
     {
         return vec<sizeof...(idx), prec>(v[idx][i]...);
     }

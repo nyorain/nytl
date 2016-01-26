@@ -63,6 +63,9 @@ public:
     template<typename F, typename = typename std::enable_if<is_callable<F>::value>::type>
     compatibleFunction(F func) noexcept { set(func); }
 
+    template<typename F, typename O, typename = typename std::enable_if<is_callable<F>::value>::type>
+    compatibleFunction(F func, O object) noexcept { set(memberCallback(func, object)); }
+
     compatibleFunction(const comp_func_type& other) noexcept 
 		: func_(other.func_) {}
     template<typename Sig> compatibleFunction(const compatibleFunction<Sig>& other) noexcept 
@@ -121,6 +124,9 @@ public:
     //constructor
     template<typename F, typename = typename std::enable_if<is_callable<F>::value>::type>
     compatibleFunction(F func) noexcept { set(func); }
+
+    template<typename F, typename O, typename = typename std::enable_if<is_callable<F>::value>::type>
+    compatibleFunction(F func, O object) noexcept { set(memberCallback(func, object)); }
 
     compatibleFunction(const comp_func_type& other) noexcept 
 		: func_(other.func_) {}

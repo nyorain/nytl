@@ -137,13 +137,14 @@ public:
 		auto cpy = children_;
 	    for(auto* c : cpy)
         {
-            c->destroy();
+            static_cast<node_type*>(c)->destroy();
         }
 
 	    children_.clear();
     };
 
-	virtual Root& root() const = 0;
+	virtual const Root& root() const = 0;
+	virtual Root& root() = 0;
 };
 ///\example xml.cpp A simple example on how to use the nytl::hierachy templates.
 
@@ -157,20 +158,30 @@ public:
 protected:
 	T* parent_;
 
+	hierachyNode() = default;
+
 	virtual void destroy() override
 	{
 		T::destroy();
 	    if(parent_) 
 		{
-			parent_->removeChild(static_cast<T&>(*this));
+			parent_->removeChild(reinterpret_cast<Child&>(*this));
 			parent_ = nullptr;
 		}
 	}
 
-public:
-	hierachyNode(T& parent) : parent_(&parent) {}
+	void create(T& parent)
+	{
+		parent_ = &parent;
+		parent.addChild(reinterpret_cast<Child&>(*this));
+	}
 
-	virtual root_type& root() const override { return parent_->root(); }
+public:
+	hierachyNode(T& parent) : parent_(&parent) { create(parent); }
+
+	virtual root_type& root() override { return parent_->root(); }
+	virtual const root_type& root() const override { return parent_->root(); }
+
 	T& parent() const { return *parent_; }
 };
 
@@ -182,7 +193,10 @@ public:
 	using child_type = Child;
 
 public:
-	virtual root_type& root() const override { return static_cast<root_type&>(*this); }
+	virtual const root_type& root() const override 
+		{ return reinterpret_cast<const root_type&>(*this); }
+	virtual root_type& root() override 
+		{ return reinterpret_cast<root_type&>(*this); }
 };
 
 }

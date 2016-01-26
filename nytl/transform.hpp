@@ -170,7 +170,7 @@ protected:
         float sinC = std::sin(rotation_[2] * cDeg);
         float cosC = std::cos(rotation_[2] * cDeg);
 
-        //todo: pre-calculate this
+        //todo: pre-calculate this, use origin
         mat_type trMatrix(cosB * cosC, cosC * sinA * sinB - cosA * sinC, 
 					cosA * cosC * sinB + sinA * sinC, position_[0],
                           cosB * sinC, cosA * cosC + sinA * sinB * sinC, 
