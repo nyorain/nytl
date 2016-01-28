@@ -35,6 +35,7 @@ namespace nytl
 {
 
 ///\brief Cloneable base class
+///\ingroup utility
 template<typename T>
 class cloneable
 {
@@ -49,6 +50,7 @@ protected:
 };
 
 ///\brief Abstract cloneable base class
+///\ingroup utility
 template<typename T>
 class abstractCloneable
 {
@@ -81,6 +83,8 @@ public:
 	using Base::Base;
 };
 
+///\ingroup utility
+///\{
 ///\brief Clones the given (cloneable) object in a unique_ptr.
 ///\details This function should always be called instead of obj.clone() since it is
 ///able to return a unique_ptr while still being able to have convarient return types
@@ -92,6 +96,7 @@ std::unique_ptr<T> clone(const T& value)
 	return std::unique_ptr<T>(static_cast<T*>(value.clone()));
 }
 
+///\ingroup utility
 template<typename T>
 std::unique_ptr<T> clone(const T* value)
 {
@@ -99,12 +104,15 @@ std::unique_ptr<T> clone(const T* value)
 }
 
 //XXX: good idea?
+///\ingroup utility
 template<typename T>
 std::unique_ptr<T> clone(const std::unique_ptr<T>& value)
 {
 	return clone(*value);
 }
+///\}
 
+///\ingroup utility
 ///\brief Utility function to copy a vector of cloneable objects by cloning.
 ///\details This can be useful if one has a vector of polymorph objects which
 ///can not be copy constructed (e.g. vector<SomeAbstractBaseClass*>), especially

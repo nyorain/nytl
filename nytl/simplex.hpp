@@ -38,6 +38,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <string>
+#include <cassert>
 
 namespace nytl
 {
@@ -45,8 +46,8 @@ namespace nytl
 ///Short enable-if typedef
 template<std::size_t D, std::size_t A> using DimMatch = typename std::enable_if<D >= A>::type;
 
-///\brief Templated abstraction of the simplex concept.
 ///\ingroup math
+///\brief Templated abstraction of the simplex concept.
 ///\details The simplex<D, P, A> template class defines an unique area with \c A dimensions
 ///of \c P precision in an \c D dimensional space.
 ///So e.g. simplex<3, float, 2> describes a triangle in a 3-dimensional space.
@@ -63,7 +64,7 @@ public:
 
 public:
 	///Holds the points that define the area.
-	vec<A + 1, vec_type> points_;
+	vec<A + 1, vec_type> points_ {};
 
 public:
 	template<typename... Args, typename = typename
@@ -100,6 +101,7 @@ public:
 		operator simplex<OD, OP, A>() const;
 };
 
+///\ingroup math
 ///Describes a region of multiple simplexes. 
 template<std::size_t D, typename P = float, std::size_t A = D>
 class simplexRegion : public deriveDummy<DimMatch<D, A>>
@@ -156,8 +158,8 @@ template<std::size_t D, typename P = float> using triangle = simplex<D, P, 2>;
 template<std::size_t D, typename P = float> using tetrahedron = simplex<D, P, 3>;
 
 //operators/utility
-#include <nytl/bits/simplex.inl>
 #include <nytl/bits/simplexRegion.inl>
+#include <nytl/bits/simplex.inl>
 
 }
 

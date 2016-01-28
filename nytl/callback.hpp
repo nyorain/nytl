@@ -65,6 +65,7 @@ struct connectionData
 
 }
 
+///\ingroup function
 ///\brief The connection class represents a connection to a nytl::callback slot.
 ///\details A connection object is returned when a function is registered in a callback object
 ///and can then be used to unregister the function and furthermore check whether 
@@ -99,6 +100,7 @@ public:
 		{ return (callback_) && (data_) && (data_->id.load() != 0); }
 };
 
+///\ingroup function
 ///\brief Like Connection representing a registered function but can be used inside callbacks.
 ///\details Sometimes it may be useful to unregister a callback function while it is called
 ///(e.g. if the callback function should be called only once) and there is no possibility to
@@ -137,6 +139,7 @@ public:
 		{ return (callback_) && (data_->id.load() != 0); }
 };
 
+///\ingroup function
 ///RAII connection class that will disconnect automatically on destruction.
 class raiiConnection
 {

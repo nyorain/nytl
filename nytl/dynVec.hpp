@@ -50,6 +50,7 @@ using dynVecul = dynVec<unsigned long>;
 using dynVecd = dynVec<double>;
 using dynVecb = dynVec<bool>;
 
+///\ingroup math
 ///Vec specialization for a dynamic-sized vec.
 template<typename T>
 class vec<dynamicSize, T>
@@ -81,7 +82,7 @@ public:
 	vector_type data_ {};
 
 public:
-	explicit vec(std::initializer_list<T> init) : data_(init) {}
+	vec(std::initializer_list<T> init) : data_(init) {}
 	explicit vec(size_type count) : data_(count) {}
 	explicit vec(size_type count, const T& val) : data_(count, val) {}
 
@@ -155,6 +156,25 @@ public:
 				ret[i] = (*this)[i]; 
 			return ret; 
 		}
+
+	template<std::size_t psize>
+	vec<psize, T> subvec(std::size_t position = 0) const
+	{
+		auto ret = vec<psize, T>{};
+		for(std::size_t i(0); i < min(psize, size() - position); ++i)
+			ret[i] = (*this)[position + i];
+
+		return ret;
+	}	
+
+	vec<dynamicSize, T> subvec(std::size_t position = 0, std::size_t psize = -1) const
+	{
+		auto ret = vec<dynamicSize, T>(size);
+		for(std::size_t i(0); i < min(psize, size() - position); ++i)
+			ret[i] = (*this)[position + i];
+
+		return ret;
+	}
 
 	//dynamic stuff, todo. Just forward all vec member functions here??
 	void clear(){ data_.clear(); }

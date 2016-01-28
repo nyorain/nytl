@@ -67,6 +67,7 @@ typedef refVec4<long> refVec4l;
 typedef refVec4<unsigned long> refVec4ul;
 
 
+///\ingroup math
 ///Vec specialization for reference types.
 template<size_t dimension, typename T> 
 class vec<dimension, T&>
@@ -106,7 +107,7 @@ public:
 				typename type_tuple<value_type, dim>::type
 			>::value
 		>::type>
-    vec(Args&&... args) : data_{std::forward<Args>(&args)...} {}
+    vec(Args&&... args) : data_{&args...} {}
     ~vec() noexcept = default;
 
     vec(const ref_vec_type& other) noexcept = default;
@@ -178,7 +179,7 @@ public:
     const_pointer data() const noexcept { return data_; }
     pointer data() noexcept { return data_; }
 
-    void fill(const value_type& val) { for(auto& v : data_) v = val; }
+    void fill(const value_type& val) { for(auto& v : data_) *v = val; }
 
     iterator begin() noexcept { return iterator(*this); }
     const_iterator begin() const noexcept { return const_iterator(*this); }

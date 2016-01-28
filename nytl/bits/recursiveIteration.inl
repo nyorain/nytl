@@ -29,6 +29,8 @@
 namespace nytl
 {
 
+///\ingroup utility
+///Iterator for recursively iterate over a object with multiple sub-iterators.
 template<typename T, typename I = typename T::iterator>
 class recursiveIterator : public std::iterator<std::bidirectional_iterator_tag, T, std::size_t>
 {
@@ -111,12 +113,14 @@ public:
 	}
 };
 
-//const
+///\copydoc recursiveIterator
+///Const-version for the recursive iterator.
 template<typename T> 
 using constRecursiveIterator = recursiveIterator<T, typename T::const_iterator>;
 
 
-//iteration
+///\ingroup utility
+///\brief Allows recursive iteration (like range-based for loop) over an object with sub-iterators.
 template<typename T>
 class recursiveIteration
 {

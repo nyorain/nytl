@@ -127,7 +127,7 @@ public:
     constexpr bool empty() const noexcept { return dim == 0; }
 
 public:
-    value_type data_[dim];
+    value_type data_[dim] {};
 
 public:
     template<typename... Args, typename = typename
@@ -204,6 +204,25 @@ public:
 		for(size_t i(0); i < min(OD, dim); i++) 
 			ret[i] = (*this)[i]; 
 		return ret; 
+	}
+
+	template<std::size_t psize>
+	vec<psize, T> subvec(std::size_t position = 0) const
+	{
+		auto ret = vec<psize, T>{};
+		for(std::size_t i(0); i < min(psize, size() - position); ++i)
+			ret[i] = (*this)[position + i];
+
+		return ret;
+	}	
+
+	vec<dynamicSize, T> subvec(std::size_t position = 0, std::size_t psize = -1) const
+	{
+		auto ret = vec<dynamicSize, T>(size);
+		for(std::size_t i(0); i < min(psize, size() - position); ++i)
+			ret[i] = (*this)[position + i];
+
+		return ret;
 	}
 
     //stl norm stuff, std::array
@@ -334,6 +353,25 @@ public:
 		return ret; 
 	}
 
+	template<std::size_t psize>
+	vec<psize, T> subvec(std::size_t position = 0) const
+	{
+		auto ret = vec<psize, T>{};
+		for(std::size_t i(0); i < min(psize, size() - position); ++i)
+			ret[i] = (*this)[position + i];
+
+		return ret;
+	}	
+
+	vec<dynamicSize, T> subvec(std::size_t position = 0, std::size_t psize = -1) const
+	{
+		auto ret = vec<dynamicSize, T>(size);
+		for(std::size_t i(0); i < min(psize, size() - position); ++i)
+			ret[i] = (*this)[position + i];
+
+		return ret;
+	}
+
     //stl norm stuff, std::array
     const_pointer data() const noexcept { return &x; }
     pointer data() noexcept { return &x; }
@@ -462,6 +500,25 @@ public:
 		for(size_t i(0); i < min(OD, dim); i++) 
 			ret[i] = (*this)[i]; 
 		return ret; 
+	}
+
+	template<std::size_t psize>
+	vec<psize, T> subvec(std::size_t position = 0) const
+	{
+		auto ret = vec<psize, T>{};
+		for(std::size_t i(0); i < min(psize, size() - position); ++i)
+			ret[i] = (*this)[position + i];
+
+		return ret;
+	}	
+
+	vec<dynamicSize, T> subvec(std::size_t position = 0, std::size_t psize = -1) const
+	{
+		auto ret = vec<dynamicSize, T>(size);
+		for(std::size_t i(0); i < min(psize, size() - position); ++i)
+			ret[i] = (*this)[position + i];
+
+		return ret;
 	}
 
     //stl norm stuff, std::array
@@ -600,6 +657,25 @@ public:
 			ret[i] = (*this)[i]; 
 
 		return ret; 
+	}
+
+	template<std::size_t psize>
+	vec<psize, T> subvec(std::size_t position = 0) const
+	{
+		auto ret = vec<psize, T>{};
+		for(std::size_t i(0); i < min(psize, size() - position); ++i)
+			ret[i] = (*this)[position + i];
+
+		return ret;
+	}	
+
+	vec<dynamicSize, T> subvec(std::size_t position = 0, std::size_t psize = -1) const
+	{
+		auto ret = vec<dynamicSize, T>(size);
+		for(std::size_t i(0); i < min(psize, size() - position); ++i)
+			ret[i] = (*this)[position + i];
+
+		return ret;
 	}
 
     //stl norm stuff, std::array

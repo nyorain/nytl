@@ -138,7 +138,21 @@ namespace nytl
 
 #endif //Compiler
 
+//deprecated
+#if __cplusplus >= 201402L
+	#define NYTL_DEPRECATED [[deprecated]]
+#else
+	#ifdef NYTL_COMPILER_GNU
+		#define NYTL_DEPRECATED __attribute__ ((deprecated))
+	#elif NYTL_COMPILER_MSC
+		#define NYTL_DEPRECATED __declspec(deprecated)
+	#else
+		//#pragma message("WARNING: You need to implement DEPRECATED for this compiler")
+		#define NYTL_DEPRECATED
+	#endif
+#endif
 
+//c++14 constexpr
 #ifndef NYTL_CPP14_CONSTEXPR
     #if __cplusplus >= 201402L
         #define NYTL_CPP14_CONSTEXPR constexpr
@@ -147,17 +161,19 @@ namespace nytl
     #endif
 #endif //NYTL_cpp14_constexpr
 
-//utility functions
-constexpr const char* getOSName()
+///\ingroup utility
+constexpr const char* osName()
 {
     return NYTL_OS_NAME;
 }
 
-constexpr const char* getCompilerName()
+///\ingroup utility
+constexpr const char* compilerName()
 {
     return NYTL_COMPILER_NAME;
 }
 
+///\ingroup utility
 constexpr bool is64Bit()
 {
     #ifdef NYTL_OS_64
@@ -167,13 +183,21 @@ constexpr bool is64Bit()
     #endif // NYTL_OS_64
 }
 
-namespace
+namespace detail
 {
     static constexpr std::uint32_t dummyEndianTest = 0x1;
 }
-bool isLittleEndian()
+
+///\ingroup utility
+bool littleEndian()
 {
-    return (((std::uint8_t*)&dummyEndianTest)[0] == 1);
+    return (((std::uint8_t*)&detail::dummyEndianTest)[0] == 1);
+}
+
+///\ingroup utility
+bool bigEndian()
+{
+	return !littleEndian();
 }
 
 }

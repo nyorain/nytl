@@ -7,117 +7,12 @@
 #include <set>
 using namespace nytl;
 
+/*
 using vec1d = vec<1, double>;
 
 template<std::size_t D, typename P, std::size_t A = D>
 simplexRegion<D, P, A> convexFromPoints(const std::vector<vec<D, P>>& points)
 {
-	std::vector<line<D, P>> lines;
-	for(auto it = points.cbegin(); it != points.cend(); ++it)
-	{
-		auto& p = *it;
-		for(auto it2 = it; it2 != points.cend(); ++it2)
-		{
-			auto& p2 = *it2;
-
-			if(&p == &p2) continue;
-			lines.push_back(line<D, P>{p, p2});
-		}
-	}
-
-	std::cout << lines.size() << "lines remaining\n";
-
-	auto lines2 = lines;
-	for(auto it = lines.cbegin(); it != lines.cend(); ++it)
-	{
-		auto& l1 = *it;
-		for(auto l2 : lines2)
-		{
-			if(all(l1.a == l2.a) || all(l1.b == l2.b) || all(l1.b == l2.a) || all(l1.a == l2.b)) 
-			{
-				std::cout << "continue\n";
-				continue;
-			}
-
-			if(intersects(l1, l2))
-			{
-				it = lines.erase(it);
-				--it;
-				break;
-			}
-		}
-	}
-
-	std::cout << lines.size() << "lines remaining\n";
-
-	simplexRegion<D, P, A> ret;
-	for(std::size_t i(0); i < lines.size(); ++i)
-	{
-		auto line = lines[i];
-		lines.erase(lines.cbegin() + i);
-
-		simplex<D, P, A> simp;
-		simp.points()[0] = line.a;
-		simp.points()[1] = line.b;
-		
-		std::size_t idx = 1;
-		for(auto i2(0); i2 < lines.size(); ++i2)
-		{
-			auto& line2 = lines[i2];
-
-			if(all(line2.a == line.a))
-			{
-				simp.points()[++idx] = line2.b;
-				lines.erase(lines.cbegin() + i2);
-				lines.push_back({simp.points()[idx - 1], simp.points()[idx]});
-			}
-			else if(all(line2.b == line.a))
-			{
-				simp.points()[++idx] = line2.a;
-				lines.erase(lines.cbegin() + i2);
-				lines.push_back({simp.points()[idx - 1], simp.points()[idx]});
-			}
-		
-			if(idx == A) break; //all found
-		}
-
-		assert(idx == A); //error here! could not construct simplex
-		ret.addNoCheck(simp);
-	}
-
-
-	//code dupilcation here -- argh -> search for better loop above
-	if(lines.size() == 3) //should be always true?
-	{
-		auto& line = lines[0];
-
-		simplex<D, P, A> simp;
-		simp.points()[0] = line.a;
-		simp.points()[1] = line.b;
-
-		std::size_t idx = 1;
-		for(std::size_t i(1); i < lines.size(); ++i)
-		{
-			auto& line2 = lines[i];
-			if(all(line2.a == line.a))
-			{
-				simp.points()[++idx] = line2.b;
-				lines.erase(lines.cbegin() + i);
-				lines.push_back({simp.points()[idx - 1], simp.points()[idx]});
-			}
-			else if(all(line2.b == line.a))
-			{
-				simp.points()[++idx] = line2.a;
-				lines.erase(lines.cbegin() + i);
-				lines.push_back({simp.points()[idx - 1], simp.points()[idx]});
-			}
-		}
-	
-		assert(idx == A); //error here! could not construct simplex
-		ret.addNoCheck(simp);
-	}
-
-	return ret;
 }
 
 template<std::size_t D, typename P, std::size_t A>
@@ -167,19 +62,8 @@ simplexRegion<D, double, A> intersection2(const simplex<D, P, A>& sa, const simp
 		dss.domains_.fill(linearDomain{0, 1});
 		dss.bake();
 	
-		std::vector<dynVecb> sequences(std::pow(2, solution.numberVariables()), 
-				dynVecb(solution.numberVariables()));
 
 		//only allows ~32(maybe 64 or more) dimensions cause of this
-		for(std::size_t i(0); i < (1 << solution.numberVariables()); ++i)
-		{
-			for(std::size_t o(0); o < solution.numberVariables(); ++o)
-			{
-				sequences[i][o] = (i & (1 << o));
-			}
-
-			//std::cout << "seq: " << sequences[i] << "\n";
-		}
 
 		std::vector<vec<D, double>> cartesianPoints;
 		for(auto& comb : sequences)
@@ -202,19 +86,30 @@ simplexRegion<D, double, A> intersection2(const simplex<D, P, A>& sa, const simp
 				[](vec<D, double> a, vec<D, double> b) -> bool { return all(a == b); });
 		cartesianPoints.erase(newEnd, cartesianPoints.cend());
 
+
 		return convexFromPoints<D, double, A>(cartesianPoints);
 	}
 }
-
+*/
 int main()
 {
+	//tetrahedron<3, float> tr1{{50.f, 0.f, 0.f}, {0.f, 100.f, 0.f}, {100.f, 100.f, 0.f}, {50.f, 50.f, 50.f}};
+	
 	triangle2f tr1{{50.f, 0.f}, {0.f, 100.f}, {100.f, 100.f}};
 	triangle2f tr2{{0.f, 50.f}, {100.f, 50.f}, {50.f, 150.f}};
 
-	auto r = intersection2(tr1, tr2);
+	std::cout << "--: " << "hello" << std::endl;
+	std::cout << "sa: " << &tr1 << std::endl;
+	std::cout << "sb: " << &tr2 << "\n";
 
+	auto intsec = nytl::intersection(tr1, tr2);
+	std::cout << "\n\n" << dumpContainer(intsec.areas());
+
+	//auto r = intersection(tr1, tr2);
+	/*
 	for(auto& s : r.areas())
 	{
 		std::cout << s.points() << "\n";
 	}
+	*/
 }

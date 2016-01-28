@@ -32,6 +32,7 @@
 #include <nytl/dynVec.hpp>
 
 #include <climits>
+#include <algorithm>
 
 namespace nytl
 {
@@ -87,10 +88,19 @@ class domainedSolutionSet
 public:
 	using expressionType = typename solutionSet<N>::expression;
 
+	struct dependentDomain
+	{
+		std::vector<expressionType> min {};
+		std::vector<expressionType> max {};
+
+		double constMin = 0;
+		double constMax = 1;
+	};
+
 public:
 	solutionSet<N> solutionSet_;
 	vec<N, linearDomain> domains_;
-	std::vector<vec2<std::vector<expressionType>>> dependentDomains_;
+	mutable std::vector<dependentDomain> dependentDomains_; //cache
 
 public:
 	domainedSolutionSet() = default;
@@ -98,11 +108,14 @@ public:
 	///Constructs the object and bakes its internal data.
 	domainedSolutionSet(const solutionSet<N>& sset, const vec<N, linearDomain>& domains);
 
+	///Contructs all variables with the same domain and bakes its internal data.
+	domainedSolutionSet(const solutionSet<N>& sset, const linearDomain& domains);
+
 	///Computes its internal representation of the solutionSets components.
 	///\exception nytl::invalid_solution_set if the solutionSet has no solution at all.
 	///\exception nytl::invalid_domained_solution_set if there is no solutions for the given
 	///combination of solutionSet and domains.
-	void bake();
+	void bake() const;
 
 	///Returns a solution for the given parameters.
 	///\paran seq Specifies the order in which the variables should be chosen. Must have
@@ -122,11 +135,9 @@ public:
 	///the last bake.
 	///\warning If bake == 1 the bake() member function is called so all all exceptions from
 	///this function might be thrown then.
-	dynVecd solution(const dynVecui& seq, const dynVecb& minmax, bool bake = 1);
+	dynVecd solution(const dynVecui& seq, const dynVecb& minmax, bool bake = 1) const;
 
-	///\copydoc solution(const dynVecui&,const dynVecb&,bool)
-	///Const overload for just getting a solution without the possibility to bake it first.
-	dynVecd solution(const dynVecui& seq, const dynVecb& minmax) const;
+	unsigned int numberVariables() const { return solutionSet_.numberVariables(); }
 };
 
 

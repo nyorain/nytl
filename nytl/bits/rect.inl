@@ -72,7 +72,7 @@ intersects(const line<D, P>& a, const rect<D, P>& b){ return intersects(b, a); }
 
 ///\relates nytl::rect
 template<std::size_t D, typename P> bool 
-intersects(const triangle<D, P>& a, const rect<D, P>& b){ return interects(b, a); };
+intersects(const triangle<D, P>& a, const rect<D, P>& b){ return interects(b, a); }
 
 
 //contains

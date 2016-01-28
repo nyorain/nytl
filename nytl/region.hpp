@@ -124,8 +124,8 @@ template<std::size_t dim, typename prec> region<dim, prec>
    	symmetricDifference(const rect<dim, prec>&, const region<dim, prec>&);
 
 
-//todo: cache complex compute results?
-//region
+///\ingroup math
+///Region composed of rectangles.
 template<std::size_t dim, typename prec>
 class region
 {

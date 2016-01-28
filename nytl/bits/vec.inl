@@ -681,6 +681,20 @@ bool none(const vec<D, bool>& v)
 }
 
 ///\relates nytl::vec
+template<std::size_t N, std::size_t D, typename T>
+vec<N, T> subvec(const vec<D, T>& va, std::size_t pos = 0)
+{
+	return va.template subvec<N>(pos);
+}
+
+///\relates nytl::vec
+template<std::size_t D, typename T>
+vec<dynamicSize, T> subvec(const vec<D, T>& va, std::size_t pos = 0, std::size_t size = -1)
+{
+	return va.subvec(pos, size);
+}
+
+///\relates nytl::vec
 template<std::size_t D, typename T>  
 vec<D, T> operator!(vec<D, T> v)
 {

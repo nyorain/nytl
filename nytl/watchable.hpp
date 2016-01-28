@@ -32,6 +32,7 @@
 namespace nytl
 {
 
+///\ingroup utility
 ///\brief Utility class to make the objects lifetime observable.
 ///\details Base class that can be derived from if the lifetime of objects of this class should be
 ///watchable by others.
@@ -45,6 +46,7 @@ public:
     template<typename F> connection onDestruction(F&& func){ return destructionCallback_.add(func); }
 };
 
+///\ingroup utility
 ///\brief Smart pointer class that observes the lifetime of its object.
 ///\details Basically a smart pointer that does always know, whether the object it points to is 
 //alive or not. Does only work with objects of classes that have a onDestruction callback member

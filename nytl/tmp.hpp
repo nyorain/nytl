@@ -28,6 +28,7 @@
 #pragma once
 
 #include <utility>
+#include <type_traits>
 #include <ostream>
 
 namespace nytl
@@ -36,7 +37,17 @@ namespace nytl
 ///\brief Class that can be derived from to check if given template parameters are valid.
 ///\details Really useful for template classes that use SFINAE.
 template<typename...> struct deriveDummy {};
-template<typename...> using void_t = void;
+
+#if __cplusplus >= 201505
+	using std::void_t;
+
+#else
+	///\ingroup utility
+	///C++17 alis template for void, used to detect ill-formad types in a SFINAE-context.
+	///If the compiler supports it, the std version will be used.
+	template<typename...> using void_t = void;
+
+#endif
 
 //TUPLE
 //tuple_erase_first
@@ -70,10 +81,12 @@ struct tuple_prepend<T<Body...>, Prepend>
     using type = T<Prepend, Body...>;
 };
 
-template<typename T, typename Prepend> using tuple_prepend_t = typename tuple_prepend<T, Prepend>::type;
+template<typename T, typename Prepend> using tuple_prepend_t = 
+	typename tuple_prepend<T, Prepend>::type;
 
 //type_tuple
-template<typename T, std::size_t size, template<typename...> class Tuple = std::tuple> struct type_tuple
+template<typename T, std::size_t size, template<typename...> class Tuple = std::tuple> 
+struct type_tuple
 {
     using type = typename tuple_prepend<typename type_tuple<T, size - 1>::type, T>::type;
 };
@@ -111,7 +124,8 @@ struct seq_append<T<I, Body...>, Append>
     using type = T<I, Body..., Append>;
 };
 
-template<typename T, typename T::value_type Append> using seq_append_t = typename seq_append<T, Append>::type;
+template<typename T, typename T::value_type Append> using seq_append_t = 
+	typename seq_append<T, Append>::type;
 
 //seq_prepend
 template<typename T, typename T::value_type Prepend> struct seq_prepend;
@@ -122,7 +136,8 @@ struct seq_prepend<T<I, Body...>, Prepend>
     using type = T<I, Prepend, Body...>;
 };
 
-template<typename T, typename T::value_type Prepend> using seq_prepend_t = typename seq_prepend<T, Prepend>::type;
+template<typename T, typename T::value_type Prepend> using seq_prepend_t = 
+	typename seq_prepend<T, Prepend>::type;
 
 //seq_merge
 template<typename A, typename B> struct seq_merge;
@@ -142,7 +157,8 @@ struct seq_merge_renumber<T<I, IdxA...>, T<I, IdxB...>>
     using type = T<I, IdxA..., (sizeof...(IdxA) + IdxB)...>;
 };
 
-template<typename A, typename B> using seq_merge_renumber_t = typename seq_merge_renumber<A, B>::type;
+template<typename A, typename B> using seq_merge_renumber_t = 
+	typename seq_merge_renumber<A, B>::type;
 
 //seq_print
 template<typename T> struct seq_print;
@@ -169,6 +185,8 @@ struct rawT
 
 }
 
+///\ingroup utility
+///Meta programming template to remove all qualifiers and references from a given type T.
 template<typename T> using raw = typename detail::rawT<T>::type;
 
 }

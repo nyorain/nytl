@@ -30,6 +30,7 @@
 namespace nytl
 {
 
+//\ingroup utility
 ///Derive from this class to make it impossible to copy objects of the derived class.
 class nonCopyable
 {
@@ -44,6 +45,7 @@ protected:
 	nonCopyable& operator=(nonCopyable&&) noexcept = default;
 };
 
+//\ingroup utility
 ///Derive from this class to make it impossible to copy or move objects of the derived class.
 class nonMoveable
 {

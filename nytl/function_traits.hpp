@@ -38,7 +38,7 @@ namespace detail
 template<typename T, typename = void>
 struct isCallableImpl
 {
-	static constexpr bool value = 1;
+	static constexpr bool value = 0;
 };
 
 template<typename T>
@@ -92,10 +92,13 @@ public:
 
 }
 
+///\ingroup function
+///Meta-Template to check if a type can be called like a function.
 template<typename T> using is_callable = typename detail::isCallableImpl<T>;
 
 
-//base for every functor or class
+///\ingroup function
+///Meta-Template class to retrieve information about a function type.
 template<typename F> class function_traits;
 
 //for raw function signature

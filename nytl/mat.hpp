@@ -48,7 +48,7 @@ class mat;
 #include <nytl/bits/matypes.inl>
 
 ///\ingroup math
-///\brief Matrix template class.
+///Matrix template class.
 template<std::size_t R, std::size_t C, typename P> class mat : 
 	deriveDummy<typename std::enable_if<(R > 0) && (C > 0) && (!std::is_reference<P>::value)>::type>
 {

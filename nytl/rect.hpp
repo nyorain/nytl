@@ -70,6 +70,7 @@ typedef rect<4, unsigned char> rect4uc;
 typedef rect<4, long> rect4l;
 typedef rect<4, unsigned long> rect4ul;
 
+///\ingroup math
 ///\brief Templated class that represents the mathematic hyperrect (n-box) concept.
 ///\tparam D The dimension of the hyperrectangle
 ///\tparam P The precision of the hyperrectangle.

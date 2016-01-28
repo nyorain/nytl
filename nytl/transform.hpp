@@ -42,8 +42,13 @@ namespace nytl
 {
 
 
-//typedefs
+///\ingroup math
+///Utility base class for objects holding a transform state.
 template<size_t dim, typename prec = float> class transformable; //only for 2d, todo: 3d
+
+///\ingroup math
+///Transform state able to hold rotation,scale and translation and express them in a matrix.
+///At the moment, there exist only valid specializations for 2D and 3D transform objects.
 template<size_t dim, typename prec = float> class transform;
 
 using transformable2 = transformable<2, float>;

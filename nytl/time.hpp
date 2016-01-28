@@ -46,28 +46,42 @@ typedef std::chrono::duration<double,std::ratio<1,1>> seconds;
 typedef std::chrono::duration<double,std::ratio<60,1>> minutes;
 typedef std::chrono::duration<double,std::ratio<3600,1>> hours;
 
+///\ingroup utility
+///Dervied from the std duration class but offers more operations and built-in conversions.
 class timeDuration : public std::chrono::high_resolution_clock::duration
 {
 protected:
     typedef std::chrono::high_resolution_clock::duration stdDuration;
+
 public:
     timeDuration() = default;
     timeDuration(const stdDuration& other) : stdDuration(other) {}
-    template<class T, class R> timeDuration(const std::chrono::duration<T, R>& other) :stdDuration(std::chrono::duration_cast<stdDuration>(other)) {}
+    template<class T, class R> timeDuration(const std::chrono::duration<T, R>& other) 
+		: stdDuration(std::chrono::duration_cast<stdDuration>(other)) {}
 
-    timeDuration& operator=(const stdDuration& other){ stdDuration::operator=(other); return *this; }
-    template<class T, class R> timeDuration& operator=(const std::chrono::duration<T, R>& other){ stdDuration::operator=(other); return *this; }
+    timeDuration& operator=(const stdDuration& other)
+		{ stdDuration::operator=(other); return *this; }
+    template<class T, class R> timeDuration& operator=(const std::chrono::duration<T, R>& other)
+		{ stdDuration::operator=(other); return *this; }
 
-    double asNanoseconds() const { return std::chrono::duration_cast<duration<double,std::ratio<1,1000000000>>>(*this).count(); }
-    double asMicroseconds() const { return std::chrono::duration_cast<duration<double,std::ratio<1,1000000>>>(*this).count(); }
-    double asMilliseconds() const { return std::chrono::duration_cast<duration<double,std::ratio<1,1000>>>(*this).count(); }
-    double asSeconds() const { return std::chrono::duration_cast<duration<double,std::ratio<1,1>>>(*this).count(); }
-    double asMinutes() const { return std::chrono::duration_cast<duration<double,std::ratio<60,1>>>(*this).count(); }
-    double asHours() const { return std::chrono::duration_cast<duration<double,std::ratio<3600,1>>>(*this).count(); }
+    double nanoseconds() const 
+	{ return std::chrono::duration_cast<duration<double,std::ratio<1,1000000000>>>(*this).count(); }
+    double microseconds() const 
+	{ return std::chrono::duration_cast<duration<double,std::ratio<1,1000000>>>(*this).count(); }
+    double milliseconds() const 
+	{ return std::chrono::duration_cast<duration<double,std::ratio<1,1000>>>(*this).count(); }
+    double seconds() const 
+	{ return std::chrono::duration_cast<duration<double,std::ratio<1,1>>>(*this).count(); }
+    double minutes() const 
+	{ return std::chrono::duration_cast<duration<double,std::ratio<60,1>>>(*this).count(); }
+    double hours() const 
+	{ return std::chrono::duration_cast<duration<double,std::ratio<3600,1>>>(*this).count(); }
 
     timePoint then() const;
 };
 
+///\ingroup utility
+///Dervied from the std time_point class but offers more operations and built-in conversions.
 class timePoint : public std::chrono::high_resolution_clock::time_point
 {
 protected:
@@ -76,30 +90,33 @@ public:
     timePoint() : stdPoint(std::chrono::high_resolution_clock::now()) {};
     timePoint(const timeDuration& d) : stdPoint(std::chrono::high_resolution_clock::now() + d) {};
     timePoint(const stdPoint& other) : stdPoint(other) {}
-    template<class T, class R> timePoint(const std::chrono::time_point<T, R>& other) : stdPoint(std::chrono::time_point_cast<stdPoint>(other)) {}
+    template<class T, class R> timePoint(const std::chrono::time_point<T, R>& other) 
+		: stdPoint(std::chrono::time_point_cast<stdPoint>(other)) {}
 
     timePoint& operator=(const stdPoint& other){ stdPoint::operator=(other); return *this; }
-    template<class T, class R> timePoint& operator=(const std::chrono::time_point<T, R>& other){ stdPoint::operator=(other); return *this; }
+    template<class T, class R> timePoint& operator=(const std::chrono::time_point<T, R>& other)
+		{ stdPoint::operator=(other); return *this; }
 
-    timeDuration timeFromNow() const { return *this - timePoint(); }
-    bool isInFuture() const { return timeDuration(*this - timePoint()).asNanoseconds() > 0; }
+    timeDuration fromNow() const { return *this - timePoint(); }
+    bool inFuture() const { return timeDuration(*this - timePoint()).nanoseconds() > 0; }
 
-    void setFromNow(const timeDuration& d){ stdPoint::operator=(std::chrono::high_resolution_clock::now() + d); }
+    void fromNow(const timeDuration& d)
+		{ stdPoint::operator=(std::chrono::high_resolution_clock::now() + d); }
 };
 
 inline timePoint now(){ return timePoint(); }
 inline timePoint timeDuration::then() const { return timePoint(*this); }
 
+///\ingroup utility
+///Offers functionality to track the elapsed time since a set time point.
 class timer
 {
-protected:
-    timePoint last;
+public:
+    timePoint point;
 
 public:
-    timer() = default;
-
-    void reset(){ last = now(); };
-    timeDuration getElapsedTime() const { return now() - last; };
+    void reset(){ point = now(); };
+    timeDuration elapsedTime() const { return now() - point; };
 };
 
 }

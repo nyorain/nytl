@@ -16,7 +16,7 @@ public:
 
 //check callable
 template<typename T, typename = typename std::enable_if<is_callable<T>::value>::type>
-void checkCallable(T&&) {};
+void checkCallable(T&&) {}
 
 //main
 int main()

@@ -52,6 +52,40 @@ public:
 		: std::invalid_argument("Invalid simplex object parameter given at function " + func) {}  
 };
 
+//utility
+//TODO: use stack here? could be problematic for higher dimensions; vec size known
+///\relates simplex
+///Returns all lines of a given simplex. The size of the returnsed vector is fac(A + 1)
+template<std::size_t D, typename P, std::size_t A>
+std::vector<line<D, P>> lines(const simplex<D, P, A>& simp)
+{
+	std::vector<line<D, P>> ret(fac(A + 1));
+
+	auto idx = std::size_t {0};
+	for(std::size_t i(0); i < A + 1; ++i)
+	{
+		for(std::size_t o(i + 1); o < A + 1; ++o)
+		{
+			ret[idx].a = simp.points()[i];
+			ret[idx++].b = simp.points()[o];
+		}
+	}
+
+	return ret;
+}
+
+///\relates simplex
+///Outputs all simplex points to an ostream.
+template<std::size_t D, typename P, std::size_t A>
+std::ostream& operator<<(std::ostream& os, const simplex<D, P, A>& s)
+{
+	for(auto& p : s.points())
+		os << p;
+
+	return os;
+}
+
+
 //detail implementation
 namespace detail
 {
@@ -66,7 +100,7 @@ double simplexSize(const simplex<D, P, A>& s)
 		m.col(i) = s.points()[i] - s.points()[0];
 	}
 
-	return det(m) / fac(D);
+	return std::abs(det(m)) / fac(D);
 }
 
 template<std::size_t D, typename P, std::size_t A>
@@ -83,7 +117,7 @@ simplex<OD, OP, A> simplexConversion(const simplex<D, P, A>& s)
 template<std::size_t D, typename P, std::size_t A>
 bool simplexValid(const simplex<D, P, A>& s)
 {
-	return (s.size() >= 0);
+	return (s.size() > 0);
 }
 
 //free
@@ -97,7 +131,7 @@ struct SimplexBarycentric
 		{
 			throw invalid_simplex("simplexBarycentric");
 		}
-	
+
 		mat<D, A + 1, double> m;
 		for(std::size_t c(0); c < A; ++c)
 		{
@@ -190,6 +224,122 @@ struct SimplexContainsPoint<D, P, 0>
 };
 
 //TODO
+template<std::size_t D, typename P, std::size_t A1, std::size_t A2>
+struct SimplexIntersection
+{
+	static simplexRegion<D, double, min(A1, A2)> 
+	call(const simplex<D, P, A1>& sa, const simplex<D, P, A2>& sb)
+	{
+		//find the outlining lines
+		std::vector<line<D, double>> lines;
+
+		//sa lines
+		for(auto line : nytl::lines(sa))
+		{
+			auto p = intersection(sb, line).areas(); //specialization needed
+			if(p.empty()) 
+			{
+				continue;
+			}
+			else
+			{
+				if(p[0].size() == 0)
+				{
+					if(contains(sb, line.a)) p[0].b = line.a;
+					else if(contains(sb, line.b)) p[0].b = line.b;
+				}
+			}
+
+			if(p[0].valid()) lines.push_back(p[0]);
+		}
+
+		//sb lines
+		for(auto line : nytl::lines(sb))
+		{
+			auto p = intersection(sa, line).areas(); //specialization needed
+			std::cout << "p: " << dumpContainer(p) << "\n";
+			if(p.empty()) 
+			{
+				continue;
+			}
+			else
+			{
+				std::cout << "sssize: " << p.size() << "\n";
+				if(p[0].size() == 0)
+				{
+					if(contains(sb, line.a)) p[0].b = line.a;
+					else if(contains(sb, line.b)) p[0].b = line.b;
+				}
+			}
+
+			if(p[0].valid()) lines.push_back(p[0]);
+		}
+
+		std::cout << "lines<<<<<<<<<<<:\n" << dumpContainer(lines) << "\n";
+		return nytl::createConvex(lines);
+	};
+};
+
+template<std::size_t D, typename P, std::size_t A1>
+struct SimplexIntersection<D, P, A1, 1>
+{
+	static simplexRegion<D, double, 1> 
+	call(const simplex<D, P, A1>& sa, const simplex<D, P, 1>& sb)
+	{
+		mat<D + 2, (A1 + 1) + 2 + 1, double> eqs;
+		for(std::size_t i(0); i < A1 + 1; ++i)
+		{
+			eqs.col(i) = sa.points()[i];
+			eqs.row(D)[i] = 1;
+			eqs.row(D + 1)[i] = 0;
+		}	
+
+		for(std::size_t i(0); i < 2; ++i)
+		{
+			eqs.col(A1 + 1 + i) = -sb.points()[i];
+			eqs.row(D + 1)[A1 + 1 + i] = 1;
+			eqs.row(D)[A1 + 1 + i] = 0;
+		}
+
+		eqs.col((A1 + 1) + 2).fill(0); //last colums
+
+		eqs.row(D)[(A1 + 1) + 2] = 1;
+		eqs.row(D + 1)[(A1 + 1) + 2] = 1;
+
+		auto solSet = solve(eqs);
+		line<D, double> ret;
+
+		try
+		{
+			auto dSolSet = domainedSolutionSet<(A1 + 1) + 2>(solSet, linearDomain{0., 1.});
+
+			ret.a = cartesian(sb, subvec<2>(dSolSet.solution({0}, {0}, 0), A1 + 1));
+			ret.b = cartesian(sb, subvec<2>(dSolSet.solution({0}, {1}, 0), A1 + 1));
+		}
+		catch(const std::invalid_argument& err)
+		{
+			return {};
+		}
+		
+		auto r = simplexRegion<D, double, 1>{};
+		r.addNoCheck(ret);
+
+		std::cout << "line intersection between " << sa << " and " << sb << ": " << ret << "\n";
+
+		return r;
+	};
+};
+
+template<std::size_t D, typename P, std::size_t A2>
+struct SimplexIntersection<D, P, 1, A2>
+{
+	static auto ccall(const simplex<D, P, 1>& sa, const simplex<D, P, A2>& sb) 
+		-> decltype(SimplexIntersection<D, P, A2, 1>::call(sb, sa))
+	{
+		return SimplexIntersection<D, P, A2, 1>::call(sb, sa);
+	}
+};
+
 template<std::size_t D, typename P, std::size_t A>
 struct SimplexIntersects
 {
@@ -214,6 +364,8 @@ struct SimplexIntersects
 
 		rrefMat(eqs);
 		//TODO
+		
+		return 0;
 	};
 };
 
@@ -270,22 +422,13 @@ vec<A + 1, double> barycentric(const simplex<D, P, A>& s, const vec<D, P>& cart)
 template<std::size_t D, typename P, std::size_t A>
 vec<D, double> cartesian(const simplex<D, P, A>& s, const vec<A + 1, double>& bary)
 {
-	vec<D, double> ret;
+	auto ret = vec<D, double>{};
 	for(std::size_t i(0); i < A + 1; ++i)
 		ret += bary[i] * s.points()[i];
 
 	return ret;
 }
 
-
-///\relates simplex
-///Outputs all simplex points to an ostream.
-template<std::size_t D, typename P, std::size_t A>
-std::ostream& operator<<(std::ostream& os, const simplex<D, P, A>& s)
-{
-	for(auto& p : s.points())
-		os << p;
-}
 
 //tests
 ///\relates simplex
@@ -330,9 +473,11 @@ template<std::size_t D, typename P, std::size_t A> bool
 ///Returns the region of intersection between the two given simplexs. Result is not guaranteed
 ///to be representable by a simplex and therefore a simplexRegion (i.e. the intersection of two
 ///triangles is not guaranteed to be a triangle). Symmetrical operator. [AND]
-template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A> 
-	intersection(const simplex<D, P, A>&, const simplex<D, P, A>&)
+template<std::size_t D, typename P, std::size_t A1, std::size_t A2> 
+auto intersection(const simplex<D, P, A1>& sa, const simplex<D, P, A2>& sb)
+	-> decltype(detail::SimplexIntersection<D, P, A1, A2>::call(sa, sb))
 {
+	return detail::SimplexIntersection<D, P, A1, A2>::call(sa, sb);
 }
 
 ///\relates simplex

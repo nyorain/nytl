@@ -25,7 +25,11 @@
 ///\file
 ///\brief Includes several useful template functions.
 
+//TODO: this file includes many headers while having mostly really simple operations...
+
 #pragma once
+
+#include <nytl/system.hpp>
 
 #include <string>
 #include <vector>
@@ -39,9 +43,17 @@
 namespace nytl
 {
 
+using expander = int[];
+
+///\ingroup utility
+///Utility template function that can be used to hide unused compiler warnings.
+///Has usually no additional cost. Is meant as placeholder for future code.
 template<class... T> void unused(T&&...)
 { }
 
+///\ingroup function
+///\{
+///Produces a std::function from a member function with a given object.
 template<class U, class V, class ...t> 
 std::function<U(t...)> memberCallback(U (V::*func)(t ...), typename std::remove_const<V>::type* obj)
 {
@@ -79,15 +91,19 @@ std::function<U(t...)> memberCallback(U (V::*func)(t ...) const, const V& obj)
         return (tmp->*func)(params ...);
     });
 }
+///\}
 
+///\ingroup utility
+///Prints the given args to the given output stream.
 template<class ... Args> void printVars(std::ostream& out, Args ... args)
 {
-    int a[sizeof...(Args)] = { (out << args, 0)... };
-    unused(a);
+    expander{ (out << args, 0)... };
 }
 
 
-inline std::vector<std::string>& split(const std::string &s, char delim, std::vector<std::string> &elems)
+///\ingroup utility
+inline std::vector<std::string>& split(const std::string &s, char delim, 
+		std::vector<std::string> &elems)
 {
     std::stringstream ss(s);
     std::string item;
@@ -98,7 +114,7 @@ inline std::vector<std::string>& split(const std::string &s, char delim, std::ve
     return elems;
 }
 
-
+///\ingroup utility
 inline std::vector<std::string> split(const std::string &s, char delim)
 {
     std::vector<std::string> elems;
@@ -106,7 +122,9 @@ inline std::vector<std::string> split(const std::string &s, char delim)
     return elems;
 }
 
-//dumpVector
+///\ingroup utility
+///Dumps a given iteratable container to a stringstream and returns its content.
+///\param sep The sperator used after every container component.
 template<class T> std::string dumpContainer(const T& obj, const char* sep = ",\n")
 {
     std::stringstream ss;
@@ -154,25 +172,18 @@ template<class B, class A> std::vector<B> copyVectorLike(const A& a)
 }
 
 
-//functions
-inline double absDistance(double x1, double y1, double x2, double y2){ return sqrt(pow(x2 - x1,2) + pow(y2 - y1,2)); }
-
-template <class T> bool contains(std::vector<T> vec, T val)
-{
-    return(std::find(vec.begin(), vec.end(), val) != vec.end());
-};
-
+///deprcated
+NYTL_DEPRECATED
 inline float randomFloat(float low, float high)
 {
     return low + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(high-low)));
 }
 
+NYTL_DEPRECATED
 inline int randomInt(int low, int high)
 {
     return (int) low + rand() % (high - low);
 }
-
-
 
 }
 

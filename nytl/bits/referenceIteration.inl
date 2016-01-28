@@ -22,9 +22,6 @@
  * SOFTWARE.
  */
 
-///\file
-///\brief Templated iterator for simulating references when iterating pointers.
-
 #pragma once
 
 #include <type_traits>
@@ -33,7 +30,8 @@
 namespace nytl
 {
 
-///\brief Transforms the T iterator over pointers into a reference-iterator.
+///\ingroup utitliy
+///Transforms the T iterator over pointers into a reference-iterator.
 template<typename T>
 class referenceIterator : public T
 {
@@ -45,12 +43,16 @@ public:
 		{ return *(T::operator*()); }
 };
 
+///\ingroup utitliy
+///\brief Automatically transforms a pointer iterator into a referenceIterator.
 template<typename T> referenceIterator<T> 
 makeReferenceIterator(const T& it)
 {
 	return referenceIterator<T>(it);
 }
 
+///\ingroup utitliy
+///Allows reference iteration (like range-based for loop) over an object.
 template<typename T>
 class referenceIteration
 {
@@ -81,6 +83,7 @@ public:
 	const_reverse_iterator crend() const { return object_->crend(); }
 };
 
+///\ingroup utitliy
 template<typename T> referenceIterator<T> 
 makeReferenceIteration(const T& obj)
 {

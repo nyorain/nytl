@@ -14,7 +14,7 @@ int main()
 {
 	//enumOPs
 	{
-		auto e = enumType::entry1 | enumType::entry2 & ~enumType::entry4;
+		auto e = (enumType::entry1 | enumType::entry2) & ~enumType::entry4;
 		static_assert(std::is_same<decltype(e), enumType>::value, "");
 
 		e |= e & ~enumType::entry3;

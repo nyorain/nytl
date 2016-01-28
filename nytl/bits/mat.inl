@@ -275,7 +275,7 @@ void rrefMat(mat<R, C, P>& m)
 
         m[r] /= m[r][c];
 
-        for(std::size_t r2 = 0; r2 < r; ++r2)
+        for(std::size_t r2 = 0; r2 < std::size_t(r); ++r2)
         {
             m[r2] -= m[r2][c] * m[r];
         }
