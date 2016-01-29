@@ -43,7 +43,9 @@ protected:
 
 public:
     ~watchable(){ destructionCallback_(); } //virtual? not needed here
-    template<typename F> connection onDestruction(F&& func){ return destructionCallback_.add(func); }
+
+    template<typename F> 
+	connection onDestruction(F&& func){ return destructionCallback_.add(func); }
 };
 
 ///\ingroup utility

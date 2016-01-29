@@ -146,7 +146,6 @@ public:
 	virtual const Root& root() const = 0;
 	virtual Root& root() = 0;
 };
-///\example xml.cpp A simple example on how to use the nytl::hierachy templates.
 
 template<typename T, typename Root = typename T::root_type, typename Child = typename T::child_type>
 class hierachyNode : public T

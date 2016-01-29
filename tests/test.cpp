@@ -105,6 +105,7 @@ int main()
 	auto intsec = nytl::intersection(tr1, tr2);
 	std::cout << "\n\n" << dumpContainer(intsec.areas());
 
+	std::cout << sizeof(std::function<int()>) << "\n";
 	//auto r = intersection(tr1, tr2);
 	/*
 	for(auto& s : r.areas())
