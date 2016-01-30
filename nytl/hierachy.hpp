@@ -42,12 +42,12 @@ class hierachyBase
 {
 public:
 	using node_type = hierachyBase<Root, Child>;
-	using vector_type = std::vector<Child*>;
+	using Vector_type = std::vector<Child*>;
 
-	using iterator = referenceIterator<typename vector_type::iterator>;
-	using const_iterator = referenceIterator<typename vector_type::const_iterator>;
-	using reverse_iterator = referenceIterator<typename vector_type::reverse_iterator>;
-	using const_reverse_iterator = referenceIterator<typename vector_type::const_reverse_iterator>;
+	using iterator = referenceIterator<typename Vector_type::iterator>;
+	using const_iterator = referenceIterator<typename Vector_type::const_iterator>;
+	using reverse_iterator = referenceIterator<typename Vector_type::reverse_iterator>;
+	using const_reverse_iterator = referenceIterator<typename Vector_type::const_reverse_iterator>;
 
 	using rec_iterator = recursiveIterator<node_type>;
 	using const_rec_iterator = constRecursiveIterator<node_type>;
@@ -61,7 +61,7 @@ public:
 	using child_type = Child;
 		
 private:
-	vector_type children_;
+	Vector_type children_;
 
 protected:
     hierachyBase() = default;
@@ -114,7 +114,7 @@ public:
 	recursive_iteration recursive() { return recursive_iteration(*this); }
 	const_recursive_iteration recursive() const { return const_recursive_iteration(*this); }
 
-	const vector_type& children() const { return children_; } 
+	const Vector_type& children() const { return children_; } 
 	std::size_t childrenCount() const { return children_.size(); }
 
     virtual void addChild(Child& child) { children_.push_back(&child); }

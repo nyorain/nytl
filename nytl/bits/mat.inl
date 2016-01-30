@@ -117,9 +117,9 @@ int pivot(mat<R, C, P>& m)
 ///\warning May throw a nytl::invalid_matrix exception if the given matrix is
 ///not correctly pivotized.
 template<std::size_t D, typename P>
-vec2<mat<D, D, double>> luDecomposition(const mat<D, D, P>& m)
+Vec2<mat<D, D, double>> luDecomposition(const mat<D, D, P>& m)
 {
-	vec2<mat<D, D, P>> lu{};
+	Vec2<mat<D, D, P>> lu{};
 	lu[0] = identityMat<D, P>();
 	lu[1].fill(0);
 
@@ -188,7 +188,7 @@ double det(const mat<D, D, P>& m)
 ///\brief Brings a given mat in the row-echolon-form (ref).
 ///\details The given mat does not have to be pivotized.
 template<std::size_t R, std::size_t C, typename P>
-void refMat(mat<R, C, P>& m)
+void ref(mat<R, C, P>& m)
 {
 	std::size_t c = 0;
     for(std::size_t r = 0; r < R; ++r, ++c)
@@ -229,9 +229,9 @@ void refMat(mat<R, C, P>& m)
 ///\relates mat
 ///\brief Returns the row-echolon-form (ref) of a given mat.
 template<size_t R, size_t C, typename P>
-mat<R, C, P> refMatCopy(mat<R, C, P> m)
+mat<R, C, P> refCopy(mat<R, C, P> m)
 {
-	refMat(m);
+	ref(m);
 	return m;
 }
 
@@ -389,12 +389,12 @@ operator*(const mat<RA, CA, P>& ma, const mat<CA, CB, P>& mb)
     return ret;
 }
 
-//mat and vector
+//mat and Vector
 ///\relates mat
 template<size_t R, size_t C, typename P>
-vec<R, P> operator*(const mat<R, C, P>& ma, const vec<C, P>& v)
+Vec<R, P> operator*(const mat<R, C, P>& ma, const Vec<C, P>& v)
 {
-    vec<R, P> ret {};
+    Vec<R, P> ret {};
     ret.fill(P());
 
     for(size_t i(0); i < R; i++)
@@ -405,7 +405,7 @@ vec<R, P> operator*(const mat<R, C, P>& ma, const vec<C, P>& v)
 
 ///\relates mat
 template<size_t R, size_t C, typename P>
-vec<R, P> operator*(const vec<C, P>& v, const mat<R, C, P>& ma)
+Vec<R, P> operator*(const Vec<C, P>& v, const mat<R, C, P>& ma)
 {
     return (ma * v);
 }

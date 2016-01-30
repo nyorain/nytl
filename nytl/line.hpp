@@ -58,25 +58,25 @@ class simplex<D, P, 1>
 {
 public:
     using value_type = P;
-    using vec_type = vec<D, value_type>;
+    using Vec_type = Vec<D, value_type>;
 
 public:
-    vec_type a;
-    vec_type b;
+    Vec_type a;
+    Vec_type b;
 
 public:
-    simplex(const vec_type& xa, const vec_type& xb) noexcept : a(xa), b(xb) {}
+    simplex(const Vec_type& xa, const Vec_type& xb) noexcept : a(xa), b(xb) {}
     simplex() noexcept = default;
 
 	//simplex
     double size() const { return distance(a, b); }
-	vec_type center() const { return (a + b) / 2; }
+	Vec_type center() const { return (a + b) / 2; }
 	bool valid() const;
 
-	vec<2, vec_type>& points()
-		{ return reinterpret_cast<vec<2, vec_type>&>(*this); }
-	const vec<2, vec_type>& points() const 
-		{ return reinterpret_cast<const vec<2, vec_type>&>(*this); }
+	Vec<2, Vec_type>& points()
+		{ return reinterpret_cast<Vec<2, Vec_type>&>(*this); }
+	const Vec<2, Vec_type>& points() const 
+		{ return reinterpret_cast<const Vec<2, Vec_type>&>(*this); }
 
     template<size_t OD, typename OP>
 	operator line<OD, OP>() const { return line<OD, OP>(a, b); }
@@ -85,16 +85,16 @@ public:
 	///Alias for size(). Returns the length of the line.
 	double length() const { return size(); }
 
-	///Returns the vector that lays between the two points
-    vec_type difference() const { return b - a; }
+	///Returns the Vector that lays between the two points
+    Vec_type difference() const { return b - a; }
 
-	///Returns a normalized (length = 1) gradient vector.
-    vec_type gradient() const { return normalize(difference()); }
+	///Returns a normalized (length = 1) gradient Vector.
+    Vec_type gradient() const { return normalize(difference()); }
 
-	///Returns the gradient vector in relation to the given dimension parameter.
-	///If e.g. dim is 0, the x component of the returned gradient vector will be 1 and all
+	///Returns the gradient Vector in relation to the given dimension parameter.
+	///If e.g. dim is 0, the x component of the returned gradient Vector will be 1 and all
 	///other components will be set in relation.
-    vec_type gradient(std::size_t dim) const { return difference() / difference()[dim]; }
+    Vec_type gradient(std::size_t dim) const { return difference() / difference()[dim]; }
 
 	///Returns wheter the line is defined for the given value in the given dimension.
     bool definedAt(const value_type& value, std::size_t dimension = 0) const;
@@ -102,8 +102,8 @@ public:
 	///Returns the point of the line at the given value in the given dimension.
 	///One should check with definedAt(value, dimension) if the line is defined for the given
 	///value before using this. If it is not, this function will produce a warning and return an
-	///empty vec.
-    vec_type valueAt(const value_type& value, std::size_t dimension = 0) const;
+	///empty Vec.
+    Vec_type valueAt(const value_type& value, std::size_t dimension = 0) const;
 
 	///Returns the smallest value the line is defined for in the given dimension.
     value_type smallestValue(std::size_t dim) const { return min(a[dim], b[dim]); }

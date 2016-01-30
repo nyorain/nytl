@@ -92,7 +92,7 @@ template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR
 template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR 
 	bool contains(const region<dim, prec>&, const triangle<dim, prec>&);
 template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR 
-	bool contains(const region<dim, prec>&, const vec<dim, prec>&);
+	bool contains(const region<dim, prec>&, const Vec<dim, prec>&);
 
 //operations
 template<std::size_t dim, typename prec> region<dim, prec>
@@ -133,7 +133,7 @@ template<std::size_t, typename T> friend class region;
 
 public:
     using value_type = prec;
-    using vec_type = vec<dim, prec>;
+    using Vec_type = Vec<dim, prec>;
     using rect_type = rect<dim, prec>;
     using triangle_type = triangle<dim, prec>;
     using region_type = region<dim, prec>;

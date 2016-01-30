@@ -24,3 +24,9 @@ class Vec
 	constexpr static std::size_t dim = D;
 	constexpr static std::size_t Dim = D;
 };
+
+
+nytl::Vec2f;
+
+nytl::Vec2ui size() const { return size_; }
+void size(const nytl::Vec2f& psize){ size_ = psize; }

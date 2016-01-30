@@ -90,7 +90,7 @@ contains(const rect<D, P>& r1, const line<D, P>& l2)
 }
 ///\relates nytl::rect
 template<std::size_t D, typename P> bool 
-contains(const rect<D, P>& r1, const vec<D, P>& v2)
+contains(const rect<D, P>& r1, const Vec<D, P>& v2)
 {
     return all(r1.position <= v2) && all(v2 <= r1.position + r1.size);
 }
@@ -99,7 +99,7 @@ contains(const rect<D, P>& r1, const vec<D, P>& v2)
 ///\relates nytl::rect
 ///\brief Returns the difference between two rectangles [AND ~].
 ///\details Tt subtracts the second rect from the first one and returns the rest of the first one. 
-///Since the result cant be expressed as a single rect, it is a vector of those. 
+///Since the result cant be expressed as a single rect, it is a Vector of those. 
 ///Asymmetrical operator.
 template<std::size_t D, class P>
 std::vector<rect<D, P>> difference(const rect<D, P>& recta, const rect<D, P>& rectb)
@@ -153,7 +153,7 @@ rect<D, P> intersection(const rect<D, P>& recta, const rect<D, P>& rectb)
 ///\relates nytl::rect
 ///\brief Returns the union of two rects [OR]. 
 //\details Since it combines them the result cannot be expressed in a single rectangle and is 
-///therefore a vector. Symmetrical operator.
+///therefore a Vector. Symmetrical operator.
 template<std::size_t D, typename P>
 std::vector<rect<D, P>> combination(const rect<D, P>& recta, const rect<D, P>& rectb)
 {
@@ -174,11 +174,11 @@ std::vector<rect<D, P>> symmetricDifference(const rect<D, P>& recta, const rect<
 
     for(std::size_t i(0); i < result.size(); i++)
     {
-        auto vvec = difference(result[i], intersection(recta, rectb));
-        if(!vvec.empty())
+        auto vVec = difference(result[i], intersection(recta, rectb));
+        if(!vVec.empty())
         {
-            ret[i] = vvec[0];
-            ret.insert(ret.cend(), vvec.cbegin() + 1, vvec.cend());
+            ret[i] = vVec[0];
+            ret.insert(ret.cend(), vVec.cbegin() + 1, vVec.cend());
         }
     }
 
@@ -211,9 +211,9 @@ std::vector<rect<D, P>> operator|(const rect<D, P>& recta, const rect<D, P>& rec
 ///\brief Returns a simplex representation of the rects area.
 ///\details There are many ways to represent a rect area by multiple simplexes, this functions 
 ///returns one of them.
-///\return A vec with D! simplexes of the same dimension and precision as the given rect.
+///\return A Vec with D! simplexes of the same dimension and precision as the given rect.
 template<std::size_t D, typename P>
-vec<fac(D), simplex<D, P>> split(const rect<D, P>& r)
+Vec<fac(D), simplex<D, P>> split(const rect<D, P>& r)
 {
 	//TODO
 }

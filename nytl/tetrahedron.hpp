@@ -55,19 +55,19 @@ class simplex<D, P, 3>
 {
 public:
     using value_type = P;
-    using vec_type = vec<D, P>;
+    using Vec_type = Vec<D, P>;
     using tetrahedron_type = tetrahedron<D, P>;
     using line_type = line<D, P>;
     using triangle_type = triangle<D, P>;
 
 public:
-    vec_type a;
-    vec_type b;
-    vec_type c;
-    vec_type d;
+    Vec_type a;
+    Vec_type b;
+    Vec_type c;
+    Vec_type d;
 
 public:
-    simplex(const vec_type& xa, const vec_type& xb, const vec_type& xc, const vec_type& xd) noexcept
+    simplex(const Vec_type& xa, const Vec_type& xb, const Vec_type& xc, const Vec_type& xd) noexcept
 		: a(xa), b(xb), c(xc), d(xd) {}
 
     simplex() noexcept = default;
@@ -77,13 +77,13 @@ public:
 
 	//default
     double size() const;
-	vec_type center() const;
+	Vec_type center() const;
 	bool valid() const;
 
-	vec<4, vec_type>& points()
-		{ return reinterpret_cast<vec<4, vec_type>&>(*this); }
-	const vec<4, vec_type>& points() const 
-		{ return reinterpret_cast<const vec<4, vec_type>&>(*this); }
+	Vec<4, Vec_type>& points()
+		{ return reinterpret_cast<Vec<4, Vec_type>&>(*this); }
+	const Vec<4, Vec_type>& points() const 
+		{ return reinterpret_cast<const Vec<4, Vec_type>&>(*this); }
 
     template<size_t OD, typename OP> constexpr
     operator tetrahedron<OD, OP>() const { return tetrahedron<OD, OP>(a, b, c, d); }

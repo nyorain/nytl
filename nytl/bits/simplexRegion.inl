@@ -40,7 +40,7 @@ simplexRegion<D, double, D> createConvex(const domainedSolutionSet<D>& solution)
 ///\relates simplexRegion
 ///Creates a convex shape(simplexRegion) from its outline points.
 template<std::size_t D, typename P, std::size_t A = D>
-simplexRegion<D, P, A> createConvex(const std::vector<vec<D, P>>& points)
+simplexRegion<D, P, A> createConvex(const std::vector<Vec<D, P>>& points)
 {
 	std::vector<line<D, P>> lines;
 	for(auto it = points.cbegin(); it != points.cend(); ++it)
@@ -233,7 +233,7 @@ template<std::size_t D, typename P, std::size_t A>bool
 ///\relates simplexRegion
 ///Tests if the given simplexRegion contains the given point.
 template<std::size_t D, typename P, std::size_t A> bool 
-	contains(const simplexRegion<D, P, A>& r, const vec<D, P>& v)
+	contains(const simplexRegion<D, P, A>& r, const Vec<D, P>& v)
 {
 	for(auto& s : r)
 		if(contains(s, v)) return 1;

@@ -46,16 +46,16 @@ public:
 	struct expression
 	{
 		double constPart;
-		vec<N, double> variablePart;
+		Vec<N, double> variablePart;
 	};
 
 public:
 	int solvable_ = -1;
-	vec<N, expression> solution_;
+	Vec<N, expression> solution_;
 
 public:
 	solutionSet() = default;
-	solutionSet(std::size_t numVars, const vec<N, expression>& sol) 
+	solutionSet(std::size_t numVars, const Vec<N, expression>& sol) 
 		: solvable_(numVars), solution_(sol) {} 
 
 	expression& operator[](std::size_t i){ return solution_[i]; }
@@ -66,8 +66,8 @@ public:
 	std::size_t numberVariables() const { return (solvable()) ? solvable_ : 0; }
 
 	template<std::size_t D, typename P>
-	vec<N, double> solution(const vec<D, P>& variables) const;
-	vec<N, double> solution() const;
+	Vec<N, double> solution(const Vec<D, P>& variables) const;
+	Vec<N, double> solution() const;
 };
 
 ///Represents a linear domain that can is used for domainedSolutionSet components.
@@ -99,14 +99,14 @@ public:
 
 public:
 	solutionSet<N> solutionSet_;
-	vec<N, linearDomain> domains_;
+	Vec<N, linearDomain> domains_;
 	mutable std::vector<dependentDomain> dependentDomains_; //cache
 
 public:
 	domainedSolutionSet() = default;
 
 	///Constructs the object and bakes its internal data.
-	domainedSolutionSet(const solutionSet<N>& sset, const vec<N, linearDomain>& domains);
+	domainedSolutionSet(const solutionSet<N>& sset, const Vec<N, linearDomain>& domains);
 
 	///Contructs all variables with the same domain and bakes its internal data.
 	domainedSolutionSet(const solutionSet<N>& sset, const linearDomain& domains);
@@ -128,7 +128,7 @@ public:
 	///the domains in the meantime this parameter can be 0 (for optimization).
 	///\return A solution whose components are in their given domains while still 
 	///matching the solutionSet.
-	///\exception nytl::invalid_vector_size if seq or minmax have less components than
+	///\exception nytl::invalid_Vector_size if seq or minmax have less components than
 	///the objects solutionSet has variables.
 	///\exception nytl::no_baked_data if there is no/invalid internal data representation to use.
 	///Can occur if bake == 0 and the data has never been succesfully baked or changed since 
@@ -148,10 +148,10 @@ template<std::size_t V, typename P>
 class linearEquotation
 {
 public:
-	vec<V, P> vars;
+	Vec<V, P> vars;
 	P result;
 
-	linearEquotation& operator=(const vec<V + 1, P>& values)
+	linearEquotation& operator=(const Vec<V + 1, P>& values)
 		{ vars = values; result = values.back(); return *this; }
 };
 
@@ -168,12 +168,12 @@ public:
 	using mat_type = mat<E, V + 1, P>;
 
 public:
-	vec<E, equotation_type> equotations_;
+	Vec<E, equotation_type> equotations_;
 
 public:
 	linearEquotationSystem() = default;
 	linearEquotationSystem(const mat<E, V +1, P>& m) 
-		: equotations_(*reinterpret_cast<const vec<E, equotation_type>*>(&m)) {}
+		: equotations_(*reinterpret_cast<const Vec<E, equotation_type>*>(&m)) {}
 
 	equotation_type& operator[](std::size_t i){ return equotations_[i]; }
 	const equotation_type& operator[](std::size_t i) const { return equotations_[i]; }

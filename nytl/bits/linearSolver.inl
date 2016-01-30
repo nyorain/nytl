@@ -38,9 +38,9 @@ solutionSet<C - 1> solve(const mat<R, C, P>& m)
 	constexpr static auto E = R; //number Equotations
 
 	auto res = rrefMatCopy(m);
-	vec<V, typename solutionSet<V>::expression> solution = {};
+	Vec<V, typename solutionSet<V>::expression> solution = {};
 
-	vec<V, int> varNumbers; //Variable ID of the column
+	Vec<V, int> varNumbers; //Variable ID of the column
 	varNumbers.fill(-1);
 
 	std::size_t varCount = 0;
@@ -86,7 +86,7 @@ solutionSet<C - 1> solve(const mat<R, C, P>& m)
 
 ///\relates domainedSolutionSet
 template<std::size_t D>
-std::vector<vec<D, double>> outlinePoints(const domainedSolutionSet<D>& solution)
+std::vector<Vec<D, double>> outlinePoints(const domainedSolutionSet<D>& solution)
 {
 	//generator
 	struct uniqueGenerator 
@@ -125,7 +125,7 @@ std::vector<vec<D, double>> outlinePoints(const domainedSolutionSet<D>& solution
 	//solution.bake();
 
 	//compute points
-	std::vector<vec<D, double>> ret; //ret.reserve?
+	std::vector<Vec<D, double>> ret; //ret.reserve?
 	for(auto& varSeqi : varSequences)
 	{
 		for(auto& minmaxSeqi : minmaxSequences)
@@ -162,9 +162,9 @@ std::vector<vec<D, double>> outlinePoints(const domainedSolutionSet<D>& solution
 //solutionSet
 template<std::size_t N>
 template<std::size_t D, typename P>
-vec<N, double> solutionSet<N>::solution(const vec<D, P>& vars) const
+Vec<N, double> solutionSet<N>::solution(const Vec<D, P>& vars) const
 {
-	vec<N, double> ret;
+	Vec<N, double> ret;
 	if(!solvable())
 	{
 		ret.fill(std::numeric_limits<double>::quiet_NaN());
@@ -184,9 +184,9 @@ vec<N, double> solutionSet<N>::solution(const vec<D, P>& vars) const
 }
 
 template<std::size_t N>
-vec<N, double> solutionSet<N>::solution() const
+Vec<N, double> solutionSet<N>::solution() const
 {
-	vec<N, double> ret;
+	Vec<N, double> ret;
 	if(!solvable())
 	{
 		ret.fill(std::numeric_limits<double>::quiet_NaN());
@@ -198,8 +198,8 @@ vec<N, double> solutionSet<N>::solution() const
 	}
 	else
 	{
-		//will convert to vec of needed size, full of 0's
-		return solution(vec2i(0, 0));
+		//will convert to Vec of needed size, full of 0's
+		return solution(Vec2i(0, 0));
 	}
 	return ret;
 }
@@ -255,7 +255,7 @@ std::ostream& operator<<(std::ostream& os, const solutionSet<N>& sol)
 //domainedSolutionSet
 template<std::size_t N>
 domainedSolutionSet<N>::domainedSolutionSet(const solutionSet<N>& sset, 
-		const vec<N, linearDomain>& domains) : solutionSet_(sset), domains_(domains)
+		const Vec<N, linearDomain>& domains) : solutionSet_(sset), domains_(domains)
 {
 	bake();
 	return;
@@ -396,7 +396,7 @@ void domainedSolutionSet<N>::bake() const
 			lhs = lhs / expr.variablePart[v];
 			rhs = rhs / expr.variablePart[v];
 
-			auto emptyVec = vec<N, double>{};
+			auto emptyVec = Vec<N, double>{};
 			emptyVec.fill(0);
 
 			if(gZ)
@@ -415,7 +415,7 @@ void domainedSolutionSet<N>::bake() const
 
 	for(auto& d : dependentDomains_)
 	{
-		std::cout << "dep: " << vec2d{d.constMin, d.constMax} << "\n";
+		std::cout << "dep: " << Vec2d{d.constMin, d.constMax} << "\n";
 	}
 	std::cout << "depEnd\n";
 }

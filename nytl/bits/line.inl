@@ -29,7 +29,7 @@ namespace detail
 template<std::size_t D, typename P>
 struct SimplexContainsPoint<D, P, 1>
 {
-	static bool call(const simplex<D, P, 1>& a, const vec<D, P>& v)
+	static bool call(const simplex<D, P, 1>& a, const Vec<D, P>& v)
 	{
 		return (a.definedAt(v[0]) && all(a.valueAt(v[0]) == v));
 	}
@@ -48,7 +48,7 @@ struct SimplexIntersects<D, P, 1>
 		rrefMat(eqs);
 
 		//unsolveable
-		if((all(vec2d(eqs.row(D - 1)) == 0) && eqs.row(D - 1)[2] != 0)) return false;
+		if((all(Vec2d(eqs.row(D - 1)) == 0) && eqs.row(D - 1)[2] != 0)) return false;
 
 		//solveable, but not in line segment
 		if(any(eqs.col(2) >= 1) || any(eqs.col(2) <= 0)) return false;
@@ -66,7 +66,7 @@ line<D, P>::definedAt(const P& value, std::size_t dim) const
             (greatestValue(dim) >= value));
 }
 
-template<size_t D, typename P> vec<D, P>
+template<size_t D, typename P> Vec<D, P>
 line<D, P>::valueAt(const P& value, std::size_t dim) const
 {
     if(!definedAt(value, dim))

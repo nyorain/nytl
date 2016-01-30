@@ -66,14 +66,14 @@ public:
     using difference_type = std::ptrdiff_t;
 
     using mat_type = mat<R, C, P>;
-    using rows_vec = vec<R, P>;
-    using cols_vec = vec<C, P>;
+    using rows_Vec = Vec<R, P>;
+    using cols_Vec = Vec<C, P>;
 
     static constexpr bool is_squared = (R == C);
     static constexpr size_type mat_size = R * C;
 
 public:
-	vec<R, vec<C, P>> data_;
+	Vec<R, Vec<C, P>> data_;
 
 public:
     template<typename... Args, typename = typename 
@@ -112,18 +112,18 @@ public:
     ///Returns a reference of a certain row of the matrix.
 	///If captured with a reference (and got by a non-const object) the actual values of the
 	///matrix can be changed with it.
-	vec<C, P>& row(size_t i){ return data_[i]; }
+	Vec<C, P>& row(size_t i){ return data_[i]; }
 
 	///Returns a conct-reference of a certain row of the matrix.
-	const vec<C, P>& row(size_t i) const { return data_[i]; }
+	const Vec<C, P>& row(size_t i) const { return data_[i]; }
 
-	///Returns a reference vec of a certain column of the matrix.
-	///Must be captured by a refVec (not possible with vec&) to be able to change the actual
+	///Returns a reference Vec of a certain column of the matrix.
+	///Must be captured by a refVec (not possible with Vec&) to be able to change the actual
 	///values of the matrix object.
 	refVec<R, P> col(size_t i){ return detail::makeRowRefVec<R>::call(data_, i); }
 
-	///Returns a vec (just the values, no references) of a certain row.
-	vec<R, P> col(size_t i) const { return detail::makeRowVec<R>::call(data_, i); }
+	///Returns a Vec (just the values, no references) of a certain row.
+	Vec<R, P> col(size_t i) const { return detail::makeRowVec<R>::call(data_, i); }
 
     ///Returns a plain pointer to the data of the matrix.
     pointer data(){ return (pointer) data_.data(); }
@@ -194,12 +194,12 @@ public:
     const_reverse_iterator rend() const noexcept { return const_reverse_iterator(cbegin()); }
     const_reverse_iterator crend() const noexcept { return const_reverse_iterator(cbegin()); }
 
-    vec<C, P>& operator[](size_t row){ return data_[row]; }
-	const vec<C, P>& operator[](size_t row) const { return data_[row]; }
+    Vec<C, P>& operator[](size_t row){ return data_[row]; }
+	const Vec<C, P>& operator[](size_t row) const { return data_[row]; }
 
-    vec<C, P>& at(size_t row){ if(row >= R || row < 0)
+    Vec<C, P>& at(size_t row){ if(row >= R || row < 0)
 		throw std::out_of_range("nytl::mat::at: out of range"); return data_[row]; }
-	const vec<C, P>& at(size_t row) const { if(row >= R || row < 0)
+	const Vec<C, P>& at(size_t row) const { if(row >= R || row < 0)
 		throw std::out_of_range("nytl::mat::at: out of range"); return data_[row]; }
 
 	P& at(size_t row, size_t col){ if(row >= R || row < 0)

@@ -85,14 +85,14 @@ class rect
 {
 public:
     using value_type = P;
-    using vec_type = vec<D, value_type>;
+    using Vec_type = Vec<D, value_type>;
 
 public:
-	vec_type position;
-	vec_type size;
+	Vec_type position;
+	Vec_type size;
 
 public:
-	rect(vec_type pposition = vec_type(), vec_type psize = vec_type()) noexcept 
+	rect(Vec_type pposition = Vec_type(), Vec_type psize = Vec_type()) noexcept 
 		: position(pposition), size(psize) {}
     ~rect() noexcept = default;
 
@@ -102,7 +102,7 @@ public:
     rect(rect<D, P>&& other) noexcept = default;
 	rect& operator=(rect<D, P>&& other) noexcept = default;
 
-	vec<D, double> center() const { return (double)(position + (size / 2.)); };
+	Vec<D, double> center() const { return (double)(position + (size / 2.)); };
 	bool empty() const { return anyValueGreater(size, 0); }
 
 	template<size_t oD, class oP> 
@@ -115,14 +115,14 @@ template<class P> class rect<2, P>
 public:
     static constexpr std::size_t D = 2;
     using value_type = P;
-    using vec_type = vec<D, value_type>;
+    using Vec_type = Vec<D, value_type>;
 
 public:
-	vec_type position;
-	vec_type size;
+	Vec_type position;
+	Vec_type size;
 
 public:
-	rect(const vec_type& pposition, const vec_type& psize = vec_type()) noexcept 
+	rect(const Vec_type& pposition, const Vec_type& psize = Vec_type()) noexcept 
 		: position(pposition), size(psize) {}
 	rect(P x = P(), P y = P(), P width = P(), P height = P()) noexcept 
 		: position(x,y), size(width,height) {}
@@ -135,12 +135,12 @@ public:
     rect(rect<D, P>&& other) noexcept = default;
 	rect& operator=(rect<D, P>&& other) noexcept = default;
 
-	vec<D, double> center() const { return (double)(position + (size / 2.)); };
+	Vec<D, double> center() const { return (double)(position + (size / 2.)); };
 
-    vec<2, P> topLeft() const { return position; }
-	vec<2, P> topRight() const { return position + vec<2, P>(size.x, 0); }
-	vec<2, P> bottomLeft() const { return position + vec<2, P>(0, size.y);}
-	vec<2, P> bottomRight() const { return position + size; }
+    Vec<2, P> topLeft() const { return position; }
+	Vec<2, P> topRight() const { return position + Vec<2, P>(size.x, 0); }
+	Vec<2, P> bottomLeft() const { return position + Vec<2, P>(0, size.y);}
+	Vec<2, P> bottomRight() const { return position + size; }
 
 	const P& left() const { return position.x; }
 	const P right() const { return position.x + size.x; }
@@ -169,14 +169,14 @@ template<class P> class rect<3, P>
 public:
     static constexpr std::size_t D = 3;
     using value_type = P;
-    using vec_type = vec<D, value_type>;
+    using Vec_type = Vec<D, value_type>;
 
 public:
-	vec_type position;
-	vec_type size;
+	Vec_type position;
+	Vec_type size;
 
 public:
-	rect(const vec_type& pposition, const vec_type& psize = vec_type()) noexcept 
+	rect(const Vec_type& pposition, const Vec_type& psize = Vec_type()) noexcept 
 		: position(pposition), size(psize) {}
 	rect(P x = P(), P y = P(), P z = P(), P width = P(), P height = P(), P depth = P()) noexcept
         : position(x,y,z), size(width,height,depth) {}
@@ -189,21 +189,21 @@ public:
     rect(rect<D, P>&& other) noexcept = default;
 	rect& operator=(rect<D, P>&& other) noexcept = default;
 
-	vec<D, double> center() const { return (double)(position + (size / 2.)); };
+	Vec<D, double> center() const { return (double)(position + (size / 2.)); };
 
-    vec<2, P> topLeft() const { return position.xy(); }
-	vec<2, P> topRight() const { return position.xy() + vec<2, P>(size.x, 0); }
-	vec<2, P> bottomLeft() const { return position.xy() + vec<2, P>(0, size.y);}
-	vec<2, P> bottomRight() const { return position.xy() + size.xy(); }
+    Vec<2, P> topLeft() const { return position.xy(); }
+	Vec<2, P> topRight() const { return position.xy() + Vec<2, P>(size.x, 0); }
+	Vec<2, P> bottomLeft() const { return position.xy() + Vec<2, P>(0, size.y);}
+	Vec<2, P> bottomRight() const { return position.xy() + size.xy(); }
 
-    vec<3, P> frontTopLeft() const { return position; }
-	vec<3, P> frontTopRight() const { return position + vec<3, P>(size.x, 0, 0); }
-	vec<3, P> frontBottomLeft() const { return position + vec<3, P>(0, size.y, 0);}
-	vec<3, P> frontBottomRight() const { return position + vec<3, P>(size.x, size.y, 0); }
-    vec<3, P> backTopLeft() const { return position + vec<3, P>(0, 0, size.z); }
-	vec<3, P> backTopRight() const { return position + vec<3, P>(size.x, 0, size.z); }
-	vec<3, P> backBottomLeft() const { return position + vec<3, P>(0, size.y, size.z);}
-	vec<3, P> backBottomRight() const { return position + size; }
+    Vec<3, P> frontTopLeft() const { return position; }
+	Vec<3, P> frontTopRight() const { return position + Vec<3, P>(size.x, 0, 0); }
+	Vec<3, P> frontBottomLeft() const { return position + Vec<3, P>(0, size.y, 0);}
+	Vec<3, P> frontBottomRight() const { return position + Vec<3, P>(size.x, size.y, 0); }
+    Vec<3, P> backTopLeft() const { return position + Vec<3, P>(0, 0, size.z); }
+	Vec<3, P> backTopRight() const { return position + Vec<3, P>(size.x, 0, size.z); }
+	Vec<3, P> backBottomLeft() const { return position + Vec<3, P>(0, size.y, size.z);}
+	Vec<3, P> backBottomRight() const { return position + size; }
 
 	const P& left() const { return position.x; }
 	P right() const { return position.x + size.x; }

@@ -32,7 +32,7 @@ double triangle<D, P>::size() const
 }
 
 template<std::size_t D, typename P>
-vec<D, P> triangle<D, P>::center() const
+Vec<D, P> triangle<D, P>::center() const
 {
 	return detail::simplexCenter(*this);
 }

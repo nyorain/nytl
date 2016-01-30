@@ -60,18 +60,18 @@ template<std::size_t D, typename P = float, std::size_t A = D>
 class simplex : public deriveDummy<DimMatch<D, A>>
 {
 public:
-	using vec_type = vec<D, P>;
+	using Vec_type = Vec<D, P>;
 
 public:
 	///Holds the points that define the area.
-	vec<A + 1, vec_type> points_ {};
+	Vec<A + 1, Vec_type> points_ {};
 
 public:
 	template<typename... Args, typename = typename
 		std::enable_if<
 			std::is_convertible<
 				std::tuple<Args...>,
-				type_tuple_t<vec_type, A + 1>
+				type_tuple_t<Vec_type, A + 1>
 			>::value
 		>::type>		
 	simplex(Args&&... args) noexcept : points_{std::forward<Args>(args)...} {}
@@ -81,18 +81,18 @@ public:
 	double size() const;
 
 	///Returns the center point of the area.
-	vec_type center() const;
+	Vec_type center() const;
 
 	///Returns whether the defined simplex is valid (i.e. size > 0).
 	bool valid() const;
 
-	///Converts the object into a vec of points. 
+	///Converts the object into a Vec of points. 
 	///Can be used to acces (read/change/manipulate) the points.
-	vec<A + 1, vec_type>& points(){ return points_; }
+	Vec<A + 1, Vec_type>& points(){ return points_; }
 
-	///Converts the object into a const vec of poitns. 
+	///Converts the object into a const Vec of poitns. 
 	///Can be used to const_iterate/read the points.
-	const vec<A + 1, vec_type>& points() const { return points_; }
+	const Vec<A + 1, Vec_type>& points() const { return points_; }
 
 	///Converts the object to a simplex with a different dimension or precision.
 	///Note that the area dimension A cannot be changed, only the space dimension D.
@@ -109,13 +109,13 @@ class simplexRegion : public deriveDummy<DimMatch<D, A>>
 public:
 	using simplex_type = simplex<D, P, A>;
 	using region_type = simplexRegion<D, P, A>;
-	using vector_type = std::vector<simplex_type>;
-	using size_type = typename vector_type::size_type;
+	using Vector_type = std::vector<simplex_type>;
+	using size_type = typename Vector_type::size_type;
 
 public:
 	///Vector of simplexs that holds the areas that define this region.
-	///None of the simplexs in this vector should intersect with each other.
-	vector_type areas_;
+	///None of the simplexs in this Vector should intersect with each other.
+	Vector_type areas_;
 
 public:
 	///Adds a simplex to this region. Effectively only adds the part of the simplex that
@@ -141,8 +141,8 @@ public:
 	///Returns the number of simplexs this region contains.
 	size_type count() const;
 
-	///Returns a vector with the given simplexes.
-	const vector_type& areas() const { return areas_; }
+	///Returns a Vector with the given simplexes.
+	const Vector_type& areas() const { return areas_; }
 
 	///Converts the region to a region object of different precision and space dimension.
 	template<std::size_t ND, typename NP, typename = DimMatch<D, A>> 

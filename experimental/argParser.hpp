@@ -193,8 +193,8 @@ void argParser::addInput(const std::vector<std::string>& strVec)
 
         if(strVec[i].substr(0, 1) == "-") //is valid
         {
-            auto vec = split(strVec[i], '=');
-            if(vec.size() == 1) //flag, search for vars given just with space
+            auto Vec = split(strVec[i], '=');
+            if(Vec.size() == 1) //flag, search for vars given just with space
             {
                 if(i + 1 >= strVec.size() || strVec[i + 1].substr(0, 1) == "-") //is just a flag
                 {
@@ -219,13 +219,13 @@ void argParser::addInput(const std::vector<std::string>& strVec)
                     }
                 }
             }
-            else if(vec.size() == 2)
+            else if(Vec.size() == 2)
             {
                 ret.type_ = expr::var;
-                ret.flag_ = vec[0];
-                ret.var_ = vec[1];
+                ret.flag_ = Vec[0];
+                ret.var_ = Vec[1];
             }
-            else if(vec.size() > 2)
+            else if(Vec.size() > 2)
             {
                 ret.type_ = expr::malformed;
             }

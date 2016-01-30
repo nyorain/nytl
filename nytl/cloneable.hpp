@@ -113,19 +113,19 @@ std::unique_ptr<T> clone(const std::unique_ptr<T>& value)
 ///\}
 
 ///\ingroup utility
-///\brief Utility function to copy a vector of cloneable objects by cloning.
-///\details This can be useful if one has a vector of polymorph objects which
-///can not be copy constructed (e.g. vector<SomeAbstractBaseClass*>), especially
+///\brief Utility function to copy a Vector of cloneable objects by cloning.
+///\details This can be useful if one has a Vector of polymorph objects which
+///can not be copy constructed (e.g. Vector<SomeAbstractBaseClass*>), especially
 ///when dealing with smart pointers like std::unique_ptr.
-///\param vectorObject A vector of cloneable objects (objects with a clone() member function).
+///\param VectorObject A Vector of cloneable objects (objects with a clone() member function).
 ///\return A std::vector of cloned objects.
 template<class A> std::vector<decltype(clone(A{}))> 
-cloneVector(const std::vector<A>& vectorObject)
+cloneVector(const std::vector<A>& VectorObject)
 {
     std::vector<A> ret;
-    ret.reserve(vectorObject.size());
+    ret.reserve(VectorObject.size());
 
-    for(auto& val : vectorObject)
+    for(auto& val : VectorObject)
         ret.emplace_back(clone(val));
 
     return ret;

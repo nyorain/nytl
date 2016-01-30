@@ -53,9 +53,9 @@ public:
 };
 
 //utility
-//TODO: use stack here? could be problematic for higher dimensions; vec size known
+//TODO: use stack here? could be problematic for higher dimensions; Vec size known
 ///\relates simplex
-///Returns all lines of a given simplex. The size of the returnsed vector is fac(A + 1)
+///Returns all lines of a given simplex. The size of the returnsed Vector is fac(A + 1)
 template<std::size_t D, typename P, std::size_t A>
 std::vector<line<D, P>> lines(const simplex<D, P, A>& simp)
 {
@@ -104,7 +104,7 @@ double simplexSize(const simplex<D, P, A>& s)
 }
 
 template<std::size_t D, typename P, std::size_t A>
-vec<D, P> simplexCenter(const simplex<D, P, A>& s)
+Vec<D, P> simplexCenter(const simplex<D, P, A>& s)
 {
 	return (sum(s.points) / s.points.size());
 }
@@ -125,7 +125,7 @@ bool simplexValid(const simplex<D, P, A>& s)
 template<std::size_t D, typename P, std::size_t A>
 struct SimplexBarycentric
 {
-	static vec<A + 1, double> call(const simplex<D, P, A>& s, const vec<D, P>& v)
+	static Vec<A + 1, double> call(const simplex<D, P, A>& s, const Vec<D, P>& v)
 	{
 		if(!s.valid())
 		{
@@ -162,7 +162,7 @@ template<std::size_t D, typename P, std::size_t A>
 struct SimplexSameSpace
 {
 
-	static bool call(const simplex<D, P, A>& s, const vec<D, P>& v)
+	static bool call(const simplex<D, P, A>& s, const Vec<D, P>& v)
 	{
 		if(!s.valid())
 		{
@@ -200,7 +200,7 @@ struct SimplexSameSpace
 template<std::size_t D, typename P, std::size_t A>
 struct SimplexContainsPoint
 {
-	static bool call(const simplex<D, P, A>& s, const vec<D, P>& v)
+	static bool call(const simplex<D, P, A>& s, const Vec<D, P>& v)
 	{
 		try
 		{
@@ -217,7 +217,7 @@ struct SimplexContainsPoint
 template<std::size_t D, typename P>
 struct SimplexContainsPoint<D, P, 0>
 {
-	static bool call(const simplex<D, P, 0>& s, const vec<D, P>& v)
+	static bool call(const simplex<D, P, 0>& s, const Vec<D, P>& v)
 	{
 		return all(s[0] == v);
 	}
@@ -313,8 +313,8 @@ struct SimplexIntersection<D, P, A1, 1>
 		{
 			auto dSolSet = domainedSolutionSet<(A1 + 1) + 2>(solSet, linearDomain{0., 1.});
 
-			ret.a = cartesian(sb, subvec<2>(dSolSet.solution({0}, {0}, 0), A1 + 1));
-			ret.b = cartesian(sb, subvec<2>(dSolSet.solution({0}, {1}, 0), A1 + 1));
+			ret.a = cartesian(sb, subVec<2>(dSolSet.solution({0}, {0}, 0), A1 + 1));
+			ret.b = cartesian(sb, subVec<2>(dSolSet.solution({0}, {1}, 0), A1 + 1));
 		}
 		catch(const std::invalid_argument& err)
 		{
@@ -380,7 +380,7 @@ double simplex<D, P, A>::size() const
 }
 
 template<std::size_t D, typename P, std::size_t A>
-vec<D, P> simplex<D, P, A>::center() const
+Vec<D, P> simplex<D, P, A>::center() const
 {
 	return detail::simplexCenter(*this);
 }
@@ -411,7 +411,7 @@ bool simplex<D, P, A>::valid() const
 ///space (e.g. the simplex is a triangle in a 3-dimensional room and the triangle and the given
 ///point do not lay on the same plane). Can be checked with sameSpace(simplex, point).
 template<std::size_t D, typename P, std::size_t A>
-vec<A + 1, double> barycentric(const simplex<D, P, A>& s, const vec<D, P>& cart)
+Vec<A + 1, double> barycentric(const simplex<D, P, A>& s, const Vec<D, P>& cart)
 {
 	return detail::SimplexBarycentric<D, P, A>::call(s, cart);
 }
@@ -420,9 +420,9 @@ vec<A + 1, double> barycentric(const simplex<D, P, A>& s, const vec<D, P>& cart)
 ///Converts the given barycentric coordinates of the given simplex to cartesian coordinates.
 ///Reverse function to barycentric().
 template<std::size_t D, typename P, std::size_t A>
-vec<D, double> cartesian(const simplex<D, P, A>& s, const vec<A + 1, double>& bary)
+Vec<D, double> cartesian(const simplex<D, P, A>& s, const Vec<A + 1, double>& bary)
 {
-	auto ret = vec<D, double>{};
+	auto ret = Vec<D, double>{};
 	for(std::size_t i(0); i < A + 1; ++i)
 		ret += bary[i] * s.points()[i];
 
@@ -436,7 +436,7 @@ vec<D, double> cartesian(const simplex<D, P, A>& s, const vec<A + 1, double>& ba
 ///If e.g. the simplexes D == 2 it checks whether they lay on the same plane.
 ///If D == A for the simplex object, this function will always return true.
 template<std::size_t D, typename P, std::size_t A> bool
-	sameSpace(const simplex<D, P, A>& s, const vec<D, P>& v)
+	sameSpace(const simplex<D, P, A>& s, const Vec<D, P>& v)
 {
 	return detail::SimplexSameSpace<D, P, A>::call(s, v);
 }
@@ -444,7 +444,7 @@ template<std::size_t D, typename P, std::size_t A> bool
 ///\relates simplex
 ///Tests if the given simplex contains the given point.
 template<std::size_t D, typename P, std::size_t A> bool 
-	contains(const simplex<D, P, A>& s, const vec<D, P>& v)
+	contains(const simplex<D, P, A>& s, const Vec<D, P>& v)
 {
 	return detail::SimplexContainsPoint<D, P, A>::call(s, v);
 }

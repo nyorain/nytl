@@ -33,11 +33,11 @@ template<size_t dim, typename T>
 class constRefVecIterator : public std::iterator<std::random_access_iterator_tag, T, std::size_t>
 {
 protected:
-    const vec<dim, T&>& ref_;
+    const Vec<dim, T&>& ref_;
     int64_t idx_;
 
 public:
-    constRefVecIterator(const vec<dim, T&>& c, int64_t idx = 0) : ref_(c), idx_(idx) {}
+    constRefVecIterator(const Vec<dim, T&>& c, int64_t idx = 0) : ref_(c), idx_(idx) {}
 
     const T* operator->(){ return &ref_[idx_]; }
     const T& operator*(){ return ref_[idx_]; }
@@ -58,7 +58,7 @@ public:
 
     //custom
     int64_t getIndex() const { return idx_; }
-    const vec<dim, T&>& getRef() const {return ref_; }
+    const Vec<dim, T&>& getRef() const {return ref_; }
 };
 
 //non-const
@@ -66,11 +66,11 @@ template<size_t dim, typename T>
 class refVecIterator : public std::iterator<std::random_access_iterator_tag, T, size_t>
 {
 protected:
-    vec<dim, T&>& ref_;
+    Vec<dim, T&>& ref_;
     int64_t idx_; //can be -1, if it points to the pre-first element
 
 public:
-    refVecIterator(vec<dim, T&>& c, int64_t idx = 0) : ref_(c), idx_(idx) {}
+    refVecIterator(Vec<dim, T&>& c, int64_t idx = 0) : ref_(c), idx_(idx) {}
 
     T* operator->(){ return &ref_[idx_]; }
     T& operator*(){ return ref_[idx_]; }
@@ -93,7 +93,7 @@ public:
 
     //custom
     int64_t getIndex() const { return idx_; }
-    vec<dim, T&>& getRef() const {return ref_; }
+    Vec<dim, T&>& getRef() const {return ref_; }
 };
 
 }

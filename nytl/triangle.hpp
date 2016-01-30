@@ -59,17 +59,17 @@ class simplex<D, P, 2>
 {
 public:
     using value_type = P;
-    using vec_type = vec<D, P>;
+    using Vec_type = Vec<D, P>;
     using triangle_type = triangle<D, P>;
     using line_type = line<D, P>;
 
 public:
-    vec_type a;
-    vec_type b;
-    vec_type c;
+    Vec_type a;
+    Vec_type b;
+    Vec_type c;
 
 public:
-    simplex(const vec_type& xa, const vec_type& xb, const vec_type& xc) noexcept
+    simplex(const Vec_type& xa, const Vec_type& xb, const Vec_type& xc) noexcept
 		: a(xa), b(xb), c(xc) {}
 
     simplex() noexcept = default;
@@ -79,13 +79,13 @@ public:
 
 	//default
     double size() const;
-	vec_type center() const;
+	Vec_type center() const;
 	bool valid() const;
 
-	vec<3, vec_type>& points()
-		{ return reinterpret_cast<vec<3, vec_type>&>(*this); }
-	const vec<3, vec_type>& points() const 
-		{ return reinterpret_cast<const vec<3, vec_type>&>(*this); }
+	Vec<3, Vec_type>& points()
+		{ return reinterpret_cast<Vec<3, Vec_type>&>(*this); }
+	const Vec<3, Vec_type>& points() const 
+		{ return reinterpret_cast<const Vec<3, Vec_type>&>(*this); }
 
     template<size_t OD, typename OP> constexpr
     operator triangle<OD, OP>() const { return triangle<OD, OP>(a, b, c); }

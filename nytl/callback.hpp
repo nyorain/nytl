@@ -258,15 +258,15 @@ public:
         return connection(*this, ptr);
     };
 
-	///Calls all registered functions and returns a vector with the returned objects.
+	///Calls all registered functions and returns a Vector with the returned objects.
     std::vector<Ret> call(Args ... a)
     {
-        auto vec = slots_; //if called functions manipulate callback
+        auto Vec = slots_; //if called functions manipulate callback
 
         std::vector<Ret> ret;
         ret.reserve(slots_.size());
 
-        for(auto& slot : vec)
+        for(auto& slot : Vec)
             ret.push_back(slot.func(connectionRef(*this, slot.data), a ...));
 
         return ret;
@@ -348,9 +348,9 @@ public:
 
     void call(Args ... a)
     {
-        auto vec = slots_; 
+        auto Vec = slots_; 
 
-        for(auto& slot : vec)
+        for(auto& slot : Vec)
             slot.func(connectionRef(*this, slot.data), a ...);
     };
 

@@ -13,13 +13,13 @@ class sequence
 public:
 	struct point
 	{
-		vec<dim, prec> position;
+		Vec<dim, prec> position;
 		T value;
 
 		template<std::size_t odim>
 		operator typename sequence<odim, prec, T>::point() const
 		{
-			return {vec<odim, prec>(position), value};
+			return {Vec<odim, prec>(position), value};
 		}
 
 		template<std::size_t odim>
@@ -35,12 +35,12 @@ protected:
 
 public:
 	void addPoint(const point& p);
-	T valueAt(const vec<dim, prec>& pos);
+	T valueAt(const Vec<dim, prec>& pos);
 };
 
 //util
 template<std::size_t dim1, std::size_t dim2, typename prec, typename T>
-float volumeOrSth(const vec<dim1, typename sequence<dim2, prec, T>::point>& points)
+float volumeOrSth(const Vec<dim1, typename sequence<dim2, prec, T>::point>& points)
 {
 	triangle<dim2, prec> tri(points[0].position, points[1].position, points[2].position);
 	float A = tri.size();
@@ -53,8 +53,8 @@ float volumeOrSth(const vec<dim1, typename sequence<dim2, prec, T>::point>& poin
 }
 
 template<std::size_t dim1, std::size_t dim2, typename prec, typename T> T 
-interpolate(const vec<dim1, typename sequence<dim2, prec, T>::point>& points,
-	   	const vec<dim2, prec>& pos)
+interpolate(const Vec<dim1, typename sequence<dim2, prec, T>::point>& points,
+	   	const Vec<dim2, prec>& pos)
 {
 	if(dim1 == 2)
 	{
@@ -90,7 +90,7 @@ interpolate(const vec<dim1, typename sequence<dim2, prec, T>::point>& points,
 
 			constexpr int newDim = (dim1 == 2) ? 2 : dim1 - 1;
 
-			vec<newDim, typename sequence<dim2, prec, T>::point> externalPoints;
+			Vec<newDim, typename sequence<dim2, prec, T>::point> externalPoints;
 			for(std::size_t o(0); o < dim1 - 1; ++o)
 			{
 				externalPoints[o].position = myPoints[o].position;
@@ -113,11 +113,11 @@ void sequence<dim, prec, T>::addPoint(const sequence<dim, prec, T>::point& p)
 }
 
 template<std::size_t dim, typename prec, typename T>
-T sequence<dim, prec, T>::valueAt(const vec<dim, prec>& pos)
+T sequence<dim, prec, T>::valueAt(const Vec<dim, prec>& pos)
 {
 	if(points_.empty()) return T{};
 
-	vec<dim + 1, point*> pointsArea;
+	Vec<dim + 1, point*> pointsArea;
 	pointsArea.fill(nullptr);
 
 	for(auto& p : points_)
@@ -171,7 +171,7 @@ T sequence<dim, prec, T>::valueAt(const vec<dim, prec>& pos)
 
 	//http://answers.unity3d.com/questions/383804/calculate-uv-coordinates-of-
 	//3d-point-on-plane-of-m.html
-	vec<dim + 1, point> iPoints;
+	Vec<dim + 1, point> iPoints;
 	for(std::size_t i(0); i < dim + 1; ++i)
 		iPoints[i] = *pointsArea[i];
 			

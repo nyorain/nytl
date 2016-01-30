@@ -120,11 +120,11 @@ NYTL_CPP14_CONSTEXPR bool contains(const region<dim, prec>& rega, const triangle
     return true;
 }
 template<std::size_t dim, typename prec>
-NYTL_CPP14_CONSTEXPR bool contains(const region<dim, prec>& rega, const vec<dim, prec>& vecb)
+NYTL_CPP14_CONSTEXPR bool contains(const region<dim, prec>& rega, const Vec<dim, prec>& Vecb)
 {
     for(auto& r1 : rega.getRects())
     {
-        if(contains(r1, vecb)) return true;
+        if(contains(r1, Vecb)) return true;
     }
 
     return false;
@@ -156,30 +156,30 @@ bool contains(const triangle<dim, prec>& a, const region<dim, prec>& b)
 template<std::size_t dim, typename prec>
 void region<dim, prec>::add(const rect<dim, prec>& r)
 {
-    std::vector<rect<dim, prec>> rvec{r};
+    std::vector<rect<dim, prec>> rVec{r};
     for(auto& r1 : rects_)
     {
-		std::size_t size = rvec.size();
+		std::size_t size = rVec.size();
         for(std::size_t i(0); i < size; ++i)
         {
-            if(intersects(r1, rvec[i]))
+            if(intersects(r1, rVec[i]))
             {
-                auto result = difference(rvec[i], r1);
+                auto result = difference(rVec[i], r1);
                 if(!result.empty())
                 {
-                    rvec[i] = result[0];
-                    rvec.insert(rvec.cend(), result.cbegin() + 1, result.cend());
+                    rVec[i] = result[0];
+                    rVec.insert(rVec.cend(), result.cbegin() + 1, result.cend());
                 }
                 else
                 {
-                    rvec.erase(rvec.cbegin() + i);
+                    rVec.erase(rVec.cbegin() + i);
                     --i;
                 }
             }
         }
     }
 
-    if(!rvec.empty()) rects_.insert(rects_.cend(), rvec.cbegin(), rvec.cend());
+    if(!rVec.empty()) rects_.insert(rects_.cend(), rVec.cbegin(), rVec.cend());
 }
 
 template<std::size_t dim, typename prec>
@@ -192,19 +192,19 @@ void region<dim, prec>::add(const region<dim, prec>& r)
 template<std::size_t dim, typename prec>
 void region<dim, prec>::subtract(const rect<dim, prec>& r)
 {
-	std::vector<rect<dim,prec>> rvec{r};
+	std::vector<rect<dim,prec>> rVec{r};
 	std::vector<rect<dim, prec>> addVec{};
 
     for(auto it = rects_.begin(); it != rects_.end(); ++it)
     {
 		auto& r1 = *it;
 
-		std::size_t size = rvec.size();
+		std::size_t size = rVec.size();
 		for(std::size_t i(0); i < size; ++i)
 		{
-			if(intersects(r1, rvec[i]))
+			if(intersects(r1, rVec[i]))
 			{
-				auto result = difference(rvec[i], r1);
+				auto result = difference(rVec[i], r1);
 				if(!result.empty())
 				{
 					r1 = result[0];
