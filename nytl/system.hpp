@@ -189,13 +189,13 @@ namespace detail
 }
 
 ///\ingroup utility
-bool littleEndian()
+inline bool littleEndian()
 {
     return (((std::uint8_t*)&detail::dummyEndianTest)[0] == 1);
 }
 
 ///\ingroup utility
-bool bigEndian()
+inline bool bigEndian()
 {
 	return !littleEndian();
 }

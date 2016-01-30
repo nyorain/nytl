@@ -384,7 +384,7 @@ operator*(const mat<RA, CA, P>& ma, const mat<CA, CB, P>& mb)
 
     for(size_t r(0); r < RA; ++r)
         for(size_t c(0); c < CB; ++c)
-            ret[r][c] = weight(ma.row(r) * mb.col(c));
+            ret[r][c] = sum(ma.row(r) * mb.col(c));
 
     return ret;
 }
@@ -398,7 +398,7 @@ vec<R, P> operator*(const mat<R, C, P>& ma, const vec<C, P>& v)
     ret.fill(P());
 
     for(size_t i(0); i < R; i++)
-        ret[i] = weight(ma.row(i) * v);
+        ret[i] = sum(ma.row(i) * v);
 
     return ret;
 }
