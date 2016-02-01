@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,10 @@
  */
 
 #pragma once
+
+#ifdef DOXYGEN
+namespace nytl{
+#endif
 
 //basic ops
 ///\relates Mat Transform
@@ -52,7 +56,6 @@ void rotate(SquareMat<D, P>& mat, const Vec<D - 1, P>& axis, P angle)
 template<std::size_t D, typename P>
 void rotate(SquareMat<D, P>& mat, const Vec<D - 1, P>& rot)
 {
-	rotate(mat, axes, angle);
 }
 
 //copy helper
@@ -87,3 +90,7 @@ SquareMat<D, P> rotateCopy(SquareMat<D, P> mat, const Vec<D, P>& rot)
 	rotate(mat, rot);
 	return mat;
 }
+
+#ifdef DOXYGEN
+}
+#endif

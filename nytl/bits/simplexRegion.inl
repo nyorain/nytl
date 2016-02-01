@@ -1,6 +1,6 @@
 /* The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,21 +28,21 @@ namespace nytl{
 #endif
 
 //utility
-///\relates simplexRegion domainedSolutionSet
-///Creates a convex shape (simplexRegion) as a geometrical representation of a domainedSolutionSet.
+///\relates SimplexRegion DomainedSolutionSet
+///Creates a convex shape (SimplexRegion) as a geometrical representation of a DomainedSolutionSet.
 template<std::size_t D>
-simplexRegion<D, double, D> createConvex(const domainedSolutionSet<D>& solution)
+SimplexRegion<D, double, D> createConvex(const DomainedSolutionSet<D>& solution)
 {
-	auto points = outlinePoints(solution);
+	auto points = outLinePoints(solution);
 	return createConvex<D, double>(points);
 }
 
-///\relates simplexRegion
-///Creates a convex shape(simplexRegion) from its outline points.
+///\relates SimplexRegion
+///Creates a convex shape(SimplexRegion) from its outLine points.
 template<std::size_t D, typename P, std::size_t A = D>
-simplexRegion<D, P, A> createConvex(const std::vector<Vec<D, P>>& points)
+SimplexRegion<D, P, A> createConvex(const std::vector<Vec<D, P>>& points)
 {
-	std::vector<line<D, P>> lines;
+	std::vector<Line<D, P>> Lines;
 	for(auto it = points.cbegin(); it != points.cend(); ++it)
 	{
 		auto& p = *it;
@@ -51,15 +51,15 @@ simplexRegion<D, P, A> createConvex(const std::vector<Vec<D, P>>& points)
 			auto& p2 = *it2;
 
 			if(&p == &p2) continue;
-			lines.push_back(line<D, P>{p, p2});
+			Lines.push_back(Line<D, P>{p, p2});
 		}
 	}
 
-	auto lines2 = lines;
-	for(auto it = lines.cbegin(); it != lines.cend(); ++it)
+	auto Lines2 = Lines;
+	for(auto it = Lines.cbegin(); it != Lines.cend(); ++it)
 	{
 		auto& l1 = *it;
-		for(auto l2 : lines2)
+		for(auto l2 : Lines2)
 		{
 			if(all(l1.a == l2.a) || all(l1.b == l2.b) || all(l1.b == l2.a) || all(l1.a == l2.b)) 
 			{
@@ -68,113 +68,113 @@ simplexRegion<D, P, A> createConvex(const std::vector<Vec<D, P>>& points)
 
 			if(intersects(l1, l2))
 			{
-				it = lines.erase(it);
+				it = Lines.erase(it);
 				--it;
 				break;
 			}
 		}
 	}
 
-	return createConvex(lines);
+	return createConvex(Lines);
 }
 
-///\relates simplexRegion
-///Creates a convex shape(simplexRegion) from its outlining lines.
+///\relates SimplexRegion
+///Creates a convex shape(SimplexRegion) from its outlining Lines.
 template<std::size_t D, typename P, std::size_t A = D>
-simplexRegion<D, P, A> createConvex(std::vector<line<D, P>> lines)
+SimplexRegion<D, P, A> createConvex(std::vector<Line<D, P>> Lines)
 {
-	simplexRegion<D, P, A> ret;
+	SimplexRegion<D, P, A> ret;
 
-	//newly created lines, inserted AFTER simplex is completly found
-	for(std::size_t i(0); i < lines.size() && lines.size() > A + 1;)
+	//newly created Lines, inserted AFTER Simplex is completly found
+	for(std::size_t i(0); i < Lines.size() && Lines.size() > A + 1;)
 	{
-		std::vector<line<D, P>> newLines {};
-		auto line = lines[i];
-		lines.erase(lines.cbegin() + i);
+		std::vector<Line<D, P>> newLines {};
+		auto Line = Lines[i];
+		Lines.erase(Lines.cbegin() + i);
 
-		simplex<D, P, A> simp;
-		simp.points()[0] = line.a;
-		simp.points()[1] = line.b;
+		Simplex<D, P, A> simp;
+		simp.points()[0] = Line.a;
+		simp.points()[1] = Line.b;
 		
 		std::size_t idx = 1;
 
-		//lines at line.a (center point)
-		for(std::size_t i2(0); i2 < lines.size(); ++i2)
+		//Lines at Line.a (center point)
+		for(std::size_t i2(0); i2 < Lines.size(); ++i2)
 		{
-			auto& line2 = lines[i2];
+			auto& Line2 = Lines[i2];
 
-			if(all(line2.a == line.a))
+			if(all(Line2.a == Line.a))
 			{
-				simp.points()[++idx] = line2.b;
-				lines.erase(lines.cbegin() + i2);
+				simp.points()[++idx] = Line2.b;
+				Lines.erase(Lines.cbegin() + i2);
 				newLines.push_back({simp.points()[idx - 1], simp.points()[idx]});
 			}
-			else if(all(line2.b == line.a))
+			else if(all(Line2.b == Line.a))
 			{
-				simp.points()[++idx] = line2.a;
-				lines.erase(lines.cbegin() + i2);
+				simp.points()[++idx] = Line2.a;
+				Lines.erase(Lines.cbegin() + i2);
 				newLines.push_back({simp.points()[idx - 1], simp.points()[idx]});
 			}
 		
 			if(idx == A) break; //all found
 		}
 
-		assert(idx == A); //error here! could not construct simplex
+		assert(idx == A); //error here! could not construct Simplex
 
-		//find lines on the opposite site of line.a
-		//they belong to the simplex, but do not have point line.a
-		for(std::size_t i2(0); i2 < lines.size(); ++i2)
+		//find Lines on the opposite site of Line.a
+		//they belong to the Simplex, but do not have point Line.a
+		for(std::size_t i2(0); i2 < Lines.size(); ++i2)
 		{
-			auto& line2 = lines[i2];
+			auto& Line2 = Lines[i2];
 			bool foundA = 0, foundB = 0;
 
 			for(auto& p : simp.points())
 			{
-				if(all(p == line2.a)) foundA = 1;
-				if(all(p == line2.b)) foundB = 1;
+				if(all(p == Line2.a)) foundA = 1;
+				if(all(p == Line2.b)) foundB = 1;
 
 				if(foundA && foundB) break;
 			}
 
 			if(foundA && foundB)
 			{
-				lines.erase(lines.cbegin() + i2);
+				Lines.erase(Lines.cbegin() + i2);
 			}
 		}
 
 		std::cout << simp << "\n";
 		ret.addNoCheck(simp);
-		lines.insert(lines.cend(), newLines.cbegin(), newLines.cend());
+		Lines.insert(Lines.cend(), newLines.cbegin(), newLines.cend());
 	}
 
 
 	//code dupilcation here -- argh -> search for better loop above
-	if(lines.size() == A + 1) //should be always true?
+	if(Lines.size() == A + 1) //should be always true?
 	{
-		simplex<D, P, A> simp;
+		Simplex<D, P, A> simp;
 		std::size_t idx = 0;
 
-		for(std::size_t i(0); i < lines.size(); ++i)
+		for(std::size_t i(0); i < Lines.size(); ++i)
 		{
-			auto& line2 = lines[i];
+			auto& Line2 = Lines[i];
 			bool foundA = 0, foundB = 0;
 
 			for(std::size_t i2(0); i2 < idx; ++i2)
 			{
 				auto& p = simp.points()[i2];
-				if(all(p == line2.a)) foundA = 1;
-				if(all(p == line2.b)) foundB = 1;
+				if(all(p == Line2.a)) foundA = 1;
+				if(all(p == Line2.b)) foundB = 1;
 
 				if(foundA && foundB) break;
 			}
 
 			if(!foundA)
 			{
-				simp.points()[idx++] = line2.a;
+				simp.points()[idx++] = Line2.a;
 			}
 			if(!foundB)
 			{
-				simp.points()[idx++] = line2.b;
+				simp.points()[idx++] = Line2.b;
 			}
 		}
 	
@@ -186,10 +186,10 @@ simplexRegion<D, P, A> createConvex(std::vector<line<D, P>> lines)
 
 
 ///tests
-///\relates simplexRegion
-///Tests if a simplexRegion intersects with a simplex. Symmetrical operator.
+///\relates SimplexRegion
+///Tests if a SimplexRegion intersects with a Simplex. Symmetrical operator.
 template<std::size_t D, typename P, std::size_t A> bool 
-	intersects(const simplexRegion<D, P, A>& r, const simplex<D, P, A>& s)
+	intersects(const SimplexRegion<D, P, A>& r, const Simplex<D, P, A>& s)
 {
 	for(auto& rs : r)
 		if(intersects(rs, s)) return 1;
@@ -197,10 +197,10 @@ template<std::size_t D, typename P, std::size_t A> bool
 	return 0;
 }
 
-///\relates simplexRegion
-///Tests two simplexRegions for intersection. Symmetrical operator.
+///\relates SimplexRegion
+///Tests two SimplexRegions for intersection. Symmetrical operator.
 template<std::size_t D, typename P, std::size_t A> bool 
-	intersects(const simplexRegion<D, P, A>& r1, const simplexRegion<D, P, A>& r2)
+	intersects(const SimplexRegion<D, P, A>& r1, const SimplexRegion<D, P, A>& r2)
 {
 	for(auto& rs : r2)
 		if(intersects(r1, rs)) return 1;
@@ -208,10 +208,10 @@ template<std::size_t D, typename P, std::size_t A> bool
 	return 0;
 }
 
-///\relates simplexRegion
-///Tests if the given simplexRegion fully contains the given simplex. Asymmetrical operator.
+///\relates SimplexRegion
+///Tests if the given SimplexRegion fully contains the given Simplex. Asymmetrical operator.
 template<std::size_t D, typename P, std::size_t A>bool 
-	contains(const simplexRegion<D, P, A>& r, const simplex<D, P, A>& s)
+	contains(const SimplexRegion<D, P, A>& r, const Simplex<D, P, A>& s)
 {
 	for(auto& rs : r)
 		if(!contains(rs, s)) return 0;
@@ -219,10 +219,10 @@ template<std::size_t D, typename P, std::size_t A>bool
 	return 1;
 }
 
-///\relates simplexRegion
-///Tests if the first simplexRegion fully contains the second one. Asymmetrical operator.
+///\relates SimplexRegion
+///Tests if the first SimplexRegion fully contains the second one. Asymmetrical operator.
 template<std::size_t D, typename P, std::size_t A>bool 
-	contains(const simplexRegion<D, P, A>& r1, const simplexRegion<D, P, A>& r2)
+	contains(const SimplexRegion<D, P, A>& r1, const SimplexRegion<D, P, A>& r2)
 {
 	for(auto& s : r2)
 		if(!contains(r1, s)) return 0;
@@ -230,10 +230,10 @@ template<std::size_t D, typename P, std::size_t A>bool
 	return 1;
 }
 
-///\relates simplexRegion
-///Tests if the given simplexRegion contains the given point.
+///\relates SimplexRegion
+///Tests if the given SimplexRegion contains the given point.
 template<std::size_t D, typename P, std::size_t A> bool 
-	contains(const simplexRegion<D, P, A>& r, const Vec<D, P>& v)
+	contains(const SimplexRegion<D, P, A>& r, const Vec<D, P>& v)
 {
 	for(auto& s : r)
 		if(contains(s, v)) return 1;
@@ -241,27 +241,27 @@ template<std::size_t D, typename P, std::size_t A> bool
 	return 0;
 }
 
-///\relates simplexRegion
-template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A> 
-	intersection(const simplexRegion<D, P, A>&, const simplexRegion<D, P, A>&)
+///\relates SimplexRegion
+template<std::size_t D, typename P, std::size_t A> SimplexRegion<D, P, A> 
+	intersection(const SimplexRegion<D, P, A>&, const SimplexRegion<D, P, A>&)
 {
 }
 
-///\relates simplexRegion
-template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A> 
-	combination(const simplexRegion<D, P, A>&, const simplexRegion<D, P, A>&)
+///\relates SimplexRegion
+template<std::size_t D, typename P, std::size_t A> SimplexRegion<D, P, A> 
+	combination(const SimplexRegion<D, P, A>&, const SimplexRegion<D, P, A>&)
 {
 }
 
-///\relates simplexRegion
-template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A> 
-	symmetricDifference(const simplexRegion<D, P, A>&, const simplexRegion<D, P, A>&)
+///\relates SimplexRegion
+template<std::size_t D, typename P, std::size_t A> SimplexRegion<D, P, A> 
+	symmetricDifference(const SimplexRegion<D, P, A>&, const SimplexRegion<D, P, A>&)
 {
 }
 
-///\relates simplexRegion
-template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A> 
-	difference(const simplexRegion<D, P, A>&, const simplexRegion<D, P, A>&)
+///\relates SimplexRegion
+template<std::size_t D, typename P, std::size_t A> SimplexRegion<D, P, A> 
+	difference(const SimplexRegion<D, P, A>&, const SimplexRegion<D, P, A>&)
 {
 }
 

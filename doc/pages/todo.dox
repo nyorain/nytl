@@ -5,3 +5,6 @@
 ///\li add serialize (class naming) support
 ///\li improve docs, tests, examples
 ///\li convex-set support in association with simplexes (regions i.e.)
+///\li dynamic Matrix size, reference matrix
+///\li general multivec
+///\li multidimensional matrix, table

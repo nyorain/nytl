@@ -1,7 +1,7 @@
 #include <vector>
 
 template<typename Root, typename Child>
-class hierachyBase
+class HierachyBase
 {
 public:
 	using root_type = Root;
@@ -38,12 +38,12 @@ protected:
 	}
 
 public:
-	virtual ~hierachyBase() { destroy(); };
+	virtual ~HierachyBase() { destroy(); };
 	virtual Root& root() const = 0;
 };
 
 template<typename T>
-class hierachyNode : public T
+class HierachyNode : public T
 {
 public:
 	using typename T::root_type;
@@ -62,14 +62,14 @@ protected:
 	}
 
 public:
-	hierachyNode(T& parent) : parent_(*parent) {}
+	HierachyNode(T& parent) : parent_(*parent) {}
 
 	virtual root_type& root() const override { return parent_->root(); }
 	T& parent() const { return *parent_; }
 };
 
 template<typename T>
-class hierachyRoot : public T
+class HierachyRoot : public T
 {
 public:
 	using typename T::root_type;
@@ -83,19 +83,19 @@ public:
 class xmlNode;
 class xmlRoot;
 
-class xmlNodeBase : public hierachyBase<xmlRoot, xmlNode>
+class xmlNodeBase : public HierachyBase<xmlRoot, xmlNode>
 {
 };
 
-class xmlRoot : public hierachyRoot<xmlNodeBase>
+class xmlRoot : public HierachyRoot<xmlNodeBase>
 {
 };
 
-class xmlNode : public hierachyNode<xmlNodeBase>
+class xmlNode : public HierachyNode<xmlNodeBase>
 {
 };
 
-class generalXmlNode : public hierachyNode<hierachyBase<generalXmlNode, generalXmlNode>>
+class generalXmlNode : public HierachyNode<HierachyBase<generalXmlNode, generalXmlNode>>
 {
 };
 

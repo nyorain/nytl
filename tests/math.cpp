@@ -44,7 +44,7 @@ int main()
 	//simplex operations test
 	{
 		{
-			line3f a({0.f, 0.f, 0.f}, {100.f, -100.f, 50.f});
+			Line3f a({0.f, 0.f, 0.f}, {100.f, -100.f, 50.f});
 
 			assert(contains(a, Vec3f{50.f, -50.f, 25.f}));
 			//assert(contains(a, Vec2i{0, -0}));

@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,64 +31,64 @@ namespace nytl{
 //members
 template<std::size_t R, std::size_t C, typename P>
 template<std::size_t OR, std::size_t OC, typename OP>
-mat<R, C, P>::operator mat<OR, OC, OP>() const
+Mat<R, C, P>::operator Mat<OR, OC, OP>() const
 {
-	mat<OR, OC, OP> ret({});
+	Mat<OR, OC, OP> ret({});
 	detail::initMatData<min(OR, R) * min(OC, C)>::call(ret.data_, asTuple());
 	return ret;
 }
 
 template<std::size_t R, std::size_t C, typename P>
 template<typename TD>
-typename std::enable_if<mat<R, C, P>::is_squared, TD>::type mat<R, C, P>::invert()
+typename std::enable_if<Mat<R, C, P>::is_squared, TD>::type Mat<R, C, P>::invert()
 {
 	//TODO	
 }
 
 
 //exceptions
-///\relates mat
+///\relates Mat
 ///\brief Exception class deriving std::invalid_argument.
-///\details Thrown by operational matrix functions that do not work for singular matrices
-///but receive a singular matrix as argument.
-class invalid_matrix : public std::invalid_argument
+///\details Thrown by operational Matrix functions that do not work for singular Matrices
+///but receive a singular Matrix as argument.
+class invalid_Matrix : public std::invalid_argument
 {
 public:
-	invalid_matrix()
-		: std::invalid_argument("Invalid matrix argument") {}
+	invalid_Matrix()
+		: std::invalid_argument("Invalid Matrix argument") {}
 
-	invalid_matrix(const std::string& func)
-		: std::invalid_argument("Invalid matrix argument in function " + func) {}
+	invalid_Matrix(const std::string& func)
+		: std::invalid_argument("Invalid Matrix argument in function " + func) {}
 };
 
 
-///\relates mat
+///\relates Mat
 ///Returns the identityMatrix for the given dimension and precision.
 template<std::size_t D, typename P = float>
-squareMat<D, P> identityMat()
+SquareMat<D, P> identityMat()
 {
-	squareMat<D, P> ret(0);
+	SquareMat<D, P> ret(0);
 	for(size_t i(0); i < D; i++) ret[i][i] = 1;
 	return ret;
 }
 
-///\relates mat
-///\return The inverse of the given square matrix
+///\relates Mat
+///\return The inverse of the given square Matrix
 template<std::size_t D, typename P> 
-squareMat<D, P> inverse(const squareMat<D, P>& m)
+SquareMat<D, P> inverse(const SquareMat<D, P>& m)
 {
 	auto cpy = m;
 	return m.invert();
 }
 
-//XXX: correct implementation?
+//XXX: corRect implementation?
 //full pivot?
 
-///\relates mat
-///\brief Rearranges the matrix rows.
-///\return The sign of the used pivot matrix.
+///\relates Mat
+///\brief Rearranges the Matrix rows.
+///\return The sign of the used pivot Matrix.
 template<std::size_t R, std::size_t C, typename P>
-int pivot(mat<R, C, P>& m)
+int pivot(Mat<R, C, P>& m)
 {
 	int ret = 1;
 
@@ -111,15 +111,15 @@ int pivot(mat<R, C, P>& m)
 	return ret;
 }
 
-///\relates mat
-///\brief Computes a luDecomposition of a non-singular matrix.
-///\return 2 mats, The lower (l, first mat) and the upper one(u, second mat).
-///\warning May throw a nytl::invalid_matrix exception if the given matrix is
-///not correctly pivotized.
+///\relates Mat
+///\brief Computes a luDecomposition of a non-singular Matrix.
+///\return 2 Mats, The lower (l, first Mat) and the upper one(u, second Mat).
+///\warning May throw a nytl::invalid_Matrix exception if the given Matrix is
+///not corRectly pivotized.
 template<std::size_t D, typename P>
-Vec2<mat<D, D, double>> luDecomposition(const mat<D, D, P>& m)
+Vec2<Mat<D, D, double>> luDecomposition(const Mat<D, D, P>& m)
 {
-	Vec2<mat<D, D, P>> lu{};
+	Vec2<Mat<D, D, P>> lu{};
 	lu[0] = identityMat<D, P>();
 	lu[1].fill(0);
 
@@ -143,7 +143,7 @@ Vec2<mat<D, D, double>> luDecomposition(const mat<D, D, P>& m)
 			{
 				if(lu[1][c][c] == 0)
 				{
-					throw invalid_matrix("nytl::luDecomposition, needs pivoting");
+					throw invalid_Matrix("nytl::luDecomposition, needs pivoting");
 				}
 
 				vsum = 0;
@@ -159,10 +159,10 @@ Vec2<mat<D, D, double>> luDecomposition(const mat<D, D, P>& m)
 	return lu;	
 }
 
-///\relates mat
-///\brief Composutes the product of all diagonal elements of a square-mat.
+///\relates Mat
+///\brief Composutes the product of all diagonal elements of a square-Mat.
 template<std::size_t D, typename P>
-P diagonalMult(const mat<D, D, P>& m)
+P diagonalMult(const Mat<D, D, P>& m)
 {
 	P ret = 1;
 	for(std::size_t i(0); i < D; ++i)
@@ -171,10 +171,10 @@ P diagonalMult(const mat<D, D, P>& m)
 	return ret;
 }
 
-///\relates mat
-///\brief Computes the determinant of a given non-singular matrix.
+///\relates Mat
+///\brief Computes the determinant of a given non-singular Matrix.
 template<std::size_t D, typename P>
-double det(const mat<D, D, P>& m)
+double det(const Mat<D, D, P>& m)
 {
 	auto cpy = m;
 	auto psign = pivot(cpy);
@@ -184,11 +184,11 @@ double det(const mat<D, D, P>& m)
 }
 
 
-///\relates mat
-///\brief Brings a given mat in the row-echolon-form (ref).
-///\details The given mat does not have to be pivotized.
+///\relates Mat
+///\brief Brings a given Mat in the row-echolon-form (ref).
+///\details The given Mat does not have to be pivotized.
 template<std::size_t R, std::size_t C, typename P>
-void ref(mat<R, C, P>& m)
+void ref(Mat<R, C, P>& m)
 {
 	std::size_t c = 0;
     for(std::size_t r = 0; r < R; ++r, ++c)
@@ -226,39 +226,39 @@ void ref(mat<R, C, P>& m)
 	}
 }
 
-///\relates mat
-///\brief Returns the row-echolon-form (ref) of a given mat.
+///\relates Mat
+///\brief Returns the row-echolon-form (ref) of a given Mat.
 template<size_t R, size_t C, typename P>
-mat<R, C, P> refCopy(mat<R, C, P> m)
+Mat<R, C, P> refCopy(Mat<R, C, P> m)
 {
 	ref(m);
 	return m;
 }
 
 /*
-//TODO: Some kind of solution set class for possible matrix solutions?
-///\relates mat
-///Analzyes a matrix in row echelon form
+//TODO: Some kind of solution set class for possible Matrix solutions?
+///\relates Mat
+///Analzyes a Matrix in row echelon form
 ///\return
-///Returns 0 if the corresponding linear equotation system is not solvable.
+///Returns 0 if the corresponding Linear equotation system is not solvable.
 ///Returns 1 if it is unabiguously solveavle by exactly one solution.
 ///Returns 2 if it has infinity solutions.
 template<size_t R, size_t C, typename P>
-unsigned int analyzeRefMat(const mat<R, C, P>& m)
+unsigned int analyzeRefMat(const Mat<R, C, P>& m)
 {
 	//TODO
 	return 0;
 }
 */
 
-///\relates mat
-///\brief Brings a given matrix in the reduced-row-echolon-form (rref). 
-///\details The mat will first be brought into the row-echolon-form, so it does not have
+///\relates Mat
+///\brief Brings a given Matrix in the reduced-row-echolon-form (rref). 
+///\details The Mat will first be brought into the row-echolon-form, so it does not have
 ///to fulfill any requirements.
 template<size_t R, size_t C, typename P>
-void rrefMat(mat<R, C, P>& m)
+void rref(Mat<R, C, P>& m)
 {
-    refMat(m);
+    ref(m);
 
     for(int r = R - 1; r >= 0; --r)
     {
@@ -282,12 +282,12 @@ void rrefMat(mat<R, C, P>& m)
     }
 }
 
-///\relates mat
-///\brief Computes the reduced-row-echolon-form (rref) of a given mat.
+///\relates Mat
+///\brief Computes the reduced-row-echolon-form (rref) of a given Mat.
 template<size_t R, size_t C, typename P>
-mat<R, C, P> rrefMatCopy(mat<R, C, P> m)
+Mat<R, C, P> rrefCopy(Mat<R, C, P> m)
 {
-	rrefMat(m);
+	rref(m);
 	return m;
 }
 
@@ -310,9 +310,9 @@ inline unsigned int getNumberOfDigits(double i)
 
 }
 
-///\relates mat
+///\relates Mat
 template<size_t R, size_t C, class P>
-std::ostream& operator<<(std::ostream& os, const mat<R, C, P>& obj)
+std::ostream& operator<<(std::ostream& os, const Mat<R, C, P>& obj)
 {
     auto org = os.precision();
     os << "{" << "\n";
@@ -342,70 +342,70 @@ std::ostream& operator<<(std::ostream& os, const mat<R, C, P>& obj)
 
 //todo: more efficiency with wrapper classes for operations
 //+
-///\relates mat
+///\relates Mat
 template<size_t R, size_t C, typename P>
-mat<R, C, P> operator+(mat<R, C, P> ma, const mat<R, C, P>& mb)
+Mat<R, C, P> operator+(Mat<R, C, P> ma, const Mat<R, C, P>& mb)
 {
     return std::move(ma += mb);
 }
 
 
 //-
-///\relates mat
-template<size_t R, size_t C, typename P> mat<R, C, P>
-operator-(mat<R, C, P> ma, const mat<R, C, P>& mb)
+///\relates Mat
+template<size_t R, size_t C, typename P> Mat<R, C, P>
+operator-(Mat<R, C, P> ma, const Mat<R, C, P>& mb)
 {
     return std::move(ma -= mb);
 }
 
 
 //*
-//mat and value
-///\relates mat
+//Mat and value
+///\relates Mat
 template<size_t R, size_t C, typename P>
-mat<R, C, P> operator*(mat<R, C, P> ma, const P& other)
+Mat<R, C, P> operator*(Mat<R, C, P> ma, const P& other)
 {
     return std::move(ma *= other);
 }
 
-///\relates mat
+///\relates Mat
 template<size_t R, size_t C, typename P>
-mat<R, C, P> operator*(const P& other, mat<R, C, P> ma)
+Mat<R, C, P> operator*(const P& other, Mat<R, C, P> ma)
 {
     return std::move(ma *= other);
 }
 
-//mat and mat
-///\relates mat
-template <size_t RA, size_t CA, size_t CB, typename P> mat<RA, CB, P> 
-operator*(const mat<RA, CA, P>& ma, const mat<CA, CB, P>& mb)
+//Mat and Mat
+///\relates Mat
+template <size_t RA, size_t CA, size_t CB, typename P> Mat<RA, CB, P> 
+operator*(const Mat<RA, CA, P>& ma, const Mat<CA, CB, P>& mb)
 {
-    mat<RA, CB, P> ret {};
+    Mat<RA, CB, P> ret {};
 
     for(size_t r(0); r < RA; ++r)
         for(size_t c(0); c < CB; ++c)
-            ret[r][c] = weight(ma.row(r) * mb.col(c));
+            ret[r][c] = sum(ma.row(r) * mb.col(c));
 
     return ret;
 }
 
-//mat and Vector
-///\relates mat
+//Mat and Vector
+///\relates Mat
 template<size_t R, size_t C, typename P>
-Vec<R, P> operator*(const mat<R, C, P>& ma, const Vec<C, P>& v)
+Vec<R, P> operator*(const Mat<R, C, P>& ma, const Vec<C, P>& v)
 {
     Vec<R, P> ret {};
     ret.fill(P());
 
     for(size_t i(0); i < R; i++)
-        ret[i] = weight(ma.row(i) * v);
+        ret[i] = sum(ma.row(i) * v);
 
     return ret;
 }
 
-///\relates mat
+///\relates Mat
 template<size_t R, size_t C, typename P>
-Vec<R, P> operator*(const Vec<C, P>& v, const mat<R, C, P>& ma)
+Vec<R, P> operator*(const Vec<C, P>& v, const Mat<R, C, P>& ma)
 {
     return (ma * v);
 }

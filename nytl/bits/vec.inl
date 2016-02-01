@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,10 +27,10 @@ namespace detail
 {
 
 constexpr std::size_t dMin(std::size_t a, std::size_t b)
-	{ return (a == dynamicSize || b == dynamicSize) ? dynamicSize : min(a, b); }
+	{ return (a == dynamicsize_type || b == dynamicsize_type) ? dynamicsize_type : min(a, b); }
 
 constexpr std::size_t dMax(std::size_t a, std::size_t b)
-	{ return (a == dynamicSize || b == dynamicSize) ? dynamicSize : max(a, b); }
+	{ return (a == dynamicsize_type || b == dynamicsize_type) ? dynamicsize_type : max(a, b); }
 
 }
 
@@ -531,7 +531,7 @@ double angle(const Vec<DA, TA>& Veca, const Vec<DB, TB>& Vecb)
 }
 
 ///\relates nytl::Vec
-///\return The smallest angle between two lines with the given Vectors as direction in radiant 
+///\return The smallest angle between two Lines with the given Vectors as diRection in radiant 
 ///form. The Returned angle is always <= PI/2. 
 template<std::size_t DA, std::size_t DB, typename TA, typename TB> 
 double smallerAngle(const Vec<DA, TA>& Veca, const Vec<DB, TB>& Vecb)
@@ -689,7 +689,7 @@ Vec<N, T> subVec(const Vec<D, T>& va, std::size_t pos = 0)
 
 ///\relates nytl::Vec
 template<std::size_t D, typename T>
-Vec<dynamicSize, T> subVec(const Vec<D, T>& va, std::size_t pos = 0, std::size_t size = -1)
+Vec<dynamicsize_type, T> subVec(const Vec<D, T>& va, std::size_t pos = 0, std::size_t size = -1)
 {
 	return va.subVec(pos, size);
 }

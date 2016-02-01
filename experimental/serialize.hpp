@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -147,7 +147,7 @@ public:
     static std::unique_ptr<Base> createLoad(std::istream& is, CArgs... args)
     {
         std::string name;
-        std::getline(is, name);
+        std::getLine(is, name);
         auto ptr = create(name, args...);
         if(ptr && ptr->load(is, args...)) return ptr;
         else return nullptr;
@@ -216,7 +216,7 @@ serialized<Base, CArgs...>::loadFile(const std::string& filename)
     }
 
     std::string tmp;
-    std::getline(ifs, tmp);
+    std::getLine(ifs, tmp);
 
 	bool ret = load(ifs);
 	ifs.close();

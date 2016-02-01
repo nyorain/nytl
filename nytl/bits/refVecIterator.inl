@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -63,31 +63,31 @@ public:
 
 //non-const
 template<size_t dim, typename T>
-class refVecIterator : public std::iterator<std::random_access_iterator_tag, T, size_t>
+class RefVecIterator : public std::iterator<std::random_access_iterator_tag, T, size_t>
 {
 protected:
     Vec<dim, T&>& ref_;
     int64_t idx_; //can be -1, if it points to the pre-first element
 
 public:
-    refVecIterator(Vec<dim, T&>& c, int64_t idx = 0) : ref_(c), idx_(idx) {}
+    RefVecIterator(Vec<dim, T&>& c, int64_t idx = 0) : ref_(c), idx_(idx) {}
 
     T* operator->(){ return &ref_[idx_]; }
     T& operator*(){ return ref_[idx_]; }
 
-    bool operator==(const refVecIterator& other) const 
+    bool operator==(const RefVecIterator& other) const 
 		{ return (&ref_ == &other.ref_) && (idx_ == other.idx_); }
-    bool operator!=(const refVecIterator& other) const 
+    bool operator!=(const RefVecIterator& other) const 
 		{ return (&ref_ != &other.ref_) || (idx_ != other.idx_); }
 
-    refVecIterator& operator++(){ idx_++; return *this; }
-    refVecIterator& operator++(int){ auto cop = *this; idx_++; return cop; }
+    RefVecIterator& operator++(){ idx_++; return *this; }
+    RefVecIterator& operator++(int){ auto cop = *this; idx_++; return cop; }
 
-    refVecIterator& operator--(){ idx_--; return *this; }
-    refVecIterator& operator--(int){ auto cop = *this; idx_--; return cop; }
+    RefVecIterator& operator--(){ idx_--; return *this; }
+    RefVecIterator& operator--(int){ auto cop = *this; idx_--; return cop; }
 
-    refVecIterator& operator+=(size_t i){ idx_ += i; return *this; }
-    refVecIterator& operator-=(size_t i){ idx_ -= i; return *this; }
+    RefVecIterator& operator+=(size_t i){ idx_ += i; return *this; }
+    RefVecIterator& operator-=(size_t i){ idx_ -= i; return *this; }
 
     operator constRefVecIterator<dim, T>(){ return constRefVecIterator<dim, T>(ref_, idx_); }
 

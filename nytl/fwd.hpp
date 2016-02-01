@@ -24,20 +24,18 @@
 
 #pragma once
 
-template<std::size_t D, typename P>
-double Tetrahedron<D, P>::size() const
-{
-	return detail::Simplexsize_type(*this);
-}
+#include <cstddef>
 
-template<std::size_t D, typename P>
-Vec<D, P> Tetrahedron<D, P>::center() const
+namespace nytl
 {
-	return detail::SimplexCenter(*this);
-}
 
-template<std::size_t D, typename P>
-bool Tetrahedron<D, P>::valid() const
-{
-	return detail::SimplexValid(*this);
+template<std::size_t D, typename T> class DimBase;
+template<std::size_t D, typename T> class Vec;
+
+template<std::size_t D, typename P, std::size_t A = D> class Simplex;
+template<std::size_t D, typename P, std::size_t A = D> class SimplexRegion;
+
+template<std::size_t D, typename P> class Rect;
+template<std::size_t D, typename P> class RectRegion;
+
 }

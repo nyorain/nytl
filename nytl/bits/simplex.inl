@@ -1,6 +1,6 @@
 /* The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,10 +28,10 @@ namespace nytl{
 #endif
 
 //exceptions
-///\relates simplex
+///\relates Simplex
 ///\brief This exception is thrown when two given arguments do not lay in the same spaces.
 ///\details For some computations (i.e. barycentric coordinates) it is required that two
-///geometric areas (e.g. simplex and point) lay in the same space.
+///geometric areas (e.g. Simplex and point) lay in the same space.
 class invalid_space : public std::invalid_argument
 {
 public:
@@ -40,26 +40,26 @@ public:
 		: std::invalid_argument("Invalid argument given: different space at function " + func) {}  
 };
 
-///\relates simplex
-///\brief This exception is thrown if a given simplex object argument is not valid.
+///\relates Simplex
+///\brief This exception is thrown if a given Simplex object argument is not valid.
 ///\details Needed because some computations (e.g. barycentric coordinates or sameSpace-check)
-///can not be done swith an invalid simplex object.
-class invalid_simplex : public std::invalid_argument
+///can not be done swith an invalid Simplex object.
+class invalid_Simplex : public std::invalid_argument
 {
 public:
-	invalid_simplex() : std::invalid_argument("Invalid simplex object parameter") {}
-	invalid_simplex(const std::string& func) 
-		: std::invalid_argument("Invalid simplex object parameter given at function " + func) {}  
+	invalid_Simplex() : std::invalid_argument("Invalid Simplex object parameter") {}
+	invalid_Simplex(const std::string& func) 
+		: std::invalid_argument("Invalid Simplex object parameter given at function " + func) {}  
 };
 
 //utility
-//TODO: use stack here? could be problematic for higher dimensions; Vec size known
-///\relates simplex
-///Returns all lines of a given simplex. The size of the returnsed Vector is fac(A + 1)
+//TODO: use stack here? could be probleMatic for higher dimensions; Vec size known
+///\relates Simplex
+///Returns all Lines of a given Simplex. The size of the returnsed Vector is fac(A + 1)
 template<std::size_t D, typename P, std::size_t A>
-std::vector<line<D, P>> lines(const simplex<D, P, A>& simp)
+std::vector<Line<D, P>> Lines(const Simplex<D, P, A>& simp)
 {
-	std::vector<line<D, P>> ret(fac(A + 1));
+	std::vector<Line<D, P>> ret(fac(A + 1));
 
 	auto idx = std::size_t {0};
 	for(std::size_t i(0); i < A + 1; ++i)
@@ -74,10 +74,10 @@ std::vector<line<D, P>> lines(const simplex<D, P, A>& simp)
 	return ret;
 }
 
-///\relates simplex
-///Outputs all simplex points to an ostream.
+///\relates Simplex
+///Outputs all Simplex points to an ostream.
 template<std::size_t D, typename P, std::size_t A>
-std::ostream& operator<<(std::ostream& os, const simplex<D, P, A>& s)
+std::ostream& operator<<(std::ostream& os, const Simplex<D, P, A>& s)
 {
 	for(auto& p : s.points())
 		os << p;
@@ -92,9 +92,9 @@ namespace detail
 
 //member
 template<std::size_t D, typename P, std::size_t A>
-double simplexSize(const simplex<D, P, A>& s)
+double Simplexsize_type(const Simplex<D, P, A>& s)
 {
-	squareMat<D, P> m;
+	SquareMat<D, P> m;
 	for(std::size_t i(1); i <= A; ++i)
 	{
 		m.col(i) = s.points()[i] - s.points()[0];
@@ -104,35 +104,35 @@ double simplexSize(const simplex<D, P, A>& s)
 }
 
 template<std::size_t D, typename P, std::size_t A>
-Vec<D, P> simplexCenter(const simplex<D, P, A>& s)
+Vec<D, P> SimplexCenter(const Simplex<D, P, A>& s)
 {
 	return (sum(s.points) / s.points.size());
 }
 template<std::size_t OD, typename OP, std::size_t D, typename P, std::size_t A>
-simplex<OD, OP, A> simplexConversion(const simplex<D, P, A>& s)
+Simplex<OD, OP, A> SimplexConversion(const Simplex<D, P, A>& s)
 {
-	return simplex<OD, OP, A>{s.points()};
+	return Simplex<OD, OP, A>{s.points()};
 }
 
 template<std::size_t D, typename P, std::size_t A>
-bool simplexValid(const simplex<D, P, A>& s)
+bool SimplexValid(const Simplex<D, P, A>& s)
 {
 	return (s.size() > 0);
 }
 
 //free
-//throws invalid_space if given point does not lay in space(line, plane, area ...) of simplex
+//throws invalid_space if given point does not lay in space(Line, plane, area ...) of Simplex
 template<std::size_t D, typename P, std::size_t A>
 struct SimplexBarycentric
 {
-	static Vec<A + 1, double> call(const simplex<D, P, A>& s, const Vec<D, P>& v)
+	static Vec<A + 1, double> call(const Simplex<D, P, A>& s, const Vec<D, P>& v)
 	{
 		if(!s.valid())
 		{
-			throw invalid_simplex("simplexBarycentric");
+			throw invalid_Simplex("SimplexBarycentric");
 		}
 
-		mat<D, A + 1, double> m;
+		Mat<D, A + 1, double> m;
 		for(std::size_t c(0); c < A; ++c)
 		{
 			m.col(c) = s.points()[c] - s.points()[A];
@@ -140,17 +140,17 @@ struct SimplexBarycentric
 	
 		m.col(A) = v - s.points()[A];
 	
-		auto& les = reinterpret_cast<linearEquotationSystem<D, A, double>&>(m);
+		auto& les = reinterpret_cast<LinearEquotationSystem<D, A, double>&>(m);
 		auto sol = les.solve();
 	
 		if(!sol.solvable())
 		{
-			throw invalid_space("simplexBarycentric");
+			throw invalid_space("SimplexBarycentric");
 		}
 		else if(!sol.unambigouoslySolvable())
 		{
-			//should never happen since simplex is previously checked for validity.
-			throw invalid_simplex("simplexBarycentric, :2");
+			//should never happen since Simplex is previously checked for validity.
+			throw invalid_Simplex("SimplexBarycentric, :2");
 		}
 	
 		return sol.solution();
@@ -162,15 +162,15 @@ template<std::size_t D, typename P, std::size_t A>
 struct SimplexSameSpace
 {
 
-	static bool call(const simplex<D, P, A>& s, const Vec<D, P>& v)
+	static bool call(const Simplex<D, P, A>& s, const Vec<D, P>& v)
 	{
 		if(!s.valid())
 		{
-			//throw invalid_simplex("simplexSameSpace");
+			//throw invalid_Simplex("SimplexSameSpace");
 			return false;
 		}
 	
-		mat<D, A + 1, double> m;
+		Mat<D, A + 1, double> m;
 		for(std::size_t c(0); c < A; ++c)
 		{
 			m.col(c) = s.points()[c] - s.points()[A];
@@ -178,7 +178,7 @@ struct SimplexSameSpace
 	
 		m.col(A) = v - s.points()[A];
 	
-		auto& les = reinterpret_cast<linearEquotationSystem<D, A, double>&>(m);
+		auto& les = reinterpret_cast<LinearEquotationSystem<D, A, double>&>(m);
 		auto sol = les.solve();
 	
 		if(!sol.solvable())
@@ -187,8 +187,8 @@ struct SimplexSameSpace
 		}
 		else if(!sol.unambigouosSolvable())
 		{
-			//should never happen since simplex is previously checked for validity.
-			//throw invalid_simplex("simplexSameSpace, :2");
+			//should never happen since Simplex is previously checked for validity.
+			//throw invalid_Simplex("SimplexSameSpace, :2");
 			return false;
 		}
 	
@@ -200,7 +200,7 @@ struct SimplexSameSpace
 template<std::size_t D, typename P, std::size_t A>
 struct SimplexContainsPoint
 {
-	static bool call(const simplex<D, P, A>& s, const Vec<D, P>& v)
+	static bool call(const Simplex<D, P, A>& s, const Vec<D, P>& v)
 	{
 		try
 		{
@@ -217,7 +217,7 @@ struct SimplexContainsPoint
 template<std::size_t D, typename P>
 struct SimplexContainsPoint<D, P, 0>
 {
-	static bool call(const simplex<D, P, 0>& s, const Vec<D, P>& v)
+	static bool call(const Simplex<D, P, 0>& s, const Vec<D, P>& v)
 	{
 		return all(s[0] == v);
 	}
@@ -227,16 +227,16 @@ struct SimplexContainsPoint<D, P, 0>
 template<std::size_t D, typename P, std::size_t A1, std::size_t A2>
 struct SimplexIntersection
 {
-	static simplexRegion<D, double, min(A1, A2)> 
-	call(const simplex<D, P, A1>& sa, const simplex<D, P, A2>& sb)
+	static SimplexRegion<D, double, min(A1, A2)> 
+	call(const Simplex<D, P, A1>& sa, const Simplex<D, P, A2>& sb)
 	{
-		//find the outlining lines
-		std::vector<line<D, double>> lines;
+		//find the outlining Lines
+		std::vector<Line<D, double>> Lines;
 
-		//sa lines
-		for(auto line : nytl::lines(sa))
+		//sa Lines
+		for(auto Line : nytl::Lines(sa))
 		{
-			auto p = intersection(sb, line).areas(); //specialization needed
+			auto p = intersection(sb, Line).areas(); //specialization needed
 			if(p.empty()) 
 			{
 				continue;
@@ -245,18 +245,18 @@ struct SimplexIntersection
 			{
 				if(p[0].size() == 0)
 				{
-					if(contains(sb, line.a)) p[0].b = line.a;
-					else if(contains(sb, line.b)) p[0].b = line.b;
+					if(contains(sb, Line.a)) p[0].b = Line.a;
+					else if(contains(sb, Line.b)) p[0].b = Line.b;
 				}
 			}
 
-			if(p[0].valid()) lines.push_back(p[0]);
+			if(p[0].valid()) Lines.push_back(p[0]);
 		}
 
-		//sb lines
-		for(auto line : nytl::lines(sb))
+		//sb Lines
+		for(auto Line : nytl::Lines(sb))
 		{
-			auto p = intersection(sa, line).areas(); //specialization needed
+			auto p = intersection(sa, Line).areas(); //specialization needed
 			std::cout << "p: " << dumpContainer(p) << "\n";
 			if(p.empty()) 
 			{
@@ -267,26 +267,26 @@ struct SimplexIntersection
 				std::cout << "sssize: " << p.size() << "\n";
 				if(p[0].size() == 0)
 				{
-					if(contains(sb, line.a)) p[0].b = line.a;
-					else if(contains(sb, line.b)) p[0].b = line.b;
+					if(contains(sb, Line.a)) p[0].b = Line.a;
+					else if(contains(sb, Line.b)) p[0].b = Line.b;
 				}
 			}
 
-			if(p[0].valid()) lines.push_back(p[0]);
+			if(p[0].valid()) Lines.push_back(p[0]);
 		}
 
-		std::cout << "lines<<<<<<<<<<<:\n" << dumpContainer(lines) << "\n";
-		return nytl::createConvex(lines);
+		std::cout << "Lines<<<<<<<<<<<:\n" << dumpContainer(Lines) << "\n";
+		return nytl::createConvex(Lines);
 	};
 };
 
 template<std::size_t D, typename P, std::size_t A1>
 struct SimplexIntersection<D, P, A1, 1>
 {
-	static simplexRegion<D, double, 1> 
-	call(const simplex<D, P, A1>& sa, const simplex<D, P, 1>& sb)
+	static SimplexRegion<D, double, 1> 
+	call(const Simplex<D, P, A1>& sa, const Simplex<D, P, 1>& sb)
 	{
-		mat<D + 2, (A1 + 1) + 2 + 1, double> eqs;
+		Mat<D + 2, (A1 + 1) + 2 + 1, double> eqs;
 		for(std::size_t i(0); i < A1 + 1; ++i)
 		{
 			eqs.col(i) = sa.points()[i];
@@ -307,11 +307,11 @@ struct SimplexIntersection<D, P, A1, 1>
 		eqs.row(D + 1)[(A1 + 1) + 2] = 1;
 
 		auto solSet = solve(eqs);
-		line<D, double> ret;
+		Line<D, double> ret;
 
 		try
 		{
-			auto dSolSet = domainedSolutionSet<(A1 + 1) + 2>(solSet, linearDomain{0., 1.});
+			auto dSolSet = DomainedSolutionSet<(A1 + 1) + 2>(solSet, LinearDomain{0., 1.});
 
 			ret.a = cartesian(sb, subVec<2>(dSolSet.solution({0}, {0}, 0), A1 + 1));
 			ret.b = cartesian(sb, subVec<2>(dSolSet.solution({0}, {1}, 0), A1 + 1));
@@ -321,10 +321,10 @@ struct SimplexIntersection<D, P, A1, 1>
 			return {};
 		}
 		
-		auto r = simplexRegion<D, double, 1>{};
+		auto r = SimplexRegion<D, double, 1>{};
 		r.addNoCheck(ret);
 
-		std::cout << "line intersection between " << sa << " and " << sb << ": " << ret << "\n";
+		std::cout << "Line intersection between " << sa << " and " << sb << ": " << ret << "\n";
 
 		return r;
 	};
@@ -333,7 +333,7 @@ struct SimplexIntersection<D, P, A1, 1>
 template<std::size_t D, typename P, std::size_t A2>
 struct SimplexIntersection<D, P, 1, A2>
 {
-	static auto ccall(const simplex<D, P, 1>& sa, const simplex<D, P, A2>& sb) 
+	static auto ccall(const Simplex<D, P, 1>& sa, const Simplex<D, P, A2>& sb) 
 		-> decltype(SimplexIntersection<D, P, A2, 1>::call(sb, sa))
 	{
 		return SimplexIntersection<D, P, A2, 1>::call(sb, sa);
@@ -343,9 +343,9 @@ struct SimplexIntersection<D, P, 1, A2>
 template<std::size_t D, typename P, std::size_t A>
 struct SimplexIntersects
 {
-	static bool call(const simplex<D, P, A>& sa, const simplex<D, P, A>& sb)
+	static bool call(const Simplex<D, P, A>& sa, const Simplex<D, P, A>& sb)
 	{
-		mat<D + 2, (A * 2) + 1, double> eqs;
+		Mat<D + 2, (A * 2) + 1, double> eqs;
 		for(std::size_t i(0); i < A * 2; ++i)
 		{
 			eqs.col(i) = sa.points()[i];
@@ -374,53 +374,53 @@ struct SimplexIntersects
 
 //member
 template<std::size_t D, typename P, std::size_t A>
-double simplex<D, P, A>::size() const
+double Simplex<D, P, A>::size() const
 {
-	return detail::simplexSize(*this);
+	return detail::Simplexsize_type(*this);
 }
 
 template<std::size_t D, typename P, std::size_t A>
-Vec<D, P> simplex<D, P, A>::center() const
+Vec<D, P> Simplex<D, P, A>::center() const
 {
-	return detail::simplexCenter(*this);
+	return detail::SimplexCenter(*this);
 }
 
 template<std::size_t D, typename P, std::size_t A>
 template<std::size_t OD, typename OP>
-simplex<D, P, A>::operator simplex<OD, OP, A>() const
+Simplex<D, P, A>::operator Simplex<OD, OP, A>() const
 {
-	return detail::simplexConversion<OD, OP>(*this);
+	return detail::SimplexConversion<OD, OP>(*this);
 }
 
 template<std::size_t D, typename P, std::size_t A>
-bool simplex<D, P, A>::valid() const
+bool Simplex<D, P, A>::valid() const
 {
-	return detail::simplexValid(*this);
+	return detail::SimplexValid(*this);
 }
 
 //utility
-///\relates simplex
-///Converts the given cartesian coordinates into barycentric coordinates for the given simplex.
-///If the given point does not lay in the same space as the simplex object,
+///\relates Simplex
+///Converts the given cartesian coordinates into barycentric coordinates for the given Simplex.
+///If the given point does not lay in the same space as the Simplex object,
 ///the function will throw an exception.
 ///This can be checked before with sameSpace().
 ///Reverse function to cartesian().
-///\exception nytl::invalid_simplex If the simplex object is not valid. Can be 
-///checked with (simplex.valid()) or (simplex.size() >= 0).
-///\exception nytl::invalid_space If the given point does not lay in the simplex's 
-///space (e.g. the simplex is a triangle in a 3-dimensional room and the triangle and the given
-///point do not lay on the same plane). Can be checked with sameSpace(simplex, point).
+///\exception nytl::invalid_Simplex If the Simplex object is not valid. Can be 
+///checked with (Simplex.valid()) or (Simplex.size() >= 0).
+///\exception nytl::invalid_space If the given point does not lay in the Simplex's 
+///space (e.g. the Simplex is a Triangle in a 3-dimensional room and the Triangle and the given
+///point do not lay on the same plane). Can be checked with sameSpace(Simplex, point).
 template<std::size_t D, typename P, std::size_t A>
-Vec<A + 1, double> barycentric(const simplex<D, P, A>& s, const Vec<D, P>& cart)
+Vec<A + 1, double> barycentric(const Simplex<D, P, A>& s, const Vec<D, P>& cart)
 {
 	return detail::SimplexBarycentric<D, P, A>::call(s, cart);
 }
 
 
-///Converts the given barycentric coordinates of the given simplex to cartesian coordinates.
+///Converts the given barycentric coordinates of the given Simplex to cartesian coordinates.
 ///Reverse function to barycentric().
 template<std::size_t D, typename P, std::size_t A>
-Vec<D, double> cartesian(const simplex<D, P, A>& s, const Vec<A + 1, double>& bary)
+Vec<D, double> cartesian(const Simplex<D, P, A>& s, const Vec<A + 1, double>& bary)
 {
 	auto ret = Vec<D, double>{};
 	for(std::size_t i(0); i < A + 1; ++i)
@@ -431,36 +431,36 @@ Vec<D, double> cartesian(const simplex<D, P, A>& s, const Vec<A + 1, double>& ba
 
 
 //tests
-///\relates simplex
-///Returns whether the simplex lays in the same space as the given point.
-///If e.g. the simplexes D == 2 it checks whether they lay on the same plane.
-///If D == A for the simplex object, this function will always return true.
+///\relates Simplex
+///Returns whether the Simplex lays in the same space as the given point.
+///If e.g. the Simplexes D == 2 it checks whether they lay on the same plane.
+///If D == A for the Simplex object, this function will always return true.
 template<std::size_t D, typename P, std::size_t A> bool
-	sameSpace(const simplex<D, P, A>& s, const Vec<D, P>& v)
+	sameSpace(const Simplex<D, P, A>& s, const Vec<D, P>& v)
 {
 	return detail::SimplexSameSpace<D, P, A>::call(s, v);
 }
 
-///\relates simplex
-///Tests if the given simplex contains the given point.
+///\relates Simplex
+///Tests if the given Simplex contains the given point.
 template<std::size_t D, typename P, std::size_t A> bool 
-	contains(const simplex<D, P, A>& s, const Vec<D, P>& v)
+	contains(const Simplex<D, P, A>& s, const Vec<D, P>& v)
 {
 	return detail::SimplexContainsPoint<D, P, A>::call(s, v);
 }
 
-///\relates simplex
-///Tests two simplexs for intersection. Symmetrical operator.
+///\relates Simplex
+///Tests two Simplexs for intersection. Symmetrical operator.
 template<std::size_t D, typename P, std::size_t A> bool 
-	intersects(const simplex<D, P, A>& s1, const simplex<D, P, A>& s2)
+	intersects(const Simplex<D, P, A>& s1, const Simplex<D, P, A>& s2)
 {
 	return detail::SimplexIntersects<D, P, A>::call(s1, s2);
 }
 
-///\relates simplex
-///Tests if the first simplex fully contains the second one. Asymmetrical operator.
+///\relates Simplex
+///Tests if the first Simplex fully contains the second one. Asymmetrical operator.
 template<std::size_t D, typename P, std::size_t A> bool 
-	contains(const simplex<D, P, A>& s1, const simplex<D, P, A>& s2)
+	contains(const Simplex<D, P, A>& s1, const Simplex<D, P, A>& s2)
 {
 	for(auto& v : s2.points())
 		if(!contains(s1, v)) return 0;
@@ -469,41 +469,41 @@ template<std::size_t D, typename P, std::size_t A> bool
 }
 
 //operators
-///\relates simplex
-///Returns the region of intersection between the two given simplexs. Result is not guaranteed
-///to be representable by a simplex and therefore a simplexRegion (i.e. the intersection of two
-///triangles is not guaranteed to be a triangle). Symmetrical operator. [AND]
+///\relates Simplex
+///Returns the RectRegion of intersection between the two given Simplexs. Result is not guaranteed
+///to be representable by a Simplex and therefore a SimplexRegion (i.e. the intersection of two
+///Triangles is not guaranteed to be a Triangle). Symmetrical operator. [AND]
 template<std::size_t D, typename P, std::size_t A1, std::size_t A2> 
-auto intersection(const simplex<D, P, A1>& sa, const simplex<D, P, A2>& sb)
+auto intersection(const Simplex<D, P, A1>& sa, const Simplex<D, P, A2>& sb)
 	-> decltype(detail::SimplexIntersection<D, P, A1, A2>::call(sa, sb))
 {
 	return detail::SimplexIntersection<D, P, A1, A2>::call(sa, sb);
 }
 
-///\relates simplex
+///\relates Simplex
 ///Combines the first and the second area (Offically called union but this name is not available 
 ///in c++). Result is not guaranteed to be representable by one
-///single simplex and is therefore a simplexRegion. Symmetrical operator. [OR]
-template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A> 
-	combination(const simplex<D, P, A>&, const simplex<D, P, A>&)
+///single Simplex and is therefore a SimplexRegion. Symmetrical operator. [OR]
+template<std::size_t D, typename P, std::size_t A> SimplexRegion<D, P, A> 
+	combination(const Simplex<D, P, A>&, const Simplex<D, P, A>&)
 {
 }
 
-///\relates simplex
-///Returns the symmetric difference of the two given simplexs, so basically the region
+///\relates Simplex
+///Returns the symmetric difference of the two given Simplexs, so basically the RectRegion
 ///in the given space where exactly one of the two given areas are located.
 ///Symmetrical operator. [XOR]
-template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A> 
-	symmetricDifference(const simplex<D, P, A>&, const simplex<D, P, A>&)
+template<std::size_t D, typename P, std::size_t A> SimplexRegion<D, P, A> 
+	symmetricDifference(const Simplex<D, P, A>&, const Simplex<D, P, A>&)
 {
 }
 
-///\relates simplex
+///\relates Simplex
 ///Subtracts the second area from the first one and returns the "rest" of the first area.
-///Return type is a simplexRegion since the result is not guaranteed to be representable by one
-///single simplex. Asymmetrical operator. [AND NOT]
-template<std::size_t D, typename P, std::size_t A> simplexRegion<D, P, A> 
-	difference(const simplex<D, P, A>&, const simplex<D, P, A>&)
+///Return type is a SimplexRegion since the result is not guaranteed to be representable by one
+///single Simplex. Asymmetrical operator. [AND NOT]
+template<std::size_t D, typename P, std::size_t A> SimplexRegion<D, P, A> 
+	difference(const Simplex<D, P, A>&, const Simplex<D, P, A>&)
 {
 }
 

@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,10 +39,16 @@
 #include <nytl/log.hpp>
 #include <nytl/linearSolver.hpp>
 #include <nytl/make_unique.hpp>
+#include <nytl/mat.hpp>
 #include <nytl/misc.hpp>
 #include <nytl/nonCopyable.hpp>
+#include <nytl/rect.hpp>
+#include <nytl/rectRegion.hpp>
+#include <nytl/refVec.hpp>
 #include <nytl/simplex.hpp>
 #include <nytl/time.hpp>
 #include <nytl/tetrahedron.hpp>
+#include <nytl/transform.hpp>
 #include <nytl/tmp.hpp>
+#include <nytl/vec.hpp>
 #include <nytl/watchable.hpp>

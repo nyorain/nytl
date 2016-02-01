@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,38 +33,38 @@
 namespace nytl
 {
 
-template<size_t dim, typename T> using refVec = Vec<dim, T&>;
+template<size_t dim, typename T> using RefVec = Vec<dim, T&>;
 
-template<typename T> using refVec2 = Vec<2, T&>;
-template<typename T> using refVec3 = Vec<3, T&>;
-template<typename T> using refVec4 = Vec<4, T&>;
+template<typename T> using RefVec2 = Vec<2, T&>;
+template<typename T> using RefVec3 = Vec<3, T&>;
+template<typename T> using RefVec4 = Vec<4, T&>;
 
-typedef refVec2<float> refVec2f;
-typedef refVec2<int> refVec2i;
-typedef refVec2<unsigned int> refVec2ui;
-typedef refVec2<double> refVec2d;
-typedef refVec2<char> refVec2c;
-typedef refVec2<unsigned char> refVec2uc;
-typedef refVec2<long> refVec2l;
-typedef refVec2<unsigned long> refVec2ul;
+typedef RefVec2<float> RefVec2f;
+typedef RefVec2<int> RefVec2i;
+typedef RefVec2<unsigned int> RefVec2ui;
+typedef RefVec2<double> RefVec2d;
+typedef RefVec2<char> RefVec2c;
+typedef RefVec2<unsigned char> RefVec2uc;
+typedef RefVec2<long> RefVec2l;
+typedef RefVec2<unsigned long> RefVec2ul;
 
-typedef refVec3<float> refVec3f;
-typedef refVec3<int> refVec3i;
-typedef refVec3<unsigned int> refVec3ui;
-typedef refVec3<double> refVec3d;
-typedef refVec3<char> refVec3c;
-typedef refVec3<unsigned char> refVec3uc;
-typedef refVec3<long> refVec3l;
-typedef refVec3<unsigned long> refVec3ul;
+typedef RefVec3<float> RefVec3f;
+typedef RefVec3<int> RefVec3i;
+typedef RefVec3<unsigned int> RefVec3ui;
+typedef RefVec3<double> RefVec3d;
+typedef RefVec3<char> RefVec3c;
+typedef RefVec3<unsigned char> RefVec3uc;
+typedef RefVec3<long> RefVec3l;
+typedef RefVec3<unsigned long> RefVec3ul;
 
-typedef refVec4<float> refVec4f;
-typedef refVec4<int> refVec4i;
-typedef refVec4<unsigned int> refVec4ui;
-typedef refVec4<double> refVec4d;
-typedef refVec4<char> refVec4c;
-typedef refVec4<unsigned char> refVec4uc;
-typedef refVec4<long> refVec4l;
-typedef refVec4<unsigned long> refVec4ul;
+typedef RefVec4<float> RefVec4f;
+typedef RefVec4<int> RefVec4i;
+typedef RefVec4<unsigned int> RefVec4ui;
+typedef RefVec4<double> RefVec4d;
+typedef RefVec4<char> RefVec4c;
+typedef RefVec4<unsigned char> RefVec4uc;
+typedef RefVec4<long> RefVec4l;
+typedef RefVec4<unsigned long> RefVec4ul;
 
 
 ///\ingroup math
@@ -80,15 +80,15 @@ public:
     using const_reference = const value_type&;
     using pointer = value_type*;
     using const_pointer = const value_type*;
-    using iterator = refVecIterator<dim, value_type>;
+    using iterator = RefVecIterator<dim, value_type>;
     using const_iterator = constRefVecIterator<dim, value_type>;
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
     using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
 
-    using ref_Vec_type = Vec<dimension, reference>;
-    using Vec_type = Vec<dimension, value_type>;
+    using ref_VecType = Vec<dimension, reference>;
+    using VecType = Vec<dimension, value_type>;
 
 public:
     constexpr size_t size() const noexcept { return dim; }
@@ -110,60 +110,60 @@ public:
     Vec(Args&&... args) : data_{&args...} {}
     ~Vec() noexcept = default;
 
-    Vec(const ref_Vec_type& other) noexcept = default;
-    Vec(const Vec_type& other) noexcept 
+    Vec(const ref_VecType& other) noexcept = default;
+    Vec(const VecType& other) noexcept 
 		{ for(size_t i(0); i < dim; ++i) data_[i] = &other[i]; }
 
-    ref_Vec_type& operator=(const Vec_type& other) noexcept 
+    ref_VecType& operator=(const VecType& other) noexcept 
 		{ for(size_t i(0); i < dim; ++i) *data_[i] = other[i]; return *this; }
-    ref_Vec_type& operator=(const ref_Vec_type& other) noexcept //needed?
+    ref_VecType& operator=(const ref_VecType& other) noexcept //needed?
 		{ for(size_t i(0); i < dim; ++i) *data_[i] = other[i]; return *this; }
 
     //operator
-    template <size_t odim, typename ot> ref_Vec_type& operator +=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator +=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] += other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator -=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator -=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] -= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator *=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator *=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] *= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator /=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator /=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] /= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator %=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator %=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] %= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator |=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator |=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] |= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator ^=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator ^=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] ^= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator &=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator &=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] &= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator >>=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator >>=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] >>= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator <<=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator <<=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] <<= other[i]; return *this; }
 
-    template<typename ot> ref_Vec_type& operator +=(ot other)
+    template<typename ot> ref_VecType& operator +=(ot other)
 		{ for(auto& val : *this) val += other; return *this; }
-    template<typename ot> ref_Vec_type& operator -=(ot other)
+    template<typename ot> ref_VecType& operator -=(ot other)
 		{ for(auto& val : *this) val -= other; return *this; }
-    template<typename ot> ref_Vec_type& operator *=(ot other)
+    template<typename ot> ref_VecType& operator *=(ot other)
 		{ for(auto& val : *this) val *= other; return *this; }
-    template<typename ot> ref_Vec_type& operator /=(ot other)
+    template<typename ot> ref_VecType& operator /=(ot other)
 		{ for(auto& val : *this) val /= other; return *this; }
-    template<typename ot> ref_Vec_type& operator %=(ot other)
+    template<typename ot> ref_VecType& operator %=(ot other)
 		{ for(auto& val : *this) val %= other; return *this; }
-    template<typename ot> ref_Vec_type& operator |=(ot other)
+    template<typename ot> ref_VecType& operator |=(ot other)
 		{ for(auto& val : *this) val |= other; return *this; }
-    template<typename ot> ref_Vec_type& operator ^=(ot other)
+    template<typename ot> ref_VecType& operator ^=(ot other)
 		{ for(auto& val : *this) val ^= other; return *this; }
-    template<typename ot> ref_Vec_type& operator &=(ot other)
+    template<typename ot> ref_VecType& operator &=(ot other)
 		{ for(auto& val : *this) val &= other; return *this; }
-    template<typename ot> ref_Vec_type& operator >>=(ot other)
+    template<typename ot> ref_VecType& operator >>=(ot other)
 		{ for(auto& val : *this) val >>= other; return *this; }
-    template<typename ot> ref_Vec_type& operator <<=(ot other)
+    template<typename ot> ref_VecType& operator <<=(ot other)
 		{ for(auto& val : *this) val <<= other; return *this; }
 
-    Vec_type operator-() const 
-		{ Vec_type ret(*this); for(size_t i(0); i < dim; i++) ret[i] -= (*this)[i]; return ret; }
+    VecType operator-() const 
+		{ VecType ret(*this); for(size_t i(0); i < dim; i++) ret[i] -= (*this)[i]; return ret; }
 
     template <size_t odim, typename ot, typename = typename 
 		std::enable_if<!std::is_reference<ot>::value>::type> operator Vec<odim, ot>() const 
@@ -211,10 +211,10 @@ public:
     reference back() noexcept { return *data_[dim - 1]; }
     const_reference back() const noexcept { return *data_[dim - 1]; }
 
-	void swap(Vec_type& other)
+	void swap(VecType& other)
 		{ for(std::size_t i(0); i < size(); ++i) std::swap(*data_[i], other[i]); }
 
-	friend void swap(ref_Vec_type& a, ref_Vec_type& b) { a.swap(b); }
+	friend void swap(ref_VecType& a, ref_VecType& b) { a.swap(b); }
 };
 
 template<typename T> class Vec<2, T&>
@@ -227,15 +227,15 @@ public:
     using const_reference = const value_type&;
     using pointer = value_type*;
     using const_pointer = const value_type*;
-    using iterator = refVecIterator<dim, value_type>;
+    using iterator = RefVecIterator<dim, value_type>;
     using const_iterator = constRefVecIterator<dim, value_type>;
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
     using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
 
-    using ref_Vec_type = Vec<dim, reference>;
-    using Vec_type = Vec<dim, value_type>;
+    using ref_VecType = Vec<dim, reference>;
+    using VecType = Vec<dim, value_type>;
 
 public:
     constexpr size_t size() const noexcept { return dim; }
@@ -251,58 +251,58 @@ public:
     Vec(reference a, reference b) : x(a), y(b) {}
     ~Vec() noexcept = default;
 
-    Vec(const ref_Vec_type& other) noexcept = default;
+    Vec(const ref_VecType& other) noexcept = default;
 
-    Vec(Vec_type& other) noexcept : x(other.x), y(other.y) {}
-    ref_Vec_type& operator=(const Vec_type& other) noexcept 
+    Vec(VecType& other) noexcept : x(other.x), y(other.y) {}
+    ref_VecType& operator=(const VecType& other) noexcept 
 		{ x = other.x; y = other.y; return *this; }
-    ref_Vec_type& operator=(const ref_Vec_type& other) noexcept 
+    ref_VecType& operator=(const ref_VecType& other) noexcept 
 		{ x = other.x; y = other.y; return *this; }
 
     //operator
-    template <size_t odim, typename ot> ref_Vec_type& operator +=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator +=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] += other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator -=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator -=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] -= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator *=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator *=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] *= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator /=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator /=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] /= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator %=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator %=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] %= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator |=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator |=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] |= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator ^=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator ^=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] ^= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator &=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator &=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] &= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator >>=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator >>=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] >>= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator <<=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator <<=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] <<= other[i]; return *this; }
 
-    template<typename ot> ref_Vec_type& operator +=(ot other)
+    template<typename ot> ref_VecType& operator +=(ot other)
 		{ for(auto& val : *this) val += other; return *this; }
-    template<typename ot> ref_Vec_type& operator -=(ot other)
+    template<typename ot> ref_VecType& operator -=(ot other)
 		{ for(auto& val : *this) val -= other; return *this; }
-    template<typename ot> ref_Vec_type& operator *=(ot other)
+    template<typename ot> ref_VecType& operator *=(ot other)
 		{ for(auto& val : *this) val *= other; return *this; }
-    template<typename ot> ref_Vec_type& operator /=(ot other)
+    template<typename ot> ref_VecType& operator /=(ot other)
 		{ for(auto& val : *this) val /= other; return *this; }
-    template<typename ot> ref_Vec_type& operator %=(ot other)
+    template<typename ot> ref_VecType& operator %=(ot other)
 		{ for(auto& val : *this) val %= other; return *this; }
-    template<typename ot> ref_Vec_type& operator |=(ot other)
+    template<typename ot> ref_VecType& operator |=(ot other)
 		{ for(auto& val : *this) val |= other; return *this; }
-    template<typename ot> ref_Vec_type& operator ^=(ot other)
+    template<typename ot> ref_VecType& operator ^=(ot other)
 		{ for(auto& val : *this) val ^= other; return *this; }
-    template<typename ot> ref_Vec_type& operator &=(ot other)
+    template<typename ot> ref_VecType& operator &=(ot other)
 		{ for(auto& val : *this) val &= other; return *this; }
-    template<typename ot> ref_Vec_type& operator >>=(ot other)
+    template<typename ot> ref_VecType& operator >>=(ot other)
 		{ for(auto& val : *this) val >>= other; return *this; }
-    template<typename ot> ref_Vec_type& operator <<=(ot other)
+    template<typename ot> ref_VecType& operator <<=(ot other)
 		{ for(auto& val : *this) val <<= other; return *this; }
 
-    Vec_type operator-() const { return Vec_type(x, y); }
+    VecType operator-() const { return VecType(x, y); }
 
     template <size_t odim, typename ot, typename = typename 
 		std::enable_if<!std::is_reference<ot>::value>::type> operator Vec<odim, ot>() const 
@@ -350,9 +350,9 @@ public:
     reference back() noexcept { return y; }
     const_reference back() const noexcept { return y; }
 
-	void swap(Vec_type& other){ std::swap(x, other.x); std::swap(y, other.y); }
+	void swap(VecType& other){ std::swap(x, other.x); std::swap(y, other.y); }
 
-	friend void swap(ref_Vec_type& a, ref_Vec_type& b) { a.swap(b); }
+	friend void swap(ref_VecType& a, ref_VecType& b) { a.swap(b); }
 };
 
 template<typename T> class Vec<3, T&>
@@ -365,15 +365,15 @@ public:
     using const_reference = const value_type&;
     using pointer = value_type*;
     using const_pointer = const value_type*;
-    using iterator = refVecIterator<dim, value_type>;
+    using iterator = RefVecIterator<dim, value_type>;
     using const_iterator = constRefVecIterator<dim, value_type>;
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
     using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
 
-    using ref_Vec_type = Vec<dim, reference>;
-    using Vec_type = Vec<dim, value_type>;
+    using ref_VecType = Vec<dim, reference>;
+    using VecType = Vec<dim, value_type>;
 
 public:
     constexpr size_t size() const noexcept { return dim; }
@@ -390,58 +390,58 @@ public:
     Vec(reference a, reference b, reference c) noexcept : x(a), y(b), z(c) {}
     ~Vec() noexcept = default;
 
-    Vec(const ref_Vec_type& other) noexcept = default;
+    Vec(const ref_VecType& other) noexcept = default;
 
-    Vec(const Vec_type& other) noexcept : x(other.x), y(other.y), z(other.z) {}
-    ref_Vec_type& operator=(const Vec_type& other) noexcept 
+    Vec(const VecType& other) noexcept : x(other.x), y(other.y), z(other.z) {}
+    ref_VecType& operator=(const VecType& other) noexcept 
 		{ x = other.x; y = other.y; z = other.z; return *this; } 
-    ref_Vec_type& operator=(const ref_Vec_type& other) noexcept 
+    ref_VecType& operator=(const ref_VecType& other) noexcept 
 		{ x = other.x; y = other.y; z = other.z; return *this; }
 
     //operator
-    template <size_t odim, typename ot> ref_Vec_type& operator +=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator +=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] += other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator -=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator -=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] -= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator *=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator *=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] *= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator /=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator /=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] /= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator %=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator %=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] %= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator |=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator |=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] |= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator ^=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator ^=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] ^= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator &=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator &=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] &= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator >>=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator >>=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] >>= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator <<=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator <<=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] <<= other[i]; return *this; }
 
-    template<typename ot> ref_Vec_type& operator +=(ot other)
+    template<typename ot> ref_VecType& operator +=(ot other)
 		{ for(auto& val : *this) val += other; return *this; }
-    template<typename ot> ref_Vec_type& operator -=(ot other)
+    template<typename ot> ref_VecType& operator -=(ot other)
 		{ for(auto& val : *this) val -= other; return *this; }
-    template<typename ot> ref_Vec_type& operator *=(ot other)
+    template<typename ot> ref_VecType& operator *=(ot other)
 		{ for(auto& val : *this) val *= other; return *this; }
-    template<typename ot> ref_Vec_type& operator /=(ot other)
+    template<typename ot> ref_VecType& operator /=(ot other)
 		{ for(auto& val : *this) val /= other; return *this; }
-    template<typename ot> ref_Vec_type& operator %=(ot other)
+    template<typename ot> ref_VecType& operator %=(ot other)
 		{ for(auto& val : *this) val %= other; return *this; }
-    template<typename ot> ref_Vec_type& operator |=(ot other)
+    template<typename ot> ref_VecType& operator |=(ot other)
 		{ for(auto& val : *this) val |= other; return *this; }
-    template<typename ot> ref_Vec_type& operator ^=(ot other)
+    template<typename ot> ref_VecType& operator ^=(ot other)
 		{ for(auto& val : *this) val ^= other; return *this; }
-    template<typename ot> ref_Vec_type& operator &=(ot other)
+    template<typename ot> ref_VecType& operator &=(ot other)
 		{ for(auto& val : *this) val &= other; return *this; }
-    template<typename ot> ref_Vec_type& operator >>=(ot other)
+    template<typename ot> ref_VecType& operator >>=(ot other)
 		{ for(auto& val : *this) val >>= other; return *this; }
-    template<typename ot> ref_Vec_type& operator <<=(ot other)
+    template<typename ot> ref_VecType& operator <<=(ot other)
 		{ for(auto& val : *this) val <<= other; return *this; }
 
-    Vec_type operator-() const { return Vec_type(x, y, z); }
+    VecType operator-() const { return VecType(x, y, z); }
 
     template <size_t odim, typename ot, typename = typename 
 		std::enable_if<!std::is_reference<ot>::value>::type> operator Vec<odim, ot>() const 
@@ -491,10 +491,10 @@ public:
     reference back() noexcept { return z; }
     const_reference back() const noexcept { return z; }
 
-	void swap(Vec_type& other)
+	void swap(VecType& other)
 		{ std::swap(x, other.x); std::swap(y, other.y); std::swap(z, other.z); }
 
-	friend void swap(ref_Vec_type& a, ref_Vec_type& b) { a.swap(b); }
+	friend void swap(ref_VecType& a, ref_VecType& b) { a.swap(b); }
 
     //custom
     Vec2<reference> xy() const noexcept { return Vec2<reference>(x,y); }
@@ -512,15 +512,15 @@ public:
     using const_reference = const value_type&;
     using pointer = value_type*;
     using const_pointer = const value_type*;
-    using iterator = refVecIterator<dim, value_type>;
+    using iterator = RefVecIterator<dim, value_type>;
     using const_iterator = constRefVecIterator<dim, value_type>;
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
     using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
 
-    using ref_Vec_type = Vec<dim, reference>;
-    using Vec_type = Vec<dim, value_type>;
+    using ref_VecType = Vec<dim, reference>;
+    using VecType = Vec<dim, value_type>;
 
 public:
     constexpr size_t size() const noexcept { return dim; }
@@ -538,58 +538,58 @@ public:
     Vec(reference a, reference b, reference c, reference d) noexcept : x(a), y(b), z(c), w(d) {}
     ~Vec() noexcept = default;
 
-    Vec(const ref_Vec_type& other) noexcept = default;
+    Vec(const ref_VecType& other) noexcept = default;
 
-    Vec(const Vec_type& other) noexcept : x(other.x), y(other.y), z(other.z), w(other.w) {} 
-    ref_Vec_type& operator=(const Vec_type& other) noexcept 
+    Vec(const VecType& other) noexcept : x(other.x), y(other.y), z(other.z), w(other.w) {} 
+    ref_VecType& operator=(const VecType& other) noexcept 
 		{ x = other.x; y = other.y; z = other.z; w = other.w; return *this; }
-    ref_Vec_type& operator=(const ref_Vec_type& other) noexcept 
+    ref_VecType& operator=(const ref_VecType& other) noexcept 
 		{ x = other.x; y = other.y; z = other.z; w = other.w; return *this; }
 
     //operator
-    template <size_t odim, typename ot> ref_Vec_type& operator +=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator +=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] += other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator -=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator -=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] -= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator *=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator *=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] *= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator /=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator /=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] /= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator %=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator %=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] %= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator |=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator |=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] |= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator ^=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator ^=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] ^= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator &=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator &=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] &= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator >>=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator >>=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] >>= other[i]; return *this; }
-    template <size_t odim, typename ot> ref_Vec_type& operator <<=(const Vec<odim, ot>& other)
+    template <size_t odim, typename ot> ref_VecType& operator <<=(const Vec<odim, ot>& other)
 		{ for(size_t i = 0; i < std::min(odim, dim); i++) (*this)[i] <<= other[i]; return *this; }
 
-    template<typename ot> ref_Vec_type& operator +=(ot other)
+    template<typename ot> ref_VecType& operator +=(ot other)
 		{ for(auto& val : *this) val += other; return *this; }
-    template<typename ot> ref_Vec_type& operator -=(ot other)
+    template<typename ot> ref_VecType& operator -=(ot other)
 		{ for(auto& val : *this) val -= other; return *this; }
-    template<typename ot> ref_Vec_type& operator *=(ot other)
+    template<typename ot> ref_VecType& operator *=(ot other)
 		{ for(auto& val : *this) val *= other; return *this; }
-    template<typename ot> ref_Vec_type& operator /=(ot other)
+    template<typename ot> ref_VecType& operator /=(ot other)
 		{ for(auto& val : *this) val /= other; return *this; }
-    template<typename ot> ref_Vec_type& operator %=(ot other)
+    template<typename ot> ref_VecType& operator %=(ot other)
 		{ for(auto& val : *this) val %= other; return *this; }
-    template<typename ot> ref_Vec_type& operator |=(ot other)
+    template<typename ot> ref_VecType& operator |=(ot other)
 		{ for(auto& val : *this) val |= other; return *this; }
-    template<typename ot> ref_Vec_type& operator ^=(ot other)
+    template<typename ot> ref_VecType& operator ^=(ot other)
 		{ for(auto& val : *this) val ^= other; return *this; }
-    template<typename ot> ref_Vec_type& operator &=(ot other)
+    template<typename ot> ref_VecType& operator &=(ot other)
 		{ for(auto& val : *this) val &= other; return *this; }
-    template<typename ot> ref_Vec_type& operator >>=(ot other)
+    template<typename ot> ref_VecType& operator >>=(ot other)
 		{ for(auto& val : *this) val >>= other; return *this; }
-    template<typename ot> ref_Vec_type& operator <<=(ot other)
+    template<typename ot> ref_VecType& operator <<=(ot other)
 		{ for(auto& val : *this) val <<= other; return *this; }
 
-    Vec_type operator-() const { return Vec_type(x, y, z); }
+    VecType operator-() const { return VecType(x, y, z); }
 
     template <size_t odim, typename ot, typename = typename 
 		std::enable_if<!std::is_reference<ot>::value>::type> operator Vec<odim, ot>() const
@@ -639,10 +639,10 @@ public:
     reference back() noexcept { return w; }
     const_reference back() const noexcept { return w; }
 
-	void swap(Vec_type& other)
+	void swap(VecType& other)
 		{ using std::swap; swap(x, other.x); swap(y, other.y); swap(z, other.z); swap(w, other.w);}
 
-	friend void swap(ref_Vec_type& a, ref_Vec_type& b){ a.swap(b); }
+	friend void swap(ref_VecType& a, ref_VecType& b){ a.swap(b); }
 
     //custom
     Vec2<reference> xy() const noexcept { return Vec2<reference>(x,y); }

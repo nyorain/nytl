@@ -66,7 +66,7 @@ int main()
 
 	//compatibleFunction
 	{
-		compatibleFunction<void(void*, double, float)> cp1 = [](float var)
+		CompatibleFunction<void(void*, double, float)> cp1 = [](float var)
 			{
 				assert(var == 8.f);
 			};
@@ -81,7 +81,7 @@ int main()
 
 	//callback
 	{
-		callback<void(float)> cb1;
+		Callback<void(float)> cb1;
 	
 		auto conn1 = cb1.add(&testFunc2);
 		auto conn2 = cb1.add(testFunc2);
@@ -91,7 +91,7 @@ int main()
 		assert(!conn1.connected());
 		assert(!conn2.connected());
 	
-		auto conn3 = cb1.add([](const connectionRef& ref)
+		auto conn3 = cb1.add([](const ConnectionRef& ref)
 				{
 					auto ref2 = ref;
 					ref2.destroy();

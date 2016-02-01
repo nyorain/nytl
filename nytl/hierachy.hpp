@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,7 @@
  */
 
 ///\file
-///\brief Contains a template class for creating hierachy-structered clas objects.
+///\brief Contains a template class for creating Hierachy-structered clas objects.
 
 #pragma once
 
@@ -35,27 +35,27 @@
 namespace nytl
 {
 
-///\brief Virtual utility base template class for objects that are part of a hierachy.
+///\brief Virtual utility base template class for objects that are part of a Hierachy.
 ///\ingroup utility
 template <typename Root, typename Child = Root>
-class hierachyBase
+class HierachyBase
 {
 public:
-	using node_type = hierachyBase<Root, Child>;
+	using node_type = HierachyBase<Root, Child>;
 	using Vector_type = std::vector<Child*>;
 
-	using iterator = referenceIterator<typename Vector_type::iterator>;
-	using const_iterator = referenceIterator<typename Vector_type::const_iterator>;
-	using reverse_iterator = referenceIterator<typename Vector_type::reverse_iterator>;
-	using const_reverse_iterator = referenceIterator<typename Vector_type::const_reverse_iterator>;
+	using iterator = ReferenceIterator<typename Vector_type::iterator>;
+	using const_iterator = ReferenceIterator<typename Vector_type::const_iterator>;
+	using reverse_iterator = ReferenceIterator<typename Vector_type::reverse_iterator>;
+	using const_reverse_iterator = ReferenceIterator<typename Vector_type::const_reverse_iterator>;
 
-	using rec_iterator = recursiveIterator<node_type>;
-	using const_rec_iterator = constRecursiveIterator<node_type>;
+	using rec_iterator = RecursiveIterator<node_type>;
+	using const_rec_iterator = ConstRecursiveIterator<node_type>;
 	using reverse_rec_iterator = std::reverse_iterator<rec_iterator>;
 	using const_reverse_rec_iterator = std::reverse_iterator<const_rec_iterator>;
 
-	using recursive_iteration = recursiveIteration<node_type>;
-	using const_recursive_iteration = recursiveIteration<const node_type>;
+	using recursive_iteration = RecursiveIteration<node_type>;
+	using const_recursive_iteration = RecursiveIteration<const node_type>;
 
 	using root_type = Root;
 	using child_type = Child;
@@ -64,8 +64,8 @@ private:
 	Vector_type children_;
 
 protected:
-    hierachyBase() = default;
-	virtual ~hierachyBase(){ destroy(); }
+    HierachyBase() = default;
+	virtual ~HierachyBase(){ destroy(); }
 
 public:
 	//iterator
@@ -148,7 +148,7 @@ public:
 };
 
 template<typename T, typename Root = typename T::root_type, typename Child = typename T::child_type>
-class hierachyNode : public T
+class HierachyNode : public T
 {
 public:
 	using root_type = Root;
@@ -157,7 +157,7 @@ public:
 protected:
 	T* parent_;
 
-	hierachyNode() = default;
+	HierachyNode() = default;
 
 	virtual void destroy() override
 	{
@@ -176,7 +176,7 @@ protected:
 	}
 
 public:
-	hierachyNode(T& parent) : parent_(&parent) { create(parent); }
+	HierachyNode(T& parent) : parent_(&parent) { create(parent); }
 
 	virtual root_type& root() override { return parent_->root(); }
 	virtual const root_type& root() const override { return parent_->root(); }
@@ -185,7 +185,7 @@ public:
 };
 
 template<typename T, typename Root = typename T::root_type, typename Child = typename T::child_type>
-class hierachyRoot : public T
+class HierachyRoot : public T
 {
 public:
 	using root_type = Root;

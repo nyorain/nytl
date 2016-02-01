@@ -1,18 +1,18 @@
 template<typename T>
-class recursiveIterator
+class RecursiveIterator
 {
 public:
 	typename T::iterator it_;
-	recursiveIterator<T> child_;
+	RecursiveIterator<T> child_;
 	bool onParent_ {1};
 
 public:
-	recursiveIterator(typename T::iterator it) : it_(it) {}
+	RecursiveIterator(typename T::iterator it) : it_(it) {}
 
 	T* operator->(){ return onParent_ ? &(*it_) : &(*child_); }
 	T& operator*(){ return onParent_ ? *it_ : *child_; }
 
-	recursiveIterator& operator++()
+	RecursiveIterator& operator++()
 	{ 
 		if(onParent_)
 		{

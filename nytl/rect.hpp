@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,7 @@
  */
 
 ///\file
-///\brief Includes the rect template class as well as several operators for it.
+///\brief Includes the Rect template class as well as several operators for it.
 
 #pragma once
 
@@ -36,104 +36,104 @@
 
 namespace nytl
 {
-//rect
-template<size_t D, class P> class rect;
+//Rect
+template<size_t D, class P> class Rect;
 
-template<class P> using rect2 = rect<2, P>;
-template<class P> using rect3 = rect<3, P>;
-template<class P> using rect4 = rect<4, P>;
+template<class P> using Rect2 = Rect<2, P>;
+template<class P> using Rect3 = Rect<3, P>;
+template<class P> using Rect4 = Rect<4, P>;
 
-typedef rect<2, int> rect2i;
-typedef rect<2, unsigned int> rect2ui;
-typedef rect<2, double> rect2d;
-typedef rect<2, float> rect2f;
-typedef rect<2, char> rect2c;
-typedef rect<2, unsigned char> rect2uc;
-typedef rect<2, long> rect2l;
-typedef rect<2, unsigned long> rect2ul;
+typedef Rect<2, int> Rect2i;
+typedef Rect<2, unsigned int> Rect2ui;
+typedef Rect<2, double> Rect2d;
+typedef Rect<2, float> Rect2f;
+typedef Rect<2, char> Rect2c;
+typedef Rect<2, unsigned char> Rect2uc;
+typedef Rect<2, long> Rect2l;
+typedef Rect<2, unsigned long> Rect2ul;
 
-typedef rect<3, int> rect3i;
-typedef rect<3, unsigned int> rect3ui;
-typedef rect<3, double> rect3d;
-typedef rect<3, float> rect3f;
-typedef rect<3, char> rect3c;
-typedef rect<3, unsigned char> rect3uc;
-typedef rect<3, long> rect3l;
-typedef rect<3, unsigned long> rect3ul;
+typedef Rect<3, int> Rect3i;
+typedef Rect<3, unsigned int> Rect3ui;
+typedef Rect<3, double> Rect3d;
+typedef Rect<3, float> Rect3f;
+typedef Rect<3, char> Rect3c;
+typedef Rect<3, unsigned char> Rect3uc;
+typedef Rect<3, long> Rect3l;
+typedef Rect<3, unsigned long> Rect3ul;
 
-typedef rect<4, int> rect4i;
-typedef rect<4, unsigned int> rect4ui;
-typedef rect<4, double> rect4d;
-typedef rect<4, float> rect4f;
-typedef rect<4, char> rect4c;
-typedef rect<4, unsigned char> rect4uc;
-typedef rect<4, long> rect4l;
-typedef rect<4, unsigned long> rect4ul;
+typedef Rect<4, int> Rect4i;
+typedef Rect<4, unsigned int> Rect4ui;
+typedef Rect<4, double> Rect4d;
+typedef Rect<4, float> Rect4f;
+typedef Rect<4, char> Rect4c;
+typedef Rect<4, unsigned char> Rect4uc;
+typedef Rect<4, long> Rect4l;
+typedef Rect<4, unsigned long> Rect4ul;
 
 ///\ingroup math
-///\brief Templated class that represents the mathematic hyperrect (n-box) concept.
-///\tparam D The dimension of the hyperrectangle
-///\tparam P The precision of the hyperrectangle.
-///\details The hyperrectangle is the generalization of a rectangle for higher dimensions.
+///\brief Templated class that represents the matheMatic hyperRect (n-box) concept.
+///\tparam D The dimension of the hyperRectangle
+///\tparam P The precision of the hyperRectangle.
+///\details The hyperRectangle is the generalization of a Rectangle for higher dimensions.
 ///It represents an area that is aligned with the spaces dimensions at a given position with
-///a given size. There exist various operators for the rect template class e.g. to check for
+///a given size. There exist various operators for the Rect template class e.g. to check for
 ///intersection, compute unions or differences.
-///There exist specialization for a 2-dimensional hyperrect (just a rectangle), a 3-dimensional
-///hyperrect (also called box) with additional features. 
+///There exist specialization for a 2-dimensional hyperRect (just a Rectangle), a 3-dimensional
+///hyperRect (also called box) with additional features. 
 template<size_t D, class P> 
-class rect
+class Rect
 {
 public:
     using value_type = P;
-    using Vec_type = Vec<D, value_type>;
+    using VecType = Vec<D, value_type>;
 
 public:
-	Vec_type position;
-	Vec_type size;
+	VecType position;
+	VecType size;
 
 public:
-	rect(Vec_type pposition = Vec_type(), Vec_type psize = Vec_type()) noexcept 
+	Rect(VecType pposition = VecType(), VecType psize = VecType()) noexcept 
 		: position(pposition), size(psize) {}
-    ~rect() noexcept = default;
+    ~Rect() noexcept = default;
 
-    rect(const rect<D, P>& other) noexcept = default;
-	rect& operator=(const rect<D, P>& other) noexcept = default;
+    Rect(const Rect<D, P>& other) noexcept = default;
+	Rect& operator=(const Rect<D, P>& other) noexcept = default;
 
-    rect(rect<D, P>&& other) noexcept = default;
-	rect& operator=(rect<D, P>&& other) noexcept = default;
+    Rect(Rect<D, P>&& other) noexcept = default;
+	Rect& operator=(Rect<D, P>&& other) noexcept = default;
 
 	Vec<D, double> center() const { return (double)(position + (size / 2.)); };
-	bool empty() const { return anyValueGreater(size, 0); }
+	bool empty() const { return anyvalue_typeGreater(size, 0); }
 
 	template<size_t oD, class oP> 
-	operator rect<oD, oP>() const { return rect<oD, oP>(position, size); }
+	operator Rect<oD, oP>() const { return Rect<oD, oP>(position, size); }
 };
 
-//rect2 specialization
-template<class P> class rect<2, P>
+//Rect2 specialization
+template<class P> class Rect<2, P>
 {
 public:
     static constexpr std::size_t D = 2;
     using value_type = P;
-    using Vec_type = Vec<D, value_type>;
+    using VecType = Vec<D, value_type>;
 
 public:
-	Vec_type position;
-	Vec_type size;
+	VecType position;
+	VecType size;
 
 public:
-	rect(const Vec_type& pposition, const Vec_type& psize = Vec_type()) noexcept 
+	Rect(const VecType& pposition, const VecType& psize = VecType()) noexcept 
 		: position(pposition), size(psize) {}
-	rect(P x = P(), P y = P(), P width = P(), P height = P()) noexcept 
+	Rect(P x = P(), P y = P(), P width = P(), P height = P()) noexcept 
 		: position(x,y), size(width,height) {}
 
-	~rect() noexcept = default;
+	~Rect() noexcept = default;
 
-	rect(const rect<D, P>& other) noexcept = default;
-	rect& operator=(const rect<D, P>& other) noexcept = default;
+	Rect(const Rect<D, P>& other) noexcept = default;
+	Rect& operator=(const Rect<D, P>& other) noexcept = default;
 
-    rect(rect<D, P>&& other) noexcept = default;
-	rect& operator=(rect<D, P>&& other) noexcept = default;
+    Rect(Rect<D, P>&& other) noexcept = default;
+	Rect& operator=(Rect<D, P>&& other) noexcept = default;
 
 	Vec<D, double> center() const { return (double)(position + (size / 2.)); };
 
@@ -160,34 +160,34 @@ public:
 
     //conversion
 	template<size_t oD, class oP>
-	operator rect<oD, oP>() const { return rect<oD, oP>(position, size); }
+	operator Rect<oD, oP>() const { return Rect<oD, oP>(position, size); }
 };
 
-//rect3 specialization
-template<class P> class rect<3, P>
+//Rect3 specialization
+template<class P> class Rect<3, P>
 {
 public:
     static constexpr std::size_t D = 3;
     using value_type = P;
-    using Vec_type = Vec<D, value_type>;
+    using VecType = Vec<D, value_type>;
 
 public:
-	Vec_type position;
-	Vec_type size;
+	VecType position;
+	VecType size;
 
 public:
-	rect(const Vec_type& pposition, const Vec_type& psize = Vec_type()) noexcept 
+	Rect(const VecType& pposition, const VecType& psize = VecType()) noexcept 
 		: position(pposition), size(psize) {}
-	rect(P x = P(), P y = P(), P z = P(), P width = P(), P height = P(), P depth = P()) noexcept
+	Rect(P x = P(), P y = P(), P z = P(), P width = P(), P height = P(), P depth = P()) noexcept
         : position(x,y,z), size(width,height,depth) {}
 
-	~rect() noexcept = default;
+	~Rect() noexcept = default;
 
-	rect(const rect<D, P>& other) noexcept = default;
-	rect& operator=(const rect<D, P>& other) noexcept = default;
+	Rect(const Rect<D, P>& other) noexcept = default;
+	Rect& operator=(const Rect<D, P>& other) noexcept = default;
 
-    rect(rect<D, P>&& other) noexcept = default;
-	rect& operator=(rect<D, P>&& other) noexcept = default;
+    Rect(Rect<D, P>&& other) noexcept = default;
+	Rect& operator=(Rect<D, P>&& other) noexcept = default;
 
 	Vec<D, double> center() const { return (double)(position + (size / 2.)); };
 
@@ -228,7 +228,7 @@ public:
 
     //conversion
 	template<size_t oD, class oP>
-	operator rect<oD, oP>() const { return rect<oD, oP>(position, size); }
+	operator Rect<oD, oP>() const { return Rect<oD, oP>(position, size); }
 };
 
 //operators

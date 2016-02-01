@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,19 +39,19 @@ namespace nytl
 class watchable
 {
 protected:
-    callback<void()> destructionCallback_;
+    Callback<void()> destructioncallback_;
 
 public:
-    ~watchable(){ destructionCallback_(); } //virtual? not needed here
+    ~watchable(){ destructioncallback_(); } //virtual? not needed here
 
     template<typename F> 
-	connection onDestruction(F&& func){ return destructionCallback_.add(func); }
+	Connection onDestruction(F&& func){ return destructioncallback_.add(func); }
 };
 
 ///\ingroup utility
 ///\brief Smart pointer class that observes the lifetime of its object.
 ///\details Basically a smart pointer that does always know, whether the object it points to is 
-//alive or not. Does only work with objects of classes that have a onDestruction callback member
+//alive or not. Does only work with objects of classes that have a onDestruction Callback member
 ///function like e.g. classes dervied from watchable.
 ///Semantics are related to std::unique_ptr.
 template <typename T>
@@ -59,7 +59,7 @@ class watchableRef
 {
 protected:
     T* ref_;
-    connection conn_;
+    Connection conn_;
 
 public:
     watchableRef() = default;

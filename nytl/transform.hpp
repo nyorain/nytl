@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -46,34 +46,34 @@ constexpr std::size_t rotationAxis(std::size_t dimension) { return fac(dimension
 template<std::size_t D, typename P = float> class Transformable; //only for 2d, todo: 3d
 
 ///\ingroup math
-///Transform state able to hold rotation,scale and translation and express them in a matrix.
+///Transform state able to hold rotation,scale and translation and express them in a Matrix.
 ///
-///\tparam D The dimension of transformation.
-///\tparam P the precision of the transformations, defaulted to float.
+///\tparam D The dimension of transforMation.
+///\tparam P the precision of the transforMations, defaulted to float.
 ///
 ///At the moment, there exist only valid specializations for 2D and 3D transform objects.
 ///
-///The Transform class effectively just holds a squareMat<D + 1, P> object in which it stores
-///the applied transformations. Therefore it is not possible to retrieve the scaling/rotation/
-///translation values sperately from the matrix.
-///Since it does therefore apply all transformations immediatly to the matrix, the order in which
-///the transformations are applied may change the outcome.
+///The Transform class effectively just holds a SquareMat<D + 1, P> object in which it stores
+///the applied transforMations. Therefore it is not possible to retrieve the scaling/rotation/
+///translation values sperately from the Matrix.
+///Since it does therefore apply all transforMations immediatly to the Matrix, the order in which
+///the transforMations are applied may change the outcome.
 ///
 ///\code
 ///auto transform = nytl::transform2 {};
 ///
-/////First translates and then rotates the transform matrix.
+/////First translates and then rotates the transform Matrix.
+////The rotation will be around the origin, so in respect of the previous translation.
 ///transform.translate({100, 100});
 ///transform.rotate(45);
 ///
-/////First rotates and then translated the transform matrix. 
-/////The translation will take place in a rotated coordinate system.
+/////First rotates and then translated the transform Matrix. 
 ///transform.rotate(45);
 ///transform.translate({100, 100});
 ///\endcode
 ///
 ///Alternatively to the transform object, one can use the raw nytl::transform, nytl::scale or
-///nytl::rotate functions when operating directly on a matrix, or use the nytl::Transformable
+///nytl::rotate functions when operating diRectly on a Matrix, or use the nytl::Transformable
 ///convinence base class when developing own transformable classes.
 template<std::size_t D, typename P = float> class Transform;
 
@@ -99,12 +99,14 @@ protected:
 	MatType mat_ {};
 
 public:
-    Transform() noexcept : mat_(identityMat<dim + 1, prec>()) {} 
+    Transform() noexcept : mat_(identityMat<dim + 1, P>()) {} 
     ~Transform() noexcept = default;
 
     void rotate(const RotType& rotation);
     void translate(const VecType& pos);
     void scale(const VecType& pscale);
+
+	void reset() { identity(mat_); };
 
     MatType& mat() { return mat_; }
     const MatType& mat() const { return mat_; }
@@ -127,46 +129,21 @@ public:
 protected:
     TransformType transform_;
 
-	QuatType rotation_ {};
-	VecType scaling_ {};
-	VecType translation_ {};
-
 public:
     Transformable() = default;
     ~Transformable() = default;
 
-    template<size_t odim, typename oprec> 
-		transformable(const transformable<odim, oprec>& other) : transform_(other.transform()) {}
-    template<size_t odim, typename oprec> 
-		transformable(const transform<odim, oprec>& trans) : transform_(trans) {}
-    template<size_t odim, typename oprec> 
-		transformable<dim, prec>& operator=(const transformable<odim, oprec>& other) 
-		{ transform_ = other.transform(); return *this; }
+    void rotate(const RotType& rotation){ transform_.rotate(rotation); }
+    void translate(const VecType& translation){ transform_.translate(translation); }
+    void scale(const VecType& scaling){ transform_.scale(scaling); }
 
-    //operations
-    void rotate(const rot_type& rotation){ transform_.rotate(rotation); }
-    void move(const Vec_type& pos){ transform_.move(pos); }
-    void scale(const Vec_type& pscale){ transform_.scale(pscale); }
-    void moveOrigin(const Vec_type& m) { transform_.moveOrigin(m); };
+	void reset() { transform_.reset(); };
 
-    void rotation(const rot_type& rotation){ transform_.rotation(rotation); }
-    void position(const Vec_type& pos){ transform_.position(pos); }
-    void scaling(const Vec_type& pscale){ transform_.scaling(pscale); }
-    void origin(const Vec_type& origin){ transform_.origin(origin); }
+    MatType& transformMat() { return transform_.mat(); }
+    const MatType& transformMat() const { return transform_.mat(); }
 
-    const rot_type& rotation() const { return transform_.rotation(); }
-    const Vec_type& position() const { return transform_.position(); }
-    const Vec_type& scaling() const { return transform_.scaling(); }
-    const Vec_type& origin() const { return transform_.origin(); }
-
-    void copyTransform(const transform_type& trans) { transform_ = trans; }
-    void copyTransform(const transformable<dim, prec>& trans) { transform_ = trans.transform_; }
-
-    //todo
-    const mat_type& transformMatrix() const { return transform_.matrix(); }
-    const transform_type& transformObject() const { return transform_; }
-
-	virtual rect_type extents() const { return rect_type{}; };
+	TransformType& transform() { return transform_; }
+	const TransformType& transform() const { return transform_; }
 };
 
 #include <nytl/bits/transform.inl>

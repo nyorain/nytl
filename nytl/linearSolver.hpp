@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,7 @@
  */
 
 ///\file
-///\brief Template classes and functions for solving linear equotation system.
+///\brief Template classes and functions for solving Linear equotation system.
 
 #pragma once
 
@@ -37,10 +37,10 @@
 namespace nytl
 {
 
-///Represents the solutions a linear equotation system can have.
+///Represents the solutions a Linear equotation system can have.
 ///\ingroup math
 template<std::size_t N>
-class solutionSet
+class SolutionSet
 {
 public:
 	struct expression
@@ -54,8 +54,8 @@ public:
 	Vec<N, expression> solution_;
 
 public:
-	solutionSet() = default;
-	solutionSet(std::size_t numVars, const Vec<N, expression>& sol) 
+	SolutionSet() = default;
+	SolutionSet(std::size_t numVars, const Vec<N, expression>& sol) 
 		: solvable_(numVars), solution_(sol) {} 
 
 	expression& operator[](std::size_t i){ return solution_[i]; }
@@ -70,23 +70,23 @@ public:
 	Vec<N, double> solution() const;
 };
 
-///Represents a linear domain that can is used for domainedSolutionSet components.
+///Represents a Linear Domain that can is used for DomainedSolutionSet components.
 ///\ingroup math
-class linearDomain
+class LinearDomain
 {
 public:
 	double minimum;
 	double maximum;
 };
 
-///Represents a linear solution set with specified domains for each set componnent.
-///Useful for computing the range the variables can take for a given domain.
+///Represents a Linear solution set with specified Domains for each set componnent.
+///Useful for computing the range the variables can take for a given Domain.
 ///\ingroup math
 template<std::size_t N>
-class domainedSolutionSet
+class DomainedSolutionSet
 {
 public:
-	using expressionType = typename solutionSet<N>::expression;
+	using expressionType = typename SolutionSet<N>::expression;
 
 	struct dependentDomain
 	{
@@ -98,88 +98,88 @@ public:
 	};
 
 public:
-	solutionSet<N> solutionSet_;
-	Vec<N, linearDomain> domains_;
-	mutable std::vector<dependentDomain> dependentDomains_; //cache
+	SolutionSet<N> SolutionSet_;
+	Vec<N, LinearDomain> Domains_;
+	mutable std::vector<dependentDomain> dependentDomains_; //Cache
 
 public:
-	domainedSolutionSet() = default;
+	DomainedSolutionSet() = default;
 
 	///Constructs the object and bakes its internal data.
-	domainedSolutionSet(const solutionSet<N>& sset, const Vec<N, linearDomain>& domains);
+	DomainedSolutionSet(const SolutionSet<N>& sset, const Vec<N, LinearDomain>& Domains);
 
-	///Contructs all variables with the same domain and bakes its internal data.
-	domainedSolutionSet(const solutionSet<N>& sset, const linearDomain& domains);
+	///Contructs all variables with the same Domain and bakes its internal data.
+	DomainedSolutionSet(const SolutionSet<N>& sset, const LinearDomain& Domains);
 
-	///Computes its internal representation of the solutionSets components.
-	///\exception nytl::invalid_solution_set if the solutionSet has no solution at all.
-	///\exception nytl::invalid_domained_solution_set if there is no solutions for the given
-	///combination of solutionSet and domains.
+	///Computes its internal representation of the SolutionSets components.
+	///\exception nytl::invalid_solution_set if the SolutionSet has no solution at all.
+	///\exception nytl::invalid_Domained_solution_set if there is no solutions for the given
+	///combination of SolutionSet and Domains.
 	void bake() const;
 
 	///Returns a solution for the given parameters.
 	///\paran seq Specifies the order in which the variables should be chosen. Must have
-	///as many components as the solutionSet has variables.
-	///\param minmax Specifies for each solutionSet variable whether the minimum or the maximum 
-	///of the variables range should be chosen. Must have as many components as the solutionSet
+	///as many components as the SolutionSet has variables.
+	///\param minmax Specifies for each SolutionSet variable whether the minimum or the maximum 
+	///of the variables range should be chosen. Must have as many components as the SolutionSet
 	///has variables.
 	///\param bake Specifies whether the internal representation should be baked before computing
-	///the solution. If multiple solutions are computing wihthout changing the solutionSet in
-	///the domains in the meantime this parameter can be 0 (for optimization).
-	///\return A solution whose components are in their given domains while still 
-	///matching the solutionSet.
+	///the solution. If multiple solutions are computing wihthout changing the SolutionSet in
+	///the Domains in the meantime this parameter can be 0 (for optimization).
+	///\return A solution whose components are in their given Domains while still 
+	///Matching the SolutionSet.
 	///\exception nytl::invalid_Vector_size if seq or minmax have less components than
-	///the objects solutionSet has variables.
+	///the objects SolutionSet has variables.
 	///\exception nytl::no_baked_data if there is no/invalid internal data representation to use.
 	///Can occur if bake == 0 and the data has never been succesfully baked or changed since 
 	///the last bake.
 	///\warning If bake == 1 the bake() member function is called so all all exceptions from
 	///this function might be thrown then.
-	dynVecd solution(const dynVecui& seq, const dynVecb& minmax, bool bake = 1) const;
+	DynVecd solution(const DynVecui& seq, const DynVecb& minmax, bool bake = 1) const;
 
-	unsigned int numberVariables() const { return solutionSet_.numberVariables(); }
+	unsigned int numberVariables() const { return SolutionSet_.numberVariables(); }
 };
 
 
-///A linear equtations with variable coefficients and a result.
-///Represents a linear equotation with V variables and a result that have a precision of P.
+///A Linear equtations with variable coefficients and a result.
+///Represents a Linear equotation with V variables and a result that have a precision of P.
 ///\ingroup math
 template<std::size_t V, typename P>
-class linearEquotation
+class LinearEquotation
 {
 public:
 	Vec<V, P> vars;
 	P result;
 
-	linearEquotation& operator=(const Vec<V + 1, P>& values)
+	LinearEquotation& operator=(const Vec<V + 1, P>& values)
 		{ vars = values; result = values.back(); return *this; }
 };
 
-///\brief A set on linear equotations that may be solved.
+///\brief A set on Linear equotations that may be solved.
 ///\ingroup math
-///\details Represents a linear equotation system with E equtations and V variables that have P 
+///\details Represents a Linear equotation system with E equtations and V variables that have P 
 ///precision.
 template<std::size_t E, std::size_t V, typename P>
-class linearEquotationSystem
+class LinearEquotationSystem
 {
 public:
-	using equotation_type = linearEquotation<V, P>;
-	using solution_type = solutionSet<V>;
-	using mat_type = mat<E, V + 1, P>;
+	using equotation_type = LinearEquotation<V, P>;
+	using solution_type = SolutionSet<V>;
+	using MatType = Mat<E, V + 1, P>;
 
 public:
 	Vec<E, equotation_type> equotations_;
 
 public:
-	linearEquotationSystem() = default;
-	linearEquotationSystem(const mat<E, V +1, P>& m) 
+	LinearEquotationSystem() = default;
+	LinearEquotationSystem(const Mat<E, V +1, P>& m) 
 		: equotations_(*reinterpret_cast<const Vec<E, equotation_type>*>(&m)) {}
 
 	equotation_type& operator[](std::size_t i){ return equotations_[i]; }
 	const equotation_type& operator[](std::size_t i) const { return equotations_[i]; }
 
-	mat_type& asMat() { return *reinterpret_cast<mat_type*>(&equotations_); }
-	const mat_type& asMat() const { return *reinterpret_cast<const mat_type*>(&equotations_); }
+	MatType& asMat() { return *reinterpret_cast<MatType*>(&equotations_); }
+	const MatType& asMat() const { return *reinterpret_cast<const MatType*>(&equotations_); }
 
 	solution_type solve() const;
 };

@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,7 @@ namespace detail
 template<std::size_t D, typename P>
 struct SimplexContainsPoint<D, P, 1>
 {
-	static bool call(const simplex<D, P, 1>& a, const Vec<D, P>& v)
+	static bool call(const Simplex<D, P, 1>& a, const Vec<D, P>& v)
 	{
 		return (a.definedAt(v[0]) && all(a.valueAt(v[0]) == v));
 	}
@@ -38,9 +38,9 @@ struct SimplexContainsPoint<D, P, 1>
 template<std::size_t D, typename P>
 struct SimplexIntersects<D, P, 1>
 {
-	static bool call(const simplex<D, P, 1>& la, const simplex<D, P, 1>& lb)
+	static bool call(const Simplex<D, P, 1>& la, const Simplex<D, P, 1>& lb)
 	{  
-		mat<D, 3, double> eqs;
+		Mat<D, 3, double> eqs;
 		eqs.col(0) = la.b - la.a;
 		eqs.col(1) = -lb.b + lb.a;
 		eqs.col(2) = lb.a - la.a;
@@ -50,7 +50,7 @@ struct SimplexIntersects<D, P, 1>
 		//unsolveable
 		if((all(Vec2d(eqs.row(D - 1)) == 0) && eqs.row(D - 1)[2] != 0)) return false;
 
-		//solveable, but not in line segment
+		//solveable, but not in Line segment
 		if(any(eqs.col(2) >= 1) || any(eqs.col(2) <= 0)) return false;
 
 		return true;
@@ -60,14 +60,14 @@ struct SimplexIntersects<D, P, 1>
 } //detail
 
 template<size_t D, typename P> bool 
-line<D, P>::definedAt(const P& value, std::size_t dim) const
+Line<D, P>::definedAt(const P& value, std::size_t dim) const
 {
-    return ((smallestValue(dim) <= value) &&
-            (greatestValue(dim) >= value));
+    return ((smallestvalue_type(dim) <= value) &&
+            (greatestvalue_type(dim) >= value));
 }
 
 template<size_t D, typename P> Vec<D, P>
-line<D, P>::valueAt(const P& value, std::size_t dim) const
+Line<D, P>::valueAt(const P& value, std::size_t dim) const
 {
     if(!definedAt(value, dim))
     {
@@ -88,8 +88,8 @@ line<D, P>::valueAt(const P& value, std::size_t dim) const
 }
 
 template<std::size_t D, typename P>
-bool line<D, P>::valid() const
+bool Line<D, P>::valid() const
 {
-	return detail::simplexValid(*this);
+	return detail::SimplexValid(*this);
 }
 

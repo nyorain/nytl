@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,7 @@
  */
 
 ///\file
-///\brief Small utilities for defining/using cloneable clases.
+///\brief Small utilities for defining/using Cloneable clases.
 
 #pragma once
 
@@ -37,7 +37,7 @@ namespace nytl
 ///\brief Cloneable base class
 ///\ingroup utility
 template<typename T>
-class cloneable
+class Cloneable
 {
 private:
 	virtual T* clone() const { return new T(static_cast<const T&>(*this)); }
@@ -46,13 +46,13 @@ private:
 	friend std::unique_ptr<X> clone(const X&);
 
 protected:
-	virtual ~cloneable() = default;
+	virtual ~Cloneable() = default;
 };
 
-///\brief Abstract cloneable base class
+///\brief Abstract Cloneable base class
 ///\ingroup utility
 template<typename T>
-class abstractCloneable
+class AbstractCloneable
 {
 private:
 	virtual T* clone() const = 0;
@@ -61,13 +61,13 @@ private:
 	friend std::unique_ptr<X> clone(const X&);
 
 protected:
-	virtual ~abstractCloneable() = default;
+	virtual ~AbstractCloneable() = default;
 };
 
 ///\brief Utility template to derive from a class with a virtual clone function.
 ///\ingroup utility
 template<typename Base, typename Derived> 
-class deriveCloneable : public Base
+class DeriveCloneable : public Base
 {
 private:
     virtual Base* clone() const override
@@ -77,7 +77,7 @@ private:
 	friend std::unique_ptr<X> clone(const X&);
 
 protected:
-	using cloneableBase = deriveCloneable;
+	using CloneableBase = DeriveCloneable;
 
 public:
 	using Base::Base;
@@ -85,11 +85,11 @@ public:
 
 ///\ingroup utility
 ///\{
-///\brief Clones the given (cloneable) object in a unique_ptr.
+///\brief Clones the given (Cloneable) object in a unique_ptr.
 ///\details This function should always be called instead of obj.clone() since it is
 ///able to return a unique_ptr while still being able to have convarient return types
-///in the member clone function. See cloneable, abstractCloneable and derviveCloneable
-///for more information.
+///in the member clone function. See Cloneable, AbstractCloneable and derviveCloneable
+///for more inforMation.
 template<typename T>
 std::unique_ptr<T> clone(const T& value)
 {
@@ -113,11 +113,11 @@ std::unique_ptr<T> clone(const std::unique_ptr<T>& value)
 ///\}
 
 ///\ingroup utility
-///\brief Utility function to copy a Vector of cloneable objects by cloning.
+///\brief Utility function to copy a Vector of Cloneable objects by cloning.
 ///\details This can be useful if one has a Vector of polymorph objects which
 ///can not be copy constructed (e.g. Vector<SomeAbstractBaseClass*>), especially
 ///when dealing with smart pointers like std::unique_ptr.
-///\param VectorObject A Vector of cloneable objects (objects with a clone() member function).
+///\param VectorObject A Vector of Cloneable objects (objects with a clone() member function).
 ///\return A std::vector of cloned objects.
 template<class A> std::vector<decltype(clone(A{}))> 
 cloneVector(const std::vector<A>& VectorObject)

@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,7 @@
  */
 
 ///\file
-///\brief Includes the matrix template class as well as operations and typedefs for it.
+///\brief Includes the Matrix template class as well as operations and typedefs for it.
 
 #pragma once
 
@@ -42,17 +42,19 @@ namespace nytl
 
 //typedefs
 template<std::size_t R, std::size_t C, typename P>
-class mat;
+class Mat;
 
 #include <nytl/bits/matmp.inl>
 #include <nytl/bits/matypes.inl>
 
 ///\ingroup math
 ///Matrix template class.
-template<std::size_t R, std::size_t C, typename P> class mat : 
+template<std::size_t R, std::size_t C, typename P> class Mat : 
 	deriveDummy<typename std::enable_if<(R > 0) && (C > 0) && (!std::is_reference<P>::value)>::type>
 {
 public:
+	using Size = std::size_t;
+
     using value_type = P;
     using reference = value_type&;
     using const_reference = const value_type&;
@@ -65,12 +67,15 @@ public:
     using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
 
-    using mat_type = mat<R, C, P>;
+    using MatType = Mat<R, C, P>;
     using rows_Vec = Vec<R, P>;
     using cols_Vec = Vec<C, P>;
 
     static constexpr bool is_squared = (R == C);
-    static constexpr size_type mat_size = R * C;
+    static constexpr size_type Mat_size = R * C;
+
+	static constexpr Size rows() { return R; }
+	static constexpr Size cols() { return C; }
 
 public:
 	Vec<R, Vec<C, P>> data_;
@@ -80,62 +85,62 @@ public:
 		std::enable_if<
 			std::is_convertible<
 				std::tuple<Args...>, 
-				typename type_tuple<value_type, mat_size>::type
+				typename type_tuple<value_type, Mat_size>::type
 			>::value>
 		::type>
-    mat(Args&&... args) noexcept 
+    Mat(Args&&... args) noexcept 
 		{ detail::initMatData<R * C>::call(data_, std::make_tuple(args...)); }
 
-	mat(const P& val) noexcept
+	Mat(const P& val) noexcept
 		{ detail::initMatData<R * C>::call(data_, val); }
 
-	mat() noexcept = default;
-	~mat() noexcept = default;
+	Mat() noexcept = default;
+	~Mat() noexcept = default;
 
-	mat(const mat_type& other) noexcept = default;
-	mat(mat_type&& other) noexcept = default;
+	Mat(const MatType& other) noexcept = default;
+	Mat(MatType&& other) noexcept = default;
 
-	mat_type& operator=(const mat_type& other) noexcept = default;
-	mat_type& operator=(mat_type&& other) noexcept = default;
+	MatType& operator=(const MatType& other) noexcept = default;
+	MatType& operator=(MatType&& other) noexcept = default;
 
-	///Initialized the matrix with the given values
+	///Initialized the Matrix with the given values
     template<typename... Args, typename = typename 
 		std::enable_if<
 			std::is_convertible<
 				std::tuple<Args...>, 
-				typename type_tuple<value_type, mat_size>::type
+				typename type_tuple<value_type, Mat_size>::type
 			>::value>
 		::type>
     void init(Args&&... args) 
 		{ detail::initMatData<R * C>::call(data_, std::make_tuple(args...)); }
 
-    ///Returns a reference of a certain row of the matrix.
+    ///Returns a reference of a certain row of the Matrix.
 	///If captured with a reference (and got by a non-const object) the actual values of the
-	///matrix can be changed with it.
+	///Matrix can be changed with it.
 	Vec<C, P>& row(size_t i){ return data_[i]; }
 
-	///Returns a conct-reference of a certain row of the matrix.
+	///Returns a conct-reference of a certain row of the Matrix.
 	const Vec<C, P>& row(size_t i) const { return data_[i]; }
 
-	///Returns a reference Vec of a certain column of the matrix.
-	///Must be captured by a refVec (not possible with Vec&) to be able to change the actual
-	///values of the matrix object.
-	refVec<R, P> col(size_t i){ return detail::makeRowRefVec<R>::call(data_, i); }
+	///Returns a reference Vec of a certain column of the Matrix.
+	///Must be captured by a RefVec (not possible with Vec&) to be able to change the actual
+	///values of the Matrix object.
+	RefVec<R, P> col(size_t i){ return detail::makeRowRefVec<R>::call(data_, i); }
 
 	///Returns a Vec (just the values, no references) of a certain row.
 	Vec<R, P> col(size_t i) const { return detail::makeRowVec<R>::call(data_, i); }
 
-    ///Returns a plain pointer to the data of the matrix.
+    ///Returns a plain pointer to the data of the Matrix.
     pointer data(){ return (pointer) data_.data(); }
 
-	///Returns a const plain pointer to the data of the matrix.
+	///Returns a const plain pointer to the data of the Matrix.
 	const_pointer data() const { return (const_pointer) data_.data(); }
 
-	///Copys the data of the matrix as plain unique ptr on the heap.
+	///Copys the data of the Matrix as plain unique ptr on the heap.
 	std::unique_ptr<P[]> copyData() const { return detail::copyMatData<R * C>::call(data_); }
 
-	///Returns a std::tuple filled with the components of the matrix
-	type_tuple_t<P, mat_size> asTuple() const { return detail::matTuple<R * C>::call(data_); }
+	///Returns a std::tuple filled with the components of the Matrix
+	type_tuple_t<P, Mat_size> asTuple() const { return detail::MatTuple<R * C>::call(data_); }
 
 	///Swaps the both given columns.
 	void swapCol(std::size_t a, std::size_t b){ std::swap(col(a), col(b)); }
@@ -144,9 +149,9 @@ public:
 	void swapRow(std::size_t a, std::size_t b){ std::swap(row(a), row(b)); }
 
     //math
-    mat_type& operator +=(const mat<R, C, P>& other){ data_ += other.data_; return *this; }
-   	mat_type& operator -=(const mat<R, C, P>& other){ data_ -= other.data_; return *this; }
-    mat_type& operator *=(const mat<C, R, P>& other)
+    MatType& operator +=(const Mat<R, C, P>& other){ data_ += other.data_; return *this; }
+   	MatType& operator -=(const Mat<R, C, P>& other){ data_ -= other.data_; return *this; }
+    MatType& operator *=(const Mat<C, R, P>& other)
     { 
 		auto od = data_; 
 		for(size_t r(0); r < R; r++) 
@@ -154,26 +159,26 @@ public:
 				data_[r][c] = sum(od[r] * other.col(c)); 
 		return *this; 
 	}
-    mat<R, C, P>& operator *=(const P& other){ for(auto& val : *this) val *= other; }
+    Mat<R, C, P>& operator *=(const P& other){ for(auto& val : *this) val *= other; return *this; }
 
     //invert TODO
-	///\brief Only available for squared (R == C) mat objects.
-	///\return Returns whether the mat object is invertible. 
+	///\brief Only available for squared (R == C) Mat objects.
+	///\return Returns whether the Mat object is invertible. 
 	template<typename TD = bool>
 		typename std::enable_if<is_squared, TD>::type invertable() const { return 0; }
 
-	///\brief Inverts the mat object.
-	///\details Only available for squared (R == C) mat objects.
-	///\warning Will throw nytl::invalid_matrix if the matrix is not invertable.
+	///\brief Inverts the Mat object.
+	///\details Only available for squared (R == C) Mat objects.
+	///\warning Will throw nytl::invalid_Matrix if the Matrix is not invertable.
 	///Check this with invertable() before using invert().
     template<typename TD = void>
 		typename std::enable_if<is_squared, TD>::type invert();
 
-	///\brief Converts the mat object to a mat object with different template parameters.
-    template<std::size_t OR, std::size_t OC, class OP> operator mat<OR, OC, OP>() const;
+	///\brief Converts the Mat object to a Mat object with different template parameters.
+    template<std::size_t OR, std::size_t OC, class OP> operator Mat<OR, OC, OP>() const;
 
     //stl container
-    constexpr size_type size() const { return mat_size; }
+    constexpr size_type size() const { return Mat_size; }
     constexpr bool empty() const { return size() == 0; }
 
     void fill(const value_type& val) { for(auto& r : data_)for(auto& c : r) c = val; }
@@ -182,9 +187,9 @@ public:
     const_iterator begin() const noexcept { return &data_[0][0]; }
     const_iterator cbegin() const noexcept { return &data_[0][0]; }
 
-    iterator end() noexcept { return begin() + mat_size; }
-    const_iterator end() const noexcept { return begin() + mat_size; }
-    const_iterator cend() const noexcept { return begin() + mat_size; }
+    iterator end() noexcept { return begin() + Mat_size; }
+    const_iterator end() const noexcept { return begin() + Mat_size; }
+    const_iterator cend() const noexcept { return begin() + Mat_size; }
 
     reverse_iterator rbegin() noexcept { return reverse_iterator(end()); }
     const_reverse_iterator rbegin() const noexcept { return const_reverse_iterator(cend()); }
@@ -198,14 +203,14 @@ public:
 	const Vec<C, P>& operator[](size_t row) const { return data_[row]; }
 
     Vec<C, P>& at(size_t row){ if(row >= R || row < 0)
-		throw std::out_of_range("nytl::mat::at: out of range"); return data_[row]; }
+		throw std::out_of_range("nytl::Mat::at: out of range"); return data_[row]; }
 	const Vec<C, P>& at(size_t row) const { if(row >= R || row < 0)
-		throw std::out_of_range("nytl::mat::at: out of range"); return data_[row]; }
+		throw std::out_of_range("nytl::Mat::at: out of range"); return data_[row]; }
 
 	P& at(size_t row, size_t col){ if(row >= R || row < 0)
-		throw std::out_of_range("nytl::mat::at: out of range"); return data_[row][col]; }
+		throw std::out_of_range("nytl::Mat::at: out of range"); return data_[row][col]; }
 	const P& at(size_t row, size_t col) const { if(row >= R || row < 0)
-		throw std::out_of_range("nytl::mat::at: out of range"); return data_[row][col]; }
+		throw std::out_of_range("nytl::Mat::at: out of range"); return data_[row][col]; }
 
     reference front() noexcept { return data_[0][0]; }
     const_reference front() const noexcept { return data_[0][0]; }

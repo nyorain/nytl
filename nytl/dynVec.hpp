@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,34 +31,34 @@
 #include <vector>
 
 //notes:
-//for dynVec<bool>, the Vector<bool> implementation is used which can lead to problems.
-//extra specialization for it? better use different container for internal dynVec storage?
+//for DynVec<bool>, the Vector<bool> implementation is used which can lead to problems.
+//extra specialization for it? better use different container for internal DynVec storage?
 //use valarray for implemenation instead?
 
 namespace nytl
 {
 
-template<typename T> using dynVec = Vec<dynamicSize, T>;
+template<typename T> using DynVec = Vec<dynamicsize_type, T>;
 
-using dynVecf = dynVec<float>;
-using dynVeci = dynVec<int>;
-using dynVecui = dynVec<unsigned int>;
-using dynVecc = dynVec<char>;
-using dynVecuc = dynVec<unsigned char>;
-using dynVecl = dynVec<long>;
-using dynVecul = dynVec<unsigned long>;
-using dynVecd = dynVec<double>;
-using dynVecb = dynVec<bool>;
+using DynVecf = DynVec<float>;
+using DynVeci = DynVec<int>;
+using DynVecui = DynVec<unsigned int>;
+using DynVecc = DynVec<char>;
+using DynVecuc = DynVec<unsigned char>;
+using DynVecl = DynVec<long>;
+using DynVecul = DynVec<unsigned long>;
+using DynVecd = DynVec<double>;
+using DynVecb = DynVec<bool>;
 
 ///\ingroup math
 ///Vec specialization for a dynamic-sized Vec.
 template<typename T>
-class Vec<dynamicSize, T>
+class Vec<dynamicsize_type, T>
 {
 public:
     using value_type = T;
 	using Vector_type = std::vector<T>;
-    constexpr static size_t dim = dynamicSize;
+    constexpr static size_t dim = dynamicsize_type;
 
     using reference = typename Vector_type::reference;
     using const_reference = typename Vector_type::const_reference;
@@ -71,7 +71,7 @@ public:
     using difference_type = typename Vector_type::difference_type;
     using size_type = std::size_t;
 
-    using Vec_type = Vec<dynamicSize, value_type>;
+    using VecType = Vec<dynamicsize_type, value_type>;
 
 public:
     size_t max_size() const noexcept { return data_.max_size(); }
@@ -95,57 +95,57 @@ public:
     Vec() = default;
     ~Vec() noexcept = default;
 
-    Vec(const Vec_type& other) = default;
-    Vec_type& operator=(const Vec_type& other) = default;
+    Vec(const VecType& other) = default;
+    VecType& operator=(const VecType& other) = default;
 
-    Vec(Vec_type&& other) noexcept = default;
-    Vec_type& operator=(Vec_type&& other) noexcept = default;
+    Vec(VecType&& other) noexcept = default;
+    VecType& operator=(VecType&& other) noexcept = default;
 
     //operator
-    template <std::size_t OD, typename ot> Vec_type& operator +=(const Vec<OD, ot>& lhs)
+    template <std::size_t OD, typename ot> VecType& operator +=(const Vec<OD, ot>& lhs)
 		{ for(size_t i = 0; i < min(lhs.size(), size()); i++) (*this)[i] += lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> Vec_type& operator -=(const Vec<OD, ot>& lhs)
+    template <std::size_t OD, typename ot> VecType& operator -=(const Vec<OD, ot>& lhs)
 		{ for(size_t i = 0; i < min(lhs.size(), size()); i++) (*this)[i] -= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> Vec_type& operator *=(const Vec<OD, ot>& lhs)
+    template <std::size_t OD, typename ot> VecType& operator *=(const Vec<OD, ot>& lhs)
 		{ for(size_t i = 0; i < min(lhs.size(), size()); i++) (*this)[i] *= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> Vec_type& operator /=(const Vec<OD, ot>& lhs)
+    template <std::size_t OD, typename ot> VecType& operator /=(const Vec<OD, ot>& lhs)
 		{ for(size_t i = 0; i < min(lhs.size(), size()); i++) (*this)[i] /= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> Vec_type& operator %=(const Vec<OD, ot>& lhs)
+    template <std::size_t OD, typename ot> VecType& operator %=(const Vec<OD, ot>& lhs)
 		{ for(size_t i = 0; i < min(lhs.size(), size()); i++) (*this)[i] %= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> Vec_type& operator |=(const Vec<OD, ot>& lhs)
+    template <std::size_t OD, typename ot> VecType& operator |=(const Vec<OD, ot>& lhs)
 		{ for(size_t i = 0; i < min(lhs.size(), size()); i++) (*this)[i] |= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> Vec_type& operator ^=(const Vec<OD, ot>& lhs)
+    template <std::size_t OD, typename ot> VecType& operator ^=(const Vec<OD, ot>& lhs)
 		{ for(size_t i = 0; i < min(lhs.size(), size()); i++) (*this)[i] ^= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> Vec_type& operator &=(const Vec<OD, ot>& lhs)
+    template <std::size_t OD, typename ot> VecType& operator &=(const Vec<OD, ot>& lhs)
 		{ for(size_t i = 0; i < min(lhs.size(), size()); i++) (*this)[i] &= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> Vec_type& operator >>=(const Vec<OD, ot>& lhs)
+    template <std::size_t OD, typename ot> VecType& operator >>=(const Vec<OD, ot>& lhs)
 		{ for(size_t i = 0; i < min(lhs.size(), size()); i++) (*this)[i] >>= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> Vec_type& operator <<=(const Vec<OD, ot>& lhs)
+    template <std::size_t OD, typename ot> VecType& operator <<=(const Vec<OD, ot>& lhs)
 		{ for(size_t i = 0; i < min(lhs.size(), size()); i++) (*this)[i] <<= lhs[i]; return *this; }
 
-    template<typename ot> Vec_type& operator +=(const ot& lhs)
+    template<typename ot> VecType& operator +=(const ot& lhs)
 		{ for(auto& val : *this) val += lhs; return *this; }
-    template<typename ot> Vec_type& operator -=(const ot& lhs)
+    template<typename ot> VecType& operator -=(const ot& lhs)
 		{ for(auto& val : *this) val -= lhs; return *this; }
-    template<typename ot> Vec_type& operator *=(const ot& lhs)
+    template<typename ot> VecType& operator *=(const ot& lhs)
 		{ for(auto& val : *this) val *= lhs; return *this; }
-    template<typename ot> Vec_type& operator /=(const ot& lhs)
+    template<typename ot> VecType& operator /=(const ot& lhs)
 		{ for(auto& val : *this) val /= lhs; return *this; }
-    template<typename ot> Vec_type& operator %=(const ot& lhs){ 
+    template<typename ot> VecType& operator %=(const ot& lhs){ 
 		for(auto& val : *this) val %= lhs; return *this; }
-    template<typename ot> Vec_type& operator |=(const ot& lhs)
+    template<typename ot> VecType& operator |=(const ot& lhs)
 		{ for(auto& val : *this) val |= lhs; return *this; }
-    template<typename ot> Vec_type& operator ^=(const ot& lhs)
+    template<typename ot> VecType& operator ^=(const ot& lhs)
 		{ for(auto& val : *this) val ^= lhs; return *this; }
-    template<typename ot> Vec_type& operator &=(const ot& lhs)
+    template<typename ot> VecType& operator &=(const ot& lhs)
 		{ for(auto& val : *this) val &= lhs; return *this; }
-    template<typename ot> Vec_type& operator >>=(const ot& lhs)
+    template<typename ot> VecType& operator >>=(const ot& lhs)
 		{ for(auto& val : *this) val >>= lhs; return *this; }
-    template<typename ot> Vec_type& operator <<=(const ot& lhs)
+    template<typename ot> VecType& operator <<=(const ot& lhs)
 		{ for(auto& val : *this) val <<= lhs; return *this; }
 
-    Vec_type operator-() const 
-		{ Vec_type ret{}; for(size_t i(0); i < size(); i++) ret[i] -= (*this)[i]; return ret; }
+    VecType operator-() const 
+		{ VecType ret{}; for(size_t i(0); i < size(); i++) ret[i] -= (*this)[i]; return ret; }
 
     template <std::size_t OD, typename ot, typename = typename 
 		std::enable_if<!std::is_reference<ot>::value>::type> operator Vec<OD, ot>() const 
@@ -167,9 +167,9 @@ public:
 		return ret;
 	}	
 
-	Vec<dynamicSize, T> subVec(std::size_t position = 0, std::size_t psize = -1) const
+	Vec<dynamicsize_type, T> subVec(std::size_t position = 0, std::size_t psize = -1) const
 	{
-		auto ret = Vec<dynamicSize, T>(size);
+		auto ret = Vec<dynamicsize_type, T>(size);
 		for(std::size_t i(0); i < min(psize, size() - position); ++i)
 			ret[i] = (*this)[position + i];
 
@@ -217,7 +217,7 @@ public:
     reference back() noexcept { return data_.back(); }
     const_reference back() const noexcept { return data_.back(); }
 
-	void swap(Vec_type& other){ data_.swap(other.data_); }
+	void swap(VecType& other){ data_.swap(other.data_); }
 };
 
 }

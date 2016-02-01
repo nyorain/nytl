@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,7 @@
  */
 
 ///\file
-///\brief Defines the compatibleFunction (compFunc typedef'd) template class.
+///\brief Defines the CompatibleFunction (CompFunc typedef'd) template class.
 
 #pragma once
 
@@ -40,136 +40,148 @@
 namespace nytl
 {
 
+//TODO: always correct reference (rvalue, lvalue) handling, perfmance improvement
+//does a lamba object ever use the std::function stack storage buffer most impl have?
+//custom function object (type erasure) to use then to stroe the function?
+//correct forwarding of args
+
 //Not specified, use the function-signature template <Ret(Args...)> like std::function.
-template<typename> class compatibleFunction;
+template<typename S> class CompatibleFunction;
 
 ///\brief A Function object that is able to hold all functions with a compatible signature.
 ///\ingroup function
-template<typename Ret, typename... Args>
-class compatibleFunction<Ret(Args...)>
+template<typename R, typename... A>
+class CompatibleFunction<R(A...)>
 {
 public:
-	using func_type = std::function<Ret(Args...)>;
-	using comp_func_type = compatibleFunction<Ret(Args...)>;
+	using Ret = R;
+	using Signature = Ret(A...);
+	using Function = std::function<Signature>;
+	using CompFuncType = CompatibleFunction<Signature>;
+	using ArgsTuple = std::tuple<A...>;
 
 protected:
-    func_type func_ {};
+    Function func_ {};
 
 public:
-    compatibleFunction() = default;
-    ~compatibleFunction() = default;
+    CompatibleFunction() = default;
+    ~CompatibleFunction() = default;
 
     //constructor
     template<typename F, typename = typename std::enable_if<is_callable<F>::value>::type>
-    compatibleFunction(F func) noexcept { set(func); }
+    CompatibleFunction(F func) noexcept { set(func); }
 
-    template<typename F, typename O, typename = typename std::enable_if<is_callable<F>::value>::type>
-    compatibleFunction(F func, O object) noexcept { set(memberCallback(func, object)); }
+    template<typename F, typename O, typename = 
+		typename std::enable_if<is_callable<F>::value>::type>
+    CompatibleFunction(F func, O& object) noexcept { set(memberCallback(func, object)); }
 
-    compatibleFunction(const comp_func_type& other) noexcept 
+    CompatibleFunction(const CompFuncType& other) noexcept 
 		: func_(other.func_) {}
-    template<typename Sig> compatibleFunction(const compatibleFunction<Sig>& other) noexcept 
+    template<typename Sig> CompatibleFunction(const CompatibleFunction<Sig>& other) noexcept 
 		{ set(other.func_); }
 
     //assignement
     template<typename F, typename = typename std::enable_if<is_callable<F>::value>::type>
-    comp_func_type& operator=(F func) noexcept { set(func); return *this; }
+    CompFuncType& operator=(F func) noexcept { set(func); return *this; }
 
-    comp_func_type& operator=(const comp_func_type& other) noexcept 
+    CompFuncType& operator=(const CompFuncType& other) noexcept 
 		{ func_ = other.func_; return *this; }
-    template<typename Sig> comp_func_type& operator=(const compatibleFunction<Sig>& other) noexcept
-		{ set(other.func_); return *this; }
-
-    //set
-    template<typename F> void set(F func) noexcept
-    {
-        using orgArgsT = std::tuple<Args...>;
-        using newTraits = function_traits<F>;
-        using newArgsT = typename newTraits::arg_tuple;
-        using newRet = typename newTraits::return_type;
-        using mapT = detail::tupleMap<orgArgsT, newArgsT>;
-
-        static_assert(std::is_convertible<Ret, newRet>::value, "Return types not compatible");
-        static_assert(mapT::seq::size() == newTraits::arg_size, "Arguments not compatible");
-
-        func_ = [=](Args&&... args) -> Ret {
-                return static_cast<Ret>(apply(func, mapT::map(std::forward<Args>(args)...)));
-            };
-    }
-
-    //get
-    func_type function() const noexcept { return func_; }
-
-    //call
-    Ret call(Args... args) const { return func_(args...); }
-    Ret operator()(Args... args) const { return func_(args...); }
-
-	operator bool() const { return function(); }
-};
-
-template<typename... Args>
-class compatibleFunction<void(Args...)>
-{
-public:
-	using func_type = std::function<void(Args...)>;
-	using comp_func_type = compatibleFunction<void(Args...)>;
-
-protected:
-	func_type func_;
-
-public:
-    compatibleFunction() = default;
-    ~compatibleFunction() = default;
-
-    //constructor
-    template<typename F, typename = typename std::enable_if<is_callable<F>::value>::type>
-    compatibleFunction(F func) noexcept { set(func); }
-
-    template<typename F, typename O, typename = typename std::enable_if<is_callable<F>::value>::type>
-    compatibleFunction(F func, O object) noexcept { set(memberCallback(func, object)); }
-
-    compatibleFunction(const comp_func_type& other) noexcept 
-		: func_(other.func_) {}
-    template<typename Sig> compatibleFunction(const compatibleFunction<Sig>& other) noexcept 
-		{ set(other.func_); }
-
-    //assignement
-    template<typename F, typename = typename std::enable_if<is_callable<F>::value>::type>
-    comp_func_type& operator=(F func) noexcept { set(func); return *this; }
-
-    comp_func_type& operator=(const comp_func_type& other) noexcept 
-		{ func_ = other.func_; return *this; }
-    template<typename Sig> comp_func_type& operator=(const compatibleFunction<Sig>& other) noexcept
+    template<typename Sig> CompFuncType& operator=(const CompatibleFunction<Sig>& other) noexcept
 		{ set(other.func_); return *this; }
 
     //set
     template<typename F>
     void set(F func) noexcept
     {
-        using orgArgsT = std::tuple<Args...>;
-        using newTraits = function_traits<F>;
-        using newArgsT = typename newTraits::arg_tuple;
-        using mapT = detail::tupleMap<orgArgsT, newArgsT>;
+		using FuncTraits = function_traits<F>;
+        using RealArgsTuple = typename FuncTraits::arg_tuple;
+		using RealRet = typename FuncTraits::return_type;
+        using MapType = detail::TupleMap<ArgsTuple, RealArgsTuple>;
 
-        static_assert(mapT::seq::size() == newTraits::arg_size, "Arguments not compatible");
+        static_assert(std::is_convertible<R, RealRet>::value, "Return types not compatible");
+        static_assert(MapType::Seq::size() == FuncTraits::arg_size, "Arguments not compatible");
 
-        func_ = [=](Args&&... args) -> void {
-                apply(func, mapT::map(std::forward<Args>(args)...));
+        func_ = [=](A&&... args) -> Ret {
+                return static_cast<Ret>(apply(func, MapType::map(std::forward<A>(args)...)));
             };
     }
 
     //get
-    func_type function() const noexcept { return func_; }
+    Function function() const noexcept { return func_; }
 
     //call
-    void call(Args... args) const { func_(args...); }
-    void operator()(Args... args) const { func_(args...); }
+    Ret call(A&&... args) const { func_(std::forward<A>(args)...); }
+    Ret operator()(A&&... args) const { func_(std::forward<A>(args)...); }
 
 	operator bool() const { return function(); }
 };
 
-//typedef compFunc
-template<typename Signature> using compFunc = compatibleFunction<Signature>;
+template<typename... A>
+class CompatibleFunction<void(A...)>
+{
+public:
+	using Ret = void;
+	using Signature = Ret(A...);
+	using Function = std::function<Signature>;
+	using CompFuncType = CompatibleFunction<Signature>;
+	using ArgsTuple = std::tuple<A...>;
+
+protected:
+	Function func_;
+
+public:
+    CompatibleFunction() = default;
+    ~CompatibleFunction() = default;
+
+    //constructor
+    template<typename F, typename = typename std::enable_if<is_callable<F>::value>::type>
+    CompatibleFunction(F func) noexcept { set(func); }
+
+    template<typename F, typename O, typename = typename 
+		std::enable_if<is_callable<F>::value>::type>
+    CompatibleFunction(F func, O object) noexcept { set(memberCallback(func, object)); }
+
+    CompatibleFunction(const CompFuncType& other) noexcept 
+		: func_(other.func_) {}
+    template<typename Sig> CompatibleFunction(const CompatibleFunction<Sig>& other) noexcept 
+		{ set(other.func_); }
+
+    //assignement
+    template<typename F, typename = typename std::enable_if<is_callable<F>::value>::type>
+    CompFuncType& operator=(F func) noexcept { set(func); return *this; }
+
+    CompFuncType& operator=(const CompFuncType& other) noexcept 
+		{ func_ = other.func_; return *this; }
+    template<typename Sig> CompFuncType& operator=(const CompatibleFunction<Sig>& other) noexcept
+		{ set(other.func_); return *this; }
+
+    //set
+    template<typename F>
+    void set(F func) noexcept
+    {
+		using FuncTraits = function_traits<F>;
+        using RealArgsTuple = typename FuncTraits::arg_tuple;
+        using MapType = detail::TupleMap<ArgsTuple, RealArgsTuple>;
+
+        static_assert(MapType::Seq::size() == FuncTraits::arg_size, "Arguments not compatible");
+
+        func_ = [=](A&&... args) -> Ret {
+                apply(func, MapType::map(std::forward<A>(args)...));
+            };
+    }
+
+    //get
+    Function function() const noexcept { return func_; }
+
+    //call
+    Ret call(A&&... args) const { func_(std::forward<A>(args)...); }
+    Ret operator()(A&&... args) const { func_(std::forward<A>(args)...); }
+
+	operator bool() const { return function(); }
+};
+
+//typedef CompFunc
+template<typename S> using CompFunc = CompatibleFunction<S>;
 
 
 }

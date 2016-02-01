@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,7 @@
  */
 
 ///\file
-///\brief Defines the callback and connection classes.
+///\brief Defines the Callback and Connection classes.
 
 #pragma once
 
@@ -39,170 +39,170 @@
 namespace nytl
 {
 
-class connection;
-class connectionRef;
+class Connection;
+class ConnectionRef;
 
-template <class Signature> class callback;
+template <class Signature> class Callback;
 
 namespace detail
 {
 
-class callbackBase
+class CallbackBase
 {
 
-friend class ::nytl::connection;
-friend class ::nytl::connectionRef;
+friend class ::nytl::Connection;
+friend class ::nytl::ConnectionRef;
 
 protected:
     virtual void remove(size_t id) = 0;
 };
 
-struct connectionData
+struct ConnectionData
 {
-    connectionData(size_t i) : id(i) {}
-    std::atomic<size_t> id {0}; //if id == 0, the connection is not connected
+    ConnectionData(size_t i) : id(i) {}
+    std::atomic<size_t> id {0}; //if id == 0, the Connection is not connected
 };
 
 }
 
 ///\ingroup function
-///\brief The connection class represents a connection to a nytl::callback slot.
-///\details A connection object is returned when a function is registered in a callback object
+///\brief The Connection class represents a Connection to a nytl::Callback slot.
+///\details A Connection object is returned when a function is registered in a Callback object
 ///and can then be used to unregister the function and furthermore check whether 
-///the callback object is still valid and the function is still registered.
-class connection
+///the Callback object is still valid and the function is still registered.
+class Connection
 {
 protected:
-    template<class T> friend class callback;
+    template<class T> friend class Callback;
 
-	detail::callbackBase* callback_ {nullptr};
-    std::shared_ptr<detail::connectionData> data_ {nullptr};
+	detail::CallbackBase* callback_ {nullptr};
+    std::shared_ptr<detail::ConnectionData> data_ {nullptr};
 
-    connection(detail::callbackBase& call, std::shared_ptr<detail::connectionData> data) 
+    Connection(detail::CallbackBase& call, std::shared_ptr<detail::ConnectionData> data) 
 		: callback_(&call), data_(data) {}
 
 public:
-	connection() = default;
-    ~connection() = default;
+	Connection() = default;
+    ~Connection() = default;
 
-    connection(const connection&) = default;
-    connection& operator=(const connection&) = default;
+    Connection(const Connection&) = default;
+    Connection& operator=(const Connection&) = default;
 
-    connection(connection&&) = default;
-    connection& operator=(connection&&) = default;
+    Connection(Connection&&) = default;
+    Connection& operator=(Connection&&) = default;
 
-	///Unregisters the function associated with this connection from the callback object.
+	///Unregisters the function associated with this Connection from the Callback object.
     void destroy()
 		{ if(callback_ && connected()) callback_->remove(data_->id); callback_ = nullptr; }
 
-	///Returns whether the function is still registered and the callback is still alive.
+	///Returns whether the function is still registered and the Callback is still alive.
     bool connected() const 
 		{ return (callback_) && (data_) && (data_->id.load() != 0); }
 };
 
 ///\ingroup function
-///\brief Like Connection representing a registered function but can be used inside callbacks.
-///\details Sometimes it may be useful to unregister a callback function while it is called
-///(e.g. if the callback function should be called only once) and there is no possibility to
-///capture a connection object inside the callback (like e.g. with lambdas) then a connectionRef
-///parameter can be added to the beggining of the callbacks function signature with which the
+///\brief Like Connection representing a registered function but can be used inside Callbacks.
+///\details Sometimes it may be useful to unregister a Callback function while it is called
+///(e.g. if the Callback function should be called only once) and there is no possibility to
+///capture a Connection object inside the Callback (like e.g. with lambdas) then a ConnectionRef
+///parameter can be added to the beggining of the Callbacks function signature with which the
 ///function can be unregistered from inside itself. A new class is needed for this since 
-///if connection is used in a fucntion signature, the callback object can not know if this
-///connection object is part of the signature or only there to get a connection to itself.
-///So there is no need for generally using this class outside a callback function, connection
+///if Connection is used in a fucntion signature, the Callback object can not know if this
+///Connection object is part of the signature or only there to get a Connection to itself.
+///So there is no need for generally using this class outside a Callback function, Connection
 ///should be used instead since it proved the same functionality.
-class connectionRef
+class ConnectionRef
 {
 protected:
-    template<class T> friend class callback;
+    template<class T> friend class Callback;
 
-	detail::callbackBase* callback_ {nullptr};
-    std::shared_ptr<detail::connectionData> data_ {nullptr};
+	detail::CallbackBase* callback_ {nullptr};
+    std::shared_ptr<detail::ConnectionData> data_ {nullptr};
 
-    connectionRef(detail::callbackBase& call, std::shared_ptr<detail::connectionData> data) 
+    ConnectionRef(detail::CallbackBase& call, std::shared_ptr<detail::ConnectionData> data) 
 		: callback_(&call), data_(data) {}
 public:
-    ~connectionRef() = default;
+    ~ConnectionRef() = default;
 
-    connectionRef(const connectionRef& other) = default;
-    connectionRef& operator=(const connectionRef& other) = default;
+    ConnectionRef(const ConnectionRef& other) = default;
+    ConnectionRef& operator=(const ConnectionRef& other) = default;
 
-    connectionRef(connectionRef&& other) = default;
-    connectionRef& operator=(connectionRef&& other) = default;
+    ConnectionRef(ConnectionRef&& other) = default;
+    ConnectionRef& operator=(ConnectionRef&& other) = default;
 
-	///Disconnected the connection, unregisters the associated function.
+	///Disconnected the Connection, unregisters the associated function.
     void destroy() const
 		{ if(callback_ && connected()) callback_->remove(data_->id); }
 
-	///Returns whether the callback function is still registered.
+	///Returns whether the Callback function is still registered.
     bool connected() const 
 		{ return (callback_) && (data_->id.load() != 0); }
 };
 
 ///\ingroup function
-///RAII connection class that will disconnect automatically on destruction.
-class raiiConnection
+///RAII Connection class that will disconnect autoMatically on destruction.
+class RaiiConnection
 {
 protected:
-	connection connection_ {};
+	Connection Connection_ {};
 
 public:
-	raiiConnection(const connection& conn) : connection_(conn) {}
-	~raiiConnection() { connection_.destroy(); }
+	RaiiConnection(const Connection& conn) : Connection_(conn) {}
+	~RaiiConnection() { Connection_.destroy(); }
 
-	raiiConnection(raiiConnection&& other) : connection_(std::move(other.connection_)) {}
-	raiiConnection& operator=(raiiConnection&& other) 
-		{ release(); connection_ = std::move(other.connection_); return *this; }
+	RaiiConnection(RaiiConnection&& other) : Connection_(std::move(other.Connection_)) {}
+	RaiiConnection& operator=(RaiiConnection&& other) 
+		{ release(); Connection_ = std::move(other.Connection_); return *this; }
 
-	connection& get() { return connection_; }
-	const connection& get() const { return connection_; }
-	void release(){ connection_ = {}; }
+	Connection& get() { return Connection_; }
+	const Connection& get() const { return Connection_; }
+	void release(){ Connection_ = {}; }
 
-	bool connected() const { return connection_.connected(); }
-	void destroy() { connection_.destroy(); }
+	bool connected() const { return Connection_.connected(); }
+	void destroy() { Connection_.destroy(); }
 };
 
 
-//TODO make callback threadsafe using a lockfree list as container. There are already shared
+//TODO make Callback threadsafe using a lockfree list as container. There are already shared
 //pointers anyway so it should not be that expensive.
 
-///\brief Represents a callback for which listener functions can be registered.
+///\brief Represents a Callback for which listener functions can be registered.
 ///\ingroup function
 ///
 ///\details It is used for registering functions that should be called when
-///the callback is triggered. This is intented as more lightweight, easier, more dynmaic and 
+///the Callback is triggered. This is intented as more lightweight, easier, more dynmaic and 
 ///macro-free options to the signal-slot mechanism used by many c++ libraries.
 ///The temaplte parameter Signature indicated the return types registered fucntions should have
 ///and the possible parameter they can get.
 ///
-///Registering a callback function returns a connection object which can then be used to unregister
+///Registering a Callback function returns a Connection object which can then be used to unregister
 ///it an to check whether it is still connected which means that the function is still
-///registered (connection objects can be copied so it may have been unregistered by a copied 
-///connection) and the callback object is still alive. Any object that can be represented
-///by a std::function can be registered at a callback object, so it is impossible to 
+///registered (Connection objects can be copied so it may have been unregistered by a copied 
+///Connection) and the Callback object is still alive. Any object that can be represented
+///by a std::function can be registered at a Callback object, so it is impossible to 
 ///unregister a function only by its functions (std::function cannot be compared for equality),
-///that is why connections are used to unregister/check the registered functions.
+///that is why Connections are used to unregister/check the registered functions.
 ///
-///Registered functions that should be called if the callback is activated must have a signature
-///compatible (-> see \c compatibleFunction for more information on the compatible functions 
-///conecpt) to Ret(const connectionRef&, Arg...).
-///The nytl::connectionRef object can optionally be used to unregister the callback function from
+///Registered functions that should be called if the Callback is activated must have a signature
+///compatible (-> see \c CompatibleFunction for more inforMation on the compatible functions 
+///conecpt) to Ret(const ConnectionRef&, Arg...).
+///The nytl::ConnectionRef object can optionally be used to unregister the Callback function from
 ///inside itself when it gets triggered.
-///At the moment callback is not fully threadsafe, if one thread calls e.g. call() while another
+///At the moment Callback is not fully threadsafe, if one thread calls e.g. call() while another
 ///one calls add() it may cause undefined behaviour.
 template <class Ret, class ... Args> 
-class callback<Ret(Args...)> : public detail::callbackBase
+class Callback<Ret(Args...)> : public detail::CallbackBase
 {
 protected:
-    struct callbackSlot
+    struct CallbackSlot
     {
-        std::shared_ptr<detail::connectionData> data;
-        std::function<Ret(const connectionRef&, Args ...)> func;
+        std::shared_ptr<detail::ConnectionData> data;
+        std::function<Ret(const ConnectionRef&, Args ...)> func;
     };
 
 protected:
     size_t highestID_ {0};
-    std::vector<callbackSlot> slots_;
+    std::vector<CallbackSlot> slots_;
 
     virtual void remove(size_t id) override
     {
@@ -222,52 +222,52 @@ protected:
     };
 
 public:
-	///Destroys the callback object and removes all registered functions.
-    ~callback()
+	///Destroys the Callback object and removes all registered functions.
+    ~Callback()
     {
         clear();
     }
 
-    ///Registers a function without returning a connection object.
-    connection operator+=(compFunc<Ret(const connectionRef&, Args ...)> func)
+    ///Registers a function without returning a Connection object.
+    Connection operator+=(CompFunc<Ret(const ConnectionRef&, Args ...)> func)
     {
         return add(func);
     };
 
-	///Resets all registered function and sets the given one as only callback function.
-    connection operator=(compFunc<Ret(const connectionRef&, Args ...)> func)
+	///Resets all registered function and sets the given one as only Callback function.
+    Connection operator=(CompFunc<Ret(const ConnectionRef&, Args ...)> func)
     {
         clear();
         return add(func);
     };
 
-	///\brief Registers a callback function.
-	///\details The function must have a compatible signature to the callbacks one but
-	///may additionally have a connectionRef parameter as first one which can then
+	///\brief Registers a Callback function.
+	///\details The function must have a compatible signature to the Callbacks one but
+	///may additionally have a ConnectionRef parameter as first one which can then
 	///be used to unregister the function from within itself.
-	///\return A connection object for the registered function which can be used to 
-	///unregister it and check if it is registered, see \c connection for more information.
-    connection add(compFunc<Ret(const connectionRef&, Args ...)> func)
+	///\return A Connection object for the registered function which can be used to 
+	///unregister it and check if it is registered, see \c Connection for more inforMation.
+    Connection add(CompFunc<Ret(const ConnectionRef&, Args ...)> func)
     {
         slots_.emplace_back();
 
-        auto ptr = std::make_shared<detail::connectionData>(++highestID_);
+        auto ptr = std::make_shared<detail::ConnectionData>(++highestID_);
         slots_.back().data = ptr;
         slots_.back().func = func.function();
 
-        return connection(*this, ptr);
+        return Connection(*this, ptr);
     };
 
 	///Calls all registered functions and returns a Vector with the returned objects.
     std::vector<Ret> call(Args ... a)
     {
-        auto Vec = slots_; //if called functions manipulate callback
+        auto Vec = slots_; //if called functions manipulate Callback
 
         std::vector<Ret> ret;
         ret.reserve(slots_.size());
 
         for(auto& slot : Vec)
-            ret.push_back(slot.func(connectionRef(*this, slot.data), a ...));
+            ret.push_back(slot.func(ConnectionRef(*this, slot.data), a ...));
 
         return ret;
     };
@@ -286,21 +286,21 @@ public:
 };
 
 
-//The callback specialization for a void return type.
+//The Callback specialization for a void return type.
 //\details There has to be a specialization since call cannot return a std::vector of void. 
 template <class ... Args> 
-class callback<void(Args...)> : public detail::callbackBase
+class Callback<void(Args...)> : public detail::CallbackBase
 {
 protected:
-    struct callbackSlot
+    struct CallbackSlot
     {
-        std::shared_ptr<detail::connectionData> data;
-        std::function<void(const connectionRef&, Args ...)> func;
+        std::shared_ptr<detail::ConnectionData> data;
+        std::function<void(const ConnectionRef&, Args ...)> func;
     };
 
 protected:
     size_t highestID {0};
-    std::vector<callbackSlot> slots_;
+    std::vector<CallbackSlot> slots_;
 
     virtual void remove(size_t id) override
     {
@@ -319,31 +319,31 @@ protected:
     };
 
 public:
-    ~callback()
+    ~Callback()
     {
         clear();
     }
 
-    connection operator+=(compFunc<void(const connectionRef&, Args ...)> func)
+    Connection operator+=(CompFunc<void(const ConnectionRef&, Args ...)> func)
     {
         return add(func);
     };
 
-    connection operator=(compFunc<void(const connectionRef&, Args ...)> func)
+    Connection operator=(CompFunc<void(const ConnectionRef&, Args ...)> func)
     {
         clear();
         return add(func);
     };
 
-    connection add(compFunc<void(const connectionRef&, Args ...)> func)
+    Connection add(CompFunc<void(const ConnectionRef&, Args ...)> func)
     {
         slots_.emplace_back();
 
-        auto ptr = std::make_shared<detail::connectionData>(++highestID);
+        auto ptr = std::make_shared<detail::ConnectionData>(++highestID);
         slots_.back().data = ptr;
         slots_.back().func = func.function();
 
-        return connection(*this, ptr);
+        return Connection(*this, ptr);
     };
 
     void call(Args ... a)
@@ -351,7 +351,7 @@ public:
         auto Vec = slots_; 
 
         for(auto& slot : Vec)
-            slot.func(connectionRef(*this, slot.data), a ...);
+            slot.func(ConnectionRef(*this, slot.data), a ...);
     };
 
     void clear()

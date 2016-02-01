@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,9 +32,9 @@ template<std::size_t size, typename seq = make_index_sequence<size>> struct make
 template<std::size_t size, size_t... idx> struct makeRowRefVec<size, index_sequence<idx...>>
 {
     template<size_t rows, size_t cols, typename prec>
-    static refVec<sizeof...(idx), prec> call(Vec<rows, Vec<cols, prec>>& v, size_t i)
+    static RefVec<sizeof...(idx), prec> call(Vec<rows, Vec<cols, prec>>& v, size_t i)
     {
-        return refVec<sizeof...(idx), prec>(v[idx][i]...);
+        return RefVec<sizeof...(idx), prec>(v[idx][i]...);
     }
 };
 
@@ -78,8 +78,8 @@ template<std::size_t size, size_t... idx> struct copyMatData<size, index_sequenc
 };
 
 //makeRowRefVec
-template<std::size_t size, typename seq = make_index_sequence<size>> struct matTuple;
-template<std::size_t size, size_t... idx> struct matTuple<size, index_sequence<idx...>>
+template<std::size_t size, typename seq = make_index_sequence<size>> struct MatTuple;
+template<std::size_t size, size_t... idx> struct MatTuple<size, index_sequence<idx...>>
 {
     template<size_t rows, size_t cols, typename P>
     static type_tuple_t<P, sizeof...(idx)> call(const Vec<rows, Vec<cols, P>>& v)

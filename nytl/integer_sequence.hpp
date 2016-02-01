@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,7 +44,7 @@ namespace nytl
 #else
 
 ///\brief Provides the c++14 std::integer_sequence template. 
-///\details Only used if c++14 is not available. See std::integer_sequence for more information.
+///\details Only used if c++14 is not available. See std::integer_sequence for more inforMation.
 template<typename T, T... Ints> class integer_sequence
 {
 public:

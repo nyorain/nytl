@@ -42,7 +42,7 @@ public:
 template<std::size_t dim1, std::size_t dim2, typename prec, typename T>
 float volumeOrSth(const Vec<dim1, typename sequence<dim2, prec, T>::point>& points)
 {
-	triangle<dim2, prec> tri(points[0].position, points[1].position, points[2].position);
+	Triangle<dim2, prec> tri(points[0].position, points[1].position, points[2].position);
 	float A = tri.size();
 
 	for(auto& p : points)
