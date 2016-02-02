@@ -2,7 +2,7 @@
 
 nytl is a header-only utility library for c++11 (Will probably soon use c++14 features). It includes math classes and provides useful operations and sometimes even complex algorithms like e.g. [nytl::Vec], [nytl::Mat] or [nytl::Rect].
 Then there is a smaller part about functions and function-conversions with classes like [nytl::CompatibleFunction], [nytl::Callback] or [nytl::function_traits]. 
-Additionally nytl provides some generic utility stuff, like [nytl::Referenced] \(Base class for thread-safe reference counter classes), [nytl::Cloneable]/[nytl::AbstractCloneable] and [nytl::DeriveCloneable] which make it really easy to implement cloneable classes or [nytl::Observer]/[nytl::Observable] and [nytl::ObservingPtr] for observing the lifetime of an object and making use of it in a smart pointer.
+Additionally nytl provides some generic utility stuff, like [nytl::Referenced] and [nytl::IntrusivePtr] \(Base class for thread-safe reference counter classes and a intrusive smart pointer using this built-in reference count), [nytl::Cloneable]/[nytl::AbstractCloneable] and [nytl::DeriveCloneable] which make it really easy to implement cloneable classes or [nytl::Observer]/[nytl::Observable] and [nytl::ObservingPtr] for observing the lifetime of an object and making use of it in a smart pointer.
 The name nytl does stand for ny-utility as well as ny-template-library, since it was originally created for the _ny_ gui library.
 nytl is really lightweight, yet it offers some pretty useful features for most modern c++ projects.
 __The first alpha release of nytl, version 0.1 will be released soon__.
@@ -93,8 +93,10 @@ std::cout << (ptr) << "\n"; //outputs 0, since holds no valid object
 [nytl::function_traits]: http://nyorain.github.io/nytl/classnytl_1_1function_traits.html
 [nytl::Callback]: http://nyorain.github.io/nytl/classnytl_1_1Callback.html
 [nytl::Referenced]: http://nyorain.github.io/nytl/classnytl_1_1Referenced.html
+[nytl::IntrusivePtr]: http://nyorain.github.io/nytl/classnytl_1_1IntrusivePtr.html
 [nytl::Observable]: http://nyorain.github.io/nytl/classnytl_1_1Observable.html
 [nytl::Observer]: http://nyorain.github.io/nytl/classnytl_1_1Observer.html
+[nytl::ObservingPtr]: http://nyorain.github.io/nytl/classnytl_1_1ObservingPtr.html
 [nytl::Cloneable]: http://nyorain.github.io/nytl/classnytl_1_1Cloneable.html
 [nytl::DeriveCloneable]: http://nyorain.github.io/nytl/classnytl_1_1DeriveCloneable.html
 [nytl::AbstractCloneable]: http://nyorain.github.io/nytl/classnytl_1_1AbstractCloneable.html
