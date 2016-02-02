@@ -5,9 +5,10 @@ Then there is a smaller part about functions and function-conversions with class
 Additionally nytl provides some generic utility stuff, like [nytl::Referenced] and [nytl::IntrusivePtr] \(Base class for thread-safe reference counter classes and a intrusive smart pointer using this built-in reference count), [nytl::Cloneable]/[nytl::AbstractCloneable] and [nytl::DeriveCloneable] which make it really easy to implement cloneable classes or [nytl::Observer]/[nytl::Observable] and [nytl::ObservingPtr] for observing the lifetime of an object and making use of it in a smart pointer.
 The name nytl does stand for ny-utility as well as ny-template-library, since it was originally created for the _ny_ gui library.
 nytl is really lightweight, yet it offers some pretty useful features for most modern c++ projects.
-__The first alpha release of nytl, version 0.1 will be released soon__.
 
 nytl is licensed under the MIT License, so you can freely use it in your projects. If you start an open-source project using nytl, i would really appreciate if you let me know.
+
+__The first alpha release of nytl, version 0.1 will be released soon__.
 
 __Also have a look at the documentation__ (you can also generate it using cmake/doxygen, WIP): http://nyorain.github.io/nytl/
 
