@@ -11,13 +11,17 @@ namespace nytl
 class Observable;
 
 ///\ingroup utility
+///Base class for classes that observe the lifetime of other Observeable objects.
 class Observer
 {
 	friend class Observable;
-	virtual void destruction(Observable&) = 0;
+	virtual void observeableDestruction(Observable&) = 0;
 };
 
 ///\ingroup utility
+///\brief Utility class to make the objects lifetime observable.
+///\details Base class that can be derived from if the lifetime of objects of this class should be
+///observeable by others. Also see nytl::Observer and nytl::ObservingPtr.
 class Observable
 {
 protected:
@@ -29,7 +33,7 @@ public:
 	{
 		//no lock guard needed. Undefined behavior if destructor and accesing run at the same time
 		for(auto& obs : observer_)
-			obs->destruction(*this);
+			obs->observeableDestruction(*this);
 	}
 
 	void addObserver(Observer& obs)
@@ -53,12 +57,16 @@ public:
 };
 
 ///\ingroup utility
+///\brief Smart pointer class that observes the lifetime of its object.
+///\details Basically a smart pointer that does always know, whether the object it points to is 
+//alive or not. Does only work with objects of classes that are derived from nytl::Observeable.
+///Semantics are related to std::unique_ptr.
 template <typename T>
 class ObservingPtr : public Observer
 {
 private:
 	std::atomic<T*> object_ {nullptr};
-	virtual void destruction() override { object_ = nullptr; }
+	virtual void observableDestruction(Observable&) override { object_ = nullptr; }
 
 public:
 	ObservingPtr() = default;

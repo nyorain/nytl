@@ -25,6 +25,8 @@
 ///\file
 ///\brief Header that implementes several useful metaprogramming templates.
 
+//TODO: naming
+
 #pragma once
 
 #include <utility>
@@ -36,7 +38,7 @@ namespace nytl
 
 ///\brief Class that can be derived from to check if given template parameters are valid.
 ///\details Really useful for template classes that use SFINAE.
-template<typename...> struct deriveDummy {};
+template<typename...> struct DeriveDummy {};
 
 #if __cplusplus >= 201505
 	using std::void_t;

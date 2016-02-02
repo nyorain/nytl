@@ -13,37 +13,70 @@ __Also have a look at the documentation__ (you can also generate it using cmake/
 ##Getting Started 
 ###Building nytl
 Since nytl is a header-only library you dont have to compile anything, nytl has __no external dependencies__.
-Start by cloning the nytl repository from github:
-```
-git clone https://github.com/nyorain/nytl.git
-cd nytl
-```
+Just clone the repository or download it as zip package if you are not comfortable with using git.
+You can then just copy the header files where you need them, or you use cmake to install it wherever you want.
 
-Now, you can either just copy all the header files, where you want them to be, or let cmake automatically install them as well as a pkg-config file (__not recommended on windows__).
-All the header files are situated in the nytl folder directly at the project root.
-cmake:
-```
-mkdir build
-cd build
-cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..
-```
+###Usage Examples
+This section presents some examples of important nytl classes and functions.
+Notice that the classes presented here should just give you an idea of what nytl is and are just a small part of the whole library.
+Have also a look at the __doc/examples__ folder.
 
-If you now want to configure and install everything just do:
-```
-make install 
-```
+First Include all nytl headers (precompiled header then useful).
+You could also just include the features you need (will speed up compile time).
+```````````````
+#include <nytl/nytl.hpp>
+`````````````
 
-If you just want to make the documentation (remember that you need doxygen installed for that) just type `make doc`.
-The documentation will then be located at build/doc/doxygen/html. Start at index.html.
+#####nytl::Callback example
+Callbacks mirror the signal/slot principle in modern c++11 with many useful features.
+Notice how the callback listener signatures differs from the callback signature, callback uses nytl::CompatibleFunction internally.
+```````````````
+nytl::Callback<void(int, nytl::Vec2f)> onEvent;
 
+auto connection = onEvent.add([]{ std::cout << "called\n" }); //Adds a callback listener and receives connection object
+connection.destroy(); //unregisters the connection listener
 
-###Windows
-If you do not have git installed, or do not know how it works, no problem, you can also just download a zip-package from this repository (usually on the left).
-Just extract it, and you should have all the files you need.
+onEvent += [](int a) -> int { return a * 420; }; //same as .add (adds listener)
+onEvent = &someListenerFunction; //Sets the someListenerFunction as ONLY listener
 
-Since installing does not work that well and easy on windows, we recommend to just copy the header files where you want them to be.
-Then add this path to the include paths of your IDE(or pass it directly to the compiler). 
-Since you do not have to link against anything, that's it.
+onEvent.call(7, {23.f, 0.3f}); //calls all registered listener functions
+```````````````
+
+####nytl::Vec example
+The nytl::Vec template class represents a mathematical vector but has many uses since it is basically just an array of objects on which one can easliy perform (especially mathematical/algebraic) operations.
+```````````
+auto a = nytl::Vec<4, float>(4.f, 3.f, 8.f, 55.f); //aka nytl::Vec4f
+auto b = nytl::Vec4i(1, 2, 3, 4); //4D int vec
+
+bool b = all(a < b); //all elements from a are less than the matching element from b
+b = any(a == b); //any element(with the same index) from both vecs match
+auto c = a * b; //component-wise multiplication (like in glsl)
+
+auto f = dot(a, b); //There are also several useful utility functions available (orientated at glsl vec operations)
+f = angle(a, b);
+```````````
+
+####Utility classes
+There are several small utility template classes in nytl.
+Many classes (like nytl::Observeable shown below) are additionally designed threadsafe.
+
+`````````````````
+class Base1 : public nytl::NonCopyable, public nytl::Cloneable, public nytl::Observeable {}
+class Derived1 : public nytl::DeriveCloneable<Base1, Derived1> {}
+
+//Base1 and Derived1 were made cloneable with the nytl::Cloneable and nytl::DeriveCloneable base classes.
+//Note how it was enough to just derive from those classes/templates, no additional function implementation were needed.
+Base1* base = new Derived1();
+std::unique_ptr<Base1> copy = nytl::clone(base); //clone the derived object.
+
+//Both classes are also Observeable, so one can use custom observer classes to track their lifetime
+//There is also a built-in observing smart pointer.
+nytl::ObservingPtr<Base1> ptr(base);
+
+std::cout << (ptr) << "\n"; //outputs 1, the pointer holds an object
+delete base; //the object is deleted here
+std::cout << (ptr) << "\n"; //outputs 0, the pointer holds no object since the one it did hold was destroyed above.
+````````````````
 
 ##Contributing
 Contributors to library, documentation or examples are always appreciated. Just fork it and start a pull request, start an issue or send me a mail at nyorain@gmail.com. If you just have any ideas, questions or suggestions, just let me know.
