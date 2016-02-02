@@ -28,6 +28,28 @@
 namespace nytl{
 #endif
 
+namespace detail
+{
+
+//returns the plane (e.g. 0,1 for xy or 2,3 for zw) for a given id in a given dimension
+Vec2<std::size_t> indexPlane(std::size_t dim, std::size_t idx)
+{
+	auto ret = Vec2<std::size_t> {};
+
+	while(idx >= dim - 1)
+	{
+		ret[0]++;
+		idx -= (dim - 1);
+		dim--;
+	}
+
+	ret[1] = idx + 1;
+
+	return ret;
+}
+
+}
+
 //basic ops
 ///\relates Mat Transform
 template<std::size_t D, typename P>
@@ -48,14 +70,33 @@ void translate(SquareMat<D, P>& mat, const Vec<D - 1, P>& trans)
 
 ///\relates Mat Transform
 template<std::size_t D, typename P>
-void rotate(SquareMat<D, P>& mat, const Vec<D - 1, P>& axis, P angle)
+void rotate(SquareMat<D + 1, P>& mat, const Vec<rotationPlanes(D), P>& planes, P angle)
 {
+	rotate(angle * axis);
 }
 
 ///\relates Mat Transform
 template<std::size_t D, typename P>
-void rotate(SquareMat<D, P>& mat, const Vec<D - 1, P>& rot)
+void rotate(SquareMat<D + 1, P>& mat, const Vec<rotationPlanes(D), P>& planeRot)
 {
+	auto rotMat = identityMat<D>();
+	for(std::size_t i(0); i < rotationAxis(D); ++i)
+	{
+		auto planeMat = identityMat<D>();
+		auto idx = indexPlane(D, i);
+
+		auto c = std::cos(rot[i]);
+		auto s = std::sin(rot[i]);
+
+		planeMat[idx[0]][idx[0]] = c;
+		planeMat[idx[0]][idx[1]] = -s;
+		planeMat[idx[1]][idx[0]] = s;
+		planeMat[idx[1]][idx[1]] = c;
+
+		rotMat *= planeMat;
+	}	
+
+	mat *= rotMat;
 }
 
 //copy helper

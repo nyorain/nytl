@@ -291,6 +291,20 @@ Mat<R, C, P> rrefCopy(Mat<R, C, P> m)
 	return m;
 }
 
+
+///\relates Mat
+///\brief Transforms the given SquareMat object to the identity matrix (1).
+template<std::size_t D, typename P>
+void identity(SquareMat<D, P>& mat)
+{
+	mat = identityMat<D, P>();
+
+	/*
+	for(std::size_t i(0); i < D; ++i)
+		mat[i][i] = P(1);
+	*/
+}
+
 //TODO XXX:
 //some function for analyzing the ref/rref result
 //no solution, infinite solutions, exactly onesolution?

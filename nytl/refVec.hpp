@@ -33,7 +33,7 @@
 namespace nytl
 {
 
-template<size_t dim, typename T> using RefVec = Vec<dim, T&>;
+template<size_t D, typename T> using RefVec = Vec<D, T&>;
 
 template<typename T> using RefVec2 = Vec<2, T&>;
 template<typename T> using RefVec3 = Vec<3, T&>;
@@ -67,14 +67,12 @@ typedef RefVec4<long> RefVec4l;
 typedef RefVec4<unsigned long> RefVec4ul;
 
 
-///\ingroup math
-///Vec specialization for reference types.
-template<size_t dimension, typename T> 
-class Vec<dimension, T&>
+template<size_t D, typename T> 
+class Vec<D, T&>
 {
 public:
     using value_type = T;
-    constexpr static size_t dim = dimension;
+    constexpr static size_t dim = D;
 
     using reference = value_type&;
     using const_reference = const value_type&;
@@ -87,8 +85,8 @@ public:
     using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
 
-    using ref_VecType = Vec<dimension, reference>;
-    using VecType = Vec<dimension, value_type>;
+    using ref_VecType = Vec<D, reference>;
+    using VecType = Vec<D, value_type>;
 
 public:
     constexpr size_t size() const noexcept { return dim; }

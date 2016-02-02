@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+///\file
+///\brief Provides forward declarations for the major nytl classes/templates/typedefs.
+
 #pragma once
 
 #include <cstddef>

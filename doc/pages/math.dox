@@ -1,1 +1,42 @@
 ///\defgroup math
+///The Math group holds several useful utility templates and functions especially for dealing
+///with linear algebra.
+///
+///The core template class of this module is nytl::Vec which is comparable to std::array with
+///the difference that it is provides useful tools for mathematical use like functions,
+///specializations and operators.
+///Other core classes are nytl::Mat, nytl::Rect and nytl::Simplex (with its specializations Triangle,
+///Line and Tetrahedron).
+///
+///\section MDP Design patterns
+///All over there module there are the same convinient design patterns:
+///- Utility functions are free functions and not member functions.
+///- To test for intersection of two objects the nytl::intersects function is used.
+///- To test for containment of one object over another use the nytl::contains overloads.
+///- Many nytl types and functions are closely related to existing glsl specifications.
+///- All dimension and precision abstracted types have the same typedefs:
+/// - Precision for the precision value type
+/// - dim as constexpr value for the dimension
+/// - Size as type for index and size variables/parameters
+/// - VecType/RectType/LineType... for the used template instanciations of the specific classes.
+///
+///\subsection MST Set theory representation
+///The different combination possiblities from set theory can be achieved using the symmetric
+///- nytl::combination (union name is reserved) [operator: |]
+///- nytl::intersection [operator: &]
+///- nytl::symmetricDifference [operator: ^]
+///- nytl::difference (nonsymmetric) [operator: -] \
+///function overloads. All function overloads can also be accessed by there matching c++ operators
+///as marked above\n
+///These functions have the following return types:
+///- Either (if possible) the tested objects' type (e.g. nytl::intersection for rects)
+///- Or a vector filled with objects with the same type as the tested ones
+///- Or A *Region wrapper class for this vector, which then again provied useful utilities 
+///   (see nytl::RectRegion and nytl::SimplexRegion).
+///
+///\subsection MAR Angle representation
+///For functions concerning angles nytl uses radians if nothing else was specified.
+///The most mathematical operations (std::sin/cos/tan) work with radians and to achieve
+///best performance they are not converted everytime, instead the user can decide whether they
+///should be converted afterwards. \n
+///This can be easily achieved with nytl::radians or nytl::degrees.
