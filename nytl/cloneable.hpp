@@ -70,8 +70,8 @@ template<typename Base, typename Derived>
 class DeriveCloneable : public Base
 {
 private:
-    virtual Base* clone() const override
-		{ return new Derived(*(static_cast<const Derived*>(this))); }
+    virtual Base* clone() const override //return type cant be Derived since its CRTP
+		{ return new Derived(static_cast<const Derived&>(*this)); }
 
 	template<typename X> 
 	friend std::unique_ptr<X> clone(const X&);

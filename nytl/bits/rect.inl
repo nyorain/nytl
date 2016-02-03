@@ -24,7 +24,6 @@
 
 #pragma once
 
-
 ///\relates nytl::Rect
 template<std::size_t D, typename P> bool 
 intersects(const Rect<D, P>& r1, const Rect<D, P>& r2)
@@ -97,40 +96,40 @@ contains(const Rect<D, P>& r1, const Vec<D, P>& v2)
 
 
 ///\relates nytl::Rect
-///\brief Returns the difference between two Rectangles [AND ~].
-///\details Tt subtracts the second Rect from the first one and returns the rest of the first one. 
+///\brief Returns the difference between two rangles [AND ~].
+///\details Subtracts the second Rect from the first one and returns the rest of the first one. 
 ///Since the result cant be expressed as a single Rect, it is a Vector of those. 
 ///Asymmetrical operator.
 template<std::size_t D, class P>
-std::vector<Rect<D, P>> difference(const Rect<D, P>& Recta, const Rect<D, P>& Rectb)
+std::vector<Rect<D, P>> subtract(const Rect<D, P>& ra, const Rect<D, P>& rb)
 {
     std::vector<Rect<D, P>> ret;
-    if(!intersects(Recta, Rectb)) return std::vector<Rect<D, P>>{Recta};
+    if(!intersects(ra, rb)) return std::vector<Rect<D, P>>{ra};
 
     for(std::size_t i(0); i < D; ++i)
     {
-        if(Recta.position[i] < Rectb.position[i]) //begin Rect
+        if(ra.position[i] < rb.position[i]) //begin Rect
         {
-            auto pos = Recta.position;
+            auto pos = ra.position;
             for(std::size_t o(0); o < i; ++o)
-                pos[o] = Rectb.position[o];
+                pos[o] = rb.position[o];
 
-            auto size = (Recta.position + Recta.size) - pos;
-            size[i] = Rectb.position[i] - pos[i];
+            auto size = (ra.position + ra.size) - pos;
+            size[i] = rb.position[i] - pos[i];
 
             ret.push_back(Rect<D,P>(pos, size));
         }
 
-        if(Recta.position[i] + Recta.size[i] > Rectb.position[i] + Rectb.size[i]) //end Rect
+        if(ra.position[i] + ra.size[i] > rb.position[i] + rb.size[i]) //end Rect
         {
-            auto pos = Recta.position;
-            pos[i] = Rectb.position[i] + Rectb.size[i];
+            auto pos = ra.position;
+            pos[i] = rb.position[i] + rb.size[i];
             for(std::size_t o(0); o < i; ++o)
-                pos[o] = std::max(Rectb.position[o], Recta.position[o]);
+                pos[o] = std::max(rb.position[o], ra.position[o]);
 
-            auto size = (Recta.position + Recta.size) - pos;
+            auto size = (ra.position + ra.size) - pos;
             for(std::size_t o(0); o < i; ++o)
-                size[o] = (Rectb.position[o] + Rectb.size[o]) - pos[o];
+                size[o] = (rb.position[o] + rb.size[o]) - pos[o];
 
             ret.push_back(Rect<D, P>(pos, size));
         }
@@ -140,41 +139,41 @@ std::vector<Rect<D, P>> difference(const Rect<D, P>& Recta, const Rect<D, P>& Re
 }
 
 ///\relates nytl::Rect
-///\brief Returns the Rectangle in which area the two paramater Rectangles intersect [AND]. 
+///\brief Returns the rangle in which area the two paramater rangles intersect [AND]. 
 ///\details Symmetrical operator.
 template<std::size_t D, typename P>
-Rect<D, P> intersection(const Rect<D, P>& Recta, const Rect<D, P>& Rectb)
+Rect<D, P> intersection(const Rect<D, P>& ra, const Rect<D, P>& rb)
 {
-    auto pos = max(Recta.topLeft(), Rectb.topLeft());
-    auto size = min(Recta.bottomRight(), Rectb.bottomRight()) - pos;
+    auto pos = max(ra.topLeft(), rb.topLeft());
+    auto size = min(ra.bottomRight(), rb.bottomRight()) - pos;
     return Rect<D, P>(pos, size); //max and min component-wise
 }
 
 ///\relates nytl::Rect
 ///\brief Returns the union of two Rects [OR]. 
-//\details Since it combines them the result cannot be expressed in a single Rectangle and is 
+//\details Since it combines them the result cannot be expressed in a single rangle and is 
 ///therefore a Vector. Symmetrical operator.
 template<std::size_t D, typename P>
-std::vector<Rect<D, P>> combination(const Rect<D, P>& Recta, const Rect<D, P>& Rectb)
+std::vector<Rect<D, P>> combination(const Rect<D, P>& ra, const Rect<D, P>& rb)
 {
-    auto ret = difference(Recta, Rectb);
-    ret.push_back(Rectb);
+    auto ret = subtract(ra, rb);
+    ret.push_back(rb);
     return ret;
 }
 
 ///\relates nytl::Rect
-///\brief Returns the symmetric difference between two Rectangles [XOR].
+///\brief Returns the symmetric difference between two rangles [XOR].
 ///\details Basically just the area where exactly one of them is placed. Symmetrical operator.
 template<std::size_t D, typename P>
-std::vector<Rect<D, P>> symmetricDifference(const Rect<D, P>& Recta, const Rect<D, P>& Rectb)
+std::vector<Rect<D, P>> symmetricDifference(const Rect<D, P>& ra, const Rect<D, P>& rb)
 {
-    //return combination(difference(Recta, Rectb), difference(Rectb, Recta));
-    auto result = combination(Recta, Rectb);
+    //return combination(difference(ra, rb), difference(rb, ra));
+    auto result = combination(ra, rb);
     auto ret = result;
 
     for(std::size_t i(0); i < result.size(); i++)
     {
-        auto vVec = difference(result[i], intersection(Recta, Rectb));
+        auto vVec = subtract(result[i], intersection(ra, rb));
         if(!vVec.empty())
         {
             ret[i] = vVec[0];
@@ -188,34 +187,57 @@ std::vector<Rect<D, P>> symmetricDifference(const Rect<D, P>& Recta, const Rect<
 
 ///\relates nytl::Rect
 template<std::size_t D, typename P>
-Rect<D, P> operator&(const Rect<D, P>& Recta, const Rect<D, P>& Rectb)
+Rect<D, P> operator&(const Rect<D, P>& ra, const Rect<D, P>& rb)
 {
-    return intersection(Recta, Rectb);
+    return intersection(ra, rb);
 }
 
 ///\relates nytl::Rect
 template<std::size_t D, typename P>
-std::vector<Rect<D, P>> operator^(const Rect<D, P>& Recta, const Rect<D, P>& Rectb)
+std::vector<Rect<D, P>> operator^(const Rect<D, P>& ra, const Rect<D, P>& rb)
 {
-    return symmeticDifference(Recta, Rectb);
+    return symmeticDifference(ra, rb);
 }
 
 ///\relates nytl::Rect
 template<std::size_t D, typename P>
-std::vector<Rect<D, P>> operator|(const Rect<D, P>& Recta, const Rect<D, P>& Rectb)
+std::vector<Rect<D, P>> operator|(const Rect<D, P>& ra, const Rect<D, P>& rb)
 {
-    return combination(Recta, Rectb);
+    return combination(ra, rb);
 }
 
+//TODO: use Vec here (since number of returnd simplexes is known)?
+//can be problematic for higher dimensions (uses stack)
 ///\relates nytl::Rect Simplex
 ///\brief Returns a Simplex representation of the Rects area.
 ///\details There are many ways to represent a Rect area by multiple Simplexes, this functions 
 ///returns one of them.
-///\return A Vec with D! Simplexes of the same dimension and precision as the given Rect.
+///\return A SimplexReiogn with D! Simplexes that cover exactly the same area as the given rect.
 template<std::size_t D, typename P>
-Vec<fac(D), Simplex<D, P>> split(const Rect<D, P>& r)
+SimplexRegion<D, P> split(const Rect<D, P>& r)
 {
-	//TODO
+	auto points = std::vector<Vec<D, P>> {};
+	points.reserve(pow(2, D));
+
+	//generate points
+	//binary minmax
+	for(std::size_t i(0); i < std::pow(2, D); ++i)
+	{
+		auto point = Vec<D, P> {};
+		for(std::size_t d(0); d < D; ++i)
+		{
+			point[d] = r.position[d];
+			if(i & std::pow(2, d))
+			{
+				point[d] += r.size[d];
+			}
+		}
+
+		points.push_back(point);
+	}
+
+	//create convex (simplexRegion) from rect points
+	return createConvex(points); 
 }
 
 ///\relates nytl::Rect

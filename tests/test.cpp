@@ -2,12 +2,13 @@
 #include <nytl/triangle.hpp>
 #include <nytl/line.hpp>
 #include <nytl/transform.hpp>
+#include <nytl/serialize.hpp>
 #include <iostream>
 #include <fstream>
 #include <cassert>
 #include <set>
 using namespace nytl;
-
+/*
 constexpr std::size_t multipleAxis(std::size_t D)
 {
 	return D; //TODO
@@ -125,17 +126,46 @@ Vec2f rotate(const Vec2f& vec, float value)
 	return {std::cos(value) * vec.x - std::sin(value) * vec.y, 
 			std::sin(value) * vec.x + std::cos(value) * vec.y};
 }
+*/
+
+template<typename S> class Printer;
+
+template<char... C>
+class Printer<TemplateString<C...>>
+{
+public:
+	static void print()
+	{
+		nytl::printVars(std::cout, sizeof...(C), "\n", C..., "\n");
+	}
+};
+
+class BaseClass : public nytl::Serialized<BaseClass, TS_("BaseClass")>
+{
+};
+
+class DerivedClass : public nytl::DeriveSerialized<BaseClass, DerivedClass, TS_("DerivedClass")>
+{
+};
+
+template<typename T>
+class DerivedTC : public 
+	nytl::DeriveSerialized<BaseClass, DerivedTC<T>, TS_("DerivedTC<", typeName<T>(), ">")>
+{
+};
 
 int main()
 {
-	float value = radians(180);
-	auto rot = Rotor<3, float> {};
-	rot.scalar_ = value;
-	rot.bivec_.simple_ = {1, 0, 0};
+	constexpr auto str = makeMultipleConstString("hai", "yo", " cooo");
 
-	Vec3f vec(100, 100, 100);
+	std::cout << str.size() << "\n";
+	for(std::size_t i(0); i < str.size(); ++i)	
+		std::cout << str[i] << "\n";
 
-	//std::cout << rotate(vec, value) << "\n";
-	std::cout << applyRotor(vec, rot) << "\n";
+	Printer<TS_("HEllo WW", str, " --df")>::print();
+
+	std::cout << DerivedTC<DerivedClass>::typeName() << "\n";
+
+	return 1;
 }
 

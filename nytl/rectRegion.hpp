@@ -71,60 +71,6 @@ typedef RectRegion<4, unsigned char> RectRegion4uc;
 typedef RectRegion<4, long> RectRegion4l;
 typedef RectRegion<4, unsigned long> RectRegion4ul;
 
-//should rlly be declared here? use helper member functions?
-//tests
-/*
-template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR 
-	bool intersects(const RectRegion<dim, prec>&, const RectRegion<dim, prec>&);
-template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR 
-	bool intersects(const RectRegion<dim, prec>&, const Rect<dim, prec>&);
-template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR 
-	bool intersects(const RectRegion<dim, prec>&, const Line<dim, prec>&);
-template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR 
-	bool intersects(const RectRegion<dim, prec>&, const Triangle<dim, prec>&);
-
-
-template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR 
-	bool contains(const RectRegion<dim, prec>&, const RectRegion<dim, prec>&);
-template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR 
-	bool contains(const RectRegion<dim, prec>&, const Rect<dim, prec>&);
-template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR 
-	bool contains(const RectRegion<dim, prec>&, const Line<dim, prec>&);
-template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR 
-	bool contains(const RectRegion<dim, prec>&, const Triangle<dim, prec>&);
-template<std::size_t dim, typename prec> NYTL_CPP14_CONSTEXPR 
-	bool contains(const RectRegion<dim, prec>&, const Vec<dim, prec>&);
-
-//operations
-template<std::size_t dim, typename prec> RectRegion<dim, prec>
-   	intersection(const RectRegion<dim, prec>&, const RectRegion<dim, prec>&);
-template<std::size_t dim, typename prec> RectRegion<dim, prec>
-   	intersection(const RectRegion<dim, prec>&, const Rect<dim, prec>&);
-template<std::size_t dim, typename prec> RectRegion<dim, prec>
-   	intersection(const Rect<dim, prec>&, const RectRegion<dim, prec>&);
-
-template<std::size_t dim, typename prec> RectRegion<dim, prec>
-   	combination(const RectRegion<dim, prec>&, const RectRegion<dim, prec>&);
-template<std::size_t dim, typename prec> RectRegion<dim, prec>
-   	combination(const RectRegion<dim, prec>&, const Rect<dim, prec>&);
-template<std::size_t dim, typename prec> RectRegion<dim, prec>
-   	combination(const Rect<dim, prec>&, const RectRegion<dim, prec>&);
-
-template<std::size_t dim, typename prec> RectRegion<dim, prec>
-   	difference(const RectRegion<dim, prec>&, const RectRegion<dim, prec>&);
-template<std::size_t dim, typename prec> RectRegion<dim, prec>
-   	difference(const RectRegion<dim, prec>&, const Rect<dim, prec>&);
-template<std::size_t dim, typename prec> RectRegion<dim, prec>
-   	difference(const Rect<dim, prec>&, const RectRegion<dim, prec>&);
-
-template<std::size_t dim, typename prec> RectRegion<dim, prec>
-   	symmetricDifference(const RectRegion<dim, prec>&, const RectRegion<dim, prec>&);
-template<std::size_t dim, typename prec> RectRegion<dim, prec>
-   	symmetricDifference(const RectRegion<dim, prec>&, const Rect<dim, prec>&);
-template<std::size_t dim, typename prec> RectRegion<dim, prec>
-   	symmetricDifference(const Rect<dim, prec>&, const RectRegion<dim, prec>&);
-*/
-
 ///\ingroup math
 ///Region composed of Rectangles.
 template<std::size_t D, typename P>
@@ -157,7 +103,7 @@ public:
 	using const_pointer = ConstPointer;
 
 
-protected:
+public:
     std::vector<RectType> rects_ {};
 
 public:
@@ -175,6 +121,9 @@ public:
 	void add(const RectType& r);
 	void add(const RectRegionType& r);
 
+	void addNoCheck(const RectType& r);
+	void addNoCheck(const RectRegionType& r);
+
 	void subtract(const RectType& r);
 	void subtract(const RectRegionType& r);
 
@@ -190,7 +139,9 @@ public:
 
 	//
 	RectType extents() const;
+
 	const std::vector<RectType>& rects() const { return rects_; }
+	std::vector<RectType>& rects() { return rects_; }
 
 	template<Size OD, typename OP>
 	operator RectRegion<OD, OP>() const 

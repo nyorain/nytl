@@ -468,9 +468,9 @@ template<std::size_t D, typename P, std::size_t A> bool
 	return 1;
 }
 
-//operators
+//operations
 ///\relates Simplex
-///Returns the RectRegion of intersection between the two given Simplexs. Result is not guaranteed
+///Returns the area of intersection between the two given Simplexs. Result is not guaranteed
 ///to be representable by a Simplex and therefore a SimplexRegion (i.e. the intersection of two
 ///Triangles is not guaranteed to be a Triangle). Symmetrical operator. [AND]
 template<std::size_t D, typename P, std::size_t A1, std::size_t A2> 
@@ -485,17 +485,22 @@ auto intersection(const Simplex<D, P, A1>& sa, const Simplex<D, P, A2>& sb)
 ///in c++). Result is not guaranteed to be representable by one
 ///single Simplex and is therefore a SimplexRegion. Symmetrical operator. [OR]
 template<std::size_t D, typename P, std::size_t A> SimplexRegion<D, P, A> 
-	combination(const Simplex<D, P, A>&, const Simplex<D, P, A>&)
+	combination(const Simplex<D, P, A>& sa, const Simplex<D, P, A>& sb)
 {
+	auto ret = SimplexRegion<D, P, A> {};
+	ret.add(sa);
+	ret.add(sb);
+	return ret;
 }
 
 ///\relates Simplex
-///Returns the symmetric difference of the two given Simplexs, so basically the RectRegion
-///in the given space where exactly one of the two given areas are located.
+///Returns the symmetric difference of the two given Simplexs, so basically the area
+///in the given space where exactly one of the two given regions are located.
 ///Symmetrical operator. [XOR]
 template<std::size_t D, typename P, std::size_t A> SimplexRegion<D, P, A> 
-	symmetricDifference(const Simplex<D, P, A>&, const Simplex<D, P, A>&)
+	symmetricDifference(const Simplex<D, P, A>& sa, const Simplex<D, P, A>& sb)
 {
+	return combination(sa, sb).subtract(intersection(sa, sb));
 }
 
 ///\relates Simplex
@@ -503,9 +508,35 @@ template<std::size_t D, typename P, std::size_t A> SimplexRegion<D, P, A>
 ///Return type is a SimplexRegion since the result is not guaranteed to be representable by one
 ///single Simplex. Asymmetrical operator. [AND NOT]
 template<std::size_t D, typename P, std::size_t A> SimplexRegion<D, P, A> 
-	difference(const Simplex<D, P, A>&, const Simplex<D, P, A>&)
+	subtract(const Simplex<D, P, A>& sa, const Simplex<D, P, A>& sb)
 {
+	return detail::SimplexSubtraction<D, P, A>::call(sa, sb);
 }
+
+
+//operators//////////
+///\relates Simplex
+template<std::size_t D, typename P, std::size_t A1, std::size_t A2> auto
+	operator&(const Simplex<D, P, A1>& a, const Simplex<D, P, A2>& b)
+	-> decltype(intersection(a, b))
+{
+	return intersection(a, b);
+}
+
+template<std::size_t D, typename P, std::size_t A> auto
+	operator|(const Simplex<D, P, A>& a, const Simplex<D, P, A>& b)
+	-> decltype(combination(a, b))
+{
+	return combination(a, b);
+}
+
+template<std::size_t D, typename P, std::size_t A> auto
+	operator^(const Simplex<D, P, A>& a, const Simplex<D, P, A>& b)
+	-> decltype(symmetricDifference(a, b))
+{
+	return symmeticDifference(a, b);
+}
+
 
 #ifdef DOXYGEN
 } //nytl

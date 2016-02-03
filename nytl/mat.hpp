@@ -50,7 +50,7 @@ class Mat;
 ///\ingroup math
 ///Matrix template class.
 template<std::size_t R, std::size_t C, typename P> class Mat : 
-	deriveDummy<typename std::enable_if<(R > 0) && (C > 0) && (!std::is_reference<P>::value)>::type>
+	DeriveDummy<typename std::enable_if<(R > 0) && (C > 0) && (!std::is_reference<P>::value)>::type>
 {
 public:
 	using Size = std::size_t;

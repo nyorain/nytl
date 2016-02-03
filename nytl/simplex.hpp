@@ -28,9 +28,9 @@
 
 #include <nytl/vec.hpp>
 #include <nytl/mat.hpp>
-#include <nytl/tmp.hpp>
 #include <nytl/scalar.hpp>
 #include <nytl/linearSolver.hpp>
+#include <nytl/bits/tmpUtil.hpp>
 
 #include <vector>
 #include <type_traits>
@@ -57,7 +57,7 @@ template<std::size_t D, std::size_t A> using DimMatch = typename std::enable_if<
 ///enough to describe exactly one, unambigous area with the given dimension and precision in
 ///the given space.
 template<std::size_t D, typename P = float, std::size_t A = D>
-class Simplex : public deriveDummy<DimMatch<D, A>>
+class Simplex : public DeriveDummy<DimMatch<D, A>>
 {
 public:
 	using VecType = Vec<D, P>;
@@ -104,49 +104,57 @@ public:
 ///\ingroup math
 ///Describes a RectRegion of multiple Simplexes. 
 template<std::size_t D, typename P = float, std::size_t A = D>
-class SimplexRegion : public deriveDummy<DimMatch<D, A>>
+class SimplexRegion : public DeriveDummy<DimMatch<D, A>>
 {
 public:
-	using Simplex_type = Simplex<D, P, A>;
-	using RectRegion_type = SimplexRegion<D, P, A>;
-	using Vector_type = std::vector<Simplex_type>;
-	using size_type = typename Vector_type::size_type;
+	using SimplexType = Simplex<D, P, A>;
+	using SimplexRegionType = SimplexRegion<D, P, A>;
+	using VectorType = std::vector<SimplexType>;
+	using Size = typename VectorType::size_type;
 
 public:
 	///Vector of Simplexs that holds the areas that define this RectRegion.
 	///None of the Simplexs in this Vector should intersect with each other.
-	Vector_type areas_;
+	VectorType simplexes_;
 
 public:
 	///Adds a Simplex to this RectRegion. Effectively only adds the part of the Simplex that
 	///is not already part of the RectRegion.
-	void add(const Simplex_type& area);
+	void add(const SimplexType& simplex);
 
 	///Makes this RectRegion object the union of itself and the argument-given RectRegion.
-	void add(const RectRegion_type& RectRegion);
+	void add(const SimplexRegionType& simplexRegion);
 
 	///Adds a Simplex without checking for intersection
-	void addNoCheck(const Simplex_type& Simplex) { areas_.push_back(Simplex); }
+	void addNoCheck(const SimplexType& simplex) { simplexes_.push_back(simplex); }
 
-	///Subtracts a Simplex from this RectRegion. Effectively checks every Simplex of this RectRegion
-	///for intersection and resizes it if needed.
-	void subtract(const Simplex_type& area);
+	///Adds a SimplexRegion without checking for intersection
+	void addNoCheck(const SimplexRegionType& simplexRegion) 
+		{ simplexes_.insert(simplexes_.cend(), simplexRegion.cbegin(), simplexRegion.cend()); }
 
-	///Subtracts the given RectRegion from this object.
-	void subtract(const RectRegion_type& area);
+	///Subtracts a Simplex from this SimplexRegion. 
+	///Effectively checks every Simplex of this SimplexRegio for intersection and resizes 
+	///it if needed.
+	void subtract(const SimplexType& simplex);
 
-	///Returns the size of the area.
+	///Subtracts the given simplexRegion from this object.
+	void subtract(const SimplexRegionType& simplexregion);
+
+	///Returns the total size of the region.
 	double size() const;
 
-	///Returns the number of Simplexs this RectRegion contains.
-	size_type count() const;
+	///Returns the number of simplexes this SimplexRegion contains.
+	Size count() const { return simplexes().size(); }
 
 	///Returns a Vector with the given Simplexes.
-	const Vector_type& areas() const { return areas_; }
+	const VectorType& simplexes() const { return simplexes_; }
 
-	///Converts the RectRegion to a RectRegion object of different precision and space dimension.
-	template<std::size_t ND, typename NP, typename = DimMatch<D, A>> 
-		operator SimplexRegion<ND, NP, A>() const;
+	///Returns a Vector with the given Simplexes.
+	VectorType& simplexes() { return simplexes_; }
+
+	///Converts this object to a SimplexRegion object of different precision and/or space dimension.
+	template<std::size_t OD, typename OP> 
+		operator SimplexRegion<OD, OP, A>() const;
 };
 
 //To get the additional features for each specialization, include the corresponding headers:

@@ -30,7 +30,7 @@ Have also a look at the __[doc/examples]__ folder.
 
 First Include all nytl headers (precompiled header then useful).
 You could also just include the features you need (will speed up compile time).
-```````````````
+```````````````c++
 #include <nytl/nytl.hpp>
 `````````````
 

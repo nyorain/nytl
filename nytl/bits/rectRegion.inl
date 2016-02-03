@@ -6,7 +6,7 @@
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * to use, copy, modify, merge, publish, distbute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
@@ -22,13 +22,20 @@
  * SOFTWARE.
  */
 
-//tests///////////////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#ifdef DOXYGEN
+namespace nytl{
+#endif
+
+//tests
+///\relates RectRegion
 template<std::size_t D, typename P>
-bool intersects(const RectRegion<D, P>& rega, const RectRegion<D, P>& regb)
+bool intersects(const RectRegion<D, P>& ra, const RectRegion<D, P>& rb)
 {
-    for(auto& r1 : rega.rects())
+    for(auto& r1 : ra.rects())
     {
-        for(auto& r2 : regb.rects())
+        for(auto& r2 : rb.rects())
         {
             if(intersects(r1, r2)) return true;
         }
@@ -37,31 +44,31 @@ bool intersects(const RectRegion<D, P>& rega, const RectRegion<D, P>& regb)
     return false;
 }
 template<std::size_t D, typename P>
-bool intersects(const RectRegion<D, P>& rega, const Rect<D, P>& Rectb)
+bool intersects(const RectRegion<D, P>& ra, const Rect<D, P>& rb)
 {
-    for(auto& r1 : rega.rects())
+    for(auto& r1 : ra.rects())
     {
-        if(intersects(r1, Rectb)) return true;
+        if(intersects(r1, rb)) return true;
     }
 
     return false;
 }
 template<std::size_t D, typename P>
-bool intersects(const RectRegion<D, P>& rega, const Line<D, P>& Lineb)
+bool intersects(const RectRegion<D, P>& ra, const Line<D, P>& lb)
 {
-    for(auto& rega : rega.rects())
+    for(auto& ra : ra.rects())
     {
-        if(intersects(rega, Lineb)) return true;
+        if(intersects(ra, lb)) return true;
     }
 
     return false;
 }
 template<std::size_t D, typename P>
-bool intersects(const RectRegion<D, P>& rega, const Triangle<D, P>& trib)
+bool intersects(const RectRegion<D, P>& ra, const Triangle<D, P>& tb)
 {
-    for(auto& rega : rega.rects())
+    for(auto& ra : ra.rects())
     {
-        if(intersects(rega, trib)) return true;
+        if(intersects(ra, tb)) return true;
     }
 
     return false;
@@ -77,11 +84,11 @@ bool intersects(const Triangle<D, P>& a, const RectRegion<D, P>& b){ return inte
 
 //contains
 template<std::size_t D, typename P>
-bool contains(const RectRegion<D, P>& rega, const RectRegion<D, P>& regb)
+bool contains(const RectRegion<D, P>& ra, const RectRegion<D, P>& rb)
 {
-    for(auto& r1 : rega.rects())
+    for(auto& r1 : ra.rects())
     {
-        for(auto& r2 : regb.rects())
+        for(auto& r2 : rb.rects())
         {
             if(!contains(r1, r2)) return false;
         }
@@ -90,47 +97,47 @@ bool contains(const RectRegion<D, P>& rega, const RectRegion<D, P>& regb)
     return true;
 }
 template<std::size_t D, typename P>
-bool contains(const RectRegion<D, P>& rega, const Rect<D, P>& Rectb)
+bool contains(const RectRegion<D, P>& ra, const Rect<D, P>& rb)
 {
-    for(auto& rega : rega.rects())
+    for(auto& ra : ra.rects())
     {
-        if(!contains(rega, Rectb)) return false;
+        if(!contains(ra, rb)) return false;
     }
 
     return true;
 }
 template<std::size_t D, typename P>
-bool contains(const RectRegion<D, P>& rega, const Line<D, P>& Lineb)
+bool contains(const RectRegion<D, P>& ra, const Line<D, P>& lb)
 {
-    for(auto& rega : rega.rects())
+    for(auto& ra : ra.rects())
     {
-        if(!contains(rega, Lineb)) return false;
+        if(!contains(ra, lb)) return false;
     }
 
     return true;
 }
 template<std::size_t D, typename P>
-bool contains(const RectRegion<D, P>& rega, const Triangle<D, P>& trib)
+bool contains(const RectRegion<D, P>& ra, const Triangle<D, P>& tb)
 {
-    for(auto& rega : rega.rects())
+    for(auto& ra : ra.rects())
     {
-        if(!contains(rega, trib)) return false;
+        if(!contains(ra, tb)) return false;
     }
 
     return true;
 }
 template<std::size_t D, typename P>
-bool contains(const RectRegion<D, P>& rega, const Vec<D, P>& Vecb)
+bool contains(const RectRegion<D, P>& ra, const Vec<D, P>& pb)
 {
-    for(auto& r1 : rega.rects())
+    for(auto& r1 : ra.rects())
     {
-        if(contains(r1, Vecb)) return true;
+        if(contains(r1, pb)) return true;
     }
 
     return false;
 }
 
-template<std::size_t D, typename P> NYTL_CPP14_CONSTEXPR 
+template<std::size_t D, typename P>  
 bool contains(const Rect<D, P>& a, const RectRegion<D, P>& b)
 {
 	for(auto& r1 : b.rects())
@@ -141,7 +148,7 @@ bool contains(const Rect<D, P>& a, const RectRegion<D, P>& b)
 	return true;
 }
 
-template<std::size_t D, typename P> NYTL_CPP14_CONSTEXPR 
+template<std::size_t D, typename P>  
 bool contains(const Triangle<D, P>& a, const RectRegion<D, P>& b)
 {
 	for(auto& r1 : b.rects())
@@ -328,3 +335,7 @@ RectRegion<D, P> operator^(RectRegion<D, P> a, const Rect<D, P>& b)
 {
     return std::move(a ^= b);
 }
+
+#ifdef DOXYGEN
+}
+#endif

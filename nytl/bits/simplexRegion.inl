@@ -149,7 +149,7 @@ SimplexRegion<D, P, A> createConvex(std::vector<Line<D, P>> Lines)
 
 
 	//code dupilcation here -- argh -> search for better loop above
-	if(Lines.size() == A + 1) //should be always true?
+	if(Lines.size() == A + 1) //should be always false, needed?
 	{
 		Simplex<D, P, A> simp;
 		std::size_t idx = 0;
@@ -184,14 +184,58 @@ SimplexRegion<D, P, A> createConvex(std::vector<Line<D, P>> Lines)
 	return ret;
 }
 
+//member
+template<std::size_t D, typename P, std::size_t A> void
+	SimplexRegion<D, P, A>::add(const SimplexType& simplex)
+{
+}
 
-///tests
+template<std::size_t D, typename P, std::size_t A> void
+	SimplexRegion<D, P, A>::add(const SimplexRegionType& simplexRegion)
+{
+}
+
+template<std::size_t D, typename P, std::size_t A> void
+	SimplexRegion<D, P, A>::subtract(const SimplexType& simplex)
+{
+}
+
+template<std::size_t D, typename P, std::size_t A> void
+	SimplexRegion<D, P, A>::subtract(const SimplexRegionType& simplexRegion)
+{
+}
+
+template<std::size_t D, typename P, std::size_t A> 
+template<std::size_t OD, typename OP> void
+	SimplexRegion<D, P, A>::operator SimplexRegion<OD, OP, A>() const
+{
+	auto ret = SimplexRegion<OD, OP, A> {};
+	ret.simplexes().reserve(count());
+
+	for(auto& simp : simplexes())
+		ret.emplace_back(simp);
+
+	return ret;
+}
+
+template<std::size_t D, typename P, std::size_t A> double
+	SimplexRegion<D, P, A>::size() const
+{
+	auto ret = 0.;
+
+	for(auto& simp : simplexes())
+		ret += simp.size();
+
+	return ret;
+}
+
+//tests
 ///\relates SimplexRegion
 ///Tests if a SimplexRegion intersects with a Simplex. Symmetrical operator.
 template<std::size_t D, typename P, std::size_t A> bool 
 	intersects(const SimplexRegion<D, P, A>& r, const Simplex<D, P, A>& s)
 {
-	for(auto& rs : r)
+	for(auto& rs : r.simplexes())
 		if(intersects(rs, s)) return 1;
 
 	return 0;
@@ -202,7 +246,7 @@ template<std::size_t D, typename P, std::size_t A> bool
 template<std::size_t D, typename P, std::size_t A> bool 
 	intersects(const SimplexRegion<D, P, A>& r1, const SimplexRegion<D, P, A>& r2)
 {
-	for(auto& rs : r2)
+	for(auto& rs : r2.simplexes())
 		if(intersects(r1, rs)) return 1;
 
 	return 0;
@@ -213,7 +257,7 @@ template<std::size_t D, typename P, std::size_t A> bool
 template<std::size_t D, typename P, std::size_t A>bool 
 	contains(const SimplexRegion<D, P, A>& r, const Simplex<D, P, A>& s)
 {
-	for(auto& rs : r)
+	for(auto& rs : r.simplexes())
 		if(!contains(rs, s)) return 0;
 
 	return 1;
@@ -224,7 +268,7 @@ template<std::size_t D, typename P, std::size_t A>bool
 template<std::size_t D, typename P, std::size_t A>bool 
 	contains(const SimplexRegion<D, P, A>& r1, const SimplexRegion<D, P, A>& r2)
 {
-	for(auto& s : r2)
+	for(auto& s : r2.simplexes())
 		if(!contains(r1, s)) return 0;
 
 	return 1;
@@ -235,7 +279,7 @@ template<std::size_t D, typename P, std::size_t A>bool
 template<std::size_t D, typename P, std::size_t A> bool 
 	contains(const SimplexRegion<D, P, A>& r, const Vec<D, P>& v)
 {
-	for(auto& s : r)
+	for(auto& s : r.simplexes())
 		if(contains(s, v)) return 1;
 
 	return 0;
@@ -261,7 +305,7 @@ template<std::size_t D, typename P, std::size_t A> SimplexRegion<D, P, A>
 
 ///\relates SimplexRegion
 template<std::size_t D, typename P, std::size_t A> SimplexRegion<D, P, A> 
-	difference(const SimplexRegion<D, P, A>&, const SimplexRegion<D, P, A>&)
+	subtract(const SimplexRegion<D, P, A>&, const SimplexRegion<D, P, A>&)
 {
 }
 

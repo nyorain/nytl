@@ -72,7 +72,7 @@ void translate(SquareMat<D, P>& mat, const Vec<D - 1, P>& trans)
 template<std::size_t D, typename P>
 void rotate(SquareMat<D + 1, P>& mat, const Vec<rotationPlanes(D), P>& planes, P angle)
 {
-	rotate(angle * axis);
+	rotate(angle * planes);
 }
 
 ///\relates Mat Transform
@@ -80,13 +80,13 @@ template<std::size_t D, typename P>
 void rotate(SquareMat<D + 1, P>& mat, const Vec<rotationPlanes(D), P>& planeRot)
 {
 	auto rotMat = identityMat<D>();
-	for(std::size_t i(0); i < rotationAxis(D); ++i)
+	for(std::size_t i(0); i < rotationPlanes(D); ++i)
 	{
 		auto planeMat = identityMat<D>();
-		auto idx = indexPlane(D, i);
+		auto idx = detail::indexPlane(D, i);
 
-		auto c = std::cos(rot[i]);
-		auto s = std::sin(rot[i]);
+		auto c = std::cos(planeRot[i]);
+		auto s = std::sin(planeRot[i]);
 
 		planeMat[idx[0]][idx[0]] = c;
 		planeMat[idx[0]][idx[1]] = -s;

@@ -25,7 +25,7 @@
 ///- nytl::combination (union name is reserved) [operator: |]
 ///- nytl::intersection [operator: &]
 ///- nytl::symmetricDifference [operator: ^]
-///- nytl::difference (nonsymmetric) [operator: -] \
+///- nytl::subtract (nonsymmetric) [operator: -] \n
 ///function overloads. All function overloads can also be accessed by there matching c++ operators
 ///as marked above\n
 ///These functions have the following return types:

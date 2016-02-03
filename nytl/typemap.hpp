@@ -147,7 +147,12 @@ public:
     bool valid(const ConstIterator& it) const { return it != types_.end(); }
 
 public:
-    template<typename T> std::size_t registerType(const Identifier& id)
+    template<typename T> std::size_t add(const Identifier& id)
+    {
+        types_[id] = new TypeImpl<T>();
+        return types_.size();
+    }
+    template<typename T> std::size_t add(const Identifier& id, const T&)
     {
         types_[id] = new TypeImpl<T>();
         return types_.size();
@@ -247,7 +252,7 @@ public:
 
 //registerFunc
 template<typename T, typename Identifier, typename Base>
-unsigned int registerType(Typemap<Identifier, Base>& m, const Identifier& id)
+unsigned int addType(Typemap<Identifier, Base>& m, const Identifier& id)
 {
     return m.template registerType<T>(id);
 }
