@@ -1,1 +1,2 @@
 ///\defgroup utility
+///General utility base classes as well as smart pointers and helpers for serializing types.

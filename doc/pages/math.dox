@@ -25,7 +25,7 @@
 ///- nytl::combination (union name is reserved) [operator: |]
 ///- nytl::intersection [operator: &]
 ///- nytl::symmetricDifference [operator: ^]
-///- nytl::subtract (nonsymmetric) [operator: -] \n
+///- nytl::difference (nonsymmetric) [operator: -] \n
 ///function overloads. All function overloads can also be accessed by there matching c++ operators
 ///as marked above\n
 ///These functions have the following return types:
@@ -40,3 +40,6 @@
 ///best performance they are not converted everytime, instead the user can decide whether they
 ///should be converted afterwards. \n
 ///This can be easily achieved with nytl::radians or nytl::degrees.
+///
+///\example vec.cpp Some example operations for nytl::Vec.
+

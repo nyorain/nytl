@@ -38,7 +38,7 @@ template<typename...> struct DeriveDummy {};
 
 #else
 	///\ingroup utility
-	///C++17 alis template for void, used to detect ill-formad types in a SFINAE-context.
+	///C++17 alias template for void, used to detect ill-formad types in a SFINAE-context.
 	///If the compiler supports it, the std version will be used.
 	template<typename...> using void_t = void;
 

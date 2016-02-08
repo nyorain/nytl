@@ -46,6 +46,8 @@ using Any = std::experimental::any;
 using std::experimental::bad_any_cast;
 
 #else
+
+///Implementation for std::any (c++17 stl type).
 class Any
 {
 protected:
