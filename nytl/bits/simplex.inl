@@ -31,12 +31,12 @@ namespace nytl{
 ///\relates Simplex
 ///\brief This exception is thrown when two given arguments do not lay in the same spaces.
 ///\details For some computations (i.e. barycentric coordinates) it is required that two
-///geometric areas (e.g. Simplex and point) lay in the same space.
-class invalid_space : public std::invalid_argument
+///geometric shapes (e.g. Simplex and point) lay in the same space.
+class InvalidSpace : public std::invalid_argument
 {
 public:
-	invalid_space() : std::invalid_argument("Invalid argument given: different space") {}
-	invalid_space(const std::string& func) 
+	InvalidSpace() : std::invalid_argument("Invalid argument given: different space") {}
+	InvalidSpace(const std::string& func) 
 		: std::invalid_argument("Invalid argument given: different space at function " + func) {}  
 };
 
@@ -44,11 +44,11 @@ public:
 ///\brief This exception is thrown if a given Simplex object argument is not valid.
 ///\details Needed because some computations (e.g. barycentric coordinates or sameSpace-check)
 ///can not be done swith an invalid Simplex object.
-class invalid_Simplex : public std::invalid_argument
+class InvalidSimplex : public std::invalid_argument
 {
 public:
-	invalid_Simplex() : std::invalid_argument("Invalid Simplex object parameter") {}
-	invalid_Simplex(const std::string& func) 
+	InvalidSimplex() : std::invalid_argument("Invalid Simplex object parameter") {}
+	InvalidSimplex(const std::string& func) 
 		: std::invalid_argument("Invalid Simplex object parameter given at function " + func) {}  
 };
 
@@ -57,7 +57,7 @@ public:
 ///\relates Simplex
 ///Returns all Lines of a given Simplex. The size of the returnsed Vector is fac(A + 1)
 template<std::size_t D, typename P, std::size_t A>
-std::vector<Line<D, P>> Lines(const Simplex<D, P, A>& simp)
+std::vector<Line<D, P>> lines(const Simplex<D, P, A>& simp)
 {
 	std::vector<Line<D, P>> ret(fac(A + 1));
 
@@ -87,6 +87,7 @@ std::ostream& operator<<(std::ostream& os, const Simplex<D, P, A>& s)
 
 
 //detail implementation
+//most of the more somplex member functions are implemented in these structs so 
 namespace detail
 {
 
@@ -129,7 +130,7 @@ struct SimplexBarycentric
 	{
 		if(!s.valid())
 		{
-			throw invalid_Simplex("SimplexBarycentric");
+			throw InvalidSimplex("SimplexBarycentric");
 		}
 
 		Mat<D, A + 1, double> m;
@@ -145,12 +146,12 @@ struct SimplexBarycentric
 	
 		if(!sol.solvable())
 		{
-			throw invalid_space("SimplexBarycentric");
+			throw InvalidSpace("SimplexBarycentric");
 		}
 		else if(!sol.unambigouoslySolvable())
 		{
 			//should never happen since Simplex is previously checked for validity.
-			throw invalid_Simplex("SimplexBarycentric, :2");
+			throw InvalidSimplex("SimplexBarycentric, :2");
 		}
 	
 		return sol.solution();
@@ -207,7 +208,7 @@ struct SimplexContainsPoint
 			auto bv = barycentric(s, v);
 			return (sum(bv) == 1 && none(bv > 1) && none(bv < 0));
 		}
-		catch(const invalid_space& err)
+		catch(const InvalidSpace& err)
 		{
 			return false;
 		}
@@ -230,13 +231,13 @@ struct SimplexIntersection
 	static SimplexRegion<D, double, min(A1, A2)> 
 	call(const Simplex<D, P, A1>& sa, const Simplex<D, P, A2>& sb)
 	{
-		//find the outlining Lines
-		std::vector<Line<D, double>> Lines;
+		//find the outlining lines
+		auto lines = std::vector<Line<D, double>> {};
 
-		//sa Lines
-		for(auto Line : nytl::Lines(sa))
+		//sa lines
+		for(auto line : nytl::lines(sa))
 		{
-			auto p = intersection(sb, Line).areas(); //specialization needed
+			auto p = intersection(sb, line).simplices(); //specialization needed
 			if(p.empty()) 
 			{
 				continue;
@@ -245,38 +246,35 @@ struct SimplexIntersection
 			{
 				if(p[0].size() == 0)
 				{
-					if(contains(sb, Line.a)) p[0].b = Line.a;
-					else if(contains(sb, Line.b)) p[0].b = Line.b;
+					if(contains(sb, line.a)) p[0].b = line.a;
+					else if(contains(sb, line.b)) p[0].b = line.b;
 				}
 			}
 
-			if(p[0].valid()) Lines.push_back(p[0]);
+			if(p[0].valid()) lines.push_back(p[0]);
 		}
 
-		//sb Lines
-		for(auto Line : nytl::Lines(sb))
+		//sb lines
+		for(auto line : nytl::lines(sb))
 		{
-			auto p = intersection(sa, Line).areas(); //specialization needed
-			std::cout << "p: " << dumpContainer(p) << "\n";
+			auto p = intersection(sa, line).simplices(); //specialization needed
 			if(p.empty()) 
 			{
 				continue;
 			}
 			else
 			{
-				std::cout << "sssize: " << p.size() << "\n";
 				if(p[0].size() == 0)
 				{
-					if(contains(sb, Line.a)) p[0].b = Line.a;
-					else if(contains(sb, Line.b)) p[0].b = Line.b;
+					if(contains(sb, line.a)) p[0].b = line.a;
+					else if(contains(sb, line.b)) p[0].b = line.b;
 				}
 			}
 
-			if(p[0].valid()) Lines.push_back(p[0]);
+			if(p[0].valid()) lines.push_back(p[0]);
 		}
 
-		std::cout << "Lines<<<<<<<<<<<:\n" << dumpContainer(Lines) << "\n";
-		return nytl::createConvex(Lines);
+		return nytl::createConvex(lines);
 	};
 };
 
@@ -324,8 +322,6 @@ struct SimplexIntersection<D, P, A1, 1>
 		auto r = SimplexRegion<D, double, 1>{};
 		r.addNoCheck(ret);
 
-		std::cout << "Line intersection between " << sa << " and " << sb << ": " << ret << "\n";
-
 		return r;
 	};
 };
@@ -340,30 +336,153 @@ struct SimplexIntersection<D, P, 1, A2>
 	}
 };
 
+//TODO
+template<std::size_t D, typename P, std::size_t A1, std::size_t A2>
+struct SimplexDifference
+{
+	static SimplexRegion<D, double, min(A1, A2)> 
+	call(const Simplex<D, P, A1>& sa, const Simplex<D, P, A2>& sb)
+	{
+		//find outlining lines
+		auto lines = std::vector<Line<D, P>> {};
+		for(auto& line : lines(sa))
+		{
+			if(contains(sb, line)) continue;
+			
+			auto& pts = intersection(sb, line);
+			if(pts.simplices().empty())
+			{
+				lines.push_back(line);
+			}
+			else
+			{
+				auto& line2 = pts.simplices[0];
+
+				if(line2.a == line.a) lines.push_back({line2.b, line.b});
+				else if(line2.b == line.a) lines.push_back({line2.a, line.b});
+				else if(line2.a == line.b) lines.push_back({line2.b, line.a});
+				else if(line2.b == line.b) lines.push_back({line2.a, line.a});
+				else lines.push_back(line2);
+			}
+		}
+
+		for(auto& line : lines(sb))
+		{
+			if(contains(sa, line))
+			{
+				lines.push_back(line);
+			}
+			else
+			{
+				auto& pts = intersection(sa, line);
+				if(pts.simplices().empty())	continue;
+				else lines.push_back(pts[0]);
+			}
+		}
+
+		//construct shape from outlines
+		//is no convex shape so createConvex cannot be used here
+		//have to use a version which checks for validity of the created simplices
+		//see createConvex in simplexRegion.inl
+		auto ret = SimplexRegion<D, double, min(A1, A2)> {};
+
+		while(lines.size() > min(A1, A2) + 1)
+		{
+			auto newLines = std::vector<Line<D, P>> {};
+
+			//has to be used here since constructed simplex may not be valid, so lines
+			//have to be erased AFTER creating it and checking for validity
+			auto eraseLines = std::vector<std::size_t> {};
+
+			auto line = lines.front();
+			lines.erase(lines.cbegin());
+	
+			auto simp = Simplex<D, P, min(A1, A2)> {};
+			simp.points()[0] = line.a;
+			simp.points()[1] = line.b;
+			
+			std::size_t idx = 1;
+	
+			//lines at line.a (center point)
+			for(std::size_t i2(0); i2 < lines.size(); ++i2)
+			{
+				auto& line2 = lines[i2];
+	
+				if(all(line2.a == line.a))
+				{
+					simp.points()[++idx] = line2.b;
+					eraseLines.push_back(i2);
+
+					for(std::size_t i3(1); i3 < idx; ++i3)
+						newLines.push_back(simp.points()[i3], simp.points()[idx]);
+				}
+				else if(all(line2.b == line.a))
+				{
+					simp.points()[++idx] = line2.a;
+					eraseLines.push_back(i2);
+
+					for(std::size_t i3(1); i3 < idx; ++i3)
+						newLines.push_back(simp.points()[i3], simp.points()[idx]);
+				}
+			
+				if(idx == min(A1, A2)) break; //all found
+			}
+	
+			assert(idx == min(A1, A2)); //error here! could not construct Simplex
+
+			//extra part that differs from createConvex
+			//check if the created simplex is really part of the subtraction
+			if(intersects(simp, sb) || contains(simp, sb))
+			{
+				//the simplex is invalid
+				continue;
+			}			
+
+			//remove already captures lines from newLines
+			for(std::size_t i2(0); i2 < newLines.size();)
+			{
+				for(std::size_t i3(0); i3 < lines.size(); ++i3)
+				{
+					if(newLines[i2] == lines[i3])
+					{
+						newLines.erase(newLines.cbegin() + i2);
+						break;
+					}
+
+					if(i3 == lines.size() - 1) ++i2; //was not erased
+				}
+			}
+
+			//erase eraseLines and add newLines
+			for(auto it = eraseLines.crend(); it != eraseLines.crbegin(); ++it)
+			{
+				if(!newLines.empty())
+				{
+					lines[*it] = newLines.back();
+					newLines.pop_back();
+				}
+				else
+				{
+					lines.erase(lines.cbegin() + *it);
+				}
+			}
+			
+			lines.insert(lines.cend(), newLines.cbegin(), newLines.cend());
+			ret.addNoCheck(simp);
+		}
+
+		return ret;
+	}
+};
+
+//tests impl
 template<std::size_t D, typename P, std::size_t A>
 struct SimplexIntersects
 {
 	static bool call(const Simplex<D, P, A>& sa, const Simplex<D, P, A>& sb)
 	{
-		Mat<D + 2, (A * 2) + 1, double> eqs;
-		for(std::size_t i(0); i < A * 2; ++i)
-		{
-			eqs.col(i) = sa.points()[i];
-			eqs.col(A + 1 + i) = -sb.points()[i];
-
-			eqs.row(D)[i] = 1;
-			eqs.row(D)[A + 1 + i] = 0;
-
-			eqs.row(D + 1)[i] = 0;
-			eqs.row(D + 1)[A + 1 + i] = 1;
-		}	
-
-		eqs.col((A + 1) * 2).fill(0);
-		eqs.row(D)[(A + 1) * 2] = 1;
-		eqs.row(D + 1)[(A + 1) * 2] = 1;
-
-		rrefMat(eqs);
-		//TODO
+		for(auto& line : lines(sa))
+			if(intersects(sb, line)) return 1;
 		
 		return 0;
 	};
@@ -507,10 +626,11 @@ template<std::size_t D, typename P, std::size_t A> SimplexRegion<D, P, A>
 ///Subtracts the second area from the first one and returns the "rest" of the first area.
 ///Return type is a SimplexRegion since the result is not guaranteed to be representable by one
 ///single Simplex. Asymmetrical operator. [AND NOT]
-template<std::size_t D, typename P, std::size_t A> SimplexRegion<D, P, A> 
-	subtract(const Simplex<D, P, A>& sa, const Simplex<D, P, A>& sb)
+template<std::size_t D, typename P, std::size_t A1, std::size_t A2> auto 
+	difference(const Simplex<D, P, A1>& sa, const Simplex<D, P, A2>& sb)
+	-> decltype(detail::SimplexDifference<D, P, A1, A2>::call(sa, sb))
 {
-	return detail::SimplexSubtraction<D, P, A>::call(sa, sb);
+	return detail::SimplexDifference<D, P, A1, A2>::call(sa, sb);
 }
 
 
@@ -523,6 +643,7 @@ template<std::size_t D, typename P, std::size_t A1, std::size_t A2> auto
 	return intersection(a, b);
 }
 
+///\relates Simplex
 template<std::size_t D, typename P, std::size_t A> auto
 	operator|(const Simplex<D, P, A>& a, const Simplex<D, P, A>& b)
 	-> decltype(combination(a, b))
@@ -530,11 +651,31 @@ template<std::size_t D, typename P, std::size_t A> auto
 	return combination(a, b);
 }
 
+///\relates Simplex
 template<std::size_t D, typename P, std::size_t A> auto
 	operator^(const Simplex<D, P, A>& a, const Simplex<D, P, A>& b)
 	-> decltype(symmetricDifference(a, b))
 {
 	return symmeticDifference(a, b);
+}
+
+///\relates Simplex
+template<std::size_t D, typename P, std::size_t A> auto
+	operator-(const Simplex<D, P, A>& a, const Simplex<D, P, A>& b)
+	-> decltype(difference(a, b))
+{
+	return difference(a, b);
+}
+
+//equality
+///\relates Simplex
+template<std::size_t D, typename P, std::size_t A>
+	bool operator==(const Simplex<D, P, A>& a, const Simplex<D, P, A>& b)
+{
+	for(std::size_t i(0); i < A + 1; ++i)
+		if(!all(a.points()[i] == b.points()[i])) return 0;
+
+	return 1;
 }
 
 

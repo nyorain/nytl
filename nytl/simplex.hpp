@@ -30,7 +30,7 @@
 #include <nytl/mat.hpp>
 #include <nytl/scalar.hpp>
 #include <nytl/linearSolver.hpp>
-#include <nytl/bits/tmpUtil.hpp>
+#include <nytl/bits/tmpUtil.inl>
 
 #include <vector>
 #include <type_traits>
@@ -115,7 +115,7 @@ public:
 public:
 	///Vector of Simplexs that holds the areas that define this RectRegion.
 	///None of the Simplexs in this Vector should intersect with each other.
-	VectorType simplexes_;
+	VectorType simplices_;
 
 public:
 	///Adds a Simplex to this RectRegion. Effectively only adds the part of the Simplex that
@@ -126,11 +126,11 @@ public:
 	void add(const SimplexRegionType& simplexRegion);
 
 	///Adds a Simplex without checking for intersection
-	void addNoCheck(const SimplexType& simplex) { simplexes_.push_back(simplex); }
+	void addNoCheck(const SimplexType& simplex) { simplices_.push_back(simplex); }
 
 	///Adds a SimplexRegion without checking for intersection
 	void addNoCheck(const SimplexRegionType& simplexRegion) 
-		{ simplexes_.insert(simplexes_.cend(), simplexRegion.cbegin(), simplexRegion.cend()); }
+		{ simplices_.insert(simplices_.cend(), simplexRegion.cbegin(), simplexRegion.cend()); }
 
 	///Subtracts a Simplex from this SimplexRegion. 
 	///Effectively checks every Simplex of this SimplexRegio for intersection and resizes 
@@ -144,13 +144,13 @@ public:
 	double size() const;
 
 	///Returns the number of simplexes this SimplexRegion contains.
-	Size count() const { return simplexes().size(); }
+	Size count() const { return simplices().size(); }
 
 	///Returns a Vector with the given Simplexes.
-	const VectorType& simplexes() const { return simplexes_; }
+	const VectorType& simplices() const { return simplices_; }
 
 	///Returns a Vector with the given Simplexes.
-	VectorType& simplexes() { return simplexes_; }
+	VectorType& simplices() { return simplices_; }
 
 	///Converts this object to a SimplexRegion object of different precision and/or space dimension.
 	template<std::size_t OD, typename OP> 

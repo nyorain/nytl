@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <nytl/integer_sequence.hpp>
 #include <cstddef>
 #include <tuple>
 
@@ -105,6 +106,9 @@ public:
 	template<std::size_t N>
 	constexpr ConstString(const char (&str)[N]) : content_(str), size_(N - 1) {} 
 
+	constexpr ConstString(const char* content, std::size_t size) 
+		: content_(content), size_(size) {}
+
 	constexpr std::size_t size() const { return size_; }
 	constexpr char operator[](std::size_t i) const { return content_[i]; }
 
@@ -154,6 +158,7 @@ public:
 	{ return detail::StringTupleSize<count_ - 1>::size(strings_); }
 };
 
+//utility
 template<typename T> constexpr
 const T& makeCSTR(const T& str)
 {
@@ -169,7 +174,21 @@ ConstString makeCSTR(const char (&a)[N])
 template<typename... T> constexpr
 auto makeMultipleConstString(const T&... str)
 	-> MultipleConstString<decltype(makeCSTR(str))...>
-{ return MultipleConstString<decltype(makeCSTR(str))...>(makeCSTR(str) ...); }
+{ 
+	return MultipleConstString<decltype(makeCSTR(str))...>(makeCSTR(str) ...); 
+}
+
+template<std::size_t N, std::size_t... I>
+std::string makeConstString(const char (&content)[N], index_sequence<I...>)
+{
+	return std::string{content[I]...};
+}
+
+template<std::size_t B, std::size_t E, std::size_t N>
+std::string makeConstString(const char (&content)[N])
+{
+	return makeConstString(content, index_sequence_from_to<B, E>());
+}
 
 template<std::size_t N, std::size_t M>
 constexpr char tsgrab(char const(&c)[M]) noexcept

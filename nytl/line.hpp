@@ -106,10 +106,10 @@ public:
     VecType valueAt(const value_type& value, std::size_t dimension = 0) const;
 
 	///Returns the smallest value the Line is defined for in the given dimension.
-    value_type smallestvalue_type(std::size_t dim) const { return min(a[dim], b[dim]); }
+    value_type smallestValue(std::size_t dim) const { return min(a[dim], b[dim]); }
 
 	///Returns the greatest value the Line is defined for in the given dimension.
-    value_type greatestvalue_type(std::size_t dim) const { return max(a[dim], b[dim]); }
+    value_type greatestValue(std::size_t dim) const { return max(a[dim], b[dim]); }
 };
 
 //implementation, utility and operators

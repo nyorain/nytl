@@ -169,7 +169,7 @@ public:
 
 	///\brief Inverts the Mat object.
 	///\details Only available for squared (R == C) Mat objects.
-	///\warning Will throw nytl::invalid_Matrix if the Matrix is not invertable.
+	///\exception nytl::InvalidMatrix if the matrix is not invertable.
 	///Check this with invertable() before using invert().
     template<typename TD = void>
 		typename std::enable_if<is_squared, TD>::type invert();

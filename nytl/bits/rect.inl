@@ -101,7 +101,7 @@ contains(const Rect<D, P>& r1, const Vec<D, P>& v2)
 ///Since the result cant be expressed as a single Rect, it is a Vector of those. 
 ///Asymmetrical operator.
 template<std::size_t D, class P>
-std::vector<Rect<D, P>> subtract(const Rect<D, P>& ra, const Rect<D, P>& rb)
+std::vector<Rect<D, P>> difference(const Rect<D, P>& ra, const Rect<D, P>& rb)
 {
     std::vector<Rect<D, P>> ret;
     if(!intersects(ra, rb)) return std::vector<Rect<D, P>>{ra};
@@ -156,7 +156,7 @@ Rect<D, P> intersection(const Rect<D, P>& ra, const Rect<D, P>& rb)
 template<std::size_t D, typename P>
 std::vector<Rect<D, P>> combination(const Rect<D, P>& ra, const Rect<D, P>& rb)
 {
-    auto ret = subtract(ra, rb);
+    auto ret = difference(ra, rb);
     ret.push_back(rb);
     return ret;
 }
@@ -173,7 +173,7 @@ std::vector<Rect<D, P>> symmetricDifference(const Rect<D, P>& ra, const Rect<D, 
 
     for(std::size_t i(0); i < result.size(); i++)
     {
-        auto vVec = subtract(result[i], intersection(ra, rb));
+        auto vVec = difference(result[i], intersection(ra, rb));
         if(!vVec.empty())
         {
             ret[i] = vVec[0];
@@ -206,6 +206,12 @@ std::vector<Rect<D, P>> operator|(const Rect<D, P>& ra, const Rect<D, P>& rb)
     return combination(ra, rb);
 }
 
+template<std::size_t D, typename P>
+std::vector<Rect<D, P>> operator-(const Rect<D, P>& ra, const Rect<D, P>& rb)
+{
+    return difference(ra, rb);
+}
+
 //TODO: use Vec here (since number of returnd simplexes is known)?
 //can be problematic for higher dimensions (uses stack)
 ///\relates nytl::Rect Simplex
@@ -217,7 +223,7 @@ template<std::size_t D, typename P>
 SimplexRegion<D, P> split(const Rect<D, P>& r)
 {
 	auto points = std::vector<Vec<D, P>> {};
-	points.reserve(pow(2, D));
+	points.reserve(std::pow(2, D));
 
 	//generate points
 	//binary minmax
@@ -227,7 +233,7 @@ SimplexRegion<D, P> split(const Rect<D, P>& r)
 		for(std::size_t d(0); d < D; ++i)
 		{
 			point[d] = r.position[d];
-			if(i & std::pow(2, d))
+			if(i & std::size_t(std::pow(2, d)))
 			{
 				point[d] += r.size[d];
 			}

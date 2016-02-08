@@ -40,7 +40,7 @@ Notice how the callback listener signatures differs from the callback signature,
 ```````````````c++
 nytl::Callback<void(int, nytl::Vec2f)> onEvent;
 
-auto connection = onEvent.add([]{ std::cout << "called\n" }); //Adds a callback listener
+auto connection = onEvent.add([]{ std::cout << "called\n"; }); //Adds a callback listener
 connection.destroy(); //unregisters the connection listener from received connection object
 
 onEvent += [](int a) -> int { return a * 420; }; //same as .add (adds listener)

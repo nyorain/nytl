@@ -114,8 +114,6 @@ public:
 
     ref_VecType& operator=(const VecType& other) noexcept 
 		{ for(size_t i(0); i < dim; ++i) *data_[i] = other[i]; return *this; }
-    ref_VecType& operator=(const ref_VecType& other) noexcept //needed?
-		{ for(size_t i(0); i < dim; ++i) *data_[i] = other[i]; return *this; }
 
     //operator
     template <size_t odim, typename ot> ref_VecType& operator +=(const Vec<odim, ot>& other)
@@ -254,8 +252,6 @@ public:
     Vec(VecType& other) noexcept : x(other.x), y(other.y) {}
     ref_VecType& operator=(const VecType& other) noexcept 
 		{ x = other.x; y = other.y; return *this; }
-    ref_VecType& operator=(const ref_VecType& other) noexcept 
-		{ x = other.x; y = other.y; return *this; }
 
     //operator
     template <size_t odim, typename ot> ref_VecType& operator +=(const Vec<odim, ot>& other)
@@ -393,8 +389,6 @@ public:
     Vec(const VecType& other) noexcept : x(other.x), y(other.y), z(other.z) {}
     ref_VecType& operator=(const VecType& other) noexcept 
 		{ x = other.x; y = other.y; z = other.z; return *this; } 
-    ref_VecType& operator=(const ref_VecType& other) noexcept 
-		{ x = other.x; y = other.y; z = other.z; return *this; }
 
     //operator
     template <size_t odim, typename ot> ref_VecType& operator +=(const Vec<odim, ot>& other)
@@ -540,8 +534,6 @@ public:
 
     Vec(const VecType& other) noexcept : x(other.x), y(other.y), z(other.z), w(other.w) {} 
     ref_VecType& operator=(const VecType& other) noexcept 
-		{ x = other.x; y = other.y; z = other.z; w = other.w; return *this; }
-    ref_VecType& operator=(const ref_VecType& other) noexcept 
 		{ x = other.x; y = other.y; z = other.z; w = other.w; return *this; }
 
     //operator

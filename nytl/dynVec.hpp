@@ -38,7 +38,7 @@
 namespace nytl
 {
 
-template<typename T> using DynVec = Vec<dynamicsize_type, T>;
+template<typename T> using DynVec = Vec<dynamicSize, T>;
 
 using DynVecf = DynVec<float>;
 using DynVeci = DynVec<int>;
@@ -53,12 +53,12 @@ using DynVecb = DynVec<bool>;
 ///\ingroup math
 ///Vec specialization for a dynamic-sized Vec.
 template<typename T>
-class Vec<dynamicsize_type, T>
+class Vec<dynamicSize, T>
 {
 public:
     using value_type = T;
 	using Vector_type = std::vector<T>;
-    constexpr static size_t dim = dynamicsize_type;
+    constexpr static size_t dim = dynamicSize;
 
     using reference = typename Vector_type::reference;
     using const_reference = typename Vector_type::const_reference;
@@ -71,7 +71,7 @@ public:
     using difference_type = typename Vector_type::difference_type;
     using size_type = std::size_t;
 
-    using VecType = Vec<dynamicsize_type, value_type>;
+    using VecType = Vec;
 
 public:
     size_t max_size() const noexcept { return data_.max_size(); }
@@ -167,9 +167,9 @@ public:
 		return ret;
 	}	
 
-	Vec<dynamicsize_type, T> subVec(std::size_t position = 0, std::size_t psize = -1) const
+	Vec<dynamicSize, T> subVec(std::size_t position = 0, std::size_t psize = -1) const
 	{
-		auto ret = Vec<dynamicsize_type, T>(size);
+		auto ret = Vec<dynamicSize, T>(size);
 		for(std::size_t i(0); i < min(psize, size() - position); ++i)
 			ret[i] = (*this)[position + i];
 

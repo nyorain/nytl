@@ -28,6 +28,8 @@
 #pragma once
 
 #include <nytl/make_unique.hpp>
+#include <nytl/any.hpp>
+#include <nytl/bits/tmpUtil.inl>
 
 #include <unordered_map>
 #include <algorithm>
@@ -42,15 +44,109 @@ namespace nytl
 namespace detail
 {
 
+template<typename T, typename = void>
+struct Loader
+{
+	static bool call(std::istream& is, T& obj)
+	{
+		//using dummy = decltype(is >> obj);
+		
+		is >> obj;
+		return 1;
+	}
+};
+
+template<typename T>
+struct Loader<T, void_t<decltype(T{}.load(std::cin))>>
+{
+	static bool call(std::istream& is, T& obj)
+	{
+		return obj.load(is);
+	}
+};
+
+}
+
+template<typename T>
+auto load(std::istream& is, T& obj)
+	-> decltype(detail::Loader<T>::call(is, obj))
+{
+	return detail::Loader<T>::call(is, obj);
+}
+
+namespace detail
+{
+
+//TODO: perfect forwarding needed here? Args/CArgs are explicitly specified...
 //make_unique_wrapper, returns a unique_ptr for usual types and a void* for void type
 template<typename Base, typename T, typename... Args> struct make_unique_wrapper
 {
-    static std::unique_ptr<Base> call(Args... args) { return make_unique<T>(args...); };
+    static std::unique_ptr<Base> call(Args... args) { return make_unique<T>(args...); }
 };
 
 template<typename T, typename... Args> struct make_unique_wrapper<void, T, Args...>
 {
     static void* call(Args... args) { return new T(args...); };
+};
+
+template<typename T, typename... Args> struct make_unique_wrapper<Any, T, Args...>
+{
+    static Any call(Args... args) { return Any(T(args...)); };
+};
+
+//createLoad
+template<typename Base, typename T, typename... Args> struct CreateLoadWrapper
+{
+    static std::unique_ptr<Base> call(std::istream& is, Args... args) 
+	{ 
+		auto ret = make_unique<T>(args...); 
+		if(!load(is, *ret)) return nullptr;
+		return ret;
+	}
+};
+
+template<typename T, typename... Args> struct CreateLoadWrapper<void, T, Args...>
+{
+    static void* call(std::istream& is, Args... args) 
+	{ 
+		auto ret = new T(args...);
+		if(!load(is, *ret)) return nullptr;
+		return ret;
+	};
+};
+
+template<typename T, typename... Args> struct CreateLoadWrapper<Any, T, Args...>
+{
+    static Any call(std::istream& is, Args... args) 
+	{ 
+		auto ret = T(args...);
+		if(!load(is, ret)) return Any();
+		return Any(ret);
+	};
+};
+
+//wrapper for creating empty (invalid) objects of given type (ptr/any)
+template<typename Pointer> struct make_empty_wrapper
+{
+    static Pointer call() { return nullptr; };
+};
+
+template<> struct make_empty_wrapper<Any>
+{
+    static Any call() { return Any(); };
+};
+
+//wrapper for checking if an object is valid
+template<typename T>
+struct CheckValidWrapper
+{
+	static bool call(const T& obj){ return obj != nullptr; }
+};
+
+template<>
+struct CheckValidWrapper<Any>
+{
+	static bool call(const Any& obj){ return !obj.empty(); }
 };
 
 }
@@ -66,23 +162,27 @@ template<typename T, typename... Args> struct make_unique_wrapper<void, T, Args.
 ///\tparam B Base type of all stored types. If there is none, use void (Created objects will then be
 ///passed as void* objects). Defaulted to void
 ///\tparam CA Additional construction args an objects needs on creation.
-template<typename I, typename B = void, typename... CArgs>
+template<typename I, typename B = Any, typename... CArgs>
 class Typemap
 {
 public:
 	using Base = B;
 	using Identifier = I;
-	using Factory = detail::make_unique_wrapper<B, CArgs...>;
-    using Pointer = typename 
-		std::conditional<std::is_same<Base, void>::value, void*, std::unique_ptr<Base>>::type;
+    using Pointer = typename std::conditional<
+		std::is_same<Base, void>::value, void*, typename std::conditional<
+		std::is_same<Base, Any>::value, Any, std::unique_ptr<Base>>::type>::type;
+	using EmptyFactory = detail::make_empty_wrapper<Pointer>;
+	template <typename T> using Factory = detail::make_unique_wrapper<B, T>;
+	template <typename T> using LoadFactory = detail::CreateLoadWrapper<B, T, CArgs...>;
 
     //base
     struct TypeBase
     {
     public:
         virtual ~TypeBase() = default;
-        virtual Pointer create(CArgs&&... args) const = 0;
         virtual const std::type_info& typeInfo() const = 0;
+        virtual Pointer create(CArgs&&... args) const = 0;
+        virtual Pointer createLoad(std::istream& is, CArgs&&... args) const = 0;
     };
 
     //impl
@@ -91,9 +191,11 @@ public:
     {
     public:
         virtual ~TypeImpl() = default;
-        virtual Pointer create(CArgs&&... args) const override
-            { return Factory::call(std::forward<CArgs>(args)...); }
         virtual const std::type_info& typeInfo() const override { return typeid(T); };
+        virtual Pointer create(CArgs&&... args) const override
+            { return Factory<T>::call(std::forward<CArgs>(args)...); }
+        virtual Pointer createLoad(std::istream& is, CArgs&&... args) const override
+			{ return LoadFactory<T>::call(is, args...); }
     };
 
     using MapType = std::unordered_map<Identifier, std::unique_ptr<const TypeBase>>;
@@ -149,12 +251,12 @@ public:
 public:
     template<typename T> std::size_t add(const Identifier& id)
     {
-        types_[id] = new TypeImpl<T>();
+        types_[id].reset(new TypeImpl<T>());
         return types_.size();
     }
     template<typename T> std::size_t add(const Identifier& id, const T&)
     {
-        types_[id] = new TypeImpl<T>();
+        types_[id].reset(new TypeImpl<T>());
         return types_.size();
     }
 
@@ -213,14 +315,14 @@ public:
 		auto it = typeIterator(id); 
 		if(it != types_.cend()) 
 			return it->second->create(std::forward<CArgs>(args)...); 
-		return nullptr; 
+		return EmptyFactory::call();
 	}
     Pointer create(const std::type_info& id, CArgs&&... args) const
     { 
 		auto it = typeIterator(id); 
 		if(it != types_.cend()) 
 			return it->second->create(std::forward<CArgs>(args)...); 
-		return nullptr; 
+		return EmptyFactory::call(); 
 	}
 	///}
 
@@ -251,10 +353,10 @@ public:
 };
 
 //registerFunc
-template<typename T, typename Identifier, typename Base>
-unsigned int addType(Typemap<Identifier, Base>& m, const Identifier& id)
+template<typename T, typename Identifier, typename Base, typename... CArgs>
+unsigned int addType(Typemap<Identifier, Base, CArgs...>& m, const Identifier& id)
 {
-    return m.template registerType<T>(id);
+    return m.template add<T>(id);
 }
 
 }

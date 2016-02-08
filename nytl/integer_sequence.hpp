@@ -67,14 +67,45 @@ public:
     >::type;
 };
 
-template<typename T> struct make_integer_sequenceT<T, 0> { using type = integer_sequence<T>; };
-template<typename T> struct make_integer_sequenceT<T, 1> { using type = integer_sequence<T, T(0)>; };
+template<typename T> struct make_integer_sequenceT<T, 0> 
+	{ using type = integer_sequence<T>; };
+template<typename T> struct make_integer_sequenceT<T, 1> 
+	{ using type = integer_sequence<T, T(0)>; };
 
 }
 
 //make typedefs
-template<typename T, T highest> using make_integer_sequence = typename detail::make_integer_sequenceT<T, highest>::type;
-template<std::size_t highest> using make_index_sequence = make_integer_sequence<std::size_t, highest>;
+template<typename T, T highest> using make_integer_sequence = 
+	typename detail::make_integer_sequenceT<T, highest>::type;
+template<std::size_t highest> using make_index_sequence = 
+	make_integer_sequence<std::size_t, highest>;
 
 #endif // __cplusplus
+
+//always there - extra functionality
+namespace detail
+{
+
+template<typename T, T low, T high> 
+class integer_sequence_from_toT
+{
+public:
+	using type =
+		seq_append_t<typename integer_sequence_from_toT<T, low, high - 1>::type, high>;	
+};
+
+template<typename T, T low>
+class integer_sequence_from_toT<T, low, low>
+{
+public:
+	using type = integer_sequence<T, low>;
+};
+
+}
+
+template<typename T, T low, T high> using integer_sequence_from_to =
+	typename detail::integer_sequence_from_toT<T, low, high>::type;
+template<std::size_t low, std::size_t high> using index_sequence_from_to = 
+	integer_sequence_from_to<std::size_t, low, high>;
+
 }

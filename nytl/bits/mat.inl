@@ -51,13 +51,11 @@ typename std::enable_if<Mat<R, C, P>::is_squared, TD>::type Mat<R, C, P>::invert
 ///\brief Exception class deriving std::invalid_argument.
 ///\details Thrown by operational Matrix functions that do not work for singular Matrices
 ///but receive a singular Matrix as argument.
-class invalid_Matrix : public std::invalid_argument
+class InvalidMatrix : public std::invalid_argument
 {
 public:
-	invalid_Matrix()
-		: std::invalid_argument("Invalid Matrix argument") {}
-
-	invalid_Matrix(const std::string& func)
+	InvalidMatrix() : std::invalid_argument("Invalid Matrix argument") {}
+	InvalidMatrix(const std::string& func) 
 		: std::invalid_argument("Invalid Matrix argument in function " + func) {}
 };
 
@@ -114,7 +112,7 @@ int pivot(Mat<R, C, P>& m)
 ///\relates Mat
 ///\brief Computes a luDecomposition of a non-singular Matrix.
 ///\return 2 Mats, The lower (l, first Mat) and the upper one(u, second Mat).
-///\warning May throw a nytl::invalid_Matrix exception if the given Matrix is
+///\exception nytl::InvalidMatrix if the given Matrix is
 ///not corRectly pivotized.
 template<std::size_t D, typename P>
 Vec2<Mat<D, D, double>> luDecomposition(const Mat<D, D, P>& m)
@@ -143,7 +141,7 @@ Vec2<Mat<D, D, double>> luDecomposition(const Mat<D, D, P>& m)
 			{
 				if(lu[1][c][c] == 0)
 				{
-					throw invalid_Matrix("nytl::luDecomposition, needs pivoting");
+					throw InvalidMatrix("nytl::luDecomposition, needs pivoting");
 				}
 
 				vsum = 0;

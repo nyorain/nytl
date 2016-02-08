@@ -40,6 +40,8 @@
 namespace nytl
 {
 
+//load
+//Serialize Templates
 class SerializedBase : public AbstractCloneable<SerializedBase>
 {
 public:
@@ -54,28 +56,30 @@ public:
 	};
 };
 
-template<typename T, typename Name>
-class Serialized : public DeriveNamed<DeriveCloneable<SerializedBase, T>, Name>
+template<typename T>
+class Serialized : public DeriveCloneable<SerializedBase, T>
 {
 public:
-	using Base = SerializedBase;
-	using typename DeriveNamed<DeriveCloneable<Base, T>, Name>::NamedBase;
-
-	virtual std::string objectTypeName() const override { return NamedBase::typeName(); }
+	virtual std::string objectTypeName() const override { return typeName<T>(); }
 	virtual const std::type_info& objectTypeInfo() const override { return typeid(T); }
 };
 
-template<typename Base, typename Derived, typename Name>
-class DeriveSerialized : public DeriveNamed<DeriveCloneable<Base, Derived>, Name>
+template<typename Base, typename Derived>
+class DeriveSerialized : public DeriveCloneable<Base, Derived>
 {
 public:
-	using typename DeriveNamed<DeriveCloneable<Base, Derived>, Name>::NamedBase;
-
-	virtual std::string objectTypeName() const override { return NamedBase::typeName(); }
+	virtual std::string objectTypeName() const override { return typeName<Derived>(); }
 	virtual const std::type_info& objectTypeInfo() const override { return typeid(Derived); }
 };
 
-template<typename Base = SerializedBase, typename... CArgs>
+//
+namespace detail
+{
+
+
+}
+
+template<typename Base = Any, typename... CArgs>
 class Serializer : public Typemap<std::string, Base, CArgs...>
 {
 public:
@@ -87,9 +91,11 @@ public:
 	{
 		std::string name;
 		in >> name;
-		auto ret = create(name, args...);
-		if(!ret || !ret->load(in)) return nullptr;
-		return ret;
+		auto it = TypemapBase::typeIterator(name); 
+		if(TypemapBase::valid(it))
+			return it->second->createLoad(in);
+
+		return TypemapBase::EmptyFactory::call();
 	}
 
 	using TypemapBase::add;
@@ -103,5 +109,14 @@ public:
 		return add<T>(typeName<T>());
 	}
 };
+
+using DefaultSerializer = Serializer<>;
+
+//registerFunc
+template<typename T, typename Base, typename... CArgs>
+unsigned int addType(Serializer<Base, CArgs...>& m)
+{
+    return m.template add<T>();
+}
 
 }

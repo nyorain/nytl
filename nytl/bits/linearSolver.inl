@@ -72,10 +72,9 @@ SolutionSet<C - 1> solve(const Mat<R, C, P>& m)
 
 		if(currVar == -1) //all vars == 0
 		{
-			if(res[r].back() != 0) //result != 0 -> not solvable
-				return SolutionSet<V>();
-			else //just an empty row
-				continue; 
+			//result != 0 -> not solvable
+			if(res[r].back() != 0)  return SolutionSet<V>();
+			else continue; //just an empty row
 		}
 
 		solution[currVar].constPart = res[r].back();
@@ -137,11 +136,9 @@ std::vector<Vec<D, double>> outLinePoints(const DomainedSolutionSet<D>& solution
 			}
 			catch(std::invalid_argument& err)
 			{
-				std::cout << varSeqi << " ,, " << minmaxSeqi << " FAIL " << "\n";
 				continue;
 			}
 
-			std::cout << varSeqi << " ,, " << minmaxSeqi << " --> " << sol << "\n";
 			ret.push_back(sol);
 		}
 	}
@@ -411,13 +408,6 @@ void DomainedSolutionSet<N>::bake() const
 			}
 		}
 	}
-
-
-	for(auto& d : dependentDomains_)
-	{
-		std::cout << "dep: " << Vec2d{d.constMin, d.constMax} << "\n";
-	}
-	std::cout << "depEnd\n";
 }
 
 template<std::size_t N> DynVecd 

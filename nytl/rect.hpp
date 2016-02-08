@@ -37,38 +37,38 @@
 namespace nytl
 {
 //Rect
-template<size_t D, class P> class Rect;
+template<std::size_t D, class P> class Rect;
 
-template<class P> using Rect2 = Rect<2, P>;
-template<class P> using Rect3 = Rect<3, P>;
-template<class P> using Rect4 = Rect<4, P>;
+template<typename P> using Rect2 = Rect<2, P>;
+template<typename P> using Rect3 = Rect<3, P>;
+template<typename P> using Rect4 = Rect<4, P>;
 
-typedef Rect<2, int> Rect2i;
-typedef Rect<2, unsigned int> Rect2ui;
-typedef Rect<2, double> Rect2d;
-typedef Rect<2, float> Rect2f;
-typedef Rect<2, char> Rect2c;
-typedef Rect<2, unsigned char> Rect2uc;
-typedef Rect<2, long> Rect2l;
-typedef Rect<2, unsigned long> Rect2ul;
+using Rect2i = Rect<2, int>;
+using Rect2ui = Rect<2, unsigned int>;
+using Rect2d = Rect<2, double>;
+using Rect2f = Rect<2, float>;
+using Rect2c = Rect<2, char>;
+using Rect2uc = Rect<2, unsigned char>;
+using Rect2l = Rect<2, long>;
+using Rect2ul = Rect<2, unsigned long>;
 
-typedef Rect<3, int> Rect3i;
-typedef Rect<3, unsigned int> Rect3ui;
-typedef Rect<3, double> Rect3d;
-typedef Rect<3, float> Rect3f;
-typedef Rect<3, char> Rect3c;
-typedef Rect<3, unsigned char> Rect3uc;
-typedef Rect<3, long> Rect3l;
-typedef Rect<3, unsigned long> Rect3ul;
+using Rect3i = Rect<3, int>;
+using Rect3ui = Rect<3, unsigned int>;
+using Rect3d = Rect<3, double>;
+using Rect3f = Rect<3, float>;
+using Rect3c = Rect<3, char>;
+using Rect3uc = Rect<3, unsigned char>;
+using Rect3l = Rect<3, long>;
+using Rect3ul = Rect<3, unsigned long>;
 
-typedef Rect<4, int> Rect4i;
-typedef Rect<4, unsigned int> Rect4ui;
-typedef Rect<4, double> Rect4d;
-typedef Rect<4, float> Rect4f;
-typedef Rect<4, char> Rect4c;
-typedef Rect<4, unsigned char> Rect4uc;
-typedef Rect<4, long> Rect4l;
-typedef Rect<4, unsigned long> Rect4ul;
+using Rect4i = Rect<4, int>;
+using Rect4ui = Rect<4, unsigned int>;
+using Rect4d = Rect<4, double>;
+using Rect4f = Rect<4, float>;
+using Rect4c = Rect<4, char>;
+using Rect4uc = Rect<4, unsigned char>;
+using Rect4l = Rect<4, long>;
+using Rect4ul = Rect<4, unsigned long>;
 
 ///\ingroup math
 ///\brief Templated class that represents the matheMatic hyperRect (n-box) concept.
@@ -80,42 +80,60 @@ typedef Rect<4, unsigned long> Rect4ul;
 ///intersection, compute unions or differences.
 ///There exist specialization for a 2-dimensional hyperRect (just a Rectangle), a 3-dimensional
 ///hyperRect (also called box) with additional features. 
-template<size_t D, class P> 
+template<std::size_t D, typename P> 
 class Rect
 {
 public:
-    using value_type = P;
-    using VecType = Vec<D, value_type>;
+	static constexpr std::size_t dim = D;
+
+	using Size = std::size_t;
+	using Precision = P;
+    using VecType = Vec<dim, Precision>;
+	using RectType = Rect;
+
+	//stl
+    using value_type = Precision;
+	using size_type = Size;
 
 public:
 	VecType position;
 	VecType size;
 
 public:
+	///Constructs the Rect with a given position and size.
 	Rect(VecType pposition = VecType(), VecType psize = VecType()) noexcept 
 		: position(pposition), size(psize) {}
-    ~Rect() noexcept = default;
 
-    Rect(const Rect<D, P>& other) noexcept = default;
-	Rect& operator=(const Rect<D, P>& other) noexcept = default;
+	///Returns the center point.
+	VecType center() const { return static_cast<Precision>(position + (size / Precision(2))); };
 
-    Rect(Rect<D, P>&& other) noexcept = default;
-	Rect& operator=(Rect<D, P>&& other) noexcept = default;
+	//TODO: find a better name for this function.
+	///Returns the area/volume/... of the given rect.
+	Precision inside() const { return multiply(size); }
 
-	Vec<D, double> center() const { return (double)(position + (size / 2.)); };
-	bool empty() const { return anyvalue_typeGreater(size, 0); }
+	///Returns whether the Rect has an area/volume/...
+	bool empty() const { return !allEqual(size, 0); }
 
-	template<size_t oD, class oP> 
-	operator Rect<oD, oP>() const { return Rect<oD, oP>(position, size); }
+	///Converts the Rect to another Rect object of different dimension and/or precision.
+	template<Size OD, class OP> 
+	operator Rect<OD, OP>() const { return Rect<OD, OP>(position, size); }
 };
 
 //Rect2 specialization
-template<class P> class Rect<2, P>
+template<typename P> 
+class Rect<2, P>
 {
 public:
-    static constexpr std::size_t D = 2;
-    using value_type = P;
-    using VecType = Vec<D, value_type>;
+    static constexpr std::size_t dim = 2;
+
+	using Size = std::size_t;
+	using Precision = P;
+    using VecType = Vec<dim, Precision>;
+	using RectType = Rect;
+
+	//stl
+    using value_type = Precision;
+	using size_type = Size;
 
 public:
 	VecType position;
@@ -124,28 +142,20 @@ public:
 public:
 	Rect(const VecType& pposition, const VecType& psize = VecType()) noexcept 
 		: position(pposition), size(psize) {}
-	Rect(P x = P(), P y = P(), P width = P(), P height = P()) noexcept 
-		: position(x,y), size(width,height) {}
+	Rect(const P& x = {}, const P& y = {}, const P& width = {}, const P& height = {}) noexcept 
+		: position(x, y), size(width, height) {}
 
-	~Rect() noexcept = default;
+	VecType center() const { return static_cast<Precision>(position + (size / Precision(2))); };
 
-	Rect(const Rect<D, P>& other) noexcept = default;
-	Rect& operator=(const Rect<D, P>& other) noexcept = default;
-
-    Rect(Rect<D, P>&& other) noexcept = default;
-	Rect& operator=(Rect<D, P>&& other) noexcept = default;
-
-	Vec<D, double> center() const { return (double)(position + (size / 2.)); };
-
-    Vec<2, P> topLeft() const { return position; }
-	Vec<2, P> topRight() const { return position + Vec<2, P>(size.x, 0); }
-	Vec<2, P> bottomLeft() const { return position + Vec<2, P>(0, size.y);}
-	Vec<2, P> bottomRight() const { return position + size; }
+    VecType topLeft() const { return position; }
+	VecType topRight() const { return position + VecType(size.x, 0); }
+	VecType bottomLeft() const { return position + VecType(0, size.y);}
+	VecType bottomRight() const { return position + size; }
 
 	const P& left() const { return position.x; }
-	const P right() const { return position.x + size.x; }
+	P right() const { return position.x + size.x; }
 	const P& top() const { return position.y; }
-	const P bottom() const { return position.y + size.y; }
+	P bottom() const { return position.y + size.y; }
 
     P& left() { return position.x; }
 	P& top() { return position.y; }
@@ -156,20 +166,31 @@ public:
     P& width() { return size.x; }
 	P& height() { return size.y; }
 
-    bool empty() const { return any(size > 0); }
+	Precision area() const { return multiply(size); }
+	Precision inside() const { return area(); }
+    bool empty() const { return all(size > 0); }
 
     //conversion
-	template<size_t oD, class oP>
-	operator Rect<oD, oP>() const { return Rect<oD, oP>(position, size); }
+	template<Size OD, typename OP>
+	operator Rect<OD, OP>() const { return Rect<OD, OP>(position, size); }
 };
 
 //Rect3 specialization
-template<class P> class Rect<3, P>
+template<typename P> 
+class Rect<3, P>
 {
 public:
-    static constexpr std::size_t D = 3;
-    using value_type = P;
-    using VecType = Vec<D, value_type>;
+    static constexpr std::size_t dim = 2;
+
+	using Size = std::size_t;
+	using Precision = P;
+    using VecType = Vec<dim, Precision>;
+	using VecType2 = Vec<2, Precision>;
+	using RectType = Rect;
+
+	//stl
+    using value_type = Precision;
+	using size_type = Size;
 
 public:
 	VecType position;
@@ -181,29 +202,21 @@ public:
 	Rect(P x = P(), P y = P(), P z = P(), P width = P(), P height = P(), P depth = P()) noexcept
         : position(x,y,z), size(width,height,depth) {}
 
-	~Rect() noexcept = default;
+	VecType center() const { return static_cast<Precision>(position + (size / Precision(2))); };
 
-	Rect(const Rect<D, P>& other) noexcept = default;
-	Rect& operator=(const Rect<D, P>& other) noexcept = default;
+    VecType2 topLeft() const { return position.xy(); }
+	VecType2 topRight() const { return position.xy() + VecType2(size.x, 0); }
+	VecType2 bottomLeft() const { return position.xy() + VecType2(0, size.y);}
+	VecType2 bottomRight() const { return position.xy() + size.xy(); }
 
-    Rect(Rect<D, P>&& other) noexcept = default;
-	Rect& operator=(Rect<D, P>&& other) noexcept = default;
-
-	Vec<D, double> center() const { return (double)(position + (size / 2.)); };
-
-    Vec<2, P> topLeft() const { return position.xy(); }
-	Vec<2, P> topRight() const { return position.xy() + Vec<2, P>(size.x, 0); }
-	Vec<2, P> bottomLeft() const { return position.xy() + Vec<2, P>(0, size.y);}
-	Vec<2, P> bottomRight() const { return position.xy() + size.xy(); }
-
-    Vec<3, P> frontTopLeft() const { return position; }
-	Vec<3, P> frontTopRight() const { return position + Vec<3, P>(size.x, 0, 0); }
-	Vec<3, P> frontBottomLeft() const { return position + Vec<3, P>(0, size.y, 0);}
-	Vec<3, P> frontBottomRight() const { return position + Vec<3, P>(size.x, size.y, 0); }
-    Vec<3, P> backTopLeft() const { return position + Vec<3, P>(0, 0, size.z); }
-	Vec<3, P> backTopRight() const { return position + Vec<3, P>(size.x, 0, size.z); }
-	Vec<3, P> backBottomLeft() const { return position + Vec<3, P>(0, size.y, size.z);}
-	Vec<3, P> backBottomRight() const { return position + size; }
+    VecType frontTopLeft() const { return position; }
+	VecType frontTopRight() const { return position + VecType(size.x, 0, 0); }
+	VecType frontBottomLeft() const { return position + VecType(0, size.y, 0);}
+	VecType frontBottomRight() const { return position + VecType(size.x, size.y, 0); }
+    VecType backTopLeft() const { return position + VecType(0, 0, size.z); }
+	VecType backTopRight() const { return position + VecType(size.x, 0, size.z); }
+	VecType backBottomLeft() const { return position + VecType(0, size.y, size.z);}
+	VecType backBottomRight() const { return position + size; }
 
 	const P& left() const { return position.x; }
 	P right() const { return position.x + size.x; }
@@ -224,6 +237,8 @@ public:
 	P& height() { return size.y; }
 	P& depth() { return size.z; }
 
+	Precision volume() const { return multiply(size); }
+	Precision inside() const { return volume(); }
     bool empty() const { return any(size > 0); }
 
     //conversion
@@ -231,7 +246,7 @@ public:
 	operator Rect<oD, oP>() const { return Rect<oD, oP>(position, size); }
 };
 
-//operators
+//operators and utility
 #include <nytl/bits/rect.inl>
 
 }
