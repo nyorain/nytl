@@ -1,4 +1,4 @@
-#nytl ![Travis Build](https://travis-ci.org/nyorain/nytl.svg?branch=master)
+#nytl [![Build Status](https://travis-ci.org/nyorain/nytl.svg?branch=master)](https://travis-ci.org/nyorain/nytl)
 
 nytl is a header-only utility library for c++11 (Will probably soon use c++14 features). It includes math classes and provides useful operations and sometimes even complex algorithms like e.g. [nytl::Vec], [nytl::Mat] or [nytl::Rect].
 Then there is a smaller part about functions and function-conversions with classes like [nytl::CompatibleFunction], [nytl::Callback] or [nytl::function_traits]. 
