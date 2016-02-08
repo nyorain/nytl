@@ -27,8 +27,6 @@
 
 #pragma once
 
-#include <nytl/fwd.hpp>
-
 #include <nytl/any.hpp>
 #include <nytl/cache.hpp>
 #include <nytl/callback.hpp>

@@ -38,17 +38,17 @@ public:
 
 	void addObserver(Observer& obs)
 	{
-		std::lock_guard<std::mutex>(mutex_);
+		std::lock_guard<std::mutex> lock(mutex_);
 		observer_.push_back(&obs);
 	}
 	bool removeObserver(Observer& obs)
 	{
-		std::lock_guard<std::mutex>(mutex_);
-		return (observer_.cend() == std::remove(observer_.cbegin(), observer_.cend(), &obs));
+		std::lock_guard<std::mutex> lock(mutex_);
+		return (observer_.cend() == std::remove(observer_.begin(), observer_.end(), &obs));
 	}
 	bool moveObserver(Observer& oldone, Observer& newone)
 	{
-		std::lock_guard<std::mutex>(mutex_);
+		std::lock_guard<std::mutex> lock(mutex_);
 		auto it = std::find(observer_.begin(), observer_.end(), &oldone);
 		if(it == observer_.cend()) return 0;
 		*it = &newone;
