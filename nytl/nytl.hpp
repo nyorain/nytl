@@ -27,6 +27,9 @@
 
 #pragma once
 
+#include <nytl/fwd.hpp>
+
+#include <nytl/any.hpp>
 #include <nytl/cache.hpp>
 #include <nytl/callback.hpp>
 #include <nytl/cloneable.hpp>
@@ -36,19 +39,28 @@
 #include <nytl/function_traits.hpp>
 #include <nytl/hierachy.hpp>
 #include <nytl/integer_sequence.hpp>
-#include <nytl/log.hpp>
+#include <nytl/line.hpp>
 #include <nytl/linearSolver.hpp>
+#include <nytl/log.hpp>
 #include <nytl/make_unique.hpp>
 #include <nytl/mat.hpp>
 #include <nytl/misc.hpp>
+#include <nytl/named.hpp>
 #include <nytl/nonCopyable.hpp>
+#include <nytl/observable.hpp>
 #include <nytl/rect.hpp>
 #include <nytl/rectRegion.hpp>
+#include <nytl/referenced.hpp>
 #include <nytl/refVec.hpp>
+#include <nytl/scalar.hpp>
+#include <nytl/serialize.hpp>
 #include <nytl/simplex.hpp>
-#include <nytl/time.hpp>
+#include <nytl/system.hpp>
 #include <nytl/tetrahedron.hpp>
-#include <nytl/transform.hpp>
+#include <nytl/time.hpp>
 #include <nytl/tmp.hpp>
+#include <nytl/transform.hpp>
+#include <nytl/triangle.hpp>
+#include <nytl/typemap.hpp>
 #include <nytl/vec.hpp>
-#include <nytl/watchable.hpp>
+
