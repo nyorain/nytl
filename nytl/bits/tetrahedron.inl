@@ -27,7 +27,7 @@
 template<std::size_t D, typename P>
 double Tetrahedron<D, P>::size() const
 {
-	return detail::Simplexsize_type(*this);
+	return detail::SimplexSize(*this);
 }
 
 template<std::size_t D, typename P>

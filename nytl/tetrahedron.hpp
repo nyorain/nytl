@@ -54,26 +54,30 @@ template<size_t D, typename P>
 class Simplex<D, P, 3>
 {
 public:
-    using value_type = P;
+	static constexpr std::size_t dim = D;
+	static constexpr std::size_t simplexDim = 3;
+
+	using Precision = P;
     using VecType = Vec<D, P>;
-    using Tetrahedron_type = Tetrahedron<D, P>;
+    using TetrahedronType = Tetrahedron<D, P>;
     using LineType = Line<D, P>;
-    using Triangle_type = Triangle<D, P>;
+    using TriangleType = Triangle<D, P>;
+	using Size = std::size_t;
+
+	//stl
+    using value_type = Precision;
+	using size_type = Size;
 
 public:
-    VecType a;
-    VecType b;
-    VecType c;
-    VecType d;
+    VecType a {};
+    VecType b {};
+    VecType c {};
+    VecType d {};
 
 public:
     Simplex(const VecType& xa, const VecType& xb, const VecType& xc, const VecType& xd) noexcept
 		: a(xa), b(xb), c(xc), d(xd) {}
-
     Simplex() noexcept = default;
-    ~Simplex() noexcept = default;
-    Simplex(const Tetrahedron_type& other) noexcept = default;
-    Tetrahedron_type& operator=(const Tetrahedron_type& other) noexcept = default;
 
 	//default
     double size() const;
@@ -90,27 +94,27 @@ public:
 
 	//Tetrahedron specific
 	//edges
-    LineType AB() const { return LineType(a, b); }
-    LineType AC() const { return LineType(a, c); }
-    LineType AD() const { return LineType(a, d); }
+    LineType ab() const { return LineType(a, b); }
+    LineType ac() const { return LineType(a, c); }
+    LineType ad() const { return LineType(a, d); }
 
-    LineType BA() const { return LineType(b, a); }
-    LineType BC() const { return LineType(b, c); }
-    LineType BD() const { return LineType(b, d); }
+    LineType ba() const { return LineType(b, a); }
+    LineType bc() const { return LineType(b, c); }
+    LineType bd() const { return LineType(b, d); }
 
-    LineType CA() const { return LineType(c, a); }
-    LineType CB() const { return LineType(c, b); }
-    LineType CD() const { return LineType(c, d); }
+    LineType ca() const { return LineType(c, a); }
+    LineType cb() const { return LineType(c, b); }
+    LineType cd() const { return LineType(c, d); }
 
-    LineType DA() const { return LineType(d, a); }
-    LineType DB() const { return LineType(d, b); }
-    LineType DC() const { return LineType(d, c); }
+    LineType da() const { return LineType(d, a); }
+    LineType db() const { return LineType(d, b); }
+    LineType dc() const { return LineType(d, c); }
 
 	//faces
-	Triangle_type ABC() const { return Triangle_type(a, b, c); }
-	Triangle_type ABD() const { return Triangle_type(a, b, d); }
-	Triangle_type ACD() const { return Triangle_type(a, c, d); }
-	Triangle_type BCD() const { return Triangle_type(b, c, d); }
+	TriangleType abc() const { return TriangleType(a, b, c); }
+	TriangleType abd() const { return TriangleType(a, b, d); }
+	TriangleType acd() const { return TriangleType(a, c, d); }
+	TriangleType bcd() const { return TriangleType(b, c, d); }
 
 	//TODO: angle
 };

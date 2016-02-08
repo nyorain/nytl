@@ -93,7 +93,7 @@ namespace detail
 
 //member
 template<std::size_t D, typename P, std::size_t A>
-double Simplexsize_type(const Simplex<D, P, A>& s)
+double SimplexSize(const Simplex<D, P, A>& s)
 {
 	SquareMat<D, P> m;
 	for(std::size_t i(1); i <= A; ++i)
@@ -495,7 +495,7 @@ struct SimplexIntersects
 template<std::size_t D, typename P, std::size_t A>
 double Simplex<D, P, A>::size() const
 {
-	return detail::Simplexsize_type(*this);
+	return detail::SimplexSize(*this);
 }
 
 template<std::size_t D, typename P, std::size_t A>

@@ -67,9 +67,11 @@ struct Loader<T, void_t<decltype(T{}.load(std::cin))>>
 
 }
 
+///\ingroup utility
+///Load an object from an istream. If your type does neither overload the >> operator nor
+///have a load member function, specialize this template function with your own type.
 template<typename T>
-auto load(std::istream& is, T& obj)
-	-> decltype(detail::Loader<T>::call(is, obj))
+bool load(std::istream& is, T& obj)
 {
 	return detail::Loader<T>::call(is, obj);
 }
@@ -325,6 +327,27 @@ public:
 		return EmptyFactory::call(); 
 	}
 	///}
+	
+	///{
+	///Create an object with the given type and loads its by an istream.
+	///If creating the object or loading it from the stream fails, returns a nullptr.
+	///To load the object nytl::load(istream, object) is called, which may be overloaded for
+	///custom types. 
+    Pointer createLoad(const Identifier& id, std::istream& is, CArgs&&... args) const
+    { 
+		auto it = typeIterator(id); 
+		if(it != types_.cend()) 
+			return it->second->create(is, std::forward<CArgs>(args)...); 
+		return EmptyFactory::call();
+	}
+    Pointer createLoad(const std::type_info& id, std::istream& is, CArgs&&... args) const
+    { 
+		auto it = typeIterator(id); 
+		if(it != types_.cend()) 
+			return it->second->createLoad(is, std::forward<CArgs>(args)...); 
+		return EmptyFactory::call(); 
+	}
+	///}
 
 	///\exception std::invalid_argument if there is no entry with the given type_info 
     const Identifier& id(const std::type_info& typeID) const 
@@ -353,6 +376,7 @@ public:
 };
 
 //registerFunc
+///\ingroup utility
 template<typename T, typename Identifier, typename Base, typename... CArgs>
 unsigned int addType(Typemap<Identifier, Base, CArgs...>& m, const Identifier& id)
 {

@@ -38,46 +38,44 @@ namespace nytl
 {
 
 //typedef
-template<std::size_t dim, typename prec> class RectRegion;
+template<std::size_t D, typename P> class RectRegion;
 
-template<class prec> using RectRegion2 = RectRegion<2, prec>;
-template<class prec> using RectRegion3 = RectRegion<3, prec>;
-template<class prec> using RectRegion4 = RectRegion<4, prec>;
+template<class P> using RectRegion2 = RectRegion<2, P>;
+template<class P> using RectRegion3 = RectRegion<3, P>;
+template<class P> using RectRegion4 = RectRegion<4, P>;
 
-typedef RectRegion<2, int> RectRegion2i;
-typedef RectRegion<2, unsigned int> RectRegion2ui;
-typedef RectRegion<2, double> RectRegion2d;
-typedef RectRegion<2, float> RectRegion2f;
-typedef RectRegion<2, char> RectRegion2c;
-typedef RectRegion<2, unsigned char> RectRegion2uc;
-typedef RectRegion<2, long> RectRegion2l;
-typedef RectRegion<2, unsigned long> RectRegion2ul;
+using RectRegion2i = RectRegion<2, int>;
+using RectRegion2ui = RectRegion<2, unsigned int>;
+using RectRegion2d = RectRegion<2, double>;
+using RectRegion2f = RectRegion<2, float>;
+using RectRegion2c = RectRegion<2, char>;
+using RectRegion2uc = RectRegion<2, unsigned char>;
+using RectRegion2l = RectRegion<2, long>;
+using RectRegion2ul = RectRegion<2, unsigned long>;
 
-typedef RectRegion<3, int> RectRegion3i;
-typedef RectRegion<3, unsigned int> RectRegion3ui;
-typedef RectRegion<3, double> RectRegion3d;
-typedef RectRegion<3, float> RectRegion3f;
-typedef RectRegion<3, char> RectRegion3c;
-typedef RectRegion<3, unsigned char> RectRegion3uc;
-typedef RectRegion<3, long> RectRegion3l;
-typedef RectRegion<3, unsigned long> RectRegion3ul;
+using RectRegion3i = RectRegion<3, int>;
+using RectRegion3ui = RectRegion<3, unsigned int>;
+using RectRegion3d = RectRegion<3, double>;
+using RectRegion3f = RectRegion<3, float>;
+using RectRegion3c = RectRegion<3, char>;
+using RectRegion3uc = RectRegion<3, unsigned char>;
+using RectRegion3l = RectRegion<3, long>;
+using RectRegion3ul = RectRegion<3, unsigned long>;
 
-typedef RectRegion<4, int> RectRegion4i;
-typedef RectRegion<4, unsigned int> RectRegion4ui;
-typedef RectRegion<4, double> RectRegion4d;
-typedef RectRegion<4, float> RectRegion4f;
-typedef RectRegion<4, char> RectRegion4c;
-typedef RectRegion<4, unsigned char> RectRegion4uc;
-typedef RectRegion<4, long> RectRegion4l;
-typedef RectRegion<4, unsigned long> RectRegion4ul;
+using RectRegion4i = RectRegion<4, int>;
+using RectRegion4ui = RectRegion<4, unsigned int>;
+using RectRegion4d = RectRegion<4, double>;
+using RectRegion4f = RectRegion<4, float>;
+using RectRegion4c = RectRegion<4, char>;
+using RectRegion4uc = RectRegion<4, unsigned char>;
+using RectRegion4l = RectRegion<4, long>;
+using RectRegion4ul = RectRegion<4, unsigned long>;
 
 ///\ingroup math
 ///Region composed of Rectangles.
 template<std::size_t D, typename P>
 class RectRegion
 {
-template<std::size_t, typename T> friend class RectRegion;
-
 public:
 	//naming conformance
 	using Precision = P;

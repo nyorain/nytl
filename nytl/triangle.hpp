@@ -58,24 +58,28 @@ template<size_t D, typename P>
 class Simplex<D, P, 2>
 {
 public:
-    using value_type = P;
+	static constexpr std::size_t dim = D;
+	static constexpr std::size_t simplexDim = 3;
+
+	using Precision = P;
     using VecType = Vec<D, P>;
-    using Triangle_type = Triangle<D, P>;
     using LineType = Line<D, P>;
+    using TriangleType = Triangle<D, P>;
+	using Size = std::size_t;
+
+	//stl
+    using value_type = Precision;
+	using size_type = Size;
 
 public:
-    VecType a;
-    VecType b;
-    VecType c;
+    VecType a {};
+    VecType b {};
+    VecType c {};
 
 public:
     Simplex(const VecType& xa, const VecType& xb, const VecType& xc) noexcept
 		: a(xa), b(xb), c(xc) {}
-
     Simplex() noexcept = default;
-    ~Simplex() noexcept = default;
-    Simplex(const Triangle_type& other) noexcept = default;
-    Triangle_type& operator=(const Triangle_type& other) noexcept = default;
 
 	//default
     double size() const;
@@ -91,16 +95,16 @@ public:
     operator Triangle<OD, OP>() const { return Triangle<OD, OP>(a, b, c); }
 
 	//Triangle specific
-    float angleA() const { return angle(AB().difference(), AC().difference()); }
-    float angleB() const { return angle(BA().difference(), BC().difference()); }
-    float angleC() const { return angle(CB().difference(), CA().difference()); }
+    double angleA() const { return angle(ab().difference(), ac().difference()); }
+    double angleB() const { return angle(ba().difference(), bc().difference()); }
+    double angleC() const { return angle(cb().difference(), ca().difference()); }
 
-    LineType AB() const { return LineType(a, b); }
-    LineType AC() const { return LineType(a, c); }
-    LineType BC() const { return LineType(b, c); }
-    LineType BA() const { return LineType(b, a); }
-    LineType CA() const { return LineType(c, a); }
-    LineType CB() const { return LineType(c, b); }
+    LineType ab() const { return LineType(a, b); }
+    LineType ac() const { return LineType(a, c); }
+    LineType bc() const { return LineType(b, c); }
+    LineType ba() const { return LineType(b, a); }
+    LineType ca() const { return LineType(c, a); }
+    LineType cb() const { return LineType(c, b); }
 };
 
 //utility and operators/test

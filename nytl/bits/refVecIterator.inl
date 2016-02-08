@@ -29,48 +29,50 @@
 namespace nytl
 {
 
-template<size_t dim, typename T>
-class constRefVecIterator : public std::iterator<std::random_access_iterator_tag, T, std::size_t>
+template<std::size_t dim, typename T>
+class ConstRefVecIterator 
+	: public std::iterator<std::random_access_iterator_tag, T, std::size_t>
 {
 protected:
     const Vec<dim, T&>& ref_;
-    int64_t idx_;
+	std::int64_t idx_;
 
 public:
-    constRefVecIterator(const Vec<dim, T&>& c, int64_t idx = 0) : ref_(c), idx_(idx) {}
+    ConstRefVecIterator(const Vec<dim, T&>& c, std::int64_t idx = 0) : ref_(c), idx_(idx) {}
 
     const T* operator->(){ return &ref_[idx_]; }
     const T& operator*(){ return ref_[idx_]; }
 
-    bool operator==(const constRefVecIterator& other) const 
+    bool operator==(const ConstRefVecIterator& other) const 
 		{ return (&ref_ == &other.ref_) && (idx_ == other.idx_); }
-    bool operator!=(const constRefVecIterator& other) const 
+    bool operator!=(const ConstRefVecIterator& other) const 
 		{ return (&ref_ != &other.ref_) || (idx_ != other.idx_); }
 
-    constRefVecIterator& operator++(){ idx_++; return *this; }
-    constRefVecIterator operator++(int){ auto cop = *this; idx_++; return cop; }
+    ConstRefVecIterator& operator++(){ idx_++; return *this; }
+    ConstRefVecIterator operator++(int){ auto cop = *this; idx_++; return cop; }
 
-    constRefVecIterator& operator--(){ idx_--; return *this; }
-    constRefVecIterator operator--(int){ auto cop = *this; idx_--; return cop; }
+    ConstRefVecIterator& operator--(){ idx_--; return *this; }
+    ConstRefVecIterator operator--(int){ auto cop = *this; idx_--; return cop; }
 
-    constRefVecIterator& operator+=(size_t i){ idx_ += i; return *this; }
-    constRefVecIterator operator-=(size_t i){ idx_ -= i; return *this; }
+    ConstRefVecIterator& operator+=(std::size_t i){ idx_ += i; return *this; }
+    ConstRefVecIterator operator-=(std::size_t i){ idx_ -= i; return *this; }
 
     //custom
-    int64_t getIndex() const { return idx_; }
-    const Vec<dim, T&>& getRef() const {return ref_; }
+	std::int64_t index() const { return idx_; }
+    const Vec<dim, T&>& ref() const {return ref_; }
 };
 
 //non-const
-template<size_t dim, typename T>
-class RefVecIterator : public std::iterator<std::random_access_iterator_tag, T, size_t>
+template<std::size_t dim, typename T>
+class RefVecIterator 
+	: public std::iterator<std::random_access_iterator_tag, T, std::size_t>
 {
 protected:
     Vec<dim, T&>& ref_;
-    int64_t idx_; //can be -1, if it points to the pre-first element
+	std::int64_t idx_; //can be -1, if it points to the pre-first element
 
 public:
-    RefVecIterator(Vec<dim, T&>& c, int64_t idx = 0) : ref_(c), idx_(idx) {}
+    RefVecIterator(Vec<dim, T&>& c, std::int64_t idx = 0) : ref_(c), idx_(idx) {}
 
     T* operator->(){ return &ref_[idx_]; }
     T& operator*(){ return ref_[idx_]; }
@@ -86,14 +88,14 @@ public:
     RefVecIterator& operator--(){ idx_--; return *this; }
     RefVecIterator& operator--(int){ auto cop = *this; idx_--; return cop; }
 
-    RefVecIterator& operator+=(size_t i){ idx_ += i; return *this; }
-    RefVecIterator& operator-=(size_t i){ idx_ -= i; return *this; }
+    RefVecIterator& operator+=(std::size_t i){ idx_ += i; return *this; }
+    RefVecIterator& operator-=(std::size_t i){ idx_ -= i; return *this; }
 
-    operator constRefVecIterator<dim, T>(){ return constRefVecIterator<dim, T>(ref_, idx_); }
+    operator ConstRefVecIterator<dim, T>(){ return ConstRefVecIterator<dim, T>(ref_, idx_); }
 
     //custom
-    int64_t getIndex() const { return idx_; }
-    Vec<dim, T&>& getRef() const {return ref_; }
+	std::int64_t index() const { return idx_; }
+    Vec<dim, T&>& ref() const {return ref_; }
 };
 
 }

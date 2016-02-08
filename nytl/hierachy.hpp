@@ -157,6 +157,7 @@ public:
 protected:
 	T* parent_;
 
+protected:
 	HierachyNode() = default;
 
 	virtual void destroy() override

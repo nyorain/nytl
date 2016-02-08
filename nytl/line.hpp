@@ -57,12 +57,21 @@ template<size_t D, typename P>
 class Simplex<D, P, 1>
 {
 public:
-    using value_type = P;
-    using VecType = Vec<D, value_type>;
+	static constexpr std::size_t dim = D;
+	static constexpr std::size_t simplexDim = 3;
+
+	using Precision = P;
+    using VecType = Vec<D, P>;
+    using LineType = Line<D, P>;
+	using Size = std::size_t;
+
+	//stl
+    using value_type = Precision;
+	using size_type = Size;
 
 public:
-    VecType a;
-    VecType b;
+    VecType a {};
+    VecType b {};
 
 public:
     Simplex(const VecType& xa, const VecType& xb) noexcept : a(xa), b(xb) {}
@@ -94,22 +103,22 @@ public:
 	///Returns the gradient Vector in relation to the given dimension parameter.
 	///If e.g. dim is 0, the x component of the returned gradient Vector will be 1 and all
 	///other components will be set in relation.
-    VecType gradient(std::size_t dim) const { return difference() / difference()[dim]; }
+    VecType gradient(Size dim) const { return difference() / difference()[dim]; }
 
 	///Returns wheter the Line is defined for the given value in the given dimension.
-    bool definedAt(const value_type& value, std::size_t dimension = 0) const;
+    bool definedAt(const Precision& value, Size dimension = 0) const;
 
 	///Returns the point of the Line at the given value in the given dimension.
 	///One should check with definedAt(value, dimension) if the Line is defined for the given
 	///value before using this. If it is not, this function will produce a warning and return an
 	///empty Vec.
-    VecType valueAt(const value_type& value, std::size_t dimension = 0) const;
+    VecType valueAt(const Precision& value, Size dimension = 0) const;
 
 	///Returns the smallest value the Line is defined for in the given dimension.
-    value_type smallestValue(std::size_t dim) const { return min(a[dim], b[dim]); }
+    Precision smallestValue(Size dim) const { return min(a[dim], b[dim]); }
 
 	///Returns the greatest value the Line is defined for in the given dimension.
-    value_type greatestValue(std::size_t dim) const { return max(a[dim], b[dim]); }
+    Precision greatestValue(Size dim) const { return max(a[dim], b[dim]); }
 };
 
 //implementation, utility and operators

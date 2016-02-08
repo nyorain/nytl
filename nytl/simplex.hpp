@@ -60,10 +60,18 @@ template<std::size_t D, typename P = float, std::size_t A = D>
 class Simplex : public DeriveDummy<DimMatch<D, A>>
 {
 public:
-	using VecType = Vec<D, P>;
+	static constexpr std::size_t dim = D;
+	static constexpr std::size_t simplexDim = A;
+
+	using Precision = P;
+    using VecType = Vec<D, P>;
+	using Size = std::size_t;
+
+	//stl
+    using value_type = Precision;
+	using size_type = Size;
 
 public:
-	///Holds the points that define the area.
 	Vec<A + 1, VecType> points_ {};
 
 public:
@@ -107,14 +115,19 @@ template<std::size_t D, typename P = float, std::size_t A = D>
 class SimplexRegion : public DeriveDummy<DimMatch<D, A>>
 {
 public:
+	static constexpr std::size_t dim = D;
+	static constexpr std::size_t simplexDim = A;
+
 	using SimplexType = Simplex<D, P, A>;
 	using SimplexRegionType = SimplexRegion<D, P, A>;
 	using VectorType = std::vector<SimplexType>;
 	using Size = typename VectorType::size_type;
 
+	//stl
+    using value_type = SimplexType;
+	using size_type = Size;
+
 public:
-	///Vector of Simplexs that holds the areas that define this RectRegion.
-	///None of the Simplexs in this Vector should intersect with each other.
 	VectorType simplices_;
 
 public:

@@ -708,17 +708,11 @@ bool none(const Vec<D, bool>& v)
 }
 
 ///\relates nytl::Vec
+///Helper function accessing the nytl::Vec::subvec member template.
 template<std::size_t N, std::size_t D, typename T>
 Vec<N, T> subVec(const Vec<D, T>& va, std::size_t pos = 0)
 {
 	return va.template subVec<N>(pos);
-}
-
-///\relates nytl::Vec
-template<std::size_t D, typename T>
-Vec<dynamicSize, T> subVec(const Vec<D, T>& va, std::size_t pos = 0, std::size_t size = -1)
-{
-	return va.subVec(pos, size);
 }
 
 ///\relates nytl::Vec

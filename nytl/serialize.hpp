@@ -42,6 +42,7 @@ namespace nytl
 
 //load
 //Serialize Templates
+///\ingroup utility
 class SerializedBase : public AbstractCloneable<SerializedBase>
 {
 public:
@@ -56,6 +57,7 @@ public:
 	};
 };
 
+///\ingroup utility
 template<typename T>
 class Serialized : public DeriveCloneable<SerializedBase, T>
 {
@@ -64,6 +66,7 @@ public:
 	virtual const std::type_info& objectTypeInfo() const override { return typeid(T); }
 };
 
+///\ingroup utility
 template<typename Base, typename Derived>
 class DeriveSerialized : public DeriveCloneable<Base, Derived>
 {
@@ -72,13 +75,7 @@ public:
 	virtual const std::type_info& objectTypeInfo() const override { return typeid(Derived); }
 };
 
-//
-namespace detail
-{
-
-
-}
-
+///\ingroup utility
 template<typename Base = Any, typename... CArgs>
 class Serializer : public Typemap<std::string, Base, CArgs...>
 {
@@ -113,6 +110,7 @@ public:
 using DefaultSerializer = Serializer<>;
 
 //registerFunc
+///\ingroup utility
 template<typename T, typename Base, typename... CArgs>
 unsigned int addType(Serializer<Base, CArgs...>& m)
 {

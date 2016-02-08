@@ -77,4 +77,6 @@ int main()
 	//nytl::CompatibleFunction to e.g. add a callback to a member function of an object.
 	//See the documentation of nytl::Callback, nytl::Connection, nytl::RaiiConnection, 
 	//nytl::ConnectionRef and nytl::CompatibleFunction for more information.
+	
+	return EXIT_SUCCESS;
 }

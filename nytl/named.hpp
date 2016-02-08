@@ -22,32 +22,34 @@
  * SOFTWARE.
  */
 
+///\file
+///Utility templates for associating a type with a name
+
 #pragma once
 
-#include <nytl/system.hpp>
 #include <nytl/bits/templateString.inl>
 #include <nytl/bits/tmpUtil.inl>
+#include <nytl/bits/typeNameFunc.inl>
 #include <string>
 
 namespace nytl
 {
 
-//
+///\ingroup utility
 template<typename Name>
 class Named;
 
 template<char... Name>
-class Named<Base, TemplateString<Name...>>
+class Named<TemplateString<Name...>>
 {
 public:
 	using NameString = TemplateString<Name...>;
-	using NamedType = DeriveNamed;
-	using NamedBase = DeriveNamed;
+	using NamedType = Named;
 
 	static constexpr ConstString typeName() { return NameString::constString(); }
 };
 
-//
+///\ingroup utility
 template<typename Base, typename Name>
 class DeriveNamed;
 
@@ -57,89 +59,33 @@ class DeriveNamed<Base, TemplateString<Name...>> : public Base
 public:
 	using NameString = TemplateString<Name...>;
 	using NamedType = DeriveNamed;
-	using NamedBase = DeriveNamed;
 
 	static constexpr ConstString typeName() { return NameString::constString(); }
 };
 
-//detail typename helper
-namespace detail
-{
-
-struct StringWrapper
-{
-	std::string string_;
-};
-
-template<typename T>
-struct TypeNameHelper
-{
-	static StringWrapper typeName()
-	{
-		#if defined(NYTL_COMPILER_MSC)
-			#define PREFIX "nytl::detail::TypeNameHelper<"
-			#define SUFFIX1 ">::typeName"
-			#define SUFFIX2 ""
-			#define TYPE_REPEATS 1
-		#elif defined(NYTL_COMPILER_CLANG)
- 			#define PREFIX "static nytl::detail::StringWrapper nytl::detail::TypeNameHelper<"
- 			#define SUFFIX1 ">::typeName() [T = "
- 			#define SUFFIX2 "]"
- 			#define TYPE_REPEATS 2
-		#elif defined(NYTL_COMPILER_GNU)
- 			#define PREFIX "static nytl::detail::StringWrapper nytl::detail::TypeNameHelper<T>" \
-		"::typeName() [with T = "
- 			#define SUFFIX1 "]"
- 			#define SUFFIX2 ""
- 			#define TYPE_REPEATS 1
-		#else
- 			#warning "Implement for current compiler"
-			return typeid(T).name();
-		#endif
-
- 			constexpr auto fLength = sizeof(NYTL_PRETTY_FUNCTION) - 1u;
- 			constexpr auto pLength = sizeof(PREFIX) - 1u;
- 			constexpr auto sLength = sizeof(SUFFIX1) - 1u + sizeof(SUFFIX2) - 1u;
- 			constexpr auto tLength = (fLength - (pLength + sLength)) / TYPE_REPEATS;
-
-			/*
-			std::cout << NYTL_PRETTY_FUNCTION << "\n";
-			std::cout << fLength << "\n";
-			std::cout << pLength << "\n";
-			std::cout << sLength << "\n";
-			std::cout << tLength << "\n";
-			std::cout << pLength + tLength << "\n";
-			*/
-
-			auto ret = makeConstString<pLength, pLength + tLength - 1>(NYTL_PRETTY_FUNCTION);
-			return {ret};
-
- 			#undef PREFIX
- 			#undef SUFFIX1
- 			#undef SUFFIX2
- 			#undef TYPE_REPEATS
-	}
-};
-
-}
 
 //prototypes
+///\ingroup utility
 template<typename T, typename = void> struct TypeName;
+
+///\ingroup utility
 template<typename... T> struct TypeNames;
 
 //convinience functions
+///\ingroup utility
 template<typename T>
 std::string typeName(bool space = 0)
 	{ return TypeName<T>::name(space); }
 
+///\ingroup utility
 template<typename... T>
 std::string typeNames(bool space = 0)
 	{ return TypeNames<T...>::names(space); }
 
-//structs
+//specialized structs
 template<typename T, typename>
 struct TypeName
-	{ static std::string name(bool){ return detail::TypeNameHelper<T>::typeName().string_; } };
+	{ static std::string name(bool){ return detail::typeNameFunc<T>(); } };
 
 template<typename T> 
 struct TypeName<T, void_t<decltype(T::typeName())>>

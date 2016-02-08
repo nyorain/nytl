@@ -47,6 +47,7 @@ namespace detail
 		return str.size();
 	}
 
+	//
 	template<std::size_t i>
 	struct StringTupleSize
 	{
@@ -115,27 +116,6 @@ public:
 	constexpr operator const char*() const { return content_; }
 };
 
-template<char... C>
-class TemplateString
-{
-private:
-	using Size = std::size_t;
-
-    static constexpr char const content_[sizeof...(C) + 1] = { C...,'\0' };
-    static constexpr Size size_ = sizeof...(C);
-
-public:
-    static constexpr char const* data() noexcept { return content_; }
-    static constexpr Size size() noexcept { return size_; };
-
-    static constexpr char const* cbegin() noexcept { return content_; }
-    static constexpr char const* cend() noexcept { return size_; }
-
-	static constexpr ConstString constString() noexcept { return ConstString(content_); }
-};
-
-template<char... C> constexpr char const TemplateString<C...>::content_[sizeof...(C) + 1];
-
 template<typename... T>
 class MultipleConstString
 {
@@ -158,7 +138,29 @@ public:
 	{ return detail::StringTupleSize<count_ - 1>::size(strings_); }
 };
 
+template<char... C>
+class TemplateString
+{
+private:
+	using Size = std::size_t;
+
+    static constexpr char const content_[sizeof...(C) + 1] = { C...,'\0' };
+    static constexpr Size size_ = sizeof...(C);
+
+public:
+    static constexpr char const* data() noexcept { return content_; }
+    static constexpr Size size() noexcept { return size_; };
+
+    static constexpr char const* cbegin() noexcept { return content_; }
+    static constexpr char const* cend() noexcept { return size_; }
+
+	static constexpr ConstString constString() noexcept { return ConstString(content_); }
+};
+
+template<char... C> constexpr char const TemplateString<C...>::content_[sizeof...(C) + 1];
+
 //utility
+//makeConstString
 template<typename T> constexpr
 const T& makeCSTR(const T& str)
 {

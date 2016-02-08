@@ -62,8 +62,8 @@ struct SimplexIntersects<D, P, 1>
 template<size_t D, typename P> bool 
 Line<D, P>::definedAt(const P& value, std::size_t dim) const
 {
-    return ((smallestvalue_type(dim) <= value) &&
-            (greatestvalue_type(dim) >= value));
+    return ((smallestValue(dim) <= value) &&
+            (greatestValue(dim) >= value));
 }
 
 template<size_t D, typename P> Vec<D, P>

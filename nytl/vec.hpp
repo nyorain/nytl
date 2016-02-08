@@ -89,7 +89,7 @@ using Vec4b = Vec4<bool>;
 //error messages with this one are kinda disgusting
 
 ///Constant that can be used as dimension parameter for the Vector to make its
-///size variable (like std::vector), while still oferring all matheMatical
+///size variable (like std::vector), while still oferring all mathematical
 ///operators.
 ///You have to include <nytl/dynVec.hpp> to make it work.
 constexpr std::size_t dynamicSize = std::numeric_limits<std::size_t>::max();
@@ -200,8 +200,8 @@ public:
 		{ for(auto& val : *this) val *= lhs; return *this; }
     template<typename OT> VecType& operator /=(OT lhs)
 		{ for(auto& val : *this) val /= lhs; return *this; }
-    template<typename OT> VecType& operator %=(OT lhs){ 
-		for(auto& val : *this) val %= lhs; return *this; }
+    template<typename OT> VecType& operator %=(OT lhs)
+		{ for(auto& val : *this) val %= lhs; return *this; }
     template<typename OT> VecType& operator |=(OT lhs)
 		{ for(auto& val : *this) val |= lhs; return *this; }
     template<typename OT> VecType& operator ^=(OT lhs)
@@ -249,7 +249,7 @@ public:
     ConstPointer data() const noexcept { return data_; }
     Pointer data() noexcept { return data_; }
 
-    void fill(const value_type& val) { for(auto& v : data_) v = val; }
+    void fill(const Value& val) { for(auto& v : data_) v = val; }
 
     Iterator begin() noexcept { return data_; }
     ConstIterator begin() const noexcept { return data_; }
@@ -267,12 +267,12 @@ public:
     ConstReverseIterator rend() const noexcept { return ConstReverseIterator(cbegin()); }
     ConstReverseIterator crend() const noexcept { return ConstReverseIterator(cbegin()); }
 
-    Reference operator[](size_type i){ return data_[i]; }
-    ConstReference operator[](size_type i) const { return data_[i]; }
+    Reference operator[](Size i){ return data_[i]; }
+    ConstReference operator[](Size i) const { return data_[i]; }
 
-    Reference at(size_type i){ if(i >= dim || i < 0) 
+    Reference at(Size i){ if(i >= dim || i < 0) 
 		throw std::out_of_range("nytl::Vec::at: out of range"); return data_[i]; }
-    ConstReference at(size_type i) const { if(i >= dim || i < 0) 
+    ConstReference at(Size i) const { if(i >= dim || i < 0) 
 		throw std::out_of_range("nytl::Vec::at: out of range"); return data_[i]; }
 
     Reference front() noexcept { return data_[0]; }
@@ -323,8 +323,8 @@ public:
     constexpr bool empty() const noexcept { return dim == 0; }
 
 public:
-	Value x;
- 	Value y;
+	Value x {};
+ 	Value y {};
 
 public:
 	Vec(Value a, Value b) noexcept : x(a), y(b) {}
@@ -484,9 +484,9 @@ public:
     constexpr bool empty() const noexcept { return dim == 0; }
 
 public:
-    Value x;
-    Value y;
-    Value z;
+    Value x {};
+    Value y {};
+    Value z {};
 
 public:
 	Vec(Value a, Value b, Value c) noexcept : x(a), y(b), z(c) {}
@@ -652,10 +652,10 @@ public:
     constexpr bool empty() const noexcept { return dim == 0; }
 
 public:
-    Value x;
-    Value y;
-    Value z;
-    Value w;
+    Value x {};
+    Value y {};
+    Value z {};
+    Value w {};
 
 public:
 	Vec(value_type a, value_type b, value_type c, value_type d) noexcept : x(a), y(b), z(c), w(d) {}
@@ -805,7 +805,11 @@ template<typename T> class Vec<4, T&>;
 
 //Dynamic storage Vec, include <nytl/dynVec.hpp> to make this work!
 template<typename T> class Vec<dynamicSize, T>;
-template<typename T> class Vec<dynamicSize, T&>; //where to put this? <nytl/dynRefVec>? TODO
+
+//Invalid for now.
+//If someone finds a legit use case for this one post an issue on github nyorain/nytl
+//Something like dynRefVec. Technically possible but not that useful.
+template<typename T> class Vec<dynamicSize, T&>;
 
 //operators/utility
 #include <nytl/bits/vec.inl>
