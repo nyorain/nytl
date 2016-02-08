@@ -92,9 +92,9 @@ You can find another interesting example about nytl typemap, serialize and typeN
 [nytl::Mat]: http://nyorain.github.io/nytl/classnytl_1_1Mat.html
 [nytl::Vec]: http://nyorain.github.io/nytl/classnytl_1_1Vec.html
 [nytl::Rect]: http://nyorain.github.io/nytl/classnytl_1_1Rect.html
-[nytl::CompatibleFunction]: http://nyorain.github.io/nytl/classnytl_1_1CompatibleFunction.html
-[nytl::function_traits]: http://nyorain.github.io/nytl/classnytl_1_1function_traits.html
-[nytl::Callback]: http://nyorain.github.io/nytl/classnytl_1_1Callback.html
+[nytl::CompatibleFunction]: http://nyorain.github.io/nytl/classnytl_1_1CompatibleFunction_3_01R_07A_8_8_8_08_4.html
+[nytl::function_traits]: http://nyorain.github.io/nytl/classnytl_1_1function__traits.html
+[nytl::Callback]: http://nyorain.github.io/nytl/classnytl_1_1Callback_3_01Ret_07Args_8_8_8_08_4.html
 [nytl::Referenced]: http://nyorain.github.io/nytl/classnytl_1_1Referenced.html
 [nytl::IntrusivePtr]: http://nyorain.github.io/nytl/classnytl_1_1IntrusivePtr.html
 [nytl::Observable]: http://nyorain.github.io/nytl/classnytl_1_1Observable.html
