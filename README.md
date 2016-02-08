@@ -36,7 +36,7 @@ You could also just include the features you need (will speed up compile time).
 
 #####nytl::Callback example
 Callbacks mirror the signal/slot principle in modern c++11 with many useful features.
-Notice how the callback listener signatures differs from the callback signature, callback uses nytl::CompatibleFunction internally.
+Notice how the callback listener signatures differs from the callback signature, callback uses nytl::CompatibleFunction internally. More information at __[doc/examples/callback.cpp]__.
 ```````````````c++
 nytl::Callback<void(int, nytl::Vec2f)> onEvent;
 
@@ -87,6 +87,8 @@ delete base; //the object is deleted here
 std::cout << (ptr) << "\n"; //outputs 0, since holds no valid object
 ````````````````
 
+You can find another interesting example about nytl typemap, serialize and typeName support in __[doc/examples/serialize.cpp]__.
+
 [nytl::Mat]: http://nyorain.github.io/nytl/classnytl_1_1Mat.html
 [nytl::Vec]: http://nyorain.github.io/nytl/classnytl_1_1Vec.html
 [nytl::Rect]: http://nyorain.github.io/nytl/classnytl_1_1Rect.html
@@ -102,3 +104,5 @@ std::cout << (ptr) << "\n"; //outputs 0, since holds no valid object
 [nytl::DeriveCloneable]: http://nyorain.github.io/nytl/classnytl_1_1DeriveCloneable.html
 [nytl::AbstractCloneable]: http://nyorain.github.io/nytl/classnytl_1_1AbstractCloneable.html
 [doc/examples]: doc/examples
+[doc/examples/callback.cpp]: doc/examples/callback.cpp
+[doc/examples/serialize.cpp]: doc/examples/serialize.cpp
