@@ -7,6 +7,7 @@ namespace nytl
 {
 
 ///\ingroup utility
+///Base class for reference counted objects.
 class Referenced
 {
 protected:
@@ -25,6 +26,9 @@ public:
 };
 
 ///\ingroup utility
+///Smart pointer class for objects with built-in reference counter. 
+///If you want to make your classes reference counted types from design to be able to
+///use this smart pointer, have a look at the nytl::References base class.
 template<typename T>
 class IntrusivePtr
 {

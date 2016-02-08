@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,7 @@
  */
 
 ///\file
-///\brief Defines utility templates to get information about callable types.
+///\brief Defines utility templates to get inforMation about callable types.
 
 #pragma once
 
@@ -98,7 +98,7 @@ template<typename T> using is_callable = typename detail::isCallableImpl<T>;
 
 
 ///\ingroup function
-///Meta-Template class to retrieve information about a function type.
+///Meta-Template class to retrieve inforMation about a function type.
 template<typename F> class function_traits;
 
 //for raw function signature

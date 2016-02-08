@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,20 +32,20 @@ namespace nytl
 ///\ingroup utility
 ///Iterator for recursively iterate over a object with multiple sub-iterators.
 template<typename T, typename I = typename T::iterator>
-class recursiveIterator : public std::iterator<std::bidirectional_iterator_tag, T, std::size_t>
+class RecursiveIterator : public std::iterator<std::bidirectional_iterator_tag, T, std::size_t>
 {
 public:
 	I it_;
-	recursiveIterator<T, I> child_;
+	RecursiveIterator<T, I> child_;
 	bool onParent_ {1};
 
 public:
-	recursiveIterator(const I& it) : it_(it) {}
+	RecursiveIterator(const I& it) : it_(it) {}
 
 	auto operator->() -> decltype(&(*it_)) { return onParent_ ? &(*it_) : &(*child_); }
 	auto operator*() -> decltype(*it_) { return onParent_ ? *it_ : *child_; }
 
-	recursiveIterator& operator++()
+	RecursiveIterator& operator++()
 	{ 
 		if(onParent_)
 		{
@@ -68,14 +68,14 @@ public:
 		return *this; 
 	}
 
-	recursiveIterator operator++(int)
+	RecursiveIterator operator++(int)
 	{
 		auto cop = *this;
 		++(*this);
 		return cop;
 	}
 
-	recursiveIterator& operator--()
+	RecursiveIterator& operator--()
 	{
 		if(onParent_)
 		{
@@ -105,7 +105,7 @@ public:
 		return *this;
 	}
 	
-	recursiveIterator operator--(int)
+	RecursiveIterator operator--(int)
 	{
 		auto cop = *this;
 		--(*this);
@@ -113,20 +113,20 @@ public:
 	}
 };
 
-///\copydoc recursiveIterator
+///\copydoc RecursiveIterator
 ///Const-version for the recursive iterator.
 template<typename T> 
-using constRecursiveIterator = recursiveIterator<T, typename T::const_iterator>;
+using ConstRecursiveIterator = RecursiveIterator<T, typename T::const_iterator>;
 
 
 ///\ingroup utility
 ///\brief Allows recursive iteration (like range-based for loop) over an object with sub-iterators.
 template<typename T>
-class recursiveIteration
+class RecursiveIteration
 {
 public:
-	using iterator = recursiveIterator<T>;
-	using const_iterator = constRecursiveIterator<T>;
+	using iterator = RecursiveIterator<T>;
+	using const_iterator = ConstRecursiveIterator<T>;
 
 	using reverse_iterator = std::reverse_iterator<iterator>;
 	using const_reverse_iterator = std::reverse_iterator<const_iterator>;
@@ -134,7 +134,7 @@ public:
 	T* object_;
 
 public:
-	recursiveIteration(T& object) : object_(&object) {}
+	RecursiveIteration(T& object) : object_(&object) {}
 
 	auto begin() -> decltype(object_->recursive_begin()) { object_->recursive_begin(); }	
 	auto cbegin() -> decltype(object_->recursive_cbegin()) { object_->recursive_cbegin(); }	

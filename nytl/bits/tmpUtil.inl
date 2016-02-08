@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,36 +22,26 @@
  * SOFTWARE.
  */
 
-///\file
-///\brief Provides a utility class to handle different versions of a function.
-
-//TODO: files name is missleading, version control is usually associated with sth like
-//git or sourceforge.
-
 #pragma once
 
-#include <unordered_map>
-#include <functional>
-#include <cstdint>
+#include <utility>
 
 namespace nytl
 {
 
-template<typename, typename = std::uint32_t>
-class versionHandler;
+///\brief Class that can be derived from to check if given template parameters are valid.
+///\details Really useful for template classes that use SFINAE.
+template<typename...> struct DeriveDummy {};
 
-template<typename Ret, typename ... Args, typename Version>
-class versionHandler<Ret(Args...), Version>
-{
-protected:
-	std::unordered_map<Version, std::function<Ret(Args...)>> versions_;
+#if __cplusplus >= 201505
+	using std::void_t;
 
-public:
-	void addVersion(Version version, std::function<Ret(Args...)> func){ versions_[version] = func; };
-	bool hasVersion(Version version) const { return versions_.find(version) != versions_.cend(); }
+#else
+	///\ingroup utility
+	///C++17 alis template for void, used to detect ill-formad types in a SFINAE-context.
+	///If the compiler supports it, the std version will be used.
+	template<typename...> using void_t = void;
 
-	Ret call(Version version, Args ... args){ return versions_[version](args ...); }
-	Ret operator()(Version version, Args ... args){ return call(version, args ...); }
-};
+#endif
 
 }

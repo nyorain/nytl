@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,52 +34,52 @@ namespace nytl
 namespace detail
 {
 
-template<typename orgTup, typename newTup, std::size_t idx = 0> 
-struct tupleMapImpl; //unspecified
+template<typename OT, typename NT, std::size_t I = 0> 
+struct TupleMapImpl; //unspecified
 
-template<typename... orgArgs, typename... newArgs, std::size_t idx>
-struct tupleMapImpl<std::tuple<orgArgs...>, std::tuple<newArgs...>, idx>
+template<typename... OA, typename... NA, std::size_t I>
+struct TupleMapImpl<std::tuple<OA...>, std::tuple<NA...>, I>
 {
-    using orgTuple = std::tuple<orgArgs...>;
-    using newTuple = std::tuple<newArgs...>;
+    using OrgTuple = std::tuple<OA...>;
+    using NewTuple = std::tuple<NA...>;
 
     constexpr static const bool value = std::is_convertible<
-			typename std::tuple_element<0, orgTuple>::type, 
-			typename std::tuple_element<0, newTuple>::type
+			typename std::tuple_element<0, OrgTuple>::type, 
+			typename std::tuple_element<0, NewTuple>::type
 		>::value;
 
 	using type = typename std::conditional<
         value,  //condition
         typename seq_prepend< //match
-            typename tupleMapImpl<
-                typename tuple_erase_first<orgTuple>::type,
-                typename tuple_erase_first<newTuple>::type,
-                idx + 1
+            typename TupleMapImpl<
+                typename tuple_erase_first<OrgTuple>::type,
+                typename tuple_erase_first<NewTuple>::type,
+                I + 1
             >::type,
-            idx
+            I
         >::type,
-        typename tupleMapImpl< //no match
-            typename tuple_erase_first<orgTuple>::type,
-            newTuple,
-            idx + 1
+        typename TupleMapImpl< //no match
+            typename tuple_erase_first<OrgTuple>::type,
+            NewTuple,
+            I + 1
         >::type
     >::type;
 };
 
 template<typename... OrgLeft, std::size_t idx>
-struct tupleMapImpl<std::tuple<OrgLeft...>, std::tuple<>, idx>
+struct TupleMapImpl<std::tuple<OrgLeft...>, std::tuple<>, idx>
 {
     using type = index_sequence<>;
 };
 
 template<std::size_t idx>
-struct tupleMapImpl<std::tuple<>, std::tuple<>, idx>
+struct TupleMapImpl<std::tuple<>, std::tuple<>, idx>
 {
     using type = index_sequence<>;
 };
 
 template<typename... NewLeft, std::size_t idx>
-struct tupleMapImpl<std::tuple<>, std::tuple<NewLeft...>, idx>
+struct TupleMapImpl<std::tuple<>, std::tuple<NewLeft...>, idx>
 {
     using type = index_sequence<>;
 
@@ -88,22 +88,22 @@ struct tupleMapImpl<std::tuple<>, std::tuple<NewLeft...>, idx>
 };
 
 
-//tupleMap
+//TupleMap
 template<typename orgTup, typename newTup, typename seq = 
-	typename detail::tupleMapImpl<orgTup, newTup>::type> 
-struct tupleMap; //unspecified
+	typename detail::TupleMapImpl<orgTup, newTup>::type> 
+struct TupleMap; //unspecified
 
-template<typename... orgArgs, typename... newArgs, std::size_t... idx>
-struct tupleMap<std::tuple<orgArgs...>, std::tuple<newArgs...>, index_sequence<idx...>>
+template<typename... OA, typename... NA, std::size_t... I>
+struct TupleMap<std::tuple<OA...>, std::tuple<NA...>, index_sequence<I...>>
 {
-    using newTup = typename std::tuple<newArgs...>;
-    using orgTup = typename std::tuple<orgArgs...>;
-    using seq = index_sequence<idx...>;
+    using NewTup = typename std::tuple<NA...>;
+    using OrgTup = typename std::tuple<OA...>;
+    using Seq = index_sequence<I...>;
 
-    static constexpr std::tuple<newArgs...> map(orgArgs&&... args) noexcept
+    static constexpr NewTup map(OA&&... args) noexcept
     {
-        return std::tuple<newArgs...>(std::forward<decltype(std::get<idx>(orgTup(args...)))>
-				(std::get<idx>(orgTup(args...)))...);
+        return std::tuple<NA...>(std::forward<decltype(std::get<I>(OrgTup(args...)))>
+				(std::get<I>(OrgTup(args...)))...);
     }
 };
 

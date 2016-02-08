@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,7 @@
  */
 
 ///\file
-///\brief Defines the helper base classes nonCopyable and nonMoveable to derive from.
+///\brief Defines the helper base classes NonCopyable and NonMoveable to derive from.
 
 #pragma once
 
@@ -32,32 +32,32 @@ namespace nytl
 
 //\ingroup utility
 ///Derive from this class to make it impossible to copy objects of the derived class.
-class nonCopyable
+class NonCopyable
 {
 private:
-	nonCopyable(const nonCopyable&) = delete;
-	nonCopyable& operator =(const nonCopyable&) = delete;
+	NonCopyable(const NonCopyable&) = delete;
+	NonCopyable& operator =(const NonCopyable&) = delete;
 protected:
-	nonCopyable() noexcept = default;
-	nonCopyable(nonCopyable&) noexcept = default;
+	NonCopyable() noexcept = default;
+	NonCopyable(NonCopyable&) noexcept = default;
 
-	nonCopyable(nonCopyable&&) noexcept = default;
-	nonCopyable& operator=(nonCopyable&&) noexcept = default;
+	NonCopyable(NonCopyable&&) noexcept = default;
+	NonCopyable& operator=(NonCopyable&&) noexcept = default;
 };
 
 //\ingroup utility
 ///Derive from this class to make it impossible to copy or move objects of the derived class.
-class nonMoveable
+class NonMoveable
 {
 private:
-	nonMoveable(const nonMoveable&) = delete;
-	nonMoveable& operator =(const nonMoveable&) = delete;
-	nonMoveable(nonMoveable&&) = delete;
-	nonMoveable& operator=(nonMoveable&&) = delete;
+	NonMoveable(const NonMoveable&) = delete;
+	NonMoveable& operator =(const NonMoveable&) = delete;
+	NonMoveable(NonMoveable&&) = delete;
+	NonMoveable& operator=(NonMoveable&&) = delete;
 
 protected:
-	nonMoveable() noexcept = default;
-	nonMoveable(nonMoveable&) noexcept = default;
+	NonMoveable() noexcept = default;
+	NonMoveable(NonMoveable&) noexcept = default;
 };
 
 }

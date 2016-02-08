@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,10 +33,10 @@ namespace nytl
 ///\ingroup utitliy
 ///Transforms the T iterator over pointers into a reference-iterator.
 template<typename T>
-class referenceIterator : public T
+class ReferenceIterator : public T
 {
 public:
-	referenceIterator(const T& other) : T(other) {}
+	ReferenceIterator(const T& other) : T(other) {}
 
 	auto operator->() -> decltype(*T{}) { return *(T::operator->()); }
 	auto operator*() -> typename std::remove_pointer<decltype(*T{})>::type 
@@ -44,11 +44,11 @@ public:
 };
 
 ///\ingroup utitliy
-///\brief Automatically transforms a pointer iterator into a referenceIterator.
-template<typename T> referenceIterator<T> 
+///\brief Automatically transforms a pointer iterator into a ReferenceIterator.
+template<typename T> ReferenceIterator<T> 
 makeReferenceIterator(const T& it)
 {
-	return referenceIterator<T>(it);
+	return ReferenceIterator<T>(it);
 }
 
 ///\ingroup utitliy
@@ -59,8 +59,8 @@ class referenceIteration
 public:
 	T* object_;
 
-	using iterator = referenceIterator<decltype(object_->begin())>;
-	using const_iterator = referenceIterator<decltype(object_->cbegin())>;
+	using iterator = ReferenceIterator<decltype(object_->begin())>;
+	using const_iterator = ReferenceIterator<decltype(object_->cbegin())>;
 
 	using reverse_iterator = std::reverse_iterator<iterator>;
 	using const_reverse_iterator = std::reverse_iterator<const_iterator>;
@@ -84,7 +84,7 @@ public:
 };
 
 ///\ingroup utitliy
-template<typename T> referenceIterator<T> 
+template<typename T> ReferenceIterator<T> 
 makeReferenceIteration(const T& obj)
 {
 	return referenceIteration<T>(obj);
