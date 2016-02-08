@@ -8,7 +8,7 @@ nytl is really lightweight, yet it offers some pretty useful features for most m
 
 nytl is licensed under the MIT License, so you can freely use it in your projects. If you start an open-source project using nytl, i would really appreciate if you let me know.
 
-__The first alpha release of nytl, version 0.1 will be released soon__.
+nytl is currently in an __alpha__ state, its first and newest release is __version 0.1.0__.
 
 __Also have a look at the documentation__ (you can also generate it using cmake/doxygen, WIP): http://nyorain.github.io/nytl/
 
