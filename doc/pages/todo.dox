@@ -1,7 +1,19 @@
 ///\page Todo-Features nytl - todo
 ///
-///\li Implement all missing operations and tests
-///\li Add utf-8 support (some utility classes/functions)
-///\li add serialize (class naming) support
-///\li improve docs, tests, examples
-///\li convex-set support in association with simplexes (regions i.e.)
+///- Implement all missing operations and tests (esp. simplex/rect + region classes)
+///- Add utf-8 support (some utility classes/functions)
+///- add serialize (class naming) support
+///- improve docs, tests, examples
+///- convex-set support in association with simplexes (regions i.e.)
+///- dynamic Matrix size, reference matrix, dynRefVec
+///- general multivec
+///- multidimensional matrix, table
+///- correct naming typedefs (replace typedefs with using)
+///- introduce experimental features like sequence, fdstream or potential_ptr etc.
+///- delete unused experimental/stuff files
+///- reverse iteration. Bundle those iteration files as adaptors
+///- correct template string/const string/multistring. As extra header file
+///- remove this unglorious misc file
+///- correctly add constexpr where useful (if really needed finally require c++14 for this)
+///- refVec swap
+///- some important docs pages as markdown and link them in github (this page e.g.)

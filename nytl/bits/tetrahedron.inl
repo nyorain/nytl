@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,19 +25,19 @@
 #pragma once
 
 template<std::size_t D, typename P>
-double tetrahedron<D, P>::size() const
+double Tetrahedron<D, P>::size() const
 {
-	return detail::simplexSize(*this);
+	return detail::SimplexSize(*this);
 }
 
 template<std::size_t D, typename P>
-vec<D, P> tetrahedron<D, P>::center() const
+Vec<D, P> Tetrahedron<D, P>::center() const
 {
-	return detail::simplexCenter(*this);
+	return detail::SimplexCenter(*this);
 }
 
 template<std::size_t D, typename P>
-bool tetrahedron<D, P>::valid() const
+bool Tetrahedron<D, P>::valid() const
 {
-	return detail::simplexValid(*this);
+	return detail::SimplexValid(*this);
 }

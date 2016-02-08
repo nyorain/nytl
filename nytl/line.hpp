@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,7 @@
  */
 
 ///\file
-///\brief The one-dimensional simplex specialization (line).
+///\brief The one-dimensional Simplex specialization (Line).
 
 #pragma once
 
@@ -36,80 +36,89 @@ namespace nytl
 {
 
 //typedefs
-template<typename P = float> using line2 = line<2, P>;
-template<typename P = float> using line3 = line<3, P>;
-template<typename P = float> using line4 = line<4, P>;
+template<typename P = float> using Line2 = Line<2, P>;
+template<typename P = float> using Line3 = Line<3, P>;
+template<typename P = float> using Line4 = Line<4, P>;
 
-using line2f = line<2, float>;
-using line3f = line<3, float>;
-using line4f = line<4, float>;
+using Line2f = Line<2, float>;
+using Line3f = Line<3, float>;
+using Line4f = Line<4, float>;
 
-using line2i = line<2, int>;
-using line3i = line<3, int>;
-using line4i = line<4, int>;
+using Line2i = Line<2, int>;
+using Line3i = Line<3, int>;
+using Line4i = Line<4, int>;
 
-using line2ui = line<2, unsigned int>;
-using line3ui = line<3, unsigned int>;
-using line4ui = line<4, unsigned int>;
+using Line2ui = Line<2, unsigned int>;
+using Line3ui = Line<3, unsigned int>;
+using Line4ui = Line<4, unsigned int>;
 
 
 template<size_t D, typename P>
-class simplex<D, P, 1>
+class Simplex<D, P, 1>
 {
 public:
-    using value_type = P;
-    using vec_type = vec<D, value_type>;
+	static constexpr std::size_t dim = D;
+	static constexpr std::size_t simplexDim = 3;
+
+	using Precision = P;
+    using VecType = Vec<D, P>;
+    using LineType = Line<D, P>;
+	using Size = std::size_t;
+
+	//stl
+    using value_type = Precision;
+	using size_type = Size;
 
 public:
-    vec_type a;
-    vec_type b;
+    VecType a {};
+    VecType b {};
 
 public:
-    simplex(const vec_type& xa, const vec_type& xb) noexcept : a(xa), b(xb) {}
-    simplex() noexcept = default;
+    Simplex(const VecType& xa, const VecType& xb) noexcept : a(xa), b(xb) {}
+    Simplex() noexcept = default;
 
-	//simplex
+	//Simplex
     double size() const { return distance(a, b); }
-	vec_type center() const { return (a + b) / 2; }
+	VecType center() const { return (a + b) / 2; }
 	bool valid() const;
 
-	vec<2, vec_type>& points()
-		{ return reinterpret_cast<vec<2, vec_type>&>(*this); }
-	const vec<2, vec_type>& points() const 
-		{ return reinterpret_cast<const vec<2, vec_type>&>(*this); }
+	Vec<2, VecType>& points()
+		{ return reinterpret_cast<Vec<2, VecType>&>(*this); }
+	const Vec<2, VecType>& points() const 
+		{ return reinterpret_cast<const Vec<2, VecType>&>(*this); }
 
     template<size_t OD, typename OP>
-	operator line<OD, OP>() const { return line<OD, OP>(a, b); }
+	operator Line<OD, OP>() const { return Line<OD, OP>(a, b); }
 
-	//line-specific
-	///Alias for size(). Returns the length of the line.
+	//Line-specific
+	///Alias for size(). Returns the length of the Line.
 	double length() const { return size(); }
 
-	///Returns the vector that lays between the two points
-    vec_type difference() const { return b - a; }
+	///Returns the Vector that lays between the two points
+    VecType difference() const { return b - a; }
 
-	///Returns a normalized (length = 1) gradient vector.
-    vec_type gradient() const { return normalize(difference()); }
+	///Returns a normalized (length = 1) gradient Vector.
+    VecType gradient() const { return normalize(difference()); }
 
-	///Returns the gradient vector in relation to the given dimension parameter.
-	///If e.g. dim is 0, the x component of the returned gradient vector will be 1 and all
+	///Returns the gradient Vector in relation to the given dimension parameter.
+	///If e.g. dim is 0, the x component of the returned gradient Vector will be 1 and all
 	///other components will be set in relation.
-    vec_type gradient(std::size_t dim) const { return difference() / difference()[dim]; }
+    VecType gradient(Size dim) const { return difference() / difference()[dim]; }
 
-	///Returns wheter the line is defined for the given value in the given dimension.
-    bool definedAt(const value_type& value, std::size_t dimension = 0) const;
+	///Returns wheter the Line is defined for the given value in the given dimension.
+    bool definedAt(const Precision& value, Size dimension = 0) const;
 
-	///Returns the point of the line at the given value in the given dimension.
-	///One should check with definedAt(value, dimension) if the line is defined for the given
+	///Returns the point of the Line at the given value in the given dimension.
+	///One should check with definedAt(value, dimension) if the Line is defined for the given
 	///value before using this. If it is not, this function will produce a warning and return an
-	///empty vec.
-    vec_type valueAt(const value_type& value, std::size_t dimension = 0) const;
+	///empty Vec.
+    VecType valueAt(const Precision& value, Size dimension = 0) const;
 
-	///Returns the smallest value the line is defined for in the given dimension.
-    value_type smallestValue(std::size_t dim) const { return min(a[dim], b[dim]); }
+	///Returns the smallest value the Line is defined for in the given dimension.
+    Precision smallestValue(Size dim) const { return min(a[dim], b[dim]); }
 
-	///Returns the greatest value the line is defined for in the given dimension.
-    value_type greatestValue(std::size_t dim) const { return max(a[dim], b[dim]); }
+	///Returns the greatest value the Line is defined for in the given dimension.
+    Precision greatestValue(Size dim) const { return max(a[dim], b[dim]); }
 };
 
 //implementation, utility and operators

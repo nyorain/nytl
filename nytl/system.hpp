@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -160,6 +160,13 @@ namespace nytl
         #define NYTL_CPP14_CONSTEXPR
     #endif
 #endif //NYTL_cpp14_constexpr
+
+//nytl pretty function
+#if defined(NYTL_COMPILER_CLANG) || defined(NYTL_COMPILER_GNU)
+	#define NYTL_PRETTY_FUNCTION __PRETTY_FUNCTION__
+#elif defined(NYTL_COMPILER_MSC)
+	#define NYTL_PRETTY_FUNCTION __FUNCTION__
+#endif
 
 ///\ingroup utility
 constexpr const char* osName()

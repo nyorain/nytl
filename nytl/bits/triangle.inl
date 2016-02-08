@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,20 +26,20 @@
 
 //member
 template<std::size_t D, typename P>
-double triangle<D, P>::size() const
+double Triangle<D, P>::size() const
 {
-	return detail::simplexSize(*this);
+	return detail::SimplexSize(*this);
 }
 
 template<std::size_t D, typename P>
-vec<D, P> triangle<D, P>::center() const
+Vec<D, P> Triangle<D, P>::center() const
 {
-	return detail::simplexCenter(*this);
+	return detail::SimplexCenter(*this);
 }
 
 template<std::size_t D, typename P>
-bool triangle<D, P>::valid() const
+bool Triangle<D, P>::valid() const
 {
-	return detail::simplexValid(*this);
+	return detail::SimplexValid(*this);
 }
 

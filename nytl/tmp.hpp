@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,29 +25,17 @@
 ///\file
 ///\brief Header that implementes several useful metaprogramming templates.
 
+//TODO: naming
+
 #pragma once
 
+#include <nytl/bits/tmpUtil.inl>
 #include <utility>
 #include <type_traits>
 #include <ostream>
 
 namespace nytl
 {
-
-///\brief Class that can be derived from to check if given template parameters are valid.
-///\details Really useful for template classes that use SFINAE.
-template<typename...> struct deriveDummy {};
-
-#if __cplusplus >= 201505
-	using std::void_t;
-
-#else
-	///\ingroup utility
-	///C++17 alis template for void, used to detect ill-formad types in a SFINAE-context.
-	///If the compiler supports it, the std version will be used.
-	template<typename...> using void_t = void;
-
-#endif
 
 //TUPLE
 //tuple_erase_first

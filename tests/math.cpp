@@ -14,54 +14,54 @@ using namespace nytl;
 
 int main()
 {
-	//vec operations type test
+	//Vec operations type test
 	{
-		vec2f a(100.f, 200.f);
-		vec3i b{300, 100, 55};
+		Vec2f a(100.f, 200.f);
+		Vec3i b{300, 100, 55};
 
-		static_assert(std::is_same<decltype(a + b), vec3f>::value, "");
-		static_assert(std::is_same<decltype(b + a), vec3f>::value, "");
+		static_assert(std::is_same<decltype(a + b), Vec3f>::value, "");
+		static_assert(std::is_same<decltype(b + a), Vec3f>::value, "");
 
-		static_assert(std::is_same<decltype(b - a), vec3f>::value, "");
-		static_assert(std::is_same<decltype(a * b), vec3f>::value, "");
-		static_assert(std::is_same<decltype(b / a), vec3f>::value, "");
+		static_assert(std::is_same<decltype(b - a), Vec3f>::value, "");
+		static_assert(std::is_same<decltype(a * b), Vec3f>::value, "");
+		static_assert(std::is_same<decltype(b / a), Vec3f>::value, "");
 	}
 
-	//vec operations test
+	//Vec operations test
 	{
-		vec3d a(5, 10, 20);
-		vec<6, float> b(1, 2, 3, 4, 5, 6);
+		Vec3d a(5, 10, 20);
+		Vec<6, float> b(1, 2, 3, 4, 5, 6);
 
 		assert(allEqual(a + b, b + a));
 		assert(allEqual(-a - b, -b - a));
 		assert(allEqual(a * b, b * a));
 		assert(allEqual((1 / a) * b, b / a));
 
-		assert(all((a + b) == vec<6, float>(6, 12, 23, 4, 5, 6)));
-		assert(all((b * a) == vec<6, float>(5, 20, 60, 4, 5, 6)));
+		assert(all((a + b) == Vec<6, float>(6, 12, 23, 4, 5, 6)));
+		assert(all((b * a) == Vec<6, float>(5, 20, 60, 4, 5, 6)));
 	}
 
 	//simplex operations test
 	{
 		{
-			line3f a({0.f, 0.f, 0.f}, {100.f, -100.f, 50.f});
+			Line3f a({0.f, 0.f, 0.f}, {100.f, -100.f, 50.f});
 
-			assert(contains(a, vec3f{50.f, -50.f, 25.f}));
-			//assert(contains(a, vec2i{0, -0}));
-			//assert(contains(a, vec1f{0.f}));
+			assert(contains(a, Vec3f{50.f, -50.f, 25.f}));
+			//assert(contains(a, Vec2i{0, -0}));
+			//assert(contains(a, Vec1f{0.f}));
 
-			//assert(!contains(a, vec4f{50.f, 50.f, 25.f, -44.6f}));
-			assert(!contains(a, vec3f{101.f, -101.f, 50.5f}));
-			//assert(!contains(a, vec1f{10.f}));
+			//assert(!contains(a, Vec4f{50.f, 50.f, 25.f, -44.6f}));
+			assert(!contains(a, Vec3f{101.f, -101.f, 50.5f}));
+			//assert(!contains(a, Vec1f{10.f}));
 
-			assert(all(barycentric(a, vec3f{50.f, -50.f, 25.f}) == vec2f(0.5, 0.5)));
-			assert(all(barycentric(a, vec3f{0.f, 0.f, 0.f}) == vec2f(1, 0)));
-			assert(all(barycentric(a, vec3f{100.f, -100.f, 50.f}) == vec2f(0, 1)));
+			assert(all(barycentric(a, Vec3f{50.f, -50.f, 25.f}) == Vec2f(0.5, 0.5)));
+			assert(all(barycentric(a, Vec3f{0.f, 0.f, 0.f}) == Vec2f(1, 0)));
+			assert(all(barycentric(a, Vec3f{100.f, -100.f, 50.f}) == Vec2f(0, 1)));
 
 			bool thrown = 0;
 			try
 			{
-				barycentric(a, vec3f{0.f, 0.f, -5.f}); //do not exist
+				barycentric(a, Vec3f{0.f, 0.f, -5.f}); //do not exist
 			}
 			catch(const std::exception&) //TODO: specify exception
 			{

@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,10 +25,6 @@
 ///\file
 ///\brief Provides a transform class for translation, rotation and scaling of several primitives.
 
-//TODO: dont provide specializations for transform, package them in the original class,
-//provide specializations for a utility function (e.g. detail::bakeTransformMat or sth) instead.
-//Document it then!
-
 #pragma once
 
 #include <nytl/mat.hpp>
@@ -41,262 +37,84 @@
 namespace nytl
 {
 
+///\relates Transform
+///Returns the possible axis of rotation for a given dimension.
+///To be more precise it returns the planes of rotations that exist in the given
+///dimension. For 2 or 3 dimensions, thinking about rotations of axis might work, while
+///for higher dimensions it is easier to not think about rotations as axis, but rather 
+///about rotations ON planes. 
+///E.g. in 2D, there is only one plane (xy), in 3D there are 3 planes (xy, xz, yz) and in
+///4D there are 6 such planes on which a shape can be rotated.
+///\note Constexpr function, can be used for template parameters.
+constexpr std::size_t rotationPlanes(std::size_t dimension) { return fac(dimension) / 2; }
 
 ///\ingroup math
-///Utility base class for objects holding a transform state.
-template<size_t dim, typename prec = float> class transformable; //only for 2d, todo: 3d
+///Transform state able to hold rotation,scale and translation and express them in a Matrix.
+///
+///\tparam D The dimension of transforMation.
+///\tparam P the precision of the transformations, defaulted to float.
+///
+///The Transform class effectively just holds a SquareMat<D + 1, P> object in which it stores
+///the applied transforMations. Therefore it is not possible to retrieve the scaling/rotation/
+///translation values sperately from the Matrix.
+///Since it does therefore apply all transforMations immediatly to the Matrix, the order in which
+///the transforMations are applied may change the outcome.
+///
+///\code
+///auto transform = nytl::Transform2 {};
+///
+/////First translates and then rotates the transform Matrix.
+////The rotation will be around the origin, so in respect of the previous translation.
+///transform.translate({100, 100});
+///transform.rotate(45);
+///
+/////First rotates and then translated the transform Matrix. 
+///transform.rotate(45);
+///transform.translate({100, 100});
+///
+/////To use the transform now (e.g. for a graphics library) you can work with the (D+1) sized
+/////SqaureMat (e.g. as openGL uniform)
+///auto mat = transform.mat(); //< holds all transforms in the applied order
+///\endcode
+///
+///Alternatively to the transform object, one can use the raw nytl::translate, nytl::scale or
+///nytl::rotate functions when operating directly on a Matrix.
+///The Transform class i escpecially useful as base class for transformable types (e.g. shapes).
+template<std::size_t D, typename P = float> class Transform;
 
-///\ingroup math
-///Transform state able to hold rotation,scale and translation and express them in a matrix.
-///At the moment, there exist only valid specializations for 2D and 3D transform objects.
-template<size_t dim, typename prec = float> class transform;
+using Transform2 = Transform<2>;
+using Transform3 = Transform<3>;
+using Transform4 = Transform<4>;
 
-using transformable2 = transformable<2, float>;
-using transformable3 = transformable<3, float>;
-
-using transform2 = transform<2, float>;
-using transform3 = transform<3, float>;
-
-template<typename prec>
-class transform<2, prec>
+template<std::size_t D, typename P>
+class Transform
 {
 public:
-    static constexpr const size_t dim = 2;
-	using vec_type = vec<dim, prec>;
-	using mat_type = squareMat<dim + 1, prec>;
-	using rot_type = prec;
-	using rect_type = rect<dim, prec>;
+    static constexpr std::size_t dim = D;
+
+	using Precision = P;
+	using VecType = Vec<dim, Precision>;
+	using MatType = SquareMat<dim + 1, Precision>;
+	using RotType = typename VecScalar<rotationPlanes(dim), Precision>::type;
+	using RectType = Rect<dim, Precision>;
 
 protected:
-    rot_type rotation_ {0};
-    vec_type scaling_ {1, 1};
-    vec_type position_ {0, 0};
-	vec_type origin_ {0, 0};
-
-	mutable mat_type matrix_ {};
-	mutable bool matValid_ {1};
-
-	void invMat() const { matValid_ = 0; }
-	void bakeMat() const
-	{
-	    float rotCos = std::cos(rotation_ * cDeg);
-	    float rotSin = std::sin(rotation_ * cDeg);
-
-	    matrix_[0][0] = scaling_.x * rotCos;
-	    matrix_[0][1] = scaling_.x * rotSin;
-        matrix_[0][2] = -(origin_.x * matrix_[0][0]) - (origin_.y * matrix_[0][1]) + position_.x;
-	    matrix_[1][0] = -scaling_.x * rotSin;
-	    matrix_[1][1] = scaling_.y * rotCos;
-	    matrix_[1][2] = -(origin_.x * matrix_[1][0]) - (origin_.y * matrix_[1][1]) + position_.y;
-		matrix_[2][0] = 0;
-		matrix_[2][1] = 0;
-		matrix_[2][2] = 1;
-
-        matValid_ = 1;
-	}
+	MatType mat_ {};
 
 public:
-    transform() noexcept : matrix_(identityMat<dim + 1, prec>()) {} 
-    transform(const vec_type& pos) noexcept : position_(pos), matValid_(0),
-		matrix_(identityMat<dim + 1, prec>())  {}
-    ~transform() noexcept = default;
+    Transform() noexcept : mat_(identityMat<dim + 1, P>()) {} 
+    ~Transform() noexcept = default;
 
-    //operations
-    void rotate(const rot_type& rotation){ rotation_ += rotation; invMat(); }
-    void move(const vec_type& pos){ position_ += pos; invMat(); }
-    void scale(const vec_type& pscale){ scaling_ *= pscale; invMat(); }
-    void moveOrigin(const vec_type& m) { origin_ += m; invMat(); };
+    void rotate(const RotType& rotation){ rotate(mat_, rotation); }
+    void translate(const VecType& translation){ translate(mat_, translation); }
+    void scale(const VecType& scaling){ scale(mat_, scaling); }
 
-    void rotation(const rot_type& rotation){ rotation_ = rotation; invMat(); }
-    void position(const vec_type& pos){ position_ = pos; invMat(); }
-    void scaling(const vec_type& pscale){ scaling_ = pscale; invMat(); }
-    void origin(const vec_type& origin) { origin_ = origin; invMat(); }
+	void reset() { identity(mat_); };
 
-    const rot_type& rotation() const { return rotation_; }
-    const vec_type& position() const { return position_; }
-    const vec_type& scaling() const { return scaling_; }
-    const vec_type& origin() const { return origin_; }
-
-    template<size_t odim, class oprec>
-    operator transform<odim, oprec>()
-    {
-        transform<odim, oprec> ret{};
-
-        ret.position_ = position_;
-        ret.origin_ = origin_;
-        if(odim >= 1) ret.scaling_[0] = scaling_[0];
-        if(odim >= 2) ret.scaling_[1] = scaling_[1], ret.rotation_[0] = rotation_;
-
-        if(matValid_) ret.matrix_ = matrix_;
-        else ret.matValid_ = 0;
-
-        return ret;
-    }
-
-    //apply
-    vec_type apply(const vec_type& org) const 
-		{ return vec_type(vec<dim + 1, prec>(org.x, org.y, 1) * matrix()); }
-
-    //getMatrix
-    const mat_type& matrix() const { if(!matValid_) bakeMat(); return matrix_; }
+    MatType& mat() { return mat_; }
+    const MatType& mat() const { return mat_; }
 };
 
-//3
-template<typename prec>
-class transform<3, prec>
-{
-public:
-    static constexpr const size_t dim = 3;
-
-	using vec_type = vec<dim, prec>;
-	using mat_type = squareMat<dim + 1, prec>;
-	using rot_type = vec_type;
-	using rect_type = rect<dim, prec>;
-
-protected:
-    rot_type rotation_ {};
-    vec_type scaling_ {};
-    vec_type position_ {};
-	vec_type origin_ {};
-
-	mutable mat_type matrix_ {};
-	mutable bool matValid_ {1};
-
-	void invMat() const { matValid_ = 0; }
-	void bakeMat() const
-	{
-	    //todo
-	    float sinA = std::sin(rotation_[0] * cDeg);
-        float cosA = std::cos(rotation_[0] * cDeg);
-
-        float sinB = std::sin(rotation_[1] * cDeg);
-        float cosB = std::cos(rotation_[1] * cDeg);
-
-        float sinC = std::sin(rotation_[2] * cDeg);
-        float cosC = std::cos(rotation_[2] * cDeg);
-
-        //todo: pre-calculate this, use origin
-        mat_type trMatrix(cosB * cosC, cosC * sinA * sinB - cosA * sinC, 
-					cosA * cosC * sinB + sinA * sinC, position_[0],
-                          cosB * sinC, cosA * cosC + sinA * sinB * sinC, 
-					-cosC * sinA + cosA * sinB * sinC, position_[1],
-                          -sinB, cosB * sinA, cosA * cosB, position_[2],
-                          0, 0, 0, 1);
-
-        mat_type sMatrix(scaling_[0], 0, 0, 0,
-                         0, scaling_[1], 0, 0,
-                         0, 0, scaling_[2], 0,
-                         0, 0, 0, scaling_[3]);
-
-        matrix_ = trMatrix * sMatrix;
-
-        matValid_ = 1;
-	}
-
-public:
-    transform() noexcept : matrix_(identityMat<dim + 1, prec>()) 
-		{ scaling_.fill(1); position_.fill(0); origin_.fill(0); rotation_.fill(0); }
-    transform(const vec_type& pos) noexcept : position_(pos), matValid_(0) {}
-    ~transform() noexcept = default;
-
-    //operations
-    void rotate(const rot_type& rotation){ rotation_ += rotation; invMat(); }
-    void move(const vec_type& pos){ position_ += pos; invMat(); }
-    void scale(const vec_type& pscale){ scaling_ *= pscale; invMat(); }
-    void moveOrigin(const vec_type& m) { origin_ += m; invMat(); };
-
-    void rotation(const rot_type& rotation){ rotation_ = rotation; invMat(); }
-    void position(const vec_type& pos){ position_ = pos; invMat(); }
-    void scaling(const vec_type& pscale){ scaling_ = pscale; invMat(); }
-    void origin(const vec_type& origin) { origin_ = origin; invMat(); }
-
-    const rot_type& rotation() const { return rotation_; }
-    const vec_type& position() const { return position_; }
-    const vec_type& scaling() const { return scaling_; }
-    const vec_type& origin() const { return origin_; }
-
-    template<size_t odim, class oprec>
-    operator transform<odim, oprec>()
-    {
-        transform<odim, oprec> ret{};
-
-        ret.position_ = position_;
-        ret.origin_ = origin_;
-        if(odim >= 1) ret.scaling_[0] = scaling_[0];
-        if(odim >= 2) ret.scaling_[1] = scaling_[1], ret.rotation_[0] = rotation_[0];
-        if(odim >= 3) ret.scaling_[2] = scaling_[2], ret.rotation_[1] = rotation_[1], 
-			ret.rotation_[2] = rotation_[2];
-
-        if(matValid_) ret.matrix_ = matrix_;
-        else ret.matValid_ = 0;
-
-        return ret;
-    }
-
-    //apply
-    vec_type apply(const vec_type& org) const 
-		{ return vec_type(vec<dim + 1, prec>(org.x, org.y, org.z, 1) * matrix()); }
-
-    //getMatrix
-    const mat_type& matrix() const { if(!matValid_) bakeMat(); return matrix_; }
-};
-
-
-
-//transformable helper base class
-template<size_t dimension, typename prec>
-class transformable
-{
-protected:
-    static constexpr const size_t dim = dimension;
-    using value_type = prec;
-
-    using transform_type = transform<dim, value_type>;
-	using vec_type = typename transform_type::vec_type;
-	using mat_type = typename transform_type::mat_type;
-	using rot_type = typename transform_type::rot_type;
-	using rect_type = typename transform_type::rect_type;
-
-    transform_type transform_;
-
-public:
-    transformable() = default;
-    transformable(const vec_type& pos) : transform_(pos) {}
-
-    ~transformable() = default;
-
-    template<size_t odim, typename oprec> 
-		transformable(const transformable<odim, oprec>& other) : transform_(other.transform()) {}
-    template<size_t odim, typename oprec> 
-		transformable(const transform<odim, oprec>& trans) : transform_(trans) {}
-    template<size_t odim, typename oprec> 
-		transformable<dim, prec>& operator=(const transformable<odim, oprec>& other) 
-		{ transform_ = other.transform(); return *this; }
-
-    //operations
-    void rotate(const rot_type& rotation){ transform_.rotate(rotation); }
-    void move(const vec_type& pos){ transform_.move(pos); }
-    void scale(const vec_type& pscale){ transform_.scale(pscale); }
-    void moveOrigin(const vec_type& m) { transform_.moveOrigin(m); };
-
-    void rotation(const rot_type& rotation){ transform_.rotation(rotation); }
-    void position(const vec_type& pos){ transform_.position(pos); }
-    void scaling(const vec_type& pscale){ transform_.scaling(pscale); }
-    void origin(const vec_type& origin){ transform_.origin(origin); }
-
-    const rot_type& rotation() const { return transform_.rotation(); }
-    const vec_type& position() const { return transform_.position(); }
-    const vec_type& scaling() const { return transform_.scaling(); }
-    const vec_type& origin() const { return transform_.origin(); }
-
-    void copyTransform(const transform_type& trans) { transform_ = trans; }
-    void copyTransform(const transformable<dim, prec>& trans) { transform_ = trans.transform_; }
-
-    //todo
-    const mat_type& transformMatrix() const { return transform_.matrix(); }
-    const transform_type& transformObject() const { return transform_; }
-
-	virtual rect_type extents() const { return rect_type{}; };
-};
+#include <nytl/bits/transform.inl>
 
 }

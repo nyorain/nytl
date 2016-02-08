@@ -1,115 +1,219 @@
 #include <nytl/nytl.hpp>
 #include <nytl/triangle.hpp>
 #include <nytl/line.hpp>
+#include <nytl/transform.hpp>
+#include <nytl/serialize.hpp>
+#include <nytl/any.hpp>
 #include <iostream>
 #include <fstream>
 #include <cassert>
 #include <set>
 using namespace nytl;
-
 /*
-using vec1d = vec<1, double>;
-
-template<std::size_t D, typename P, std::size_t A = D>
-simplexRegion<D, P, A> convexFromPoints(const std::vector<vec<D, P>>& points)
+constexpr std::size_t multipleAxis(std::size_t D)
 {
+	return D; //TODO
 }
 
-template<std::size_t D, typename P, std::size_t A>
-simplexRegion<D, double, A> intersection2(const simplex<D, P, A>& sa, const simplex<D, P, A>& sb)
+template<std::size_t D, typename P>
+class Bivec
 {
-	//general equotation system that is fulfilled by all points in the intersectio area	
-	mat<D + 2, (A + 1) * 2 + 1, P> eqs;
-	for(std::size_t i(0); i < A + 1; ++i)
+public:
+	Vec<rotationAxis(D), P> simple_ {};
+	//Vec<multipleAxis(D), P> multiple_ {};
+};
+
+template<std::size_t D, typename P>
+class Rotor
+{
+public:
+	Bivec<D, P> bivec_ {};
+	float scalar_ {};
+
+	Rotor inverse()
 	{
-		eqs.col(i) = sa.points()[i];
-		eqs.col(A + 1 + i) = -sb.points()[i];
+		Rotor ret {};
+		ret.bivec_.simple_ = -bivec_.simple_;
+		ret.scalar_ = scalar_;
+		return ret;
+	}
+};
 
-		eqs.row(D)[i] = 1;
-		eqs.row(D)[A + 1 + i] = 0;
-
-		eqs.row(D + 1)[i] = 0;
-		eqs.row(D + 1)[A + 1 + i] = 1;
+template<std::size_t D, typename P>
+Rotor<D, P> vecMult(const Vec<D, P>& a, const Vec<D, P>& b)
+{
+	auto ret = Rotor<D, P> {};
+	for(std::size_t i(0); i < D; ++i)
+	{
+		ret.scalar_ += a[i] * b[i];
 	}
 
-	eqs.col((A + 1) * 2).fill(0);
-
-	eqs.row(D)[(A + 1) * 2] = 1;
-	eqs.row(D + 1)[(A + 1) * 2] = 1;
-
-	std::cout << eqs << std::endl;
-
-	//les
-	auto les = linearEquotationSystem<D + 2, (A + 1) * 2, P>(eqs);
-	auto solution = les.solve();
-
-	//analzye solutionSet
-	if(!solution.solvable()) //no intersection
+	std::size_t idx = 0;
+	for(std::size_t i1(0); i1 < a.size() - 1; ++i1)
 	{
-		return {};
-	}
-	else if(solution.unambigouoslySolvable()) //baiscally just a point
-	{
-		//return cartesian(sa, static_cast<vec<D, P>>(solution.solution()));
-		return {};
-	}
-	else //area
-	{
-		//assert solution.numberVariables() == A?
-		
-		domainedSolutionSet<(A + 1) * 2> dss;
-		dss.solutionSet_ = solution;
-		dss.domains_.fill(linearDomain{0, 1});
-		dss.bake();
-	
-
-		//only allows ~32(maybe 64 or more) dimensions cause of this
-
-		std::vector<vec<D, double>> cartesianPoints;
-		for(auto& comb : sequences)
+		for(std::size_t i2(i1 + 1); i2 < b.size(); ++i2)
 		{
-			auto sol = dss.solution(dynVeci{0, 1}, comb, 0);
-			auto cart = cartesian(sa, vec<A + 1, double>(solution.solution(sol)));
-			cartesianPoints.push_back(cart);
-			//std::cout << "{0, 1}, " << comb << " --> " << sol << " --> " << cart << "\n";
-
-			sol = dss.solution(dynVeci{1, 0}, comb, 0);
-			cart = cartesian(sa, vec<A + 1, double>(solution.solution(sol)));
-			cartesianPoints.push_back(cart);
-			//std::cout << "{1, 0}, " << comb << " --> " << sol << " --> " << cart << "\n";
+			ret.bivec_.simple_[idx++] = (a[i1] * b[i2]) - (a[i2] * b[i1]);
 		}
-
-		//erase doubled points
-		std::sort(cartesianPoints.begin(), cartesianPoints.end(), 
-				[](const vec<D, double>& a, const vec<D, double>& b){ return all(a < b); });
-		auto newEnd = std::unique(cartesianPoints.begin(), cartesianPoints.end(), 
-				[](vec<D, double> a, vec<D, double> b) -> bool { return all(a == b); });
-		cartesianPoints.erase(newEnd, cartesianPoints.cend());
-
-
-		return convexFromPoints<D, double, A>(cartesianPoints);
 	}
+
+	return ret;
+}
+
+template<std::size_t D, typename P>
+Rotor<D, P> createRotor(const Vec<rotationAxis(D), P>& vec, float angle)
+{
+	auto ret = Rotor<D, P> {};
+
+	ret.scalar_ = std::cos(radians(angle / 2));
+	for(std::size_t i(0); i < D; ++i)
+	{
+		ret.bivec_.simple_[i] = std::sin(radians(angle / 2));
+	}
+
+	return ret;
+}
+
+Vec2<std::size_t> indexPlane(std::size_t dim, std::size_t idx)
+{
+	auto ret = Vec2<std::size_t> {};
+
+	while(idx >= dim - 1)
+	{
+		ret[0]++;
+		idx -= (dim - 1);
+		dim--;
+	}
+
+	ret[1] = idx + 1;
+
+	return ret;
+}
+
+template<std::size_t D, typename P>
+Vec<D, P> applyRotor(const Vec<D, P>& vec, const Rotor<D, P>& rot)
+{
+	auto rotMat = identityMat<D>();
+	
+	for(std::size_t i(0); i < rotationAxis(D); ++i)
+	{
+		auto planeMat = identityMat<D>();
+		auto idx = indexPlane(D, i);
+
+		auto c = std::cos(rot.scalar_ * rot.bivec_.simple_[i]);
+		auto s = std::sin(rot.scalar_ * rot.bivec_.simple_[i]);
+
+		planeMat[idx[0]][idx[0]] = c;
+		planeMat[idx[0]][idx[1]] = -s;
+		planeMat[idx[1]][idx[0]] = s;
+		planeMat[idx[1]][idx[1]] = c;
+
+		rotMat *= planeMat;
+		std::cout << idx << "\n";
+		std::cout << planeMat << "\n";
+	}	
+
+	//rotMat *= rot.scalar_;
+	std::cout << rotMat << "\n";
+
+	return rotMat * vec;
+}
+
+Vec2f rotate(const Vec2f& vec, float value)
+{
+	Vec2f rot1(std::cos(-value / 2), std::sin(-value / 2));
+	Vec2f rot2(std::cos(value / 2), std::sin(value / 2));
+
+	return {std::cos(value) * vec.x - std::sin(value) * vec.y, 
+			std::sin(value) * vec.x + std::cos(value) * vec.y};
 }
 */
+/*
+template<typename S> class Printer;
+
+template<char... C>
+class Printer<TemplateString<C...>>
+{
+public:
+	static void print()
+	{
+		nytl::printVars(std::cout, sizeof...(C), "\n", C..., "\n");
+	}
+};
+
+class BaseClass : public nytl::Serialized<BaseClass, TS_("BaseClass")>
+{
+};
+
+class DerivedClass : public nytl::DeriveSerialized<BaseClass, DerivedClass, TS_("DerivedClass")>
+{
+};
+
+template<typename T>
+class DerivedTC : public 
+	nytl::DeriveSerialized<BaseClass, DerivedTC<T>, TS_("DerivedTC<", typeName<T>(), ">")>
+{
+};
+*/
+
+#include <nytl/serialize.hpp>
+#include <cassert>
+#include <iostream>
+
+class BaseClass : public nytl::Serialized<BaseClass> {};
+class DerivedClass : public nytl::DeriveSerialized<BaseClass, DerivedClass> {};
+
+//DerivedTemplateClass
+template<typename T>
+class DerivedTC : public nytl::DeriveSerialized<BaseClass, DerivedTC<T>> {};
+
+//To go the safe way and make it working across all platforms one must use a macro
+NYTL_GEN_TYPENAME(BaseClass)
+NYTL_GEN_TYPENAME(DerivedClass)
+NYTL_GEN_TEMPLATE_TYPENAME(DerivedTC)
+
+//It will also work without this macro but only with certain non-standard extensions and not
+//safely cross platform (the types will have the same name on EVERY platform).
+//So prefer using this macro for all types and templates parameters of types that are serialized.
+//Also specify it for int since we use it in the main function:
+NYTL_GEN_TYPENAME(int)
+
+
 int main()
 {
-	//tetrahedron<3, float> tr1{{50.f, 0.f, 0.f}, {0.f, 100.f, 0.f}, {100.f, 100.f, 0.f}, {50.f, 50.f, 50.f}};
+	//Create a Serializer (might also be done global)
+	//See nytl::Serializer or nytl::Typemap for more information
+	nytl::DefaultSerializer serializer;
+
+	//Add some random types to the typemap
+	//notice how we dont have to specify their string identifier names here
+	//we could also do that, then there would be no need for the macros used above to make
+	//it work on all platforms.
+	nytl::addType<DerivedClass>(serializer);
+	nytl::addType<DerivedTC<int>>(serializer);
+	nytl::addType<int>(serializer);
+
+	//dynamically create an object by typeName
+	auto object1 = serializer.create("int");
+	auto object2 = serializer.create("DerivedTC<int>");
+
+	//check typeName
+	assert(nytl::any_cast<DerivedTC<int>>(object2).objectTypeName() == "DerivedTC<int>");
 	
-	triangle2f tr1{{50.f, 0.f}, {0.f, 100.f}, {100.f, 100.f}};
-	triangle2f tr2{{0.f, 50.f}, {100.f, 50.f}, {50.f, 150.f}};
+	std::cout << object1.empty() << "\n";
+	std::cout << object2.empty() << "\n";
+	
+	//output all registered types (names)
+	for(auto& type : serializer.types())
+		std::cout << type.first << "\n";
 
-	std::cout << "--: " << "hello" << std::endl;
-	std::cout << "sa: " << &tr1 << std::endl;
-	std::cout << "sb: " << &tr2 << "\n";
+	//load object from stream
+	//e.g. by int 43 which will dynamically (!) create a int with the value of 43 and
+	//return it type-erased as an nytl::Any object.
+	//Note that you can also use common base classes instead of nytl::Any for a nytl::Serializer
+	//(or more general speaking a nytl::Typemap).
+	if(!serializer.createLoad(std::cin).empty()) std::cout << "succesful\n";
+	else std::cout << "failed\n";
 
-	auto intsec = nytl::intersection(tr1, tr2);
-	std::cout << "\n\n" << dumpContainer(intsec.areas());
-
-	//auto r = intersection(tr1, tr2);
-	/*
-	for(auto& s : r.areas())
-	{
-		std::cout << s.points() << "\n";
-	}
-	*/
+	return EXIT_SUCCESS;
 }

@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,18 +29,18 @@ namespace nytl {
 #endif
 
 //utility
-///\relates mat solutionSet
-///Interprets the given matrix as a linearEquotationSystem and solves it.
+///\relates Mat SolutionSet
+///Interprets the given Matrix as a LinearEquotationSystem and solves it.
 template<std::size_t R, std::size_t C, typename P>
-solutionSet<C - 1> solve(const mat<R, C, P>& m)
+SolutionSet<C - 1> solve(const Mat<R, C, P>& m)
 {
 	constexpr static auto V = C - 1; //number Variables
 	constexpr static auto E = R; //number Equotations
 
-	auto res = rrefMatCopy(m);
-	vec<V, typename solutionSet<V>::expression> solution = {};
+	auto res = rrefCopy(m);
+	Vec<V, typename SolutionSet<V>::expression> solution = {};
 
-	vec<V, int> varNumbers; //Variable ID of the column
+	Vec<V, int> varNumbers; //Variable ID of the column
 	varNumbers.fill(-1);
 
 	std::size_t varCount = 0;
@@ -72,21 +72,20 @@ solutionSet<C - 1> solve(const mat<R, C, P>& m)
 
 		if(currVar == -1) //all vars == 0
 		{
-			if(res[r].back() != 0) //result != 0 -> not solvable
-				return solutionSet<V>();
-			else //just an empty row
-				continue; 
+			//result != 0 -> not solvable
+			if(res[r].back() != 0)  return SolutionSet<V>();
+			else continue; //just an empty row
 		}
 
 		solution[currVar].constPart = res[r].back();
 	}
 
-	return solutionSet<V>(varCount, solution);
+	return SolutionSet<V>(varCount, solution);
 }
 
-///\relates domainedSolutionSet
+///\relates DomainedSolutionSet
 template<std::size_t D>
-std::vector<vec<D, double>> outlinePoints(const domainedSolutionSet<D>& solution)
+std::vector<Vec<D, double>> outLinePoints(const DomainedSolutionSet<D>& solution)
 {
 	//generator
 	struct uniqueGenerator 
@@ -99,8 +98,8 @@ std::vector<vec<D, double>> outlinePoints(const domainedSolutionSet<D>& solution
 	std::vector<unsigned int> varSeq(solution.numberVariables());
 	std::generate(varSeq.begin(), varSeq.end(), uniqueGenerator{});
 
-	std::vector<dynVecui> varSequences(fac(solution.numberVariables()), 
-			dynVecui(solution.numberVariables()));
+	std::vector<DynVecui> varSequences(fac(solution.numberVariables()), 
+			DynVecui(solution.numberVariables()));
 
 	for(std::size_t i(0); i < fac(solution.numberVariables()); ++i)
 	{
@@ -110,8 +109,8 @@ std::vector<vec<D, double>> outlinePoints(const domainedSolutionSet<D>& solution
 	}	
 	
 	//all possible min/max (binary - 1=max, 0=min)
-	std::vector<dynVecb> minmaxSequences(std::pow(2, solution.numberVariables()), 
-			dynVecb(solution.numberVariables()));
+	std::vector<DynVecb> minmaxSequences(std::pow(2, solution.numberVariables()), 
+			DynVecb(solution.numberVariables()));
 
 	for(std::size_t i(0); i < (1 << solution.numberVariables()); ++i)
 	{
@@ -125,23 +124,21 @@ std::vector<vec<D, double>> outlinePoints(const domainedSolutionSet<D>& solution
 	//solution.bake();
 
 	//compute points
-	std::vector<vec<D, double>> ret; //ret.reserve?
+	std::vector<Vec<D, double>> ret; //ret.reserve?
 	for(auto& varSeqi : varSequences)
 	{
 		for(auto& minmaxSeqi : minmaxSequences)
 		{
-			dynVecd sol;
+			DynVecd sol;
 			try
 			{
 				sol = solution.solution(varSeqi, minmaxSeqi, 0);
 			}
 			catch(std::invalid_argument& err)
 			{
-				std::cout << varSeqi << " ,, " << minmaxSeqi << " FAIL " << "\n";
 				continue;
 			}
 
-			std::cout << varSeqi << " ,, " << minmaxSeqi << " --> " << sol << "\n";
 			ret.push_back(sol);
 		}
 	}
@@ -159,12 +156,12 @@ std::vector<vec<D, double>> outlinePoints(const domainedSolutionSet<D>& solution
 	return ret;
 }
 
-//solutionSet
+//SolutionSet
 template<std::size_t N>
 template<std::size_t D, typename P>
-vec<N, double> solutionSet<N>::solution(const vec<D, P>& vars) const
+Vec<N, double> SolutionSet<N>::solution(const Vec<D, P>& vars) const
 {
-	vec<N, double> ret;
+	Vec<N, double> ret;
 	if(!solvable())
 	{
 		ret.fill(std::numeric_limits<double>::quiet_NaN());
@@ -184,9 +181,9 @@ vec<N, double> solutionSet<N>::solution(const vec<D, P>& vars) const
 }
 
 template<std::size_t N>
-vec<N, double> solutionSet<N>::solution() const
+Vec<N, double> SolutionSet<N>::solution() const
 {
-	vec<N, double> ret;
+	Vec<N, double> ret;
 	if(!solvable())
 	{
 		ret.fill(std::numeric_limits<double>::quiet_NaN());
@@ -198,14 +195,14 @@ vec<N, double> solutionSet<N>::solution() const
 	}
 	else
 	{
-		//will convert to vec of needed size, full of 0's
-		return solution(vec2i(0, 0));
+		//will convert to Vec of needed size, full of 0's
+		return solution(Vec2i(0, 0));
 	}
 	return ret;
 }
 
 template<std::size_t N>
-std::ostream& operator<<(std::ostream& os, const solutionSet<N>& sol)
+std::ostream& operator<<(std::ostream& os, const SolutionSet<N>& sol)
 {
 	os << "{(";
 	const char* sep = "";
@@ -252,10 +249,10 @@ std::ostream& operator<<(std::ostream& os, const solutionSet<N>& sol)
 	return os;
 }
 
-//domainedSolutionSet
+//DomainedSolutionSet
 template<std::size_t N>
-domainedSolutionSet<N>::domainedSolutionSet(const solutionSet<N>& sset, 
-		const vec<N, linearDomain>& domains) : solutionSet_(sset), domains_(domains)
+DomainedSolutionSet<N>::DomainedSolutionSet(const SolutionSet<N>& sset, 
+		const Vec<N, LinearDomain>& Domains) : SolutionSet_(sset), Domains_(Domains)
 {
 	bake();
 	return;
@@ -271,10 +268,10 @@ domainedSolutionSet<N>::domainedSolutionSet(const solutionSet<N>& sset,
 }
 
 template<std::size_t N>
-domainedSolutionSet<N>::domainedSolutionSet(const solutionSet<N>& sset, 
-		const linearDomain& domains) : solutionSet_(sset), domains_()
+DomainedSolutionSet<N>::DomainedSolutionSet(const SolutionSet<N>& sset, 
+		const LinearDomain& Domains) : SolutionSet_(sset), Domains_()
 {
-	domains_.fill(domains);
+	Domains_.fill(Domains);
 	bake();
 	return;
 
@@ -289,28 +286,28 @@ domainedSolutionSet<N>::domainedSolutionSet(const solutionSet<N>& sset,
 }
 
 template<std::size_t N>
-void domainedSolutionSet<N>::bake() const
+void DomainedSolutionSet<N>::bake() const
 {
 	dependentDomains_.clear();
-	dependentDomains_.resize(solutionSet_.numberVariables());
+	dependentDomains_.resize(SolutionSet_.numberVariables());
 
 	for(std::size_t i(0); i < N; ++i)
 	{
-		auto& expr = solutionSet_.solution_[i];
+		auto& expr = SolutionSet_.solution_[i];
 		if(all(expr.variablePart == 0)) //const
 		{
-			if(domains_[i].minimum > expr.constPart || domains_[i].maximum < expr.constPart)
+			if(Domains_[i].minimum > expr.constPart || Domains_[i].maximum < expr.constPart)
 			{
-				//does not match domain (no variable part -> NEVER matches domain), throw
+				//does not Match Domain (no variable part -> NEVER Matches Domain), throw
 				throw std::invalid_argument(
-						std::string("domainedSolutionSet::bake: invalid solutionSet"));
+						std::string("DomainedSolutionSet::bake: invalid SolutionSet"));
 			}
 
 			continue;
 		}
 
 		//variablePart
-		for(std::size_t v(0); v < solutionSet_.numberVariables(); ++v)
+		for(std::size_t v(0); v < SolutionSet_.numberVariables(); ++v)
 		{
 			if(expr.variablePart[v] == 0) continue;
 
@@ -326,13 +323,13 @@ void domainedSolutionSet<N>::bake() const
 				//expressions
 				auto exp = expressionType{};
 
-				exp.constPart = (domains_[i].minimum - expr.constPart) / expr.variablePart[v];
+				exp.constPart = (Domains_[i].minimum - expr.constPart) / expr.variablePart[v];
 				exp.variablePart = -cpy / expr.variablePart[v];
 
 				if(gZ) dom.min.push_back(exp);
 				else dom.max.push_back(exp);
 
-				exp.constPart = (domains_[i].maximum - expr.constPart) / expr.variablePart[v];
+				exp.constPart = (Domains_[i].maximum - expr.constPart) / expr.variablePart[v];
 				exp.variablePart = -cpy / expr.variablePart[v];
 
 				if(gZ) dom.max.push_back(exp);
@@ -344,16 +341,16 @@ void domainedSolutionSet<N>::bake() const
 				if(gZ)
 				{
 					dom.constMin = max(dom.constMin, 
-							(domains_[i].minimum - expr.constPart) / expr.variablePart[v]);
+							(Domains_[i].minimum - expr.constPart) / expr.variablePart[v]);
 					dom.constMax = min(dom.constMax, 
-							domains_[i].maximum - expr.constPart / expr.variablePart[v]);
+							Domains_[i].maximum - expr.constPart / expr.variablePart[v]);
 				}
 				else
 				{
 					dom.constMin = max(dom.constMin, 
-							(domains_[i].maximum - expr.constPart) / expr.variablePart[v]);
+							(Domains_[i].maximum - expr.constPart) / expr.variablePart[v]);
 					dom.constMax = min(dom.constMax, 
-							(domains_[i].minimum - expr.constPart) / expr.variablePart[v]);
+							(Domains_[i].minimum - expr.constPart) / expr.variablePart[v]);
 				}
 			}
 		}
@@ -362,20 +359,20 @@ void domainedSolutionSet<N>::bake() const
 	//constPart
 	for(std::size_t i(0); i < N; ++i)
 	{
-		auto& expr = solutionSet_.solution_[i];
+		auto& expr = SolutionSet_.solution_[i];
 		if(all(expr.variablePart == 0)) continue;
 
-		for(std::size_t v(0); v < solutionSet_.numberVariables(); ++v)
+		for(std::size_t v(0); v < SolutionSet_.numberVariables(); ++v)
 		{
 			if(expr.variablePart[v] == 0) continue;
 
 			bool gZ = (expr.variablePart[v] > 0); //greaterZero
 			auto& dom = dependentDomains_[v];
 
-			auto lhs = domains_[i].minimum - expr.constPart; //left
-			auto rhs = domains_[i].maximum - expr.constPart; //right
+			auto lhs = Domains_[i].minimum - expr.constPart; //left
+			auto rhs = Domains_[i].maximum - expr.constPart; //right
 
-			for(std::size_t c(0); c < solutionSet_.numberVariables(); ++c)
+			for(std::size_t c(0); c < SolutionSet_.numberVariables(); ++c)
 			{
 				if(c == v || expr.variablePart[c] == 0) continue;
 
@@ -396,7 +393,7 @@ void domainedSolutionSet<N>::bake() const
 			lhs = lhs / expr.variablePart[v];
 			rhs = rhs / expr.variablePart[v];
 
-			auto emptyVec = vec<N, double>{};
+			auto emptyVec = Vec<N, double>{};
 			emptyVec.fill(0);
 
 			if(gZ)
@@ -411,22 +408,15 @@ void domainedSolutionSet<N>::bake() const
 			}
 		}
 	}
-
-
-	for(auto& d : dependentDomains_)
-	{
-		std::cout << "dep: " << vec2d{d.constMin, d.constMax} << "\n";
-	}
-	std::cout << "depEnd\n";
 }
 
-template<std::size_t N> dynVecd 
-domainedSolutionSet<N>::solution(const dynVecui& seq, const dynVecb& minmax, bool pbake) const
+template<std::size_t N> DynVecd 
+DomainedSolutionSet<N>::solution(const DynVecui& seq, const DynVecb& minmax, bool pbake) const
 {
 	if(pbake) bake();
 
-	auto vars = dynVecd(solutionSet_.numberVariables());
-	for(std::size_t i(0); i < solutionSet_.numberVariables(); ++i)
+	auto vars = DynVecd(SolutionSet_.numberVariables());
+	for(std::size_t i(0); i < SolutionSet_.numberVariables(); ++i)
 	{
 		auto s = seq[i];
 		auto m = minmax[s];
@@ -438,7 +428,7 @@ domainedSolutionSet<N>::solution(const dynVecui& seq, const dynVecb& minmax, boo
 		{
 			//ignore(skip) dependentDomains_ with unresolved variables
 			bool skip = 0;
-			for(std::size_t vp(i); vp < solutionSet_.numberVariables(); ++vp)
+			for(std::size_t vp(i); vp < SolutionSet_.numberVariables(); ++vp)
 			{
 				if(d.variablePart[seq[vp]] != 0) skip = 1;
 			}
@@ -461,7 +451,7 @@ domainedSolutionSet<N>::solution(const dynVecui& seq, const dynVecb& minmax, boo
 		{
 			//ignore(skip) dependentDomains with unresolved variables
 			bool skip = 0;
-			for(std::size_t vp(i); vp < solutionSet_.numberVariables(); ++vp)
+			for(std::size_t vp(i); vp < SolutionSet_.numberVariables(); ++vp)
 			{
 				if(d.variablePart[seq[vp]] != 0) skip = 1;
 			}
@@ -472,7 +462,7 @@ domainedSolutionSet<N>::solution(const dynVecui& seq, const dynVecb& minmax, boo
 				auto n = d.constPart + sum(d.variablePart * vars);
 				if(vars[s] < n)
 				{
-					throw std::invalid_argument("domainedSolutionSet::solution: not solveable");
+					throw std::invalid_argument("DomainedSolutionSet::solution: not solveable");
 				}
 			}
 			else
@@ -480,7 +470,7 @@ domainedSolutionSet<N>::solution(const dynVecui& seq, const dynVecb& minmax, boo
 				auto n = d.constPart + sum(d.variablePart * vars);
 				if(vars[s] > n)
 				{
-					throw std::invalid_argument("domainedSolutionSet::solution: not solveable");
+					throw std::invalid_argument("DomainedSolutionSet::solution: not solveable");
 				}
 			}
 		}
@@ -488,12 +478,12 @@ domainedSolutionSet<N>::solution(const dynVecui& seq, const dynVecb& minmax, boo
 
 	//return vars;
 	std::cout << "vars: " << vars << "\n";
-	return solutionSet_.solution(vars);
+	return SolutionSet_.solution(vars);
 }
 
-//linearEquotationSystem
+//LinearEquotationSystem
 template<std::size_t E, std::size_t V, typename P>
-solutionSet<V> linearEquotationSystem<E, V, P>::solve() const
+SolutionSet<V> LinearEquotationSystem<E, V, P>::solve() const
 {
 	return nytl::solve(asMat());
 }

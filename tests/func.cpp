@@ -4,7 +4,7 @@ using namespace nytl;
 #include <cassert>
 
 //dummys
-int testFunc1(const vec2f&){ return 1; }
+int testFunc1(const Vec2f&){ return 1; }
 void* testFunc2(){ return nullptr; }
 double testFunc3(int){ return 1.; }
 
@@ -25,7 +25,7 @@ int main()
 	//function traits
 	{
 		static_assert(std::is_same<function_traits<void(int)>::return_type, void>::value, "");
-		static_assert(std::is_same<function_traits<vec2f()>::return_type, vec2f>::value, "");
+		static_assert(std::is_same<function_traits<Vec2f()>::return_type, Vec2f>::value, "");
 	
 		static_assert(std::is_same<function_traits<decltype(testFunc1)>::return_type, 
 				int>::value, "");
@@ -39,7 +39,7 @@ int main()
 		static_assert(function_traits<decltype(&testClass1::func1)>::arg_size == 2, "");
 	
 		static_assert(std::is_same<function_traits<decltype(testFunc1)>::arg_tuple, 
-			std::tuple<const vec2f&>>::value, "");	
+			std::tuple<const Vec2f&>>::value, "");	
 		static_assert(std::is_same<function_traits<decltype(&testFunc2)>::arg_tuple, 
 			std::tuple<>>::value, "");	
 		static_assert(std::is_same<function_traits<decltype(&testClass1::func1)>::arg_tuple, 
@@ -49,7 +49,7 @@ int main()
 	//is_callable
 	{
 		checkCallable([]{});
-		checkCallable(std::function<int(const vec2f&)>(testFunc1));
+		checkCallable(std::function<int(const Vec2f&)>(testFunc1));
 		checkCallable(&testFunc2);
 		checkCallable(testFunc1);
 		checkCallable(&testClass1::func1);
@@ -66,7 +66,7 @@ int main()
 
 	//compatibleFunction
 	{
-		compatibleFunction<void(void*, double, float)> cp1 = [](float var)
+		CompatibleFunction<void(void*, double, float)> cp1 = [](float var)
 			{
 				assert(var == 8.f);
 			};
@@ -81,7 +81,7 @@ int main()
 
 	//callback
 	{
-		callback<void(float)> cb1;
+		Callback<void(float)> cb1;
 	
 		auto conn1 = cb1.add(&testFunc2);
 		auto conn2 = cb1.add(testFunc2);
@@ -91,7 +91,7 @@ int main()
 		assert(!conn1.connected());
 		assert(!conn2.connected());
 	
-		auto conn3 = cb1.add([](const connectionRef& ref)
+		auto conn3 = cb1.add([](const ConnectionRef& ref)
 				{
 					auto ref2 = ref;
 					ref2.destroy();

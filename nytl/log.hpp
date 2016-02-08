@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,7 +36,7 @@ namespace nytl
 {
 
 ///Class to easily write output to a dynamically assigned stream.
-class logger
+class Logger
 {
 public:
     std::string prefix {};
@@ -44,9 +44,9 @@ public:
     std::ostream* stream {nullptr};
 
 public:
-    logger() = default;
-    logger(std::ostream& os) : stream(&os){};
-    logger(const std::string& pre, const std::string& strm, std::ostream& str = std::cout) 
+    Logger() = default;
+    Logger(std::ostream& os) : stream(&os){};
+    Logger(const std::string& pre, const std::string& strm, std::ostream& str = std::cout) 
 		: prefix(pre), name(strm), stream(&str) {}
 
 	///Outputs the given args to the ostream if valid.

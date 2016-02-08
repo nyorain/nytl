@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Jan Kelling
+ * Copyright (c) 2016 Jan Kelling
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,7 @@
  */
 
 ///\file
-///\brief The 3-dimensional simplex spiecialization (tetrahedron).
+///\brief The 3-dimensional Simplex spiecialization (Tetrahedron).
 
 #pragma once
 
@@ -34,83 +34,87 @@ namespace nytl
 {
 
 //typedefs
-///Defines the 3 dimensional simplex specialization.
-template<typename P> using tetrahedron3 = tetrahedron<3, P>;
-template<typename P> using tetrahedron4 = tetrahedron<4, P>;
+///Defines the 3 dimensional Simplex specialization.
+template<typename P> using Tetrahedron3 = Tetrahedron<3, P>;
+template<typename P> using Tetrahedron4 = Tetrahedron<4, P>;
 
-using tetrahedron3f = tetrahedron<3, float>;
-using tetrahedron4f = tetrahedron<4, float>;
+using Tetrahedron3f = Tetrahedron<3, float>;
+using Tetrahedron4f = Tetrahedron<4, float>;
 
-using tetrahedron3d = tetrahedron<3, double>;
-using tetrahedron4d = tetrahedron<4, double>;
+using Tetrahedron3d = Tetrahedron<3, double>;
+using Tetrahedron4d = Tetrahedron<4, double>;
 
-using tetrahedron3i = tetrahedron<3, int>;
-using tetrahedron4i = tetrahedron<4, int>;
+using Tetrahedron3i = Tetrahedron<3, int>;
+using Tetrahedron4i = Tetrahedron<4, int>;
 
-using tetrahedron3ui = tetrahedron<3, unsigned int>;
-using tetrahedron4ui = tetrahedron<4, unsigned int>;
+using Tetrahedron3ui = Tetrahedron<3, unsigned int>;
+using Tetrahedron4ui = Tetrahedron<4, unsigned int>;
 
 template<size_t D, typename P>
-class simplex<D, P, 3>
+class Simplex<D, P, 3>
 {
 public:
-    using value_type = P;
-    using vec_type = vec<D, P>;
-    using tetrahedron_type = tetrahedron<D, P>;
-    using line_type = line<D, P>;
-    using triangle_type = triangle<D, P>;
+	static constexpr std::size_t dim = D;
+	static constexpr std::size_t simplexDim = 3;
+
+	using Precision = P;
+    using VecType = Vec<D, P>;
+    using TetrahedronType = Tetrahedron<D, P>;
+    using LineType = Line<D, P>;
+    using TriangleType = Triangle<D, P>;
+	using Size = std::size_t;
+
+	//stl
+    using value_type = Precision;
+	using size_type = Size;
 
 public:
-    vec_type a;
-    vec_type b;
-    vec_type c;
-    vec_type d;
+    VecType a {};
+    VecType b {};
+    VecType c {};
+    VecType d {};
 
 public:
-    simplex(const vec_type& xa, const vec_type& xb, const vec_type& xc, const vec_type& xd) noexcept
+    Simplex(const VecType& xa, const VecType& xb, const VecType& xc, const VecType& xd) noexcept
 		: a(xa), b(xb), c(xc), d(xd) {}
-
-    simplex() noexcept = default;
-    ~simplex() noexcept = default;
-    simplex(const tetrahedron_type& other) noexcept = default;
-    tetrahedron_type& operator=(const tetrahedron_type& other) noexcept = default;
+    Simplex() noexcept = default;
 
 	//default
     double size() const;
-	vec_type center() const;
+	VecType center() const;
 	bool valid() const;
 
-	vec<4, vec_type>& points()
-		{ return reinterpret_cast<vec<4, vec_type>&>(*this); }
-	const vec<4, vec_type>& points() const 
-		{ return reinterpret_cast<const vec<4, vec_type>&>(*this); }
+	Vec<4, VecType>& points()
+		{ return reinterpret_cast<Vec<4, VecType>&>(*this); }
+	const Vec<4, VecType>& points() const 
+		{ return reinterpret_cast<const Vec<4, VecType>&>(*this); }
 
     template<size_t OD, typename OP> constexpr
-    operator tetrahedron<OD, OP>() const { return tetrahedron<OD, OP>(a, b, c, d); }
+    operator Tetrahedron<OD, OP>() const { return Tetrahedron<OD, OP>(a, b, c, d); }
 
-	//tetrahedron specific
+	//Tetrahedron specific
 	//edges
-    line_type AB() const { return line_type(a, b); }
-    line_type AC() const { return line_type(a, c); }
-    line_type AD() const { return line_type(a, d); }
+    LineType ab() const { return LineType(a, b); }
+    LineType ac() const { return LineType(a, c); }
+    LineType ad() const { return LineType(a, d); }
 
-    line_type BA() const { return line_type(b, a); }
-    line_type BC() const { return line_type(b, c); }
-    line_type BD() const { return line_type(b, d); }
+    LineType ba() const { return LineType(b, a); }
+    LineType bc() const { return LineType(b, c); }
+    LineType bd() const { return LineType(b, d); }
 
-    line_type CA() const { return line_type(c, a); }
-    line_type CB() const { return line_type(c, b); }
-    line_type CD() const { return line_type(c, d); }
+    LineType ca() const { return LineType(c, a); }
+    LineType cb() const { return LineType(c, b); }
+    LineType cd() const { return LineType(c, d); }
 
-    line_type DA() const { return line_type(d, a); }
-    line_type DB() const { return line_type(d, b); }
-    line_type DC() const { return line_type(d, c); }
+    LineType da() const { return LineType(d, a); }
+    LineType db() const { return LineType(d, b); }
+    LineType dc() const { return LineType(d, c); }
 
 	//faces
-	triangle_type ABC() const { return triangle_type(a, b, c); }
-	triangle_type ABD() const { return triangle_type(a, b, d); }
-	triangle_type ACD() const { return triangle_type(a, c, d); }
-	triangle_type BCD() const { return triangle_type(b, c, d); }
+	TriangleType abc() const { return TriangleType(a, b, c); }
+	TriangleType abd() const { return TriangleType(a, b, d); }
+	TriangleType acd() const { return TriangleType(a, c, d); }
+	TriangleType bcd() const { return TriangleType(b, c, d); }
 
 	//TODO: angle
 };
