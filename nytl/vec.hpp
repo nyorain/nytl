@@ -48,8 +48,6 @@ namespace nytl
 template<std::size_t D, typename T> class Vec;
 
 //typedefs
-///\{
-///Available Vec typedefs
 template<typename T = float> using Vec2 = Vec<2, T>;
 template<typename T = float> using Vec3 = Vec<3, T>;
 template<typename T = float> using Vec4 = Vec<4, T>;
@@ -83,7 +81,6 @@ using Vec4uc = Vec4<unsigned char>;
 using Vec4l = Vec4<long>;
 using Vec4ul = Vec4<unsigned long>;
 using Vec4b = Vec4<bool>;
-///\}
 
 //better use dynmiacsize_type = 0? 
 //error messages with this one are kinda disgusting

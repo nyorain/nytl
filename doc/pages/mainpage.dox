@@ -6,7 +6,7 @@
 ///like some c++14 implementation (if your compiler still just supports c++11, but you often need 
 ///features like make_unique, integer_sequence or apply) or serialzer class and macros.
 ///
-///At the moment ny has about 5000 lines of pure code, so it is still pretty lightweight. If you use 
+///At the moment ny has about 8000 lines of pure code, so it is still pretty lightweight. If you use 
 ///nearly all files in you project, it may seriously speed-up your build process if you just include 
 ///nytl.hpp everywhere (all nytl header files) and use a pre-compiled header, they can work really 
 ///well. But if you just need a few files, it is much easier to just include them, and will not 

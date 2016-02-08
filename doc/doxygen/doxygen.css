@@ -110,7 +110,7 @@ dl.el {
 a.el {
     padding: 1px;
     text-decoration: none;
-    color: #577E25;
+    color: #222299;
 }
 
 a.el:hover {
@@ -130,9 +130,20 @@ div.fragment {
     font-family: Consolas, Courier, "Liberation Mono", monospace;
     font-size: 12px;
     padding: 0.5em 1em;
-    border: 1px solid #bbb;
-	border-radius: 8px;
+    border: 3px solid #bbb;
+	border-radius: 7px;
 	padding-top: 15px;
+	margin-top: 15px;
+    line-height: 150%;
+	white-space: pre;
+}
+
+div.fragment a.code{
+	color: white;
+}
+
+div.fragment a.code:hover{
+	text-decoration: none;
 }
 
 div.line {
@@ -246,51 +257,6 @@ img.footer {
 }
 
 /* @group Code Colorization */
-
-span.keyword {
-    color: #008000
-}
-
-span.keywordtype {
-    color: #604020
-}
-
-span.keywordflow {
-    color: #e08000
-}
-
-span.comment {
-    color: #800000
-}
-
-span.preprocessor {
-    color: #806020
-}
-
-span.stringliteral {
-    color: #002080
-}
-
-span.charliteral {
-    color: #008080
-}
-
-span.vhdldigit {
-    color: #ff00ff
-}
-
-span.vhdlchar {
-    color: #000000
-}
-
-span.vhdlkeyword {
-    color: #700070
-}
-
-span.vhdllogic {
-    color: #ff0000
-}
-
 blockquote {
     background-color: #F7F8FB;
     border-left: 2px solid #9CAFD4;
@@ -766,7 +732,7 @@ div.summary a {
     white-space: nowrap;
     padding: 1px;
     text-decoration: none;
-    color: #577E25;
+    color: #222299;
 }
 
 div.summary a:hover {
@@ -1131,7 +1097,7 @@ body {
 #footer a {
     padding: 1px;
     text-decoration: none;
-    color: rgb(70, 100, 30);
+    color: #222299;
 }
 
 #footer a:hover {

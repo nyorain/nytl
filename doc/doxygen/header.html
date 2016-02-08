@@ -8,6 +8,32 @@
         <link rel="stylesheet" type="text/css" href="doxygen.css" title="default" media="screen,print" />
         <script type="text/javascript" src="jquery.js"></script>
         <script type="text/javascript" src="dynsections.js"></script>
+        <script type="text/javascript" src="$relpath^highlight.pack.js"></script>
+		<link rel="stylesheet" type="text/css" href="$relpath^obsidian.css">
+		<script>
+
+		$(document).ready(function() {
+			hljs.configure({useBR: true});
+			hljs.configure({tabReplace: '    '});
+			$('.fragment').addClass("cpp");
+
+			$('.fragment').each(function(i, block) {
+				var $object1 = $(this);
+
+				$(this).children(".line").each(function(i, block2) {
+					$(this).find(".lineno").remove();
+
+					$object1.append($(this).html());
+					$object1.append("<br/>");
+
+					$(this).remove();
+				});
+
+				hljs.highlightBlock(block);
+			});
+		});
+		
+		</script>
     </head>
     <body>
         <div id="banner-container">
