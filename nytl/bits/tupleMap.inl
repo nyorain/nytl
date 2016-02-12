@@ -25,8 +25,8 @@
 #pragma once
 
 #include <nytl/tmp.hpp>
-#include <nytl/integer_sequence.hpp>
 #include <tuple>
+#include <utility>
 
 namespace nytl
 {
@@ -50,16 +50,16 @@ struct TupleMapImpl<std::tuple<OA...>, std::tuple<NA...>, I>
 
 	using type = typename std::conditional<
         value,  //condition
-        typename seq_prepend< //match
+        SeqPrepend< //match
             typename TupleMapImpl<
-                typename tuple_erase_first<OrgTuple>::type,
-                typename tuple_erase_first<NewTuple>::type,
+                TupleEraseFirst<OrgTuple>,
+                TupleEraseFirst<NewTuple>,
                 I + 1
             >::type,
             I
-        >::type,
+        >,
         typename TupleMapImpl< //no match
-            typename tuple_erase_first<OrgTuple>::type,
+            TupleEraseFirst<OrgTuple>,
             NewTuple,
             I + 1
         >::type
@@ -69,19 +69,19 @@ struct TupleMapImpl<std::tuple<OA...>, std::tuple<NA...>, I>
 template<typename... OrgLeft, std::size_t idx>
 struct TupleMapImpl<std::tuple<OrgLeft...>, std::tuple<>, idx>
 {
-    using type = index_sequence<>;
+    using type = std::index_sequence<>;
 };
 
 template<std::size_t idx>
 struct TupleMapImpl<std::tuple<>, std::tuple<>, idx>
 {
-    using type = index_sequence<>;
+    using type = std::index_sequence<>;
 };
 
 template<typename... NewLeft, std::size_t idx>
 struct TupleMapImpl<std::tuple<>, std::tuple<NewLeft...>, idx>
 {
-    using type = index_sequence<>;
+    using type = std::index_sequence<>;
 
     //XXX ERROR. Should not happen! Indicates that args are not compatible.
     //how to show error if this is used, but only IF it is used (std::conditional must still work)?
@@ -89,16 +89,16 @@ struct TupleMapImpl<std::tuple<>, std::tuple<NewLeft...>, idx>
 
 
 //TupleMap
-template<typename orgTup, typename newTup, typename seq = 
-	typename detail::TupleMapImpl<orgTup, newTup>::type> 
+template<typename OrgTup, typename NewTup, typename Seq = 
+	typename detail::TupleMapImpl<OrgTup, NewTup>::type> 
 struct TupleMap; //unspecified
 
 template<typename... OA, typename... NA, std::size_t... I>
-struct TupleMap<std::tuple<OA...>, std::tuple<NA...>, index_sequence<I...>>
+struct TupleMap<std::tuple<OA...>, std::tuple<NA...>, std::index_sequence<I...>>
 {
     using NewTup = typename std::tuple<NA...>;
     using OrgTup = typename std::tuple<OA...>;
-    using Seq = index_sequence<I...>;
+    using Seq = std::index_sequence<I...>;
 
     static constexpr NewTup map(OA&&... args) noexcept
     {

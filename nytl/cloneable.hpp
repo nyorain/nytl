@@ -41,6 +41,7 @@ class Cloneable
 {
 private:
 	virtual T* clone() const { return new T(static_cast<const T&>(*this)); }
+	//virtual T* cloneMove() { return new T(std::move(static_cast<T&>(*this))); }
 
 	template<typename X> 
 	friend std::unique_ptr<X> clone(const X&);

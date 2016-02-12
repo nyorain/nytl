@@ -39,143 +39,131 @@ namespace nytl
 
 //TUPLE
 //tuple_erase_first
-template<typename T> struct tuple_erase_first;
+template<typename T> struct TupleEraseFirstT;
 
 template<template<typename...> class T, typename Head, typename ... Tail>
-struct tuple_erase_first<T<Head, Tail...>>
+struct TupleEraseFirstT<T<Head, Tail...>>
 {
     using type = T<Tail...>;
 };
 
-template<typename T> using tuple_erase_first_t = typename tuple_erase_first<T>::type;
+template<typename T> using TupleEraseFirst = typename TupleEraseFirstT<T>::type;
 
 //tuple_append
-template<typename T, typename Append> struct tuple_append;
+template<typename T, typename Append> struct TupleAppendT;
 
 template<template<typename...> class T, typename... Body, typename Append>
-struct tuple_append<T<Body...>, Append>
+struct TupleAppendT<T<Body...>, Append>
 {
     using type = T<Body..., Append>;
 };
 
-template<typename T, typename Append> using tuple_append_t = typename tuple_append<T, Append>::type;
+template<typename T, typename Append> using TupleAppend = typename TupleAppendT<T, Append>::type;
 
 //tuple_prepend
-template<typename T, typename Append> struct tuple_prepend;
+template<typename T, typename Append> struct TuplePrependT;
 
 template<template<typename...> class T, typename... Body, typename Prepend>
-struct tuple_prepend<T<Body...>, Prepend>
+struct TuplePrependT<T<Body...>, Prepend>
 {
     using type = T<Prepend, Body...>;
 };
 
-template<typename T, typename Prepend> using tuple_prepend_t = 
-	typename tuple_prepend<T, Prepend>::type;
+template<typename T, typename Prepend> using TuplePrepend = 
+	typename TuplePrependT<T, Prepend>::type;
 
 //type_tuple
 template<typename T, std::size_t size, template<typename...> class Tuple = std::tuple> 
-struct type_tuple
+struct TypeTupleT
 {
-    using type = typename tuple_prepend<typename type_tuple<T, size - 1>::type, T>::type;
+    using type = TuplePrepend<typename TypeTupleT<T, size - 1>::type, T>;
 };
 
-template<typename T, template<typename...> class Tuple> struct type_tuple<T, 1, Tuple>
+template<typename T, template<typename...> class Tuple> struct TypeTupleT<T, 1, Tuple>
 {
     using type = Tuple<T>;
 };
 
 template<typename T, std::size_t size, template<typename...> class Tuple = std::tuple> 
-using type_tuple_t = typename type_tuple<T, size, Tuple>::type;
+using TypeTuple = typename TypeTupleT<T, size, Tuple>::type;
 
 
 
 
 //SEQEUNCE
 //seq_erase_first
-template<typename T> struct seq_erase_first;
+template<typename T> struct SeqEraseFirstT;
 
 template<typename I, template<typename, I...> class T, I Head, I... Tail>
-struct seq_erase_first<T<I, Head, Tail...>>
+struct SeqEraseFirstT<T<I, Head, Tail...>>
 {
     using type = T<I, Tail...>;
 };
 
-template<typename T> using seq_erase_first_t = typename seq_erase_first<T>::type;
+template<typename T> using SeqEraseFirst = typename SeqEraseFirstT<T>::type;
 
 
 //seq_append
-template<typename T, typename T::value_type Append> struct seq_append;
+template<typename T, typename T::value_type Append> struct SeqAppendT;
 
 template<typename I, template<typename, I...> class T, I... Body, I Append>
-struct seq_append<T<I, Body...>, Append>
+struct SeqAppendT<T<I, Body...>, Append>
 {
     using type = T<I, Body..., Append>;
 };
 
-template<typename T, typename T::value_type Append> using seq_append_t = 
-	typename seq_append<T, Append>::type;
+template<typename T, typename T::value_type Append> using SeqAppend = 
+	typename SeqAppendT<T, Append>::type;
 
 //seq_prepend
-template<typename T, typename T::value_type Prepend> struct seq_prepend;
+template<typename T, typename T::value_type Prepend> struct SeqPrependT;
 
 template<typename I, template<typename, I...> class T, I... Body, I Prepend>
-struct seq_prepend<T<I, Body...>, Prepend>
+struct SeqPrependT<T<I, Body...>, Prepend>
 {
     using type = T<I, Prepend, Body...>;
 };
 
-template<typename T, typename T::value_type Prepend> using seq_prepend_t = 
-	typename seq_prepend<T, Prepend>::type;
+template<typename T, typename T::value_type Prepend> using SeqPrepend = 
+	typename SeqPrependT<T, Prepend>::type;
 
 //seq_merge
-template<typename A, typename B> struct seq_merge;
+template<typename A, typename B> struct SeqMergeT;
 template<typename I, template<typename, I...> class T, I... IdxA, I... IdxB>
-struct seq_merge<T<I, IdxA...>, T<I, IdxB...>>
+struct SeqMergeT<T<I, IdxA...>, T<I, IdxB...>>
 {
     using type = T<I, IdxA..., IdxB...>;
 };
 
-template<typename A, typename B> using seq_merge_t = typename seq_merge<A, B>::type;
+template<typename A, typename B> using SeqMerge = typename SeqMergeT<A, B>::type;
 
 //seq_merge_renumber
-template<typename A, typename B> struct seq_merge_renumber;
+template<typename A, typename B> struct SeqMergeRenumberT;
 template<typename I, template<typename, I...> class T, I... IdxA, I... IdxB>
-struct seq_merge_renumber<T<I, IdxA...>, T<I, IdxB...>>
+struct SeqMergeRenumberT<T<I, IdxA...>, T<I, IdxB...>>
 {
     using type = T<I, IdxA..., (sizeof...(IdxA) + IdxB)...>;
 };
 
-template<typename A, typename B> using seq_merge_renumber_t = 
-	typename seq_merge_renumber<A, B>::type;
+template<typename A, typename B> using SeqMergeRenumber = 
+	typename SeqMergeRenumberT<A, B>::type;
 
 //seq_print
-template<typename T> struct seq_print;
+template<typename T> struct SeqPrint;
 template<typename I, template<typename, I...> class T, I... idx>
-struct seq_print<T<I, idx...>>
+struct SeqPrint<T<I, idx...>>
 {
     static std::ostream& print(std::ostream& o)
     {
-        int dummy[] = {((void) (o << idx << " "), 0)...};
-        ((void)dummy);
+        Expand{((void) (o << idx << " "), 0)...};
         return o;
     };
 };
 
-//raw
-namespace detail
+template<typename T> void seqPrint(std::ostream& os)
 {
-
-template<typename T> 
-struct rawT
-{
-    using type = typename std::remove_cv<typename std::remove_reference<T>::type>::type;
-};
-
+	SeqPrint<T>::print(os);
 }
-
-///\ingroup utility
-///Meta programming template to remove all qualifiers and references from a given type T.
-template<typename T> using raw = typename detail::rawT<T>::type;
 
 }
 

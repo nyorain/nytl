@@ -8,7 +8,7 @@ option(NYTL_TEST "Build the nytl tests" ON)
 
 include_directories(${CMAKE_SOURCE_DIR})
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED on)
 
 set(CMAKE_CXX_FLAGS "-Wall -pedantic -Wextra")

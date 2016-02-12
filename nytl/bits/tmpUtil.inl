@@ -24,24 +24,18 @@
 
 #pragma once
 
-#include <utility>
-
 namespace nytl
 {
+
+///\brief Useful typedef for expanding the use of variadic template arguments.
+using Expand = int[];
 
 ///\brief Class that can be derived from to check if given template parameters are valid.
 ///\details Really useful for template classes that use SFINAE.
 template<typename...> struct DeriveDummy {};
 
-#if __cplusplus >= 201505
-	using std::void_t;
-
-#else
-	///\ingroup utility
-	///C++17 alias template for void, used to detect ill-formad types in a SFINAE-context.
-	///If the compiler supports it, the std version will be used.
-	template<typename...> using void_t = void;
-
-#endif
+///\ingroup utility
+///C++17 alias template for void, used to detect ill-formad types in a SFINAE-context.
+template<typename...> using void_t = void;
 
 }

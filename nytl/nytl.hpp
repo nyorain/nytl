@@ -34,13 +34,11 @@
 #include <nytl/compFunc.hpp>
 #include <nytl/dynVec.hpp>
 #include <nytl/enumOps.hpp>
-#include <nytl/function_traits.hpp>
+#include <nytl/functionTraits.hpp>
 #include <nytl/hierachy.hpp>
-#include <nytl/integer_sequence.hpp>
 #include <nytl/line.hpp>
 #include <nytl/linearSolver.hpp>
 #include <nytl/log.hpp>
-#include <nytl/make_unique.hpp>
 #include <nytl/mat.hpp>
 #include <nytl/misc.hpp>
 #include <nytl/named.hpp>

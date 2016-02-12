@@ -112,12 +112,12 @@ public:
 
 public:
     template<typename... Args, typename = typename 
-		std::enable_if<
+		std::enable_if_t<
 			std::is_convertible<
 				std::tuple<Args...>, 
-				typename type_tuple<value_type, dim>::type
+				TypeTuple<value_type, dim>
 			>::value
-		>::type>
+		>>
     Vec(Args&&... args) : data_{&args...} {}
     ~Vec() noexcept = default;
 

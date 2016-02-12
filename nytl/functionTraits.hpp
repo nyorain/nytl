@@ -36,13 +36,13 @@ namespace detail
 {
 
 template<typename T, typename = void>
-struct isCallableImpl
+struct IsCallableImpl
 {
 	static constexpr bool value = 0;
 };
 
 template<typename T>
-struct isCallableImpl<T, typename std::enable_if<std::is_class<T>::value>::type>
+struct IsCallableImpl<T, typename std::enable_if<std::is_class<T>::value>::type>
 {
 private:
     typedef char(&yes)[1];
@@ -63,28 +63,28 @@ public:
 };
 
 template<typename R, typename S, typename... Args>
-struct isCallableImpl<R(S::*)(Args...)>
+struct IsCallableImpl<R(S::*)(Args...)>
 {
 public:
 	static constexpr bool value = 1;
 };
 
 template<typename R, typename... Args>
-struct isCallableImpl<R(*)(Args...)>
+struct IsCallableImpl<R(*)(Args...)>
 {
 public:
 	static constexpr bool value = 1;
 };
 
 template<typename R, typename... Args>
-struct isCallableImpl<R(&)(Args...)>
+struct IsCallableImpl<R(&)(Args...)>
 {
 public:
 	static constexpr bool value = 1;
 };
 
 template<typename R, typename... Args>
-struct isCallableImpl<R(Args...)>
+struct IsCallableImpl<R(Args...)>
 {
 public:
 	static constexpr bool value = 1;
@@ -94,63 +94,54 @@ public:
 
 ///\ingroup function
 ///Meta-Template to check if a type can be called like a function.
-template<typename T> using is_callable = typename detail::isCallableImpl<T>;
+template<typename T> static constexpr bool IsCallable = detail::IsCallableImpl<T>::value;
 
 
 ///\ingroup function
 ///Meta-Template class to retrieve inforMation about a function type.
-template<typename F> class function_traits;
+template<typename F> class FunctionTraits;
 
 //for raw function signature
 template<typename Ret, typename... Args>
-class function_traits<Ret(Args...)>
+class FunctionTraits<Ret(Args...)>
 {
 public:
-    using arg_tuple = std::tuple<Args...>;
+	using Size = std::size_t;
+    using ArgTuple = std::tuple<Args...>;
 
 protected:
-    template<size_t i> struct argImpl
+    template<std::size_t i> 
+	struct ArgImpl
     {
-        using type = typename std::tuple_element<i, arg_tuple>::type;
+        using type = typename std::tuple_element<i, ArgTuple>::type;
     };
 
 public:
-    using return_type = Ret;
-    template<size_t i> using arg_type = typename argImpl<i>::type;
-    constexpr static const size_t arg_size = std::tuple_size<arg_tuple>::value;
+    using ReturnType = Ret;
+    template<std::size_t i> using ArgType = typename ArgImpl<i>::type;
+    constexpr static Size ArgSize = std::tuple_size<ArgTuple>::value;
 };
 
 //function pointer
 template<typename Ret, typename... Args>
-class function_traits<Ret(*)(Args...)> : public function_traits<Ret(Args...)>
-{
-};
+class FunctionTraits<Ret(*)(Args...)> : public FunctionTraits<Ret(Args...)> {};
 
 //member function pointer
 template<typename C, typename Ret, typename... Args>
-class function_traits<Ret(C::*)(Args...)> : public function_traits<Ret(Args...)>
-{
-};
+class FunctionTraits<Ret(C::*)(Args...)> : public FunctionTraits<Ret(Args...)> {};
 
 //const member function pointer
 template<typename C, typename Ret, typename... Args>
-class function_traits<Ret(C::*)(Args...) const> : public function_traits<Ret(Args...)>
-{
-};
+class FunctionTraits<Ret(C::*)(Args...) const> : public FunctionTraits<Ret(Args...)> {};
 
 //functor, class
-template<typename F> class function_traits : public function_traits<decltype(&F::operator())>
-{
-};
+template<typename F> 
+class FunctionTraits : public FunctionTraits<decltype(&F::operator())> {};
 
 template<typename F>
-class function_traits<F&> : public function_traits<F>
-{
-};
+class FunctionTraits<F&> : public FunctionTraits<F> {};
 
 template<typename F>
-class function_traits<F&&> : public function_traits<F>
-{
-};
+class FunctionTraits<F&&> : public FunctionTraits<F> {};
 
 }

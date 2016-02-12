@@ -662,9 +662,9 @@ Vec<D, TA> mix(const TA& x, const TA& y, const Vec<D, TB>& a)
 
 ///\relates nytl::Vec
 template<std::size_t D, typename T>  
-raw<T> smallest(const Vec<D, T>& a)
+auto smallest(const Vec<D, T>& a)
 {
-    raw<T> ret = a[0];
+    auto ret = a[0];
     for(auto& val : a)
 		if(val < ret) ret = val;
 
@@ -673,9 +673,9 @@ raw<T> smallest(const Vec<D, T>& a)
 
 ///\relates nytl::Vec
 template<std::size_t D, typename T>  
-raw<T> greatest(const Vec<D, T>& a)
+auto greatest(const Vec<D, T>& a)
 {
-    raw<T> ret = a[0];
+    auto ret = a[0];
     for(auto& val : a)
         if(val > ret) ret = val;
 

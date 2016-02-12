@@ -25,7 +25,7 @@
 #pragma once
 
 #include <tuple>
-#include <nytl/integer_sequence.hpp>
+#include <utility>
 
 //experimental::tuple::apply example implementation
 //http://en.cppreference.com/w/cpp/experimental/apply
@@ -36,8 +36,8 @@ namespace detail
 {
 
 template <class F, class Tuple, std::size_t... I>
-constexpr auto apply_impl( F&& f, Tuple&& t, index_sequence<I...> ) 
-	-> decltype(f(std::get<I>(std::forward<Tuple>(t))...))
+constexpr auto apply_impl(F&& f, Tuple&& t, std::index_sequence<I...> ) 
+	-> decltype(std::forward<F>(f)(std::get<I>(std::forward<Tuple>(t))...))
 {
     //return std::invoke(std::forward<F>(f), std::get<I>(std::forward<Tuple>(t))...);
     return std::forward<F>(f)(std::get<I>(std::forward<Tuple>(t))...);
@@ -48,10 +48,10 @@ constexpr auto apply_impl( F&& f, Tuple&& t, index_sequence<I...> )
 template <class F, class Tuple>
 constexpr auto apply(F&& f, Tuple&& t) 
 	-> decltype(detail::apply_impl(std::forward<F>(f), std::forward<Tuple>(t),
-        make_index_sequence<std::tuple_size<typename std::decay<Tuple>::type>{}>{}))
+        std::make_index_sequence<std::tuple_size<typename std::decay<Tuple>::type>{}>{}))
 {
     return detail::apply_impl(std::forward<F>(f), std::forward<Tuple>(t),
-        make_index_sequence<std::tuple_size<typename std::decay<Tuple>::type>{}>{});
+        std::make_index_sequence<std::tuple_size<typename std::decay<Tuple>::type>{}>{});
 }
 
 }

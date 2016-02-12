@@ -22,69 +22,86 @@
  * SOFTWARE.
  */
 
+#pragma once
+
+#include <nytl/bits/tmpUtil.inl>
+
 namespace detail
 {
 
-using expander = int[];
-
 //makeRowRefVec
-template<std::size_t size, typename seq = make_index_sequence<size>> struct makeRowRefVec;
-template<std::size_t size, size_t... idx> struct makeRowRefVec<size, index_sequence<idx...>>
+template<std::size_t Size, typename Seq = std::make_index_sequence<Size>> 
+struct MakeRowRefVec;
+
+template<std::size_t Size, std::size_t... I> 
+struct MakeRowRefVec<Size, std::index_sequence<I...>>
 {
-    template<size_t rows, size_t cols, typename prec>
-    static RefVec<sizeof...(idx), prec> call(Vec<rows, Vec<cols, prec>>& v, size_t i)
+    template<std::size_t R, std::size_t C, typename P>
+    static RefVec<sizeof...(I), P> call(Vec<R, Vec<C, P>>& v, std::size_t i)
     {
-        return RefVec<sizeof...(idx), prec>(v[idx][i]...);
+        return RefVec<sizeof...(I), P>(v[I][i]...);
     }
 };
 
 //makeRowVec
-template<std::size_t size, typename seq = make_index_sequence<size>> struct makeRowVec;
-template<std::size_t size, size_t... idx> struct makeRowVec<size, index_sequence<idx...>>
+template<std::size_t Size, typename Seq = std::make_index_sequence<Size>> 
+struct MakeRowVec;
+
+template<std::size_t Size, std::size_t... I> 
+struct MakeRowVec<Size, std::index_sequence<I...>>
 {
-    template<size_t rows, size_t cols, typename prec>
-    static Vec<sizeof...(idx), prec> call(const Vec<rows, Vec<cols, prec>>& v, size_t i)
+    template<size_t R, size_t C, typename P>
+    static Vec<sizeof...(I), P> call(const Vec<R, Vec<C, P>>& v, std::size_t i)
     {
-        return Vec<sizeof...(idx), prec>(v[idx][i]...);
+        return Vec<sizeof...(I), P>(v[I][i]...);
     }
 };
 
 //initMat
-template<std::size_t size, typename seq = make_index_sequence<size>> struct initMatData;
-template<std::size_t size, std::size_t... idx> struct initMatData<size, index_sequence<idx...>>
+template<std::size_t Size, typename Seq = std::make_index_sequence<Size>> 
+struct InitMatData;
+
+template<std::size_t Size, std::size_t... I> 
+struct InitMatData<Size, std::index_sequence<I...>>
 {
-    template<size_t rows, size_t cols, typename prec, typename... Args>
-    static void call(Vec<rows, Vec<cols, prec>>& v, std::tuple<Args...> args)
+    template<size_t R, size_t C, typename P, typename... Args>
+    static void call(Vec<R, Vec<C, P>>& v, std::tuple<Args...> args)
     {
-        unused(expander{0, ((v[idx / cols][idx % cols] = std::get<idx>(args)), 0)... }[0]);
+        Expand{0, ((v[I / C][I % C] = std::get<I>(args)), 0)... };
     }
 
-    template<size_t rows, size_t cols, typename prec>
-    static void call(Vec<rows, Vec<cols, prec>>& v, const prec& val)
+    template<size_t R, size_t C, typename P>
+    static void call(Vec<R, Vec<C, P>>& v, const P& val)
     {
-        unused(expander{0, ((v[idx / cols][idx % cols] = val), 0)... }[0]);
+        Expand{0, ((v[I / C][I % C] = val), 0)... };
     }
 };
 
 //copyMatData
-template<std::size_t size, typename seq = make_index_sequence<size>> struct copyMatData;
-template<std::size_t size, size_t... idx> struct copyMatData<size, index_sequence<idx...>>
+template<std::size_t Size, typename Seq = std::make_index_sequence<Size>> 
+struct CopyMatData;
+
+template<std::size_t Size, size_t... I> 
+struct CopyMatData<Size, std::index_sequence<I...>>
 {
-    template<size_t rows, size_t cols, typename prec>
-    static std::unique_ptr<prec[]> call(const Vec<rows, Vec<cols, prec>>& v)
+    template<size_t R, size_t C, typename P>
+    static std::unique_ptr<P[]> call(const Vec<R, Vec<C, P>>& v)
     {
-        return std::unique_ptr<prec[]>(new prec[rows * cols]{v[idx / cols][idx % rows]...});
+        return std::unique_ptr<P[]>(new P[R * C]{v[I / C][I % R]...});
     }
 };
 
 //makeRowRefVec
-template<std::size_t size, typename seq = make_index_sequence<size>> struct MatTuple;
-template<std::size_t size, size_t... idx> struct MatTuple<size, index_sequence<idx...>>
+template<std::size_t Size, typename Seq = std::make_index_sequence<Size>> 
+struct MatTuple;
+
+template<std::size_t Size, size_t... I> 
+struct MatTuple<Size, std::index_sequence<I...>>
 {
-    template<size_t rows, size_t cols, typename P>
-    static type_tuple_t<P, sizeof...(idx)> call(const Vec<rows, Vec<cols, P>>& v)
+    template<size_t R, size_t C, typename P>
+    static TypeTuple<P, sizeof...(I)> call(const Vec<R, Vec<C, P>>& v)
     {
-        return type_tuple_t<P, sizeof...(idx)>{v[idx / cols][idx % rows]...};
+        return TypeTuple<P, sizeof...(I)>{v[I / C][I % R]...};
     }
 };
 

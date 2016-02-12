@@ -29,7 +29,6 @@
 
 #include <nytl/tmp.hpp>
 #include <nytl/scalar.hpp>
-#include <nytl/integer_sequence.hpp>
 #include <nytl/misc.hpp>
 
 #include <iostream>
@@ -149,13 +148,9 @@ public:
 
 public:
     template<typename... Args, typename = typename
-		std::enable_if<
-			std::is_convertible<
-				std::tuple<Args...>,
-				typename type_tuple<Value, dim>::type
-			>::value
-		>::type>
+		std::enable_if_t<std::is_convertible< std::tuple<Args...>, TypeTuple<Value, dim>>::value>>
     Vec(Args&&... args) noexcept : data_{Value(args)...} {}
+
 	explicit Vec(Size) noexcept {}
 
     Vec() noexcept = default;

@@ -27,7 +27,6 @@
 
 #pragma once
 
-#include <nytl/make_unique.hpp>
 #include <nytl/any.hpp>
 #include <nytl/bits/tmpUtil.inl>
 
@@ -83,7 +82,7 @@ namespace detail
 //make_unique_wrapper, returns a unique_ptr for usual types and a void* for void type
 template<typename Base, typename T, typename... Args> struct make_unique_wrapper
 {
-    static std::unique_ptr<Base> call(Args... args) { return make_unique<T>(args...); }
+    static std::unique_ptr<Base> call(Args... args) { return std::make_unique<T>(args...); }
 };
 
 template<typename T, typename... Args> struct make_unique_wrapper<void, T, Args...>
@@ -101,7 +100,7 @@ template<typename Base, typename T, typename... Args> struct CreateLoadWrapper
 {
     static std::unique_ptr<Base> call(std::istream& is, Args... args) 
 	{ 
-		auto ret = make_unique<T>(args...); 
+		auto ret = std::make_unique<T>(args...); 
 		if(!load(is, *ret)) return nullptr;
 		return ret;
 	}

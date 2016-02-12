@@ -30,7 +30,6 @@
 #if __cplusplus >= 201411
  #include <experimental/any>
 #else
- #include <nytl/make_unique.hpp>
  #include <stdexcept>
  #include <typeinfo>
  #include <memory>
@@ -70,7 +69,7 @@ protected:
 		{ return typeid(value_); }
 
 		virtual std::unique_ptr<Interface> clone() const override final
-		{ return make_unique<Implementation<T>>(*this); }
+		{ return std::make_unique<Implementation<T>>(*this); }
 
 		virtual void* get() override final { return &value_; }
 	};

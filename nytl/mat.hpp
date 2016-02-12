@@ -29,7 +29,6 @@
 
 #include <nytl/vec.hpp>
 #include <nytl/refVec.hpp>
-#include <nytl/integer_sequence.hpp>
 
 #include <iomanip>
 #include <memory>
@@ -82,17 +81,17 @@ public:
 
 public:
     template<typename... Args, typename = typename 
-		std::enable_if<
+		std::enable_if_t<
 			std::is_convertible<
 				std::tuple<Args...>, 
-				typename type_tuple<value_type, Mat_size>::type
+				TypeTuple<value_type, Mat_size>
 			>::value>
-		::type>
+		>
     Mat(Args&&... args) noexcept 
-		{ detail::initMatData<R * C>::call(data_, std::make_tuple(args...)); }
+		{ detail::InitMatData<R * C>::call(data_, std::make_tuple(args...)); }
 
 	Mat(const P& val) noexcept
-		{ detail::initMatData<R * C>::call(data_, val); }
+		{ detail::InitMatData<R * C>::call(data_, val); }
 
 	Mat() noexcept = default;
 	~Mat() noexcept = default;
@@ -105,14 +104,14 @@ public:
 
 	///Initialized the Matrix with the given values
     template<typename... Args, typename = typename 
-		std::enable_if<
+		std::enable_if_t<
 			std::is_convertible<
 				std::tuple<Args...>, 
-				typename type_tuple<value_type, Mat_size>::type
+				TypeTuple<value_type, Mat_size>
 			>::value>
-		::type>
+		>
     void init(Args&&... args) 
-		{ detail::initMatData<R * C>::call(data_, std::make_tuple(args...)); }
+		{ detail::InitMatData<R * C>::call(data_, std::make_tuple(args...)); }
 
     ///Returns a reference of a certain row of the Matrix.
 	///If captured with a reference (and got by a non-const object) the actual values of the
@@ -125,10 +124,10 @@ public:
 	///Returns a reference Vec of a certain column of the Matrix.
 	///Must be captured by a RefVec (not possible with Vec&) to be able to change the actual
 	///values of the Matrix object.
-	RefVec<R, P> col(size_t i){ return detail::makeRowRefVec<R>::call(data_, i); }
+	RefVec<R, P> col(size_t i){ return detail::MakeRowRefVec<R>::call(data_, i); }
 
 	///Returns a Vec (just the values, no references) of a certain row.
-	Vec<R, P> col(size_t i) const { return detail::makeRowVec<R>::call(data_, i); }
+	Vec<R, P> col(size_t i) const { return detail::MakeRowVec<R>::call(data_, i); }
 
     ///Returns a plain pointer to the data of the Matrix.
     pointer data(){ return (pointer) data_.data(); }
@@ -137,10 +136,10 @@ public:
 	const_pointer data() const { return (const_pointer) data_.data(); }
 
 	///Copys the data of the Matrix as plain unique ptr on the heap.
-	std::unique_ptr<P[]> copyData() const { return detail::copyMatData<R * C>::call(data_); }
+	std::unique_ptr<P[]> copyData() const { return detail::CopyMatData<R * C>::call(data_); }
 
 	///Returns a std::tuple filled with the components of the Matrix
-	type_tuple_t<P, Mat_size> asTuple() const { return detail::MatTuple<R * C>::call(data_); }
+	TypeTuple<P, Mat_size> asTuple() const { return detail::MatTuple<R * C>::call(data_); }
 
 	///Swaps the both given columns.
 	void swapCol(std::size_t a, std::size_t b){ std::swap(col(a), col(b)); }

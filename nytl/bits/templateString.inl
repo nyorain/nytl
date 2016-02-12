@@ -26,7 +26,6 @@
 
 #pragma once
 
-#include <nytl/integer_sequence.hpp>
 #include <cstddef>
 #include <tuple>
 
@@ -178,18 +177,6 @@ auto makeMultipleConstString(const T&... str)
 	-> MultipleConstString<decltype(makeCSTR(str))...>
 { 
 	return MultipleConstString<decltype(makeCSTR(str))...>(makeCSTR(str) ...); 
-}
-
-template<std::size_t N, std::size_t... I>
-std::string makeConstString(const char (&content)[N], index_sequence<I...>)
-{
-	return std::string{content[I]...};
-}
-
-template<std::size_t B, std::size_t E, std::size_t N>
-std::string makeConstString(const char (&content)[N])
-{
-	return makeConstString(content, index_sequence_from_to<B, E>());
 }
 
 template<std::size_t N, std::size_t M>

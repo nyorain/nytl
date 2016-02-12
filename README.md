@@ -1,9 +1,9 @@
 #nytl [![Build Status](https://travis-ci.org/nyorain/nytl.svg?branch=master)](https://travis-ci.org/nyorain/nytl)
 
-nytl is a header-only utility library for c++11 (Will probably soon use c++14 features). It includes math classes and provides useful operations and sometimes even complex algorithms like e.g. [nytl::Vec], [nytl::Mat] or [nytl::Rect].
-Then there is a smaller part about functions and function-conversions with classes like [nytl::CompatibleFunction], [nytl::Callback] or [nytl::function_traits]. 
+nytl is a generic header-only template library for c++14. It provides math classes with useful operations like e.g. [nytl::Vec], [nytl::Mat] or [nytl::Rect].
+Then there is a smaller part about functions and function-conversions with classes like [nytl::CompatibleFunction], [nytl::Callback] or [nytl::FunctionTraits]. 
 Additionally nytl provides some generic utility stuff, like [nytl::Referenced] and [nytl::IntrusivePtr] \(Base class for thread-safe reference counter classes and a intrusive smart pointer using this built-in reference count), [nytl::Cloneable]/[nytl::AbstractCloneable] and [nytl::DeriveCloneable] which make it really easy to implement cloneable classes or [nytl::Observer]/[nytl::Observable] and [nytl::ObservingPtr] for observing the lifetime of an object and making use of it in a smart pointer.
-The name nytl does stand for ny-utility as well as ny-template-library, since it was originally created for the _ny_ gui library.
+The name nytl does stand for "ny template library", since it was originally created for the _[ny]_ gui library.
 nytl is really lightweight, yet it offers some pretty useful features for most modern c++ projects.
 
 nytl is licensed under the MIT License, so you can freely use it in your projects. If you start an open-source project using nytl, i would really appreciate if you let me know.
@@ -21,7 +21,7 @@ Everything is usually answered in a few days.
 ###Building nytl
 Since nytl is a header-only library you dont have to compile anything, nytl has __no external dependencies__.
 Just clone the repository or download it as zip package if you are not comfortable with using git.
-You can then just copy the header files where you need them, or you use cmake to install it wherever you want.
+You can then just copy the header files where you need them, or you use __cmake__ to install it wherever you want.
 
 ###Usage Examples
 This section presents some examples of important nytl classes and functions.
@@ -35,7 +35,7 @@ You could also just include the features you need (will speed up compile time).
 `````````````
 
 #####nytl::Callback example
-Callbacks mirror the signal/slot principle in modern c++11 with many useful features.
+Callbacks mirror the signal/slot principle in modern c++ with many useful features.
 Notice how the callback listener signatures differs from the callback signature, callback uses nytl::CompatibleFunction internally. More information at __[doc/examples/callback.cpp]__.
 ```````````````c++
 nytl::Callback<void(int, nytl::Vec2f)> onEvent;
@@ -93,7 +93,7 @@ You can find another interesting example about nytl typemap, serialize and typeN
 [nytl::Vec]: http://nyorain.github.io/nytl/classnytl_1_1Vec.html
 [nytl::Rect]: http://nyorain.github.io/nytl/classnytl_1_1Rect.html
 [nytl::CompatibleFunction]: http://nyorain.github.io/nytl/classnytl_1_1CompatibleFunction_3_01R_07A_8_8_8_08_4.html
-[nytl::function_traits]: http://nyorain.github.io/nytl/classnytl_1_1function__traits.html
+[nytl::FunctionTraits]: http://nyorain.github.io/nytl/classnytl_1_1FunctionTraits.html
 [nytl::Callback]: http://nyorain.github.io/nytl/classnytl_1_1Callback_3_01Ret_07Args_8_8_8_08_4.html
 [nytl::Referenced]: http://nyorain.github.io/nytl/classnytl_1_1Referenced.html
 [nytl::IntrusivePtr]: http://nyorain.github.io/nytl/classnytl_1_1IntrusivePtr.html
@@ -107,3 +107,4 @@ You can find another interesting example about nytl typemap, serialize and typeN
 [doc/examples/callback.cpp]: doc/examples/callback.cpp
 [doc/examples/serialize.cpp]: doc/examples/serialize.cpp
 [version 0.1.0]: https://github.com/nyorain/nytl/releases
+[ny]: https://github.com/nyorain/ny

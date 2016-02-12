@@ -15,7 +15,7 @@ public:
 };
 
 //check callable
-template<typename T, typename = typename std::enable_if<is_callable<T>::value>::type>
+template<typename T, typename = typename std::enable_if<IsCallable<T>>::type>
 void checkCallable(T&&) {}
 
 //main
@@ -24,25 +24,25 @@ int main()
 	testClass1 obj;
 	//function traits
 	{
-		static_assert(std::is_same<function_traits<void(int)>::return_type, void>::value, "");
-		static_assert(std::is_same<function_traits<Vec2f()>::return_type, Vec2f>::value, "");
+		static_assert(std::is_same<FunctionTraits<void(int)>::ReturnType, void>::value, "");
+		static_assert(std::is_same<FunctionTraits<Vec2f()>::ReturnType, Vec2f>::value, "");
 	
-		static_assert(std::is_same<function_traits<decltype(testFunc1)>::return_type, 
+		static_assert(std::is_same<FunctionTraits<decltype(testFunc1)>::ReturnType, 
 				int>::value, "");
-		static_assert(std::is_same<function_traits<decltype(&testFunc2)>::return_type, 
+		static_assert(std::is_same<FunctionTraits<decltype(&testFunc2)>::ReturnType, 
 			void*>::value, "");
-		static_assert(std::is_same<function_traits<decltype(&testClass1::func1)>::return_type, 
+		static_assert(std::is_same<FunctionTraits<decltype(&testClass1::func1)>::ReturnType, 
 			int>::value, "");
 	
-		static_assert(function_traits<decltype(testFunc1)>::arg_size == 1, "");
-		static_assert(function_traits<decltype(testFunc2)>::arg_size == 0, "");
-		static_assert(function_traits<decltype(&testClass1::func1)>::arg_size == 2, "");
+		static_assert(FunctionTraits<decltype(testFunc1)>::ArgSize == 1, "");
+		static_assert(FunctionTraits<decltype(testFunc2)>::ArgSize == 0, "");
+		static_assert(FunctionTraits<decltype(&testClass1::func1)>::ArgSize == 2, "");
 	
-		static_assert(std::is_same<function_traits<decltype(testFunc1)>::arg_tuple, 
+		static_assert(std::is_same<FunctionTraits<decltype(testFunc1)>::ArgTuple, 
 			std::tuple<const Vec2f&>>::value, "");	
-		static_assert(std::is_same<function_traits<decltype(&testFunc2)>::arg_tuple, 
+		static_assert(std::is_same<FunctionTraits<decltype(&testFunc2)>::ArgTuple, 
 			std::tuple<>>::value, "");	
-		static_assert(std::is_same<function_traits<decltype(&testClass1::func1)>::arg_tuple, 
+		static_assert(std::is_same<FunctionTraits<decltype(&testClass1::func1)>::ArgTuple, 
 			std::tuple<void*, float>>::value, "");	
 	}
 
@@ -54,8 +54,8 @@ int main()
 		checkCallable(testFunc1);
 		checkCallable(&testClass1::func1);
 	
-		static_assert(is_callable<decltype(testFunc1)>::value, "");
-		static_assert(is_callable<decltype(&testFunc1)>::value, "");
+		static_assert(IsCallable<decltype(testFunc1)>, "");
+		static_assert(IsCallable<decltype(&testFunc1)>, "");
 	}
 
 	//memberCallback

@@ -27,8 +27,7 @@
 
 #pragma once
 
-#include <nytl/function_traits.hpp>
-
+#include <nytl/functionTraits.hpp>
 #include <nytl/bits/tupleMap.inl>
 #include <nytl/bits/apply.inl>
 
@@ -68,11 +67,10 @@ public:
     ~CompatibleFunction() = default;
 
     //constructor
-    template<typename F, typename = typename std::enable_if<is_callable<F>::value>::type>
+    template<typename F, typename = std::enable_if_t<IsCallable<F>>>
     CompatibleFunction(F func) noexcept { set(func); }
 
-    template<typename F, typename O, typename = 
-		typename std::enable_if<is_callable<F>::value>::type>
+    template<typename F, typename O, typename = std::enable_if_t<IsCallable<F>>>
     CompatibleFunction(F func, O& object) noexcept { set(memberCallback(func, object)); }
 
     CompatibleFunction(const CompFuncType& other) noexcept 
@@ -81,7 +79,7 @@ public:
 		{ set(other.func_); }
 
     //assignement
-    template<typename F, typename = typename std::enable_if<is_callable<F>::value>::type>
+    template<typename F, typename = typename std::enable_if_t<IsCallable<F>>>
     CompFuncType& operator=(F func) noexcept { set(func); return *this; }
 
     CompFuncType& operator=(const CompFuncType& other) noexcept 
@@ -93,9 +91,9 @@ public:
     template<typename F>
     void set(F func) noexcept
     {
-		using FuncTraits = function_traits<F>;
-        using RealArgsTuple = typename FuncTraits::arg_tuple;
-		using RealRet = typename FuncTraits::return_type;
+		using FuncTraits = FunctionTraits<F>;
+        using RealArgsTuple = typename FuncTraits::ArgTuple;
+		using RealRet = typename FuncTraits::ReturnType;
         using MapType = detail::TupleMap<ArgsTuple, RealArgsTuple>;
 
         static_assert(std::is_convertible<R, RealRet>::value, "Return types not compatible");
@@ -134,11 +132,10 @@ public:
     ~CompatibleFunction() = default;
 
     //constructor
-    template<typename F, typename = typename std::enable_if<is_callable<F>::value>::type>
+    template<typename F, typename = typename std::enable_if_t<IsCallable<F>>>
     CompatibleFunction(F func) noexcept { set(func); }
 
-    template<typename F, typename O, typename = typename 
-		std::enable_if<is_callable<F>::value>::type>
+    template<typename F, typename O, typename = typename std::enable_if_t<IsCallable<F>>>
     CompatibleFunction(F func, O object) noexcept { set(memberCallback(func, object)); }
 
     CompatibleFunction(const CompFuncType& other) noexcept 
@@ -147,7 +144,7 @@ public:
 		{ set(other.func_); }
 
     //assignement
-    template<typename F, typename = typename std::enable_if<is_callable<F>::value>::type>
+    template<typename F, typename = typename std::enable_if_t<IsCallable<F>>>
     CompFuncType& operator=(F func) noexcept { set(func); return *this; }
 
     CompFuncType& operator=(const CompFuncType& other) noexcept 
@@ -159,11 +156,11 @@ public:
     template<typename F>
     void set(F func) noexcept
     {
-		using FuncTraits = function_traits<F>;
-        using RealArgsTuple = typename FuncTraits::arg_tuple;
+		using FuncTraits = FunctionTraits<F>;
+        using RealArgsTuple = typename FuncTraits::ArgTuple;
         using MapType = detail::TupleMap<ArgsTuple, RealArgsTuple>;
 
-        static_assert(MapType::Seq::size() == FuncTraits::arg_size, "Arguments not compatible");
+        static_assert(MapType::Seq::size() == FuncTraits::ArgSize, "Arguments not compatible");
 
         func_ = [=](A&&... args) -> Ret {
                 apply(func, MapType::map(std::forward<A>(args)...));

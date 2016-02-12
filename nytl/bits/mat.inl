@@ -34,13 +34,13 @@ template<std::size_t OR, std::size_t OC, typename OP>
 Mat<R, C, P>::operator Mat<OR, OC, OP>() const
 {
 	Mat<OR, OC, OP> ret({});
-	detail::initMatData<min(OR, R) * min(OC, C)>::call(ret.data_, asTuple());
+	detail::InitMatData<min(OR, R) * min(OC, C)>::call(ret.data_, asTuple());
 	return ret;
 }
 
 template<std::size_t R, std::size_t C, typename P>
 template<typename TD>
-typename std::enable_if<Mat<R, C, P>::is_squared, TD>::type Mat<R, C, P>::invert()
+typename std::enable_if_t<Mat<R, C, P>::is_squared, TD> Mat<R, C, P>::invert()
 {
 	//TODO	
 }

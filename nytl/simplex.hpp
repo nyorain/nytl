@@ -76,12 +76,12 @@ public:
 
 public:
 	template<typename... Args, typename = typename
-		std::enable_if<
+		std::enable_if_t<
 			std::is_convertible<
 				std::tuple<Args...>,
-				type_tuple_t<VecType, A + 1>
+				TypeTuple<VecType, A + 1>
 			>::value
-		>::type>		
+		>>		
 	Simplex(Args&&... args) noexcept : points_{std::forward<Args>(args)...} {}
 	Simplex() noexcept = default;
 
