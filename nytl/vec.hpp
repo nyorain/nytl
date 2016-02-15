@@ -92,9 +92,14 @@ constexpr std::size_t dynamicSize = std::numeric_limits<std::size_t>::max();
 
 
 //Can be used if a parameter should be a Vec for more than one value or a scalar for exactly one.
-template<std::size_t D, typename P> struct VecScalar { using type = Vec<D, P>; };
-template<typename P> struct VecScalar<1, P> { using type = P; };
-template<typename P> struct VecScalar<0, P> { };
+namespace detail
+{
+	template<std::size_t D, typename P> struct VecScalar { using type = Vec<D, P>; };
+	template<typename P> struct VecScalar<1, P> { using type = P; };
+	template<typename P> struct VecScalar<0, P> { };
+}
+
+template<std::size_t D, typename P> using VecScalar = typename detail::VecScalar<D, P>::type;
 
 //For serveral operations with/for Vec and its specializations, parameters are passed by by-copy 
 //instead of by-reference. This have to be done because otherwise you could not perform 

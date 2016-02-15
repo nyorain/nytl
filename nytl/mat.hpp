@@ -48,7 +48,7 @@ class Mat;
 
 ///\ingroup math
 ///Matrix template class.
-template<std::size_t R, std::size_t C, typename P> class Mat : 
+template<std::size_t R, std::size_t C, typename P> class Mat :
 	DeriveDummy<typename std::enable_if<(R > 0) && (C > 0) && (!std::is_reference<P>::value)>::type>
 {
 public:
@@ -80,14 +80,14 @@ public:
 	Vec<R, Vec<C, P>> data_;
 
 public:
-    template<typename... Args, typename = typename 
+    template<typename... Args, typename = typename
 		std::enable_if_t<
 			std::is_convertible<
-				std::tuple<Args...>, 
+				std::tuple<Args...>,
 				TypeTuple<value_type, Mat_size>
 			>::value>
 		>
-    Mat(Args&&... args) noexcept 
+    Mat(Args&&... args) noexcept
 		{ detail::InitMatData<R * C>::call(data_, std::make_tuple(args...)); }
 
 	Mat(const P& val) noexcept
@@ -103,14 +103,14 @@ public:
 	MatType& operator=(MatType&& other) noexcept = default;
 
 	///Initialized the Matrix with the given values
-    template<typename... Args, typename = typename 
+    template<typename... Args, typename = typename
 		std::enable_if_t<
 			std::is_convertible<
-				std::tuple<Args...>, 
+				std::tuple<Args...>,
 				TypeTuple<value_type, Mat_size>
 			>::value>
 		>
-    void init(Args&&... args) 
+    void init(Args&&... args)
 		{ detail::InitMatData<R * C>::call(data_, std::make_tuple(args...)); }
 
     ///Returns a reference of a certain row of the Matrix.
@@ -151,18 +151,18 @@ public:
     MatType& operator +=(const Mat<R, C, P>& other){ data_ += other.data_; return *this; }
    	MatType& operator -=(const Mat<R, C, P>& other){ data_ -= other.data_; return *this; }
     MatType& operator *=(const Mat<C, R, P>& other)
-    { 
-		auto od = data_; 
-		for(size_t r(0); r < R; r++) 
-			for(size_t c(0); c < C; c++) 
-				data_[r][c] = sum(od[r] * other.col(c)); 
-		return *this; 
+    {
+		auto od = data_;
+		for(size_t r(0); r < R; r++)
+			for(size_t c(0); c < C; c++)
+				data_[r][c] = sum(od[r] * other.col(c));
+		return *this;
 	}
     Mat<R, C, P>& operator *=(const P& other){ for(auto& val : *this) val *= other; return *this; }
 
     //invert TODO
 	///\brief Only available for squared (R == C) Mat objects.
-	///\return Returns whether the Mat object is invertible. 
+	///\return Returns whether the Mat object is invertible.
 	template<typename TD = bool>
 		typename std::enable_if<is_squared, TD>::type invertable() const { return 0; }
 
@@ -222,4 +222,3 @@ public:
 #include <nytl/bits/mat.inl>
 
 } //nytl
-

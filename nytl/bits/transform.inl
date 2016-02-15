@@ -70,14 +70,14 @@ void translate(SquareMat<D, P>& mat, const Vec<D - 1, P>& trans)
 
 ///\relates Mat Transform
 template<std::size_t D, typename P>
-void rotate(SquareMat<D + 1, P>& mat, const Vec<rotationPlanes(D), P>& planes, P angle)
+void rotate(SquareMat<D + 1, P>& mat, const VecScalar<rotationPlanes(D), P>& planes, P angle)
 {
 	rotate(angle * planes);
 }
 
 ///\relates Mat Transform
 template<std::size_t D, typename P>
-void rotate(SquareMat<D + 1, P>& mat, const Vec<rotationPlanes(D), P>& planeRot)
+void rotate(SquareMat<D + 1, P>& mat, const VecScalar<rotationPlanes(D), P>& planeRot)
 {
 	auto rotMat = identityMat<D>();
 	for(std::size_t i(0); i < rotationPlanes(D); ++i)

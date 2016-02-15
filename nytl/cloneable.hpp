@@ -41,10 +41,10 @@ class Cloneable
 {
 private:
 	virtual T* clone() const { return new T(static_cast<const T&>(*this)); }
-	//virtual T* cloneMove() { return new T(std::move(static_cast<T&>(*this))); }
+	virtual T* cloneMove() { return new T(std::move(static_cast<T&>(*this))); }
 
-	template<typename X> 
-	friend std::unique_ptr<X> clone(const X&);
+	template<typename X> friend std::unique_ptr<X> clone(const X&);
+	template<typename X> friend std::unique_ptr<X> cloneMove(const X&);
 
 protected:
 	virtual ~Cloneable() = default;
@@ -57,9 +57,10 @@ class AbstractCloneable
 {
 private:
 	virtual T* clone() const = 0;
+	virtual T* cloneMove() = 0;
 
-	template<typename X> 
-	friend std::unique_ptr<X> clone(const X&);
+	template<typename X> friend std::unique_ptr<X> clone(const X&);
+	template<typename X> friend std::unique_ptr<X> cloneMove(X&&);
 
 protected:
 	virtual ~AbstractCloneable() = default;
@@ -71,11 +72,13 @@ template<typename Base, typename Derived>
 class DeriveCloneable : public Base
 {
 private:
-    virtual Base* clone() const override //return type cant be Derived since its CRTP
+    virtual Base* clone() const override //Base return type since it uses CRTP
 		{ return new Derived(static_cast<const Derived&>(*this)); }
+    virtual Base* cloneMove() override 
+		{ return new Derived(std::move(static_cast<Derived&>(*this))); }
 
-	template<typename X> 
-	friend std::unique_ptr<X> clone(const X&);
+	template<typename X> friend std::unique_ptr<X> clone(const X&);
+	template<typename X> friend std::unique_ptr<X> cloneMove(X&&);
 
 protected:
 	using CloneableBase = DeriveCloneable;
@@ -112,6 +115,14 @@ std::unique_ptr<T> clone(const std::unique_ptr<T>& value)
 	return clone(*value);
 }
 ///\}
+
+///\ingroup utility
+///Clones the object by moving it. The given argument will no longer be valid after this call.
+template<typename T>
+std::unique_ptr<T> cloneMove(T&& value)
+{
+	return std::unique_ptr<T>(static_cast<T*>(std::forward<T>(value).cloneMove()));
+}
 
 ///\ingroup utility
 ///\brief Utility function to copy a Vector of Cloneable objects by cloning.

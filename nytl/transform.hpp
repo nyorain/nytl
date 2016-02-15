@@ -48,6 +48,8 @@ namespace nytl
 ///\note Constexpr function, can be used for template parameters.
 constexpr std::size_t rotationPlanes(std::size_t dimension) { return fac(dimension) / 2; }
 
+#include <nytl/bits/transform.inl>
+
 ///\ingroup math
 ///Transform state able to hold rotation,scale and translation and express them in a Matrix.
 ///
@@ -95,7 +97,7 @@ public:
 	using Precision = P;
 	using VecType = Vec<dim, Precision>;
 	using MatType = SquareMat<dim + 1, Precision>;
-	using RotType = typename VecScalar<rotationPlanes(dim), Precision>::type;
+	using RotType = VecScalar<rotationPlanes(dim), Precision>;
 	using RectType = Rect<dim, Precision>;
 
 protected:
@@ -105,16 +107,15 @@ public:
     Transform() noexcept : mat_(identityMat<dim + 1, P>()) {} 
     ~Transform() noexcept = default;
 
-    void rotate(const RotType& rotation){ rotate(mat_, rotation); }
-    void translate(const VecType& translation){ translate(mat_, translation); }
-    void scale(const VecType& scaling){ scale(mat_, scaling); }
+    void rotate(const RotType& rotation){ nytl::rotate<dim>(mat_, rotation); }
+    void translate(const VecType& translation){ nytl::translate(mat_, translation); }
+    void scale(const VecType& scaling){ nytl::scale(mat_, scaling); }
 
-	void reset() { identity(mat_); };
+	void resetTransform() { identity(mat_); };
 
-    MatType& mat() { return mat_; }
-    const MatType& mat() const { return mat_; }
+    MatType& transformMatrix() { return mat_; }
+    const MatType& transformMatrix() const { return mat_; }
 };
 
-#include <nytl/bits/transform.inl>
 
 }
