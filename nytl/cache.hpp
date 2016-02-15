@@ -52,42 +52,41 @@ template<typename Key, typename Base = Cache>
 class MultiCache
 {
 protected:
-	template<unsigned int id> friend class CacheAccessor;
-	mutable std::unordered_map<Key, std::unique_ptr<Base>> Cache_; //unordered_map with ids?
+	mutable std::unordered_map<Key, std::unique_ptr<Base>> cache_; //unordered_map with ids?
 
 protected:
 	///This function clears all Cache objects and should be called whenever the object is changed
 	///in a way that invalidates its Cache objects.
 	void invalidateCache() const
 	{
-		Cache_.clear();
+		cache_.clear();
 	}
 
 public:
 	MultiCache() noexcept = default;
 	~MultiCache() noexcept = default;
 
-	MultiCache(const MultiCache& other) : Cache_() 
-		{ for(auto& c : other.Cache_) Cache_[c->first] = c->second->CacheClone(); }
-	MultiCache(MultiCache&& other) noexcept : Cache_(std::move(other.Cache_)) {}
+	MultiCache(const MultiCache& other) : cache_() 
+		{ for(auto& c : other.cache_) cache_[c.first] = clone(*c.second); }
+	MultiCache(MultiCache&& other) noexcept : cache_(std::move(other.cache_)) {}
 
 	MultiCache& operator=(const MultiCache& other) 
 	{ 
-		Cache_.clear(); 
-		for(auto& c : other.Cache_) 
-			Cache_[c->first] = c->second->CacheClone(); 
+		cache_.clear(); 
+		for(auto& c : other.cache_) 
+			cache_[c.first] = clone(*c.second); 
 		return *this; 
 	}
 
 	MultiCache& operator=(MultiCache&& other) noexcept 
-		{ Cache_ = std::move(other.Cache_); return *this; }
+		{ cache_ = std::move(other.cache_); return *this; }
 
 	///Gets a Cache object pointer for a given key if existent.
 	///\return The associated Cache for a given key, nullptr if none is found for that key.
-	Base* getCache(const Key& id) const
+	Base* cache(const Key& id) const
 	{
-        auto it = Cache_.find(id);
-		if(it != Cache_.end())
+        auto it = cache_.find(id);
+		if(it != cache_.end())
 			return it->second.get();
 
         return nullptr;
@@ -96,20 +95,10 @@ public:
 	///Stores a Cache object with for a given key. If there exists already some Cache object for
 	///the given key it will be replaced. 
 	///\return A reference to the moved Cache object.
-	Base& storeCache(const Key& id, std::unique_ptr<Base>&& c) const
+	Base& cache(const Key& id, std::unique_ptr<Base>&& c) const
 	{
 		auto& ret = *c;
-
-        auto it = Cache_.find(id);
-        if(it != Cache_.end())
-        {
-            it->second = std::move(c);
-        }
-        else
-        {
-            Cache_[id] = std::move(c);
-        }
-
+        cache_[id] = std::move(c);
 		return ret;
 	}
 
@@ -117,10 +106,10 @@ public:
 	///\return 1 if an found Cache object was cleared, 0 otherwise.
 	bool resetCache(const Key& id) const
 	{
-        auto it = Cache_.find(id);
-		if(it != Cache_.cend())
+        auto it = cache_.find(id);
+		if(it != cache_.cend())
 		{
-			Cache_.erase(it);
+			cache_.erase(it);
 			return 1;
 		}
 

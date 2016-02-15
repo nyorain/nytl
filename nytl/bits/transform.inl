@@ -77,7 +77,7 @@ void rotate(SquareMat<D + 1, P>& mat, const VecScalar<rotationPlanes(D), P>& pla
 
 ///\relates Mat Transform
 template<std::size_t D, typename P>
-void rotate(SquareMat<D + 1, P>& mat, const VecScalar<rotationPlanes(D), P>& planeRot)
+void rotate(SquareMat<D + 1, P>& mat, const Vec<rotationPlanes(D), P>& planeRot)
 {
 	auto rotMat = identityMat<D>();
 	for(std::size_t i(0); i < rotationPlanes(D); ++i)
@@ -98,6 +98,25 @@ void rotate(SquareMat<D + 1, P>& mat, const VecScalar<rotationPlanes(D), P>& pla
 
 	mat *= rotMat;
 }
+
+///\relates Mat Transform
+/*
+template<typename P>
+void rotate(SquareMat<3, P>& mat, const P& planeRot)
+{
+	auto rotMat = identityMat<3>();
+	
+	auto c = std::cos(planeRot);
+	auto s = std::sin(planeRot);
+
+	rotMat[0][0] = c;
+	rotMat[0][1] = -s;
+	rotMat[1][0] = s;
+	rotMat[1][1] = c;
+
+	mat *= rotMat;
+}
+*/
 
 //copy helper
 ///\relates Mat Transform

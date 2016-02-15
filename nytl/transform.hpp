@@ -97,7 +97,7 @@ public:
 	using Precision = P;
 	using VecType = Vec<dim, Precision>;
 	using MatType = SquareMat<dim + 1, Precision>;
-	using RotType = VecScalar<rotationPlanes(dim), Precision>;
+	using RotType = Vec<rotationPlanes(dim), Precision>;
 	using RectType = Rect<dim, Precision>;
 
 protected:
