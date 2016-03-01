@@ -66,4 +66,4 @@ template<typename E, typename = typename std::enable_if<nytl::EnumOpsType<E>::va
 E& operator^=(E& a, E b) { a = a ^ b; return a; } 
 
 #define NYTL_ENABLE_ENUM_OPS(T) namespace nytl \
-	{ template<> struct EnableEnumOps<T> : public std::true_type{}; }
+	{ template<> struct EnumOpsType<T> : public std::true_type{}; }

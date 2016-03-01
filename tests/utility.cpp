@@ -1,6 +1,5 @@
 #include <nytl/nytl.hpp>
 using namespace nytl;
-using namespace nytl::enumOps;
 
 enum class enumType
 {
@@ -9,6 +8,8 @@ enum class enumType
 	entry3,
 	entry4
 };
+
+NYTL_ENABLE_ENUM_OPS(enumType);
 
 int main()
 {
