@@ -38,6 +38,13 @@ namespace nytl
 ///Template class that can be specialized to inherit from std::true_type for enumOps enabled types.
 template<typename E> struct EnumOpsType : public std::false_type {};
 
+///Returns whether a value 'b' has all itsbits in common with value 'a'.
+template<typename E>
+bool bitsSet(E a, E b)
+{
+	return ((a & b) == b);
+}
+
 }
 
 

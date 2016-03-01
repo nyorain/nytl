@@ -9,7 +9,7 @@ enum class enumType
 	entry4
 };
 
-NYTL_ENABLE_ENUM_OPS(enumType);
+NYTL_ENABLE_ENUM_OPS(enumType)
 
 int main()
 {
