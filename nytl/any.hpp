@@ -61,7 +61,7 @@ protected:
 	struct Implementation : public Interface
 	{
 		T value_;
-		
+
 		template<typename O>
 		Implementation(O&& value) : value_(std::forward<O>(value)) {}
 
@@ -80,7 +80,7 @@ protected:
 public:
 	Any() = default;
 	template<typename T>
-	Any(T&& value) 
+	Any(T&& value)
 		: ptr_(new Implementation<typename std::decay<T>::type>(std::forward<T>(value))) {}
 
 	Any(const Any& other) { if(other.ptr_) ptr_ = other.ptr_->clone(); }
@@ -89,7 +89,7 @@ public:
 	void clear() { ptr_.reset(); }
 	bool empty() const { return !ptr_.get(); }
 
-	const std::type_info* typeinfo() const 
+	const std::type_info* typeinfo() const
 		{ if(empty()) return nullptr; return &ptr_->typeinfo(); }
 
 	void swap(Any& other){ std::swap(ptr_, other.ptr_); }
@@ -149,4 +149,3 @@ T any_cast(Any&& operand)
 
 
 }
-

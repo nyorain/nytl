@@ -107,7 +107,7 @@ public:
     Transform() noexcept : mat_(identityMat<dim + 1, P>()) {} 
     ~Transform() noexcept = default;
 
-    void rotate(const RotType& rotation){ nytl::rotate<dim>(mat_, rotation); }
+    void rotate(const RotType& rotation){ nytl::rotate(mat_, rotation); }
     void translate(const VecType& translation){ nytl::translate(mat_, translation); }
     void scale(const VecType& scaling){ nytl::scale(mat_, scaling); }
 
