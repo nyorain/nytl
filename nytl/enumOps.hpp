@@ -38,39 +38,45 @@ namespace nytl
 ///Template class that can be specialized to inherit from std::true_type for enumOps enabled types.
 template<typename E> struct EnumOpsType : public std::false_type {};
 
-///Returns whether a value 'b' has all itsbits in common with value 'a'.
-template<typename E>
-bool bitsSet(E a, E b)
-{
-	return ((a & b) == b);
-}
-
 }
 
 
-template<typename E, typename = typename std::enable_if<nytl::EnumOpsType<E>::value>::type> 
+template<typename E, typename = typename std::enable_if<nytl::EnumOpsType<E>::value>::type>
 	E operator~(E a) { return static_cast<E>(~static_cast<std::underlying_type_t<E>>(a)); }
 
-template<typename E, typename = typename std::enable_if<nytl::EnumOpsType<E>::value>::type> 
-	E operator|(E a, E b) { return static_cast<E>(static_cast<std::underlying_type_t<E>>(a) | 
+template<typename E, typename = typename std::enable_if<nytl::EnumOpsType<E>::value>::type>
+	E operator|(E a, E b) { return static_cast<E>(static_cast<std::underlying_type_t<E>>(a) |
 			static_cast<std::underlying_type_t<E>>(b)); }
 
 template<typename E, typename = typename std::enable_if<nytl::EnumOpsType<E>::value>::type>
-	E operator&(E a, E b) { return static_cast<E>(static_cast<std::underlying_type_t<E>>(a) & 
+	E operator&(E a, E b) { return static_cast<E>(static_cast<std::underlying_type_t<E>>(a) &
 			static_cast<std::underlying_type_t<E>>(b)); }
 
 template<typename E, typename = typename std::enable_if<nytl::EnumOpsType<E>::value>::type>
-E operator^(E a, E b) { return static_cast<E>(static_cast<std::underlying_type_t<E>>(a) ^ 
+E operator^(E a, E b) { return static_cast<E>(static_cast<std::underlying_type_t<E>>(a) ^
 		static_cast<std::underlying_type_t<E>>(b)); }
 
 template<typename E, typename = typename std::enable_if<nytl::EnumOpsType<E>::value>::type>
-E& operator|=(E& a, E b) { a = a | b; return a; } 
+E& operator|=(E& a, E b) { a = a | b; return a; }
 
 template<typename E, typename = typename std::enable_if<nytl::EnumOpsType<E>::value>::type>
-E& operator&=(E& a, E b) { a = a & b; return a; } 
+E& operator&=(E& a, E b) { a = a & b; return a; }
 
 template<typename E, typename = typename std::enable_if<nytl::EnumOpsType<E>::value>::type>
-E& operator^=(E& a, E b) { a = a ^ b; return a; } 
+E& operator^=(E& a, E b) { a = a ^ b; return a; }
+
+namespace nytl
+{
+
+///Returns whether a value 'b' has all itsbits in common with value 'a'.
+template<typename E, typename = typename std::enable_if<nytl::EnumOpsType<E>::value>::type>
+bool bitsSet(E a, E b)
+{
+	return ((static_cast<std::underlying_type_t<E>>(a) & static_cast<std::underlying_type_t<E>>(b))
+		== static_cast<std::underlying_type_t<E>>(b));
+}
+
+}
 
 #define NYTL_ENABLE_ENUM_OPS(T) namespace nytl \
 	{ template<> struct EnumOpsType<T> : public std::true_type{}; }
