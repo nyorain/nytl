@@ -42,7 +42,7 @@ protected:
 
 protected:
 	Referenced() = default;
-	virtual ~Referenced() = default; 
+	virtual ~Referenced() = default;
 
 public:
 	void ref() const { referenceCount_++; }
@@ -53,8 +53,8 @@ public:
 };
 
 ///\ingroup utility
-///Smart pointer class for objects with built-in reference counter. 
-///If you want to make your classes reference counted types from design to be able to
+///\brief Smart pointer class for objects with built-in reference counter.
+///\details If you want to make your classes reference counted types from design to be able to
 ///use this smart pointer, have a look at the nytl::References base class.
 template<typename T>
 class IntrusivePtr
@@ -63,7 +63,7 @@ protected:
 	T* object_ {nullptr};
 
 public:
-	IntrusivePtr() = default; 
+	IntrusivePtr() = default;
 	IntrusivePtr(T* obj) : object_(obj) { if(object_) object_->ref(); }
 	IntrusivePtr(T& obj) : object_(&obj) { object_->ref(); }
 	~IntrusivePtr(){ if(object_) object_->unref(); }

@@ -50,7 +50,7 @@ public:
 
 	virtual bool load(std::istream&) { return 1; };
 	virtual bool save(std::ostream& out) const
-	{	
+	{
 		out << objectTypeName() << '\n';
 		return 1;
 	};
@@ -83,15 +83,15 @@ public:
 	using typename TypemapBase::Pointer;
 
 public:
-	Pointer createLoad(std::istream& in, CArgs... args) const 
+	Pointer createLoad(std::istream& in, CArgs... args) const
 	{
 		std::string name;
 		in >> name;
-		auto it = TypemapBase::typeIterator(name); 
+		auto it = TypemapBase::typeIterator(name);
 		if(TypemapBase::valid(it))
 			return it->second->createLoad(in);
 
-		return TypemapBase::EmptyFactory::call();
+		return {};
 	}
 
 	using TypemapBase::add;

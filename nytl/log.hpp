@@ -35,7 +35,7 @@
 namespace nytl
 {
 
-///Class to easily write output to a dynamically assigned stream.
+///Class to easily write output to a dynamically assignable stream.
 class Logger
 {
 public:
@@ -46,17 +46,17 @@ public:
 public:
     Logger() = default;
     Logger(std::ostream& os) : stream(&os){};
-    Logger(const std::string& pre, const std::string& strm, std::ostream& str = std::cout) 
+    Logger(const std::string& pre, const std::string& strm, std::ostream& str = std::cout)
 		: prefix(pre), name(strm), stream(&str) {}
 
 	///Outputs the given args to the ostream if valid.
     template<typename... Args> inline
-    void output(Args&&... args) const 
+    void output(Args&&... args) const
 		{  if(stream) printVars(*stream, prefix, name, ": ", std::forward<Args>(args)..., "\n"); }
 
 	///Operator wrapper for output().
     template<typename... Args> inline
-    void operator()(Args&&... args) const 
+    void operator()(Args&&... args) const
 		{ output(std::forward<Args>(args)...); }
 };
 
