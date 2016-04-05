@@ -35,6 +35,8 @@
 namespace nytl
 {
 
+///XXX: at the moment not threadsafe. Discussion needed whether this would make sense.
+
 class Observable;
 
 ///\ingroup utility
@@ -42,7 +44,7 @@ class Observable;
 class Observer
 {
 	friend class Observable;
-	virtual void observeableDestruction(Observable&) = 0;
+	virtual void obsDestruction(Observable&) = 0;
 };
 
 ///\ingroup utility
@@ -53,29 +55,29 @@ class Observable
 {
 protected:
 	std::vector<Observer*> observer_;
-	std::mutex mutex_;
+	//std::mutex mutex_;
 
 public:
 	~Observable()
 	{
 		//no lock guard needed. Undefined behavior if destructor and accesing run at the same time
 		for(auto& obs : observer_)
-			obs->observeableDestruction(*this);
+			obs->obsDestruction(*this);
 	}
 
 	void addObserver(Observer& obs)
 	{
-		std::lock_guard<std::mutex> lock(mutex_);
+		//std::lock_guard<std::mutex> lock(mutex_);
 		observer_.push_back(&obs);
 	}
 	bool removeObserver(Observer& obs)
 	{
-		std::lock_guard<std::mutex> lock(mutex_);
+		//std::lock_guard<std::mutex> lock(mutex_);
 		return (observer_.cend() == std::remove(observer_.begin(), observer_.end(), &obs));
 	}
 	bool moveObserver(Observer& oldone, Observer& newone)
 	{
-		std::lock_guard<std::mutex> lock(mutex_);
+		//std::lock_guard<std::mutex> lock(mutex_);
 		auto it = std::find(observer_.begin(), observer_.end(), &oldone);
 		if(it == observer_.cend()) return 0;
 		*it = &newone;
@@ -92,8 +94,8 @@ template <typename T>
 class ObservingPtr : public Observer
 {
 private:
-	std::atomic<T*> object_ {nullptr};
-	virtual void observableDestruction(Observable&) override { object_ = nullptr; }
+	T* object_ {nullptr};
+	virtual void obsDestruction(Observable&) override { object_ = nullptr; }
 
 public:
 	ObservingPtr() = default;
@@ -102,35 +104,43 @@ public:
 	~ObservingPtr(){ if(object_) object_->removeObserver(*this); }
 
 	ObservingPtr(const ObservingPtr& other) : object_(other.object_)
-		{ object_->addObserver(*this); }
+	{ 
+		if(object_) object_->addObserver(*this); 
+	}
 	ObservingPtr& operator=(const ObservingPtr& other)
-		{ reset(other.object_); return *this; }
+	{ 
+		reset(other.object_);
+		return *this; 
+	}
 
 	ObservingPtr(ObservingPtr&& other) noexcept : object_(other.object_)
-		{ if(object_) object_->moveObserver(other, *this); other.object_ = nullptr; }
+	{ 
+		if(object_) object_->moveObserver(other, *this); 
+		other.object_ = nullptr; 
+	}
 	ObservingPtr& operator=(ObservingPtr&& other) noexcept
-		{ 
-			reset(); 
-			object_ = other.object_; 
-			if(object_) object_->moveObserver(other, *this); 
-			other.object_ = nullptr; 
-			return *this; 
-		}
+	{ 
+		reset(); 
+		object_ = other.object_; 
+		if(object_) object_->moveObserver(other, *this); 
+		other.object_ = nullptr; 
+		return *this; 
+	}
 
 	void reset(T* obj = nullptr)
-		{ 
-			if(obj) obj->addObserver(*this); 
-			if(object_) object_->removeObserver(*this); 
-			object_ = obj;  
-		}
+	{ 
+		if(obj) obj->addObserver(*this); 
+		if(object_) object_->removeObserver(*this); 
+		object_ = obj;  
+	}
 	void reset(T& obj)
-		{ 
-			obj.addObserver(*this); 
-			if(object_) object_->removeObserver(*this);
-			object_ = &obj;  
-		}
+	{ 
+		obj.addObserver(*this); 
+		if(object_) object_->removeObserver(*this);
+		object_ = &obj;  
+	}
 
-	T* get() { return object_; }
+	T* get() const { return object_; }
 
 	T& operator*(){ return *object_; }
 	const T& operator*() const { return *object_; }
