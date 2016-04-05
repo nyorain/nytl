@@ -30,7 +30,7 @@
 #include <nytl/any.hpp>
 #include <nytl/cache.hpp>
 #include <nytl/callback.hpp>
-#include <nytl/cloneable.hpp>
+#include <nytl/clone.hpp>
 #include <nytl/compFunc.hpp>
 #include <nytl/dynVec.hpp>
 #include <nytl/enumOps.hpp>
@@ -43,7 +43,7 @@
 #include <nytl/misc.hpp>
 #include <nytl/named.hpp>
 #include <nytl/nonCopyable.hpp>
-#include <nytl/observable.hpp>
+#include <nytl/observe.hpp>
 #include <nytl/rect.hpp>
 #include <nytl/rectRegion.hpp>
 #include <nytl/referenced.hpp>
