@@ -29,7 +29,7 @@
 
 #include <nytl/named.hpp>
 #include <nytl/typemap.hpp>
-#include <nytl/cloneable.hpp>
+#include <nytl/clone.hpp>
 
 #include <string>
 #include <memory>
