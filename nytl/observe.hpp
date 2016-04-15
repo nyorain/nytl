@@ -141,12 +141,8 @@ public:
 	}
 
 	T* get() const { return object_; }
-
-	T& operator*(){ return *object_; }
-	const T& operator*() const { return *object_; }
-
-	T* operator->(){ return object_; }
-	const T* operator->() const { return object_; }
+	T& operator*() const { return *object_; }
+	T* operator->() const { return object_; }
 
 	operator bool() const { return (object_ != nullptr); }
 	void swap(ObservingPtr& other) noexcept 
