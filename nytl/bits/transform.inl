@@ -64,7 +64,7 @@ template<std::size_t D, typename P>
 void translate(SquareMat<D, P>& mat, const Vec<D - 1, P>& trans)
 {
 	for(std::size_t i(0); i < D - 1; ++i)
-		mat[D - 1][i] += trans[i];
+		mat[i][D - 1] += trans[i];
 }
 
 /*
