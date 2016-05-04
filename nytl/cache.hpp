@@ -43,7 +43,7 @@ class Cache : public Cloneable<Cache>
 
 
 ///\brief Base class for classes that carry associated Cache objects.
-///\details Objects of classes dervied from MultiCache are able to hold multiple associated Cache 
+///\details Objects of classes dervied from MultiCache are able to hold multiple associated Cache
 //objects that have Base as common base class and can be individually accessed by a given key.
 ///Copying one MultiCache object does clone all its Cache objects, it may be therefore an
 ///expensive operation. If the MultiCache object is move-constructed or move-assigned no Cache
@@ -66,19 +66,19 @@ public:
 	MultiCache() noexcept = default;
 	~MultiCache() noexcept = default;
 
-	MultiCache(const MultiCache& other) : cache_() 
+	MultiCache(const MultiCache& other) : cache_()
 		{ for(auto& c : other.cache_) cache_[c.first] = clone(*c.second); }
 	MultiCache(MultiCache&& other) noexcept : cache_(std::move(other.cache_)) {}
 
-	MultiCache& operator=(const MultiCache& other) 
-	{ 
-		cache_.clear(); 
-		for(auto& c : other.cache_) 
-			cache_[c.first] = clone(*c.second); 
-		return *this; 
+	MultiCache& operator=(const MultiCache& other)
+	{
+		cache_.clear();
+		for(auto& c : other.cache_)
+			cache_[c.first] = clone(*c.second);
+		return *this;
 	}
 
-	MultiCache& operator=(MultiCache&& other) noexcept 
+	MultiCache& operator=(MultiCache&& other) noexcept
 		{ cache_ = std::move(other.cache_); return *this; }
 
 	///Gets a Cache object pointer for a given key if existent.
@@ -93,16 +93,17 @@ public:
 	}
 
 	///Stores a Cache object with for a given key. If there exists already some Cache object for
-	///the given key it will be replaced. 
+	///the given key it will be replaced.
 	///\return A reference to the moved Cache object.
-	Base& cache(const Key& id, std::unique_ptr<Base>&& c) const
+	template<typename T>
+	T& cache(const Key& id, std::unique_ptr<T>&& c) const
 	{
 		auto& ret = *c;
-        cache_[id] = std::move(c);
+        cache_[id].reset(c.release());
 		return ret;
 	}
 
-	///Clears the set Cache object for the given key. 
+	///Clears the set Cache object for the given key.
 	///\return 1 if an found Cache object was cleared, 0 otherwise.
 	bool resetCache(const Key& id) const
 	{
