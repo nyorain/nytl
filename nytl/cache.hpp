@@ -34,25 +34,20 @@
 namespace nytl
 {
 
-//TODO: implement copy on write with shared ptr instead of always-copy
-
-///Default Cache base class used by the MultiCache template.
-class Cache : public Cloneable<Cache>
+struct Cache
 {
+	Cache() = default;
+	virtual ~Cache() = default;
 };
-
 
 ///\brief Base class for classes that carry associated Cache objects.
 ///\details Objects of classes dervied from MultiCache are able to hold multiple associated Cache
-//objects that have Base as common base class and can be individually accessed by a given key.
-///Copying one MultiCache object does clone all its Cache objects, it may be therefore an
-///expensive operation. If the MultiCache object is move-constructed or move-assigned no Cache
-///object has usually to be moved or copied.
+///objects that have Base as common base class and can be individually accessed by a given key.
 template<typename Key, typename Base = Cache>
 class MultiCache
 {
 protected:
-	mutable std::unordered_map<Key, std::unique_ptr<Base>> cache_; //unordered_map with ids?
+	mutable std::unordered_map<Key, std::shared_ptr<Base>> cache_; //unordered_map with ids?
 
 protected:
 	///This function clears all Cache objects and should be called whenever the object is changed
@@ -66,24 +61,16 @@ public:
 	MultiCache() noexcept = default;
 	~MultiCache() noexcept = default;
 
-	MultiCache(const MultiCache& other) : cache_()
-		{ for(auto& c : other.cache_) cache_[c.first] = clone(*c.second); }
+	MultiCache(const MultiCache& other) : cache_(other.cache_) {}
+	MultiCache& operator=(const MultiCache& other) { cache_ = other.cache_; return *this; }
+
 	MultiCache(MultiCache&& other) noexcept : cache_(std::move(other.cache_)) {}
-
-	MultiCache& operator=(const MultiCache& other)
-	{
-		cache_.clear();
-		for(auto& c : other.cache_)
-			cache_[c.first] = clone(*c.second);
-		return *this;
-	}
-
 	MultiCache& operator=(MultiCache&& other) noexcept
 		{ cache_ = std::move(other.cache_); return *this; }
 
-	///Gets a Cache object pointer for a given key if existent.
+	///Gets a const Cache object pointer for a given key if existent.
 	///\return The associated Cache for a given key, nullptr if none is found for that key.
-	Base* cache(const Key& id) const
+	const Base* cache(const Key& id) const
 	{
         auto it = cache_.find(id);
 		if(it != cache_.end())
@@ -96,10 +83,10 @@ public:
 	///the given key it will be replaced.
 	///\return A reference to the moved Cache object.
 	template<typename T>
-	T& cache(const Key& id, std::unique_ptr<T>&& c) const
+	T& cache(const Key& id, std::shared_ptr<T> c) const
 	{
 		auto& ret = *c;
-        cache_[id].reset(c.release());
+        cache_[id] = std::move(c);
 		return ret;
 	}
 

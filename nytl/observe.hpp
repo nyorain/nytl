@@ -73,7 +73,10 @@ public:
 	bool removeObserver(Observer& obs)
 	{
 		//std::lock_guard<std::mutex> lock(mutex_);
-		return (observer_.cend() == std::remove(observer_.begin(), observer_.end(), &obs));
+		auto newEnd = std::remove(observer_.begin(), observer_.end(), &obs);
+		if(newEnd == observer_.cend()) return false;
+		observer_.erase(newEnd, observer_.cend());
+		return true;
 	}
 	bool moveObserver(Observer& oldone, Observer& newone)
 	{
