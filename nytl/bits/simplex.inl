@@ -71,7 +71,6 @@ template<std::size_t D, typename P, std::size_t A>
 	return 1;
 }
 
-
 #ifdef DOXYGEN
 } //nytl
 #endif

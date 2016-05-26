@@ -46,3 +46,11 @@ Line<D, P>::valueAt(const P& value, std::size_t dim) const
     }
 }
 
+///\ingroup math
+///Returns the length of the given line.
+///Just a wrapper around the Line::length function.
+template<size_t D, typename P>
+float length(const Line<D, P>& line)
+{
+	return line.length();
+}

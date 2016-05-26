@@ -38,6 +38,7 @@ class Flags
 public:
 	Flags() = default;
 	Flags(T bit) : value_(static_cast<U>(bit)) {}
+	Flags(bool, T bit) : value_(~static_cast<U>(bit)) {}
 	Flags(const Flags& rhs) : value_(rhs.value()) {}
 	Flags& operator=(const Flags& rhs) { value_ = rhs.value(); return *this; }
 	Flags& operator|=(const Flags& rhs) { value_ |= rhs.value(); return *this; }
@@ -68,6 +69,7 @@ template <typename T>
 }
 
 #define NYTL_ENABLE_ENUM_OPS(T) \
-	nytl::Flags<T> operator|(T a, T b) { return Flags<T>(a) | b; } \
-	nytl::Flags<T> operator&(T a, T b) { return Flags<T>(a) & b; } \
-	nytl::Flags<T> operator^(T a, T b) { return Flags<T>(a) ^ b; } 
+	inline nytl::Flags<T> operator|(T a, T b) { return nytl::Flags<T>(a) | b; } \
+	inline nytl::Flags<T> operator&(T a, T b) { return nytl::Flags<T>(a) & b; } \
+	inline nytl::Flags<T> operator^(T a, T b) { return nytl::Flags<T>(a) ^ b; } \
+	inline nytl::Flags<T> operator~(T bit) { return nytl::Flags<T>(false, bit); }
