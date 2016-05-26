@@ -35,7 +35,7 @@
 namespace nytl
 {
 
-///XXX: at the moment not threadsafe. Discussion needed whether this would make sense.
+///TODO: threadsafety? better use shared/weak pointer implementation?
 
 class Observable;
 
@@ -44,7 +44,10 @@ class Observable;
 class Observer
 {
 	friend class Observable;
-	virtual void obsDestruction(Observable&) = 0;
+
+	///Virtual Callback function that will be called when the object observed by this
+	///observer will be desctructed.
+	virtual void destructionCallback(Observable&) = 0;
 };
 
 ///\ingroup utility
@@ -55,36 +58,38 @@ class Observable
 {
 protected:
 	std::vector<Observer*> observer_;
-	//std::mutex mutex_;
 
 public:
 	~Observable()
 	{
 		//no lock guard needed. Undefined behavior if destructor and accesing run at the same time
 		for(auto& obs : observer_)
-			obs->obsDestruction(*this);
+			obs->destructionCallback(*this);
 	}
 
 	void addObserver(Observer& obs)
 	{
-		//std::lock_guard<std::mutex> lock(mutex_);
 		observer_.push_back(&obs);
 	}
-	bool removeObserver(Observer& obs)
+	bool removeObserver(const Observer& obs)
 	{
-		//std::lock_guard<std::mutex> lock(mutex_);
-		auto newEnd = std::remove(observer_.begin(), observer_.end(), &obs);
-		if(newEnd == observer_.cend()) return false;
-		observer_.erase(newEnd, observer_.cend());
-		return true;
+		for(auto i = 0u; i < observer_.size(); ++i)
+		{
+			if(observer_[i] == &obs) 
+			{
+				observer_.erase(observer_.cbegin() + i);
+				return true;
+			}
+		}
+
+		return false;
 	}
 	bool moveObserver(Observer& oldone, Observer& newone)
 	{
-		//std::lock_guard<std::mutex> lock(mutex_);
 		auto it = std::find(observer_.begin(), observer_.end(), &oldone);
-		if(it == observer_.cend()) return 0;
+		if(it == observer_.cend()) return false;
 		*it = &newone;
-		return 1;
+		return true;
 	}
 };
 
@@ -92,13 +97,13 @@ public:
 ///\brief Smart pointer class that observes the lifetime of its object.
 ///\details Basically a smart pointer that does always know, whether the object it points to is 
 //alive or not. Does only work with objects of classes that are derived from nytl::Observeable.
-///Semantics are related to std::unique_ptr.
+///Semantics are related to std::unique_ptr/std::shared_ptr.
 template <typename T>
 class ObservingPtr : public Observer
 {
 private:
 	T* object_ {nullptr};
-	virtual void obsDestruction(Observable&) override { object_ = nullptr; }
+	virtual void destructionCallback(Observable&) override { object_ = nullptr; }
 
 public:
 	ObservingPtr() = default;
