@@ -3,6 +3,7 @@
 #include <nytl/mat.hpp>
 #include <nytl/transform.hpp>
 #include <nytl/line.hpp>
+#include <nytl/rect.hpp>
 #include <nytl/triangle.hpp>
 #include <nytl/refVec.hpp>
 #include <nytl/dynVec.hpp>

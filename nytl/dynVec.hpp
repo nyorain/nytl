@@ -144,8 +144,8 @@ public:
 		{ for(auto& val : *this) val *= lhs; return *this; }
     template<typename ot> VecType& operator /=(const ot& lhs)
 		{ for(auto& val : *this) val /= lhs; return *this; }
-    template<typename ot> VecType& operator %=(const ot& lhs){ 
-		for(auto& val : *this) val %= lhs; return *this; }
+    template<typename ot> VecType& operator %=(const ot& lhs)
+		{ for(auto& val : *this) val %= lhs; return *this; }
     template<typename ot> VecType& operator |=(const ot& lhs)
 		{ for(auto& val : *this) val |= lhs; return *this; }
     template<typename ot> VecType& operator ^=(const ot& lhs)

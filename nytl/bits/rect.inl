@@ -59,20 +59,10 @@ intersects(const Rect<D, P>& r1, const Line<D, P>& l2)
 
     return true;
 }
-///\relates nytl::Rect
-template<std::size_t D, typename P> bool 
-intersects(const Rect<D, P>& a, const Triangle<D, P>& b)
-{
-	return (contains(a, b.a) || contains(a, b.b) || contains(a, b.c));
-}
+
 ///\relates nytl::Rect
 template<std::size_t D, typename P> bool 
 intersects(const Line<D, P>& a, const Rect<D, P>& b){ return intersects(b, a); }
-
-///\relates nytl::Rect
-template<std::size_t D, typename P> bool 
-intersects(const Triangle<D, P>& a, const Rect<D, P>& b){ return inteRects(b, a); }
-
 
 //contains
 ///\relates nytl::Rect
