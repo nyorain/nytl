@@ -28,6 +28,7 @@
 #pragma once
 
 #include <nytl/vec.hpp>
+#include <nytl/line.hpp>
 
 #include <vector>
 #include <ostream>
