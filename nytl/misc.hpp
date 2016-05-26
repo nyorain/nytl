@@ -43,6 +43,7 @@
 namespace nytl
 {
 
+///Metaprogramming typedef that can be used to expand commands for parameter packs.
 using expander = int[];
 
 ///\ingroup utility
@@ -139,50 +140,6 @@ template<class T> std::string dumpContainer(const T& obj, const char* sep = ",\n
     }
 
     return ss.str();
-}
-
-//copyVector
-template<class A, class B> void copyVector(const std::vector<A>& a, std::vector<B>& b)
-{
-    for(unsigned int i(0); i < a.size(); i++)
-    {
-        const B tmp = (B) a[i];
-        b.push_back(tmp);
-    }
-}
-
-template<class A, class B> std::vector<B> copyVector(const std::vector<A>& a)
-{
-    std::vector<B> ret;
-    copyVector(a, ret);
-    return ret;
-}
-
-template<class B, class A> std::vector<B> copyVectorLike(const A& a)
-{
-    std::vector<B> ret(a.size());
-
-    size_t i = 0;
-    for(auto& val : a)
-    {
-        ret[i] = val;
-        i++;
-    }
-    return ret;
-}
-
-
-///deprcated
-NYTL_DEPRECATED
-inline float randomFloat(float low, float high)
-{
-    return low + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(high-low)));
-}
-
-NYTL_DEPRECATED
-inline int randomInt(int low, int high)
-{
-    return (int) low + rand() % (high - low);
 }
 
 }
