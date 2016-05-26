@@ -80,7 +80,6 @@ public:
 	//Simplex
     double size() const { return distance(a, b); }
 	VecType center() const { return (a + b) / 2; }
-	bool valid() const;
 
 	Vec<2, VecType>& points()
 		{ return reinterpret_cast<Vec<2, VecType>&>(*this); }

@@ -25,11 +25,7 @@
 ///\file
 ///\brief Includes several useful template functions.
 
-//TODO: this file includes many headers while having mostly really simple operations...
-
 #pragma once
-
-#include <nytl/system.hpp>
 
 #include <string>
 #include <vector>

@@ -43,7 +43,7 @@ template<std::size_t D, typename P, std::size_t A>
 double Simplex<D, P, A>::size() const
 {
 	SquareMat<D, P> m;
-	for(std::size_t i(1); i <= A; ++i) m.col(i) = s.points()[i] - s.points()[0];
+	for(std::size_t i(1); i <= A; ++i) m.col(i) = points()[i] - points()[0];
 	return std::abs(det(m)) / fac(D);
 }
 

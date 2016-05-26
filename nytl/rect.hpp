@@ -28,7 +28,6 @@
 #pragma once
 
 #include <nytl/vec.hpp>
-#include <nytl/simplex.hpp>
 
 #include <vector>
 #include <ostream>
@@ -107,9 +106,8 @@ public:
 	///Returns the center point.
 	VecType center() const { return static_cast<Precision>(position + (size / Precision(2))); };
 
-	//TODO: find a better name for this function.
 	///Returns the area/volume/... of the given rect.
-	Precision inside() const { return multiply(size); }
+	Precision space() const { return multiply(size); }
 
 	///Returns whether the Rect has an area/volume/...
 	bool empty() const { return !allEqual(size, 0); }

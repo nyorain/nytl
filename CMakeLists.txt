@@ -11,7 +11,7 @@ include_directories(${CMAKE_SOURCE_DIR})
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED on)
 
-set(CMAKE_CXX_FLAGS "-Wall -pedantic -Wextra")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 
 if(NYTL_TEST)
 	add_subdirectory(tests)

@@ -58,13 +58,16 @@ protected:
 	U value_ {};
 };
 
+template <typename T>
+	nytl::Flags<T> operator|(T bit, const nytl::Flags<T>& flags) { return flags | bit; } \
+template <typename T>
+	nytl::Flags<T> operator&(T bit, const nytl::Flags<T>& flags) { return flags & bit; } \
+template <typename T>
+	nytl::Flags<T> operator^(T bit, const nytl::Flags<T>& flags) { return flags ^ bit; } 
+
 }
 
 #define NYTL_ENABLE_ENUM_OPS(T) \
-	using ##TFlags = nytl::Flags<T>; \
-	template <typename T> \
-	nytl::Flags<T> operator|(T bit, const nytl::Flags<T>& flags) { return flags | bit; } \
-	template <typename T> \
-	nytl::Flags<T> operator&(T bit, nytl::Flags<T>& flags) { return flags & bit; } \
-	template <typename T> \
-	nytl::Flags<T> operator^(T bit, const nytl::Flags<T>& flags) { return flags ^ bit; } 
+	nytl::Flags<T> operator|(T a, T b) { return Flags<T>(a) | b; } \
+	nytl::Flags<T> operator&(T a, T b) { return Flags<T>(a) & b; } \
+	nytl::Flags<T> operator^(T a, T b) { return Flags<T>(a) ^ b; } 

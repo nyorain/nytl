@@ -28,18 +28,11 @@
 template<std::size_t D, typename P>
 double Triangle<D, P>::size() const
 {
-	return detail::SimplexSize(*this);
+	return 0.5 * length(ab()) * length(bc()) * std::sin(angleB);
 }
 
 template<std::size_t D, typename P>
 Vec<D, P> Triangle<D, P>::center() const
 {
-	return detail::SimplexCenter(*this);
+	return (a + b + c) / 3;
 }
-
-template<std::size_t D, typename P>
-bool Triangle<D, P>::valid() const
-{
-	return detail::SimplexValid(*this);
-}
-
