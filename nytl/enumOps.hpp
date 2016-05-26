@@ -28,55 +28,43 @@
 
 ///\file
 ///\brief Defines binary operators for enums.
-///\details Inlcuding this file enables all binary operations for strongly-typed c++11 enum classes.
-///If you want to use them using the real c++ operators (not explicitly calling the namespaced
-///functions) you have to use the nytl::enumOps namespace.
 
 namespace nytl
 {
 
-///Template class that can be specialized to inherit from std::true_type for enumOps enabled types.
-template<typename E> struct EnumOpsType : public std::false_type {};
-
-}
-
-
-template<typename E, typename = typename std::enable_if<nytl::EnumOpsType<E>::value>::type>
-	E operator~(E a) { return static_cast<E>(~static_cast<std::underlying_type_t<E>>(a)); }
-
-template<typename E, typename = typename std::enable_if<nytl::EnumOpsType<E>::value>::type>
-	E operator|(E a, E b) { return static_cast<E>(static_cast<std::underlying_type_t<E>>(a) |
-			static_cast<std::underlying_type_t<E>>(b)); }
-
-template<typename E, typename = typename std::enable_if<nytl::EnumOpsType<E>::value>::type>
-	E operator&(E a, E b) { return static_cast<E>(static_cast<std::underlying_type_t<E>>(a) &
-			static_cast<std::underlying_type_t<E>>(b)); }
-
-template<typename E, typename = typename std::enable_if<nytl::EnumOpsType<E>::value>::type>
-E operator^(E a, E b) { return static_cast<E>(static_cast<std::underlying_type_t<E>>(a) ^
-		static_cast<std::underlying_type_t<E>>(b)); }
-
-template<typename E, typename = typename std::enable_if<nytl::EnumOpsType<E>::value>::type>
-E& operator|=(E& a, E b) { a = a | b; return a; }
-
-template<typename E, typename = typename std::enable_if<nytl::EnumOpsType<E>::value>::type>
-E& operator&=(E& a, E b) { a = a & b; return a; }
-
-template<typename E, typename = typename std::enable_if<nytl::EnumOpsType<E>::value>::type>
-E& operator^=(E& a, E b) { a = a ^ b; return a; }
-
-namespace nytl
+template<typename T, typename U = std::underlying_type_t<T>>
+class Flags
 {
+public:
+	Flags() = default;
+	Flags(T bit) : value_(static_cast<U>(bit)) {}
+	Flags(const Flags& rhs) : value_(rhs.value()) {}
+	Flags& operator=(const Flags& rhs) { value_ = rhs.value(); return *this; }
+	Flags& operator|=(const Flags& rhs) { value_ |= rhs.value(); return *this; }
+    Flags& operator&=(const Flags& rhs) { value_ &= rhs.value_; return *this; }
+    Flags& operator^=(const Flags& rhs) { value_ ^= rhs.value(); return *this; }
+    Flags operator|(const Flags& rhs) const { return Flags(rhs) |= *this; }
+    Flags operator&(const Flags& rhs) const { return Flags(rhs) &= *this; }
+    Flags operator^(const Flags& rhs) const { return Flags(rhs) ^= *this; }
+    operator bool() const { return (value()); }
+    bool operator!() const { return !(value()); }
+    bool operator==(const Flags& rhs) const { return value_ == rhs.value(); }
+    bool operator!=(const Flags& rhs) const { return value_ != rhs.value(); }
 
-///Returns whether a value 'b' has all itsbits in common with value 'a'.
-template<typename E, typename = typename std::enable_if<nytl::EnumOpsType<E>::value>::type>
-bool bitsSet(E a, E b)
-{
-	return ((static_cast<std::underlying_type_t<E>>(a) & static_cast<std::underlying_type_t<E>>(b))
-		== static_cast<std::underlying_type_t<E>>(b));
+    explicit operator U() const { return value_; } 
+	const U& value() const { return value_; }
+
+protected:
+	U value_ {};
+};
+
 }
 
-}
-
-#define NYTL_ENABLE_ENUM_OPS(T) namespace nytl \
-	{ template<> struct EnumOpsType<T> : public std::true_type{}; }
+#define NYTL_ENABLE_ENUM_OPS(T) \
+	using ##TFlags = nytl::Flags<T>; \
+	template <typename T> \
+	nytl::Flags<T> operator|(T bit, const nytl::Flags<T>& flags) { return flags | bit; } \
+	template <typename T> \
+	nytl::Flags<T> operator&(T bit, nytl::Flags<T>& flags) { return flags & bit; } \
+	template <typename T> \
+	nytl::Flags<T> operator^(T bit, const nytl::Flags<T>& flags) { return flags ^ bit; } 
