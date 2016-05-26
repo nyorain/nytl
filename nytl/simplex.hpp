@@ -29,7 +29,6 @@
 #include <nytl/vec.hpp>
 #include <nytl/mat.hpp>
 #include <nytl/scalar.hpp>
-#include <nytl/linearSolver.hpp>
 #include <nytl/bits/tmpUtil.inl>
 
 #include <vector>
