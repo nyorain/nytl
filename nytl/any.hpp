@@ -79,6 +79,7 @@ protected:
 
 public:
 	Any() = default;
+	
 	template<typename T>
 	Any(T&& value)
 		: ptr_(new Implementation<typename std::decay<T>::type>(std::forward<T>(value))) {}
@@ -147,5 +148,13 @@ T any_cast(Any&& operand)
 
 #endif
 
-
 }
+
+#if __cplusplus < 201411
+//ehhhh...
+namespace std
+{
+	using any = nytl::Any;
+	using bad_any_cast = nytl::bad_any_cast;
+}
+#endif
