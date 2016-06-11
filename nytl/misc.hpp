@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <nytl/bits/tmpUtil.inl>
 #include <string>
 #include <vector>
 #include <functional>
@@ -39,9 +40,6 @@
 namespace nytl
 {
 
-///Metaprogramming typedef that can be used to expand commands for parameter packs.
-using expander = int[];
-
 ///\ingroup utility
 ///Utility template function that can be used to hide unused compiler warnings.
 ///Has usually no additional cost. Is meant as placeholder for future code.
@@ -51,7 +49,7 @@ template<class... T> void unused(T&&...)
 ///\ingroup function
 ///\{
 ///Produces a std::function from a member function with a given object.
-template<class U, class V, class ...t> 
+template<class U, class V, class ...t>
 std::function<U(t...)> memberCallback(U (V::*func)(t ...), typename std::remove_const<V>::type* obj)
 {
     return ([func, obj](t ... params)
@@ -60,7 +58,7 @@ std::function<U(t...)> memberCallback(U (V::*func)(t ...), typename std::remove_
     });
 }
 
-template<class U, class V, class ...t> 
+template<class U, class V, class ...t>
 std::function<U(t...)> memberCallback(U (V::*func)(t ...) const, const V* obj)
 {
     return ([func, obj](t ... params)
@@ -69,7 +67,7 @@ std::function<U(t...)> memberCallback(U (V::*func)(t ...) const, const V* obj)
     });
 }
 
-template<class U, class V, class ...t> 
+template<class U, class V, class ...t>
 std::function<U(t...)> memberCallback(U (V::*func)(t ...), typename std::remove_const<V>::type& obj)
 {
 	auto* tmp = &obj;
@@ -79,7 +77,7 @@ std::function<U(t...)> memberCallback(U (V::*func)(t ...), typename std::remove_
     });
 }
 
-template<class U, class V, class ...t> 
+template<class U, class V, class ...t>
 std::function<U(t...)> memberCallback(U (V::*func)(t ...) const, const V& obj)
 {
 	auto* tmp = &obj;
@@ -94,12 +92,12 @@ std::function<U(t...)> memberCallback(U (V::*func)(t ...) const, const V& obj)
 ///Prints the given args to the given output stream.
 template<class ... Args> void printVars(std::ostream& out, Args ... args)
 {
-    expander{ (out << args, 0)... };
+    Expand{(out << args, 0)...};
 }
 
 
 ///\ingroup utility
-inline std::vector<std::string>& split(const std::string &s, char delim, 
+inline std::vector<std::string>& split(const std::string &s, char delim,
 		std::vector<std::string> &elems)
 {
     std::stringstream ss(s);
@@ -139,4 +137,3 @@ template<class T> std::string dumpContainer(const T& obj, const char* sep = ",\n
 }
 
 }
-
