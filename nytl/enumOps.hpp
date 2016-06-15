@@ -52,19 +52,16 @@ public:
     bool operator==(const Flags& rhs) const { return value_ == rhs.value(); }
     bool operator!=(const Flags& rhs) const { return value_ != rhs.value(); }
 
-    explicit operator U() const { return value_; } 
+    explicit operator U() const { return value_; }
 	const U& value() const { return value_; }
 
 protected:
 	U value_ {};
 };
 
-template <typename T>
-	nytl::Flags<T> operator|(T bit, const nytl::Flags<T>& flags) { return flags | bit; } \
-template <typename T>
-	nytl::Flags<T> operator&(T bit, const nytl::Flags<T>& flags) { return flags & bit; } \
-template <typename T>
-	nytl::Flags<T> operator^(T bit, const nytl::Flags<T>& flags) { return flags ^ bit; } 
+template <typename T> Flags<T> operator|(T bit, const Flags<T>& flags) { return flags | bit; }
+template <typename T> Flags<T> operator&(T bit, const Flags<T>& flags) { return flags & bit; }
+template <typename T> Flags<T> operator^(T bit, const Flags<T>& flags) { return flags ^ bit; }
 
 }
 
