@@ -23,7 +23,7 @@
  */
 
 ///\file
-///\brief Defines the helper base classes NonCopyable and NonMoveable to derive from.
+///\brief Defines the helper base classes NonCopyable and NonMovable to derive from.
 
 #pragma once
 
@@ -47,18 +47,17 @@ protected:
 
 //\ingroup utility
 ///Derive from this class to make it impossible to copy or move objects of the derived class.
-class NonMoveable
+class NonMovable
 {
 private:
-	NonMoveable(const NonMoveable&) = delete;
-	NonMoveable& operator =(const NonMoveable&) = delete;
-	NonMoveable(NonMoveable&&) = delete;
-	NonMoveable& operator=(NonMoveable&&) = delete;
+	NonMovable(const NonMovable&) = delete;
+	NonMovable& operator =(const NonMovable&) = delete;
+	NonMovable(NonMovable&&) = delete;
+	NonMovable& operator=(NonMovable&&) = delete;
 
 protected:
-	NonMoveable() noexcept = default;
-	NonMoveable(NonMoveable&) noexcept = default;
+	NonMovable() noexcept = default;
+	NonMovable(NonMovable&) noexcept = default;
 };
 
 }
-

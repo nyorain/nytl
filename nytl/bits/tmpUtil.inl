@@ -38,4 +38,9 @@ template<typename...> struct DeriveDummy {};
 ///C++17 alias template for void, used to detect ill-formad types in a SFINAE-context.
 template<typename...> using void_t = void;
 
+///\ingroup utility
+///Utility template function that can be used to hide unused compiler warnings.
+///Has usually no additional cost. Is meant as placeholder for future code.
+template<typename... T> void unused(T&&...) {}
+
 }

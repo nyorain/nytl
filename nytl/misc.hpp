@@ -40,57 +40,51 @@
 namespace nytl
 {
 
-///\ingroup utility
-///Utility template function that can be used to hide unused compiler warnings.
-///Has usually no additional cost. Is meant as placeholder for future code.
-template<class... T> void unused(T&&...)
-{ }
-
 ///\ingroup function
 ///\{
 ///Produces a std::function from a member function with a given object.
-template<class U, class V, class ...t>
-std::function<U(t...)> memberCallback(U (V::*func)(t ...), typename std::remove_const<V>::type* obj)
+template<typename U, typename V, typename... A>
+std::function<U(A...)> memberCallback(U (V::*func)(A ...), typename std::remove_const<V>::type* obj)
 {
-    return ([func, obj](t ... params)
+    return ([func, obj](A... params)
     {
-        return (obj->*func)(params ...);
+        return (obj->*func)(std::forward<A>(params)...);
     });
 }
 
-template<class U, class V, class ...t>
-std::function<U(t...)> memberCallback(U (V::*func)(t ...) const, const V* obj)
+template<typename U, typename V, typename... A>
+std::function<U(A...)> memberCallback(U (V::*func)(A...) const, const V* obj)
 {
-    return ([func, obj](t ... params)
+    return ([func, obj](A... params)
     {
-        return (obj->*func)(params ...);
+        return (obj->*func)(std::forward<A>(params)...);
     });
 }
 
-template<class U, class V, class ...t>
-std::function<U(t...)> memberCallback(U (V::*func)(t ...), typename std::remove_const<V>::type& obj)
+template<typename U, typename V, typename... A>
+std::function<U(A...)> memberCallback(U (V::*func)(A ...), typename std::remove_const<V>::type& obj)
 {
 	auto* tmp = &obj;
-    return ([=](t ... params)
+    return ([=](A... params)
     {
-        return (tmp->*func)(params ...);
+        return (tmp->*func)(std::forward<A>(params)...);
     });
 }
 
-template<class U, class V, class ...t>
-std::function<U(t...)> memberCallback(U (V::*func)(t ...) const, const V& obj)
+template<typename U, typename V, typename... A>
+std::function<U(A...)> memberCallback(U (V::*func)(A...) const, const V& obj)
 {
 	auto* tmp = &obj;
-    return ([=](t ... params)
+    return ([=](A ... params)
     {
-        return (tmp->*func)(params ...);
+        return (tmp->*func)(std::forward<A>(params)...);
     });
 }
 ///\}
 
 ///\ingroup utility
 ///Prints the given args to the given output stream.
-template<class ... Args> void printVars(std::ostream& out, Args ... args)
+template<typename... Args> void printVars(std::ostream& out, Args ... args)
 {
     Expand{(out << args, 0)...};
 }
@@ -120,7 +114,7 @@ inline std::vector<std::string> split(const std::string &s, char delim)
 ///\ingroup utility
 ///Dumps a given iteratable container to a stringstream and returns its content.
 ///\param sep The sperator used after every container component.
-template<class T> std::string dumpContainer(const T& obj, const char* sep = ",\n")
+template<typename T> std::string dumpContainer(const T& obj, const char* sep = ",\n")
 {
     std::stringstream ss;
 
