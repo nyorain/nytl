@@ -27,6 +27,4 @@ int main()
 	//static vec
 	auto g = nytl::subVec<2>(a); //exactly the same as a, position = 0, size = 2
 	auto h = nytl::subVec<2>(b, 1); //position = 1, size = 2 -> {3., 4.}
-
-	return EXIT_SUCCESS;
 }
