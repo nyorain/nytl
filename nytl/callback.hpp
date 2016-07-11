@@ -89,7 +89,7 @@ protected:
         if(id == 0) return;
         for(auto it = slots_.cbegin(); it != slots_.cend(); ++it)
         {
-            if(it->data->id == id)
+            if(*it->data == id)
             {
                 *it->data = 0;
                 slots_.erase(it);
@@ -121,7 +121,8 @@ public:
 	///may additionally have a ConnectionRef parameter as first one which can then
 	///be used to unregister the function from within itself.
 	///\return A Connection object for the registered function which can be used to
-	///unregister it and check if it is registered, see \c Connection for more inforMation.
+	///unregister it and check if it is registered.
+	///\sa Connection
     Connection add(CompFunc<Ret(const ConnectionRef&, Args ...)> func)
     {
         slots_.emplace_back();
@@ -182,9 +183,9 @@ protected:
         if(id == 0) return;
         for(auto it = slots_.cbegin(); it != slots_.cend(); ++it)
         {
-            if(it->data->id == id)
+            if(*it->data == id)
             {
-                it->data->id.store(0);
+                *it->data = 0;
                 slots_.erase(it);
                 return;
             }

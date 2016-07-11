@@ -1,4 +1,5 @@
 build/
+buildwin/
 .git/
 obj/
 github-pages/

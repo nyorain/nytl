@@ -57,14 +57,10 @@ using ConnectionDataPtr = std::shared_ptr<std::size_t>;
 ///the Callback object is still valid and the function is still registered.
 class Connection
 {
-protected:
-	Connectable* callback_ {nullptr};
-    ConnectionDataPtr data_ {nullptr};
-
+public:
     Connection(Connectable& call, const ConnectionDataPtr& data) noexcept
 		: callback_(&call), data_(data) {}
 
-public:
 	Connection() = default;
     ~Connection() = default;
 
@@ -79,6 +75,10 @@ public:
 
 	///Returns whether the function is still registered and the Callback is still alive.
     bool connected() const { return (callback_) && (data_) && (*data_ != 0); }
+
+protected:
+	Connectable* callback_ {nullptr};
+    ConnectionDataPtr data_ {nullptr};
 };
 
 ///\ingroup function
@@ -94,13 +94,10 @@ public:
 ///should be used instead since it proved the same functionality.
 class ConnectionRef
 {
-protected:
-	Connectable* callback_ {nullptr};
-    ConnectionDataPtr data_ {nullptr};
-
+public:
     ConnectionRef(Connectable& call, const ConnectionDataPtr& data) noexcept
 		: callback_(&call), data_(data) {}
-public:
+
     ~ConnectionRef() = default;
 
     ConnectionRef(const ConnectionRef& other) = default;
@@ -114,15 +111,16 @@ public:
 
 	///Returns whether the Callback function is still registered.
     bool connected() const { return (callback_) && (*data_ != 0); }
+
+protected:
+	Connectable* callback_ {nullptr};
+    ConnectionDataPtr data_ {nullptr};
 };
 
 ///\ingroup function
-///RAII Connection class that will disconnect autoMatically on destruction.
+///RAII Connection class that will disconnect automatically on destruction.
 class RaiiConnection : public NonCopyable
 {
-protected:
-	Connection Connection_ {};
-
 public:
 	RaiiConnection(const Connection& conn) : Connection_(conn) {}
 	~RaiiConnection() { Connection_.destroy(); }
@@ -137,6 +135,9 @@ public:
 
 	bool connected() const { return Connection_.connected(); }
 	void destroy() { Connection_.destroy(); }
+
+protected:
+	Connection Connection_ {};
 };
 
 }
