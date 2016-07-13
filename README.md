@@ -87,8 +87,6 @@ delete base; //the object is deleted here
 std::cout << (ptr) << "\n"; //outputs 0, since holds no valid object
 ````````````````
 
-You can find another interesting example about nytl typemap, serialize and typeName support in __[doc/examples/serialize.cpp]__.
-
 [nytl::Mat]: http://nyorain.github.io/nytl/classnytl_1_1Mat.html
 [nytl::Vec]: http://nyorain.github.io/nytl/classnytl_1_1Vec.html
 [nytl::Rect]: http://nyorain.github.io/nytl/classnytl_1_1Rect.html
