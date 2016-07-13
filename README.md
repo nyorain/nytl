@@ -8,7 +8,7 @@ nytl is really lightweight, yet it offers some pretty useful features for most m
 
 nytl is licensed under the MIT License, so you can freely use it in your projects. If you start an open-source project using nytl, i would really appreciate if you let me know.
 
-nytl is currently in an __alpha__ state, its first and newest release is __[version 0.2.0]__.
+nytl is currently in an __alpha__ state, its newest release is __[version 0.2-alpha]__.
 
 __Also have a look at the documentation__ (you can also generate it using cmake/doxygen, WIP): http://nyorain.github.io/nytl/
 
@@ -106,5 +106,5 @@ You can find another interesting example about nytl typemap, serialize and typeN
 [doc/examples]: doc/examples
 [doc/examples/callback.cpp]: doc/examples/callback.cpp
 [doc/examples/serialize.cpp]: doc/examples/serialize.cpp
-[version 0.2.0]: https://github.com/nyorain/nytl/releases
+[version 0.2-alpha]: https://github.com/nyorain/nytl/releases
 [ny]: https://github.com/nyorain/ny
