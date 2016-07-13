@@ -66,7 +66,6 @@ f = angle(a, b);
 
 ####Utility classes
 There are several small utility template classes in nytl.
-Many classes (like nytl::Observeable shown below) are additionally designed threadsafe.
 
 `````````````````c++
 class Base1 : public nytl::NonCopyable, public nytl::Cloneable, public nytl::Observeable {}
