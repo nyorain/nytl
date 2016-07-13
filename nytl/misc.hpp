@@ -28,6 +28,7 @@
 #pragma once
 
 #include <nytl/bits/tmpUtil.inl>
+#include <nytl/functionTraits.hpp>
 #include <string>
 #include <vector>
 #include <functional>
@@ -39,6 +40,7 @@
 
 namespace nytl
 {
+
 
 ///\ingroup function
 ///\{
