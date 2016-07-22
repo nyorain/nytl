@@ -83,27 +83,24 @@ public:
 	constexpr bool empty() const noexcept { return size() == 0; }
 	constexpr Size max_size() const noexcept { return size(); }
 
-	constexpr Iterator begin() noexcept { return data_; }
-	constexpr Iterator end() { return data_ + size_; }
+	constexpr Iterator begin() const noexcept { return data_; }
+	constexpr Iterator end() const noexcept { return data_ + size_; }
 
-	constexpr Iterator begin() const { return data_; }
-	constexpr Iterator end() const { return data_ + size_; }
+	constexpr ConstIterator cbegin() const noexcept { return data_; }
+	constexpr ConstIterator cend() const noexcept { return data_ + size_; }
 
-	constexpr ConstIterator cbegin() const { return data_; }
-	constexpr ConstIterator cend() const { return data_ + size_; }
+	constexpr ReverseIterator rbegin() const noexcept { return {end()}; }
+	constexpr ReverseIterator rend() const noexcept { return {begin()}; }
 
-	constexpr ReverseIterator rbegin() const { return {end()}; }
-	constexpr ReverseIterator rend() const { return {begin()}; }
-
-	constexpr ConstReverseIterator crbegin() const { return {cend()}; }
-	constexpr ConstReverseIterator crend() const { return {cbegin()}; }
+	constexpr ConstReverseIterator crbegin() const noexcept { return {cend()}; }
+	constexpr ConstReverseIterator crend() const noexcept { return {cbegin()}; }
 
 	constexpr ConstReference operator[](Size i) const noexcept { return *(data_ + i); }
 	constexpr ConstReference at(Size i) const
 		{ if(i >= size_) throw std::out_of_range("Range::at"); return data_[i]; }
 
-	constexpr ConstReference front() const { return *data_; }
-	constexpr ConstReference back() const { return *(data_ + size_); }
+	constexpr ConstReference front() const noexcept { return *data_; }
+	constexpr ConstReference back() const noexcept { return *(data_ + size_); }
 
 	constexpr Range<T> slice(Size pos, Size size) const noexcept { return{data_ + pos, size}; }
 
@@ -123,11 +120,8 @@ protected:
 ///\{
 ///Utility functions for easily constructing a range object.
 ///Only needed until c++17.
-template<typename T> Range<T>
-makeRange(const T& value, std::size_t size){ return Range<T>(value, size); }
-
-template<typename T> Range<T>
-makeRange(const T* value, std::size_t size){ return Range<T>(value, size); }
+template<typename T, typename = std::enable_if_t<!std::is_pointer<T>::value>>
+Range<T> constexpr makeRange(const T& value, std::size_t size){ return {value, size}; }
 
 template<template<class...> typename C, typename T, typename... TA> Range<T>
 makeRange(const C<T, TA...>& container){ return Range<T>(container); }

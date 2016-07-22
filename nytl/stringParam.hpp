@@ -47,15 +47,15 @@ namespace nytl
 class StringParam
 {
 public:
-	constexpr StringParam() = default;
-	constexpr StringParam(const char* chars) : data_(chars) {}
-	StringParam(const std::string& string) : data_(string.c_str())
+	constexpr StringParam() noexcept = default;
+	constexpr StringParam(const char* chars) noexcept : data_(chars) {}
+	StringParam(const std::string& string) noexcept : data_(string.c_str())
 		{ if(string.empty()) data_ = nullptr; } ///XXX: is this check needed/useful?
 
-	constexpr bool empty() const { return data_ == nullptr; }
-	constexpr const char* data() const { return data_; }
+	constexpr bool empty() const noexcept { return data_ == nullptr; }
+	constexpr const char* data() const noexcept { return data_; }
 
-	constexpr operator const char*() const { return data_; }
+	constexpr operator const char*() const noexcept { return data_; }
 
 public:
 	const char* data_ = nullptr;
@@ -68,23 +68,25 @@ public:
 class SizedStringParam : public StringParam
 {
 public:
-	constexpr SizedStringParam() = default;
-	SizedStringParam(const std::string& string) : StringParam(string), length_(string.size()) {}
-	constexpr SizedStringParam(const char* chars) : StringParam(chars), length_(std::strlen(chars)) {}
-	constexpr SizedStringParam(const Range<char>& range) : StringParam(range.data()),
-		length_(range.size()) {}
+	constexpr SizedStringParam() noexcept = default;
+	SizedStringParam(const char* chars) noexcept
+		: StringParam(chars), length_(std::strlen(chars)) {}
+	SizedStringParam(const std::string& string) noexcept
+		: StringParam(string), length_(string.size()) {}
+	constexpr SizedStringParam(const Range<char>& range) noexcept
+		: StringParam(range.data()), length_(range.size()) {}
 
-	constexpr std::size_t length() const { return length_; }
-	constexpr std::size_t size() const { return length_; }
+	constexpr std::size_t length() const noexcept { return length_; }
+	constexpr std::size_t size() const noexcept { return length_; }
 
-	constexpr const char* begin() const { return data_; }
-	constexpr const char* end() const { return data_ + length_; }
+	constexpr const char* begin() const noexcept { return data_; }
+	constexpr const char* end() const noexcept { return data_ + length_; }
 
-	constexpr const char* cbegin() const { return data_; }
-	constexpr const char* cend() const { return data_ + length_; }
+	constexpr const char* cbegin() const noexcept { return data_; }
+	constexpr const char* cend() const noexcept { return data_ + length_; }
 
-	constexpr operator const char*() const { return data_; }
-	constexpr operator Range<char>() const { return {data_, length_}; }
+	constexpr operator const char*() const noexcept { return data_; }
+	constexpr operator Range<char>() const noexcept { return {data_, length_}; }
 
 public:
 	std::size_t length_ = 0;

@@ -37,6 +37,7 @@ namespace nytl
 
 ///Base class for objects that can be connected to in any way.
 ///This connection can then be controlled (i.e. destroyed) with a Connection object.
+template<typename ID>
 class Connectable
 {
 protected:
@@ -44,21 +45,23 @@ protected:
 	friend class ConnectionRef;
 
 	virtual ~Connectable() = default;
-    virtual void remove(size_t id) = 0;
+    virtual void remove(ID id) = 0;
 };
 
 ///Underlaying connection data.
-using ConnectionDataPtr = std::shared_ptr<std::size_t>;
+template<typename ID>
+using ConnectionDataPtr = std::shared_ptr<ID>;
 
 ///\ingroup function
 ///\brief The Connection class represents a Connection to a nytl::Callback slot.
 ///\details A Connection object is returned when a function is registered in a Callback object
 ///and can then be used to unregister the function and furthermore check whether
 ///the Callback object is still valid and the function is still registered.
+template<typename ID>
 class Connection
 {
 public:
-    Connection(Connectable& call, const ConnectionDataPtr& data) noexcept
+    Connection(Connectable<ID>& call, const ConnectionDataPtr<ID>& data) noexcept
 		: callback_(&call), data_(data) {}
 
 	Connection() = default;
@@ -77,8 +80,8 @@ public:
     bool connected() const { return (callback_) && (data_) && (*data_ != 0); }
 
 protected:
-	Connectable* callback_ {nullptr};
-    ConnectionDataPtr data_ {nullptr};
+	Connectable<ID>* callback_ {nullptr};
+    ConnectionDataPtr<ID> data_ {nullptr};
 };
 
 ///\ingroup function
@@ -92,10 +95,11 @@ protected:
 ///Connection object is part of the signature or only there to get a Connection to itself.
 ///So there is no need for generally using this class outside a Callback function, Connection
 ///should be used instead since it proved the same functionality.
+template<typename ID>
 class ConnectionRef
 {
 public:
-    ConnectionRef(Connectable& call, const ConnectionDataPtr& data) noexcept
+    ConnectionRef(Connectable<ID>& call, const ConnectionDataPtr<ID>& data) noexcept
 		: callback_(&call), data_(data) {}
 
     ~ConnectionRef() = default;
@@ -113,31 +117,32 @@ public:
     bool connected() const { return (callback_) && (*data_ != 0); }
 
 protected:
-	Connectable* callback_ {nullptr};
-    ConnectionDataPtr data_ {nullptr};
+	Connectable<ID>* callback_ {nullptr};
+    ConnectionDataPtr<ID> data_ {nullptr};
 };
 
 ///\ingroup function
 ///RAII Connection class that will disconnect automatically on destruction.
-class RaiiConnection : public NonCopyable
+template<typename ID>
+class ConnectionGuard : public NonCopyable
 {
 public:
-	RaiiConnection(const Connection& conn) : Connection_(conn) {}
-	~RaiiConnection() { Connection_.destroy(); }
+	ConnectionGuard(const Connection<ID>& conn) : connection_(conn) {}
+	~ConnectionGuard() { connection_.destroy(); }
 
-	RaiiConnection(RaiiConnection&& other) : Connection_(std::move(other.Connection_)) {}
-	RaiiConnection& operator=(RaiiConnection&& other)
-		{ release(); Connection_ = std::move(other.Connection_); return *this; }
+	ConnectionGuard(ConnectionGuard&& other) : connection_(std::move(other.connection_)) {}
+	ConnectionGuard& operator=(ConnectionGuard&& other)
+		{ release(); connection_ = std::move(other.connection_); return *this; }
 
-	Connection& get() { return Connection_; }
-	const Connection& get() const { return Connection_; }
-	void release(){ Connection_ = {}; }
+	Connection<ID>& get() { return connection_; }
+	const Connection<ID>& get() const { return connection_; }
+	void release(){ connection_ = {}; }
 
-	bool connected() const { return Connection_.connected(); }
-	void destroy() { Connection_.destroy(); }
+	bool connected() const { return connection_.connected(); }
+	void destroy() { connection_.destroy(); }
 
 protected:
-	Connection Connection_ {};
+	Connection<ID> connection_ {};
 };
 
 }
