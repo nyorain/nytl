@@ -31,6 +31,8 @@
 #include <nytl/cache.hpp>
 #include <nytl/callback.hpp>
 #include <nytl/clone.hpp>
+#include <nytl/connection.hpp>
+#include <nytl/convert.hpp>
 #include <nytl/compFunc.hpp>
 #include <nytl/dynVec.hpp>
 #include <nytl/enumOps.hpp>
@@ -47,6 +49,7 @@
 #include <nytl/refVec.hpp>
 #include <nytl/scalar.hpp>
 #include <nytl/simplex.hpp>
+#include <nytl/stringParam.hpp>
 #include <nytl/system.hpp>
 #include <nytl/time.hpp>
 #include <nytl/tmp.hpp>

@@ -35,14 +35,17 @@
 namespace nytl
 {
 
+template<typename ID> class Connection;
+template<typename ID> class ConnectionRef;
+
 ///Base class for objects that can be connected to in any way.
 ///This connection can then be controlled (i.e. destroyed) with a Connection object.
 template<typename ID>
 class Connectable
 {
 protected:
-	friend class Connection;
-	friend class ConnectionRef;
+	friend class Connection<ID>;
+	friend class ConnectionRef<ID>;
 
 	virtual ~Connectable() = default;
     virtual void remove(ID id) = 0;

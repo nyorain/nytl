@@ -2,6 +2,7 @@
 #include <nytl/vec.hpp>
 
 #include <array>
+#include <algorithm>
 
 namespace nytl
 {
@@ -17,7 +18,9 @@ struct Converter<std::array<T, N>, nytl::Vec<N, T>>
 {
 	static std::array<T, N> call(const nytl::Vec<N, T>& other)
 	{
-		return {other.begin(), other.end()};
+		std::array<T, N> ret;
+		std::copy(ret.begin(), ret.end(), other.begin());
+		return ret;
 	}
 };
 
