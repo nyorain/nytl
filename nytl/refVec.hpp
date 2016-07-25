@@ -27,6 +27,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_REFVEC_HPP
+#define NYTL_INCLUDE_REFVEC_HPP
+
 #include <nytl/vec.hpp>
 #include <nytl/bits/refVecIterator.inl>
 
@@ -66,7 +69,7 @@ using RefVec4uc = RefVec4<unsigned char>;
 using RefVec4l = RefVec4<long>;
 using RefVec4ul = RefVec4<unsigned long>;
 
-template<size_t D, typename T> 
+template<size_t D, typename T>
 class Vec<D, T&>
 {
 public:
@@ -113,10 +116,10 @@ public:
     pointer data_[dim];
 
 public:
-    template<typename... Args, typename = typename 
+    template<typename... Args, typename = typename
 		std::enable_if_t<
 			std::is_convertible<
-				std::tuple<Args...>, 
+				std::tuple<Args...>,
 				TypeTuple<value_type, dim>
 			>::value
 		>>
@@ -124,10 +127,10 @@ public:
     ~Vec() noexcept = default;
 
     Vec(const RefVecType& other) noexcept = default;
-    Vec(const VecType& other) noexcept 
+    Vec(const VecType& other) noexcept
 		{ for(Size i(0); i < dim; ++i) data_[i] = &other[i]; }
 
-    RefVecType& operator=(const VecType& other) noexcept 
+    RefVecType& operator=(const VecType& other) noexcept
 		{ for(Size i(0); i < dim; ++i) *data_[i] = other[i]; return *this; }
 
     //operator
@@ -173,17 +176,17 @@ public:
     template<typename OT> RefVecType& operator <<=(OT lhs)
 		{ for(auto& val : *this) val <<= lhs; return *this; }
 
-    VecType operator-() const 
+    VecType operator-() const
 		{ VecType ret{}; for(size_t i(0); i < size(); i++) ret[i] -= (*this)[i]; return ret; }
 
-    template <Size OD, typename OT, typename = 
+    template <Size OD, typename OT, typename =
 		typename std::enable_if<!std::is_reference<OT>::value>::type>
-	operator Vec<OD, OT>() const 
-	{ 
-		auto ret = Vec<OD, OT> (size()); 
-		for(size_t i(0); i < min(size(), ret.size()); i++) 
-			ret[i] = (*this)[i]; 
-		return ret; 
+	operator Vec<OD, OT>() const
+	{
+		auto ret = Vec<OD, OT> (size());
+		for(size_t i(0); i < min(size(), ret.size()); i++)
+			ret[i] = (*this)[i];
+		return ret;
 	}
 
 	template<Size S>
@@ -194,7 +197,7 @@ public:
 			ret[i] = (*this)[position + i];
 
 		return ret;
-	}	
+	}
 
 	Vec<dynamicSize, T> subVec(Size position = 0, Size psize = -1) const
 	{
@@ -205,8 +208,8 @@ public:
 		return ret;
 	}
 
-	//stl 
-	//TODO: correct data implementations 
+	//stl
+	//TODO: correct data implementations
     //ConstPointer data() const noexcept { return data_; }
     //pointer data() noexcept { return data_; }
 
@@ -233,7 +236,7 @@ public:
 
     Reference at(Size i)
 		{ if(i >= dim || i < 0) throw RangeError("nytl::Vec::at"); return *data_[i]; }
-    ConstReference at(Size i) const 
+    ConstReference at(Size i) const
 		{ if(i >= dim || i < 0) throw RangeError("nytl::Vec::at"); return *data_[i]; }
 
     Reference front() noexcept { return *data_[0]; }
@@ -301,7 +304,7 @@ public:
     Vec(const RefVecType& other) noexcept = default;
 
     Vec(VecType& other) noexcept : x(other.x), y(other.y) {}
-    RefVecType& operator=(const VecType& other) noexcept 
+    RefVecType& operator=(const VecType& other) noexcept
 		{ x = other.x; y = other.y; return *this; }
 
     //operator
@@ -349,14 +352,14 @@ public:
 
     VecType operator-() const { return VecType(-x, -y); }
 
-    template <Size OD, typename OT, typename = 
+    template <Size OD, typename OT, typename =
 		typename std::enable_if<!std::is_reference<OT>::value>::type>
-	operator Vec<OD, OT>() const 
-	{ 
-		auto ret = Vec<OD, OT> (size()); 
-		for(size_t i(0); i < min(size(), ret.size()); i++) 
-			ret[i] = (*this)[i]; 
-		return ret; 
+	operator Vec<OD, OT>() const
+	{
+		auto ret = Vec<OD, OT> (size());
+		for(size_t i(0); i < min(size(), ret.size()); i++)
+			ret[i] = (*this)[i];
+		return ret;
 	}
 
 	template<Size S>
@@ -367,7 +370,7 @@ public:
 			ret[i] = (*this)[position + i];
 
 		return ret;
-	}	
+	}
 
 	Vec<dynamicSize, T> subVec(Size position = 0, Size psize = -1) const
 	{
@@ -405,7 +408,7 @@ public:
 
     Reference at(Size i)
 		{ if(i >= dim)	throw RangeError("nytl::RefVec::at"); return (*this)[i]; }
-    ConstReference at(Size i) const 
+    ConstReference at(Size i) const
 		{ if(i >= dim) throw std::out_of_range("nytl::RefVec::at"); return (*this)[i]; }
 
     Reference front() noexcept { return x; }
@@ -472,8 +475,8 @@ public:
     Vec(const RefVecType& other) noexcept = default;
 
     Vec(const VecType& other) noexcept : x(other.x), y(other.y), z(other.z) {}
-    RefVecType& operator=(const VecType& other) noexcept 
-		{ x = other.x; y = other.y; z = other.z; return *this; } 
+    RefVecType& operator=(const VecType& other) noexcept
+		{ x = other.x; y = other.y; z = other.z; return *this; }
 
     //operator
     template <std::size_t OD, typename ot> RefVecType& operator +=(const Vec<OD, ot>& lhs)
@@ -520,14 +523,14 @@ public:
 
     VecType operator-() const { return VecType(-x, -y, -z); }
 
-    template <Size OD, typename OT, typename = 
+    template <Size OD, typename OT, typename =
 		typename std::enable_if<!std::is_reference<OT>::value>::type>
-	operator Vec<OD, OT>() const 
-	{ 
-		auto ret = Vec<OD, OT> (size()); 
-		for(size_t i(0); i < min(size(), ret.size()); i++) 
-			ret[i] = (*this)[i]; 
-		return ret; 
+	operator Vec<OD, OT>() const
+	{
+		auto ret = Vec<OD, OT> (size());
+		for(size_t i(0); i < min(size(), ret.size()); i++)
+			ret[i] = (*this)[i];
+		return ret;
 	}
 
 	template<Size S>
@@ -538,7 +541,7 @@ public:
 			ret[i] = (*this)[position + i];
 
 		return ret;
-	}	
+	}
 
 	Vec<dynamicSize, T> subVec(Size position = 0, Size psize = -1) const
 	{
@@ -576,7 +579,7 @@ public:
 
     Reference at(Size i)
 		{ if(i >= dim)	throw RangeError("nytl::RefVec::at"); return (*this)[i]; }
-    ConstReference at(Size i) const 
+    ConstReference at(Size i) const
 		{ if(i >= dim) throw RangeError("nytl::RefVec::at"); return (*this)[i]; }
 
     Reference front() noexcept { return x; }
@@ -649,8 +652,8 @@ public:
 
     Vec(const RefVecType& other) noexcept = default;
 
-    Vec(const VecType& other) noexcept : x(other.x), y(other.y), z(other.z), w(other.w) {} 
-    RefVecType& operator=(const VecType& other) noexcept 
+    Vec(const VecType& other) noexcept : x(other.x), y(other.y), z(other.z), w(other.w) {}
+    RefVecType& operator=(const VecType& other) noexcept
 		{ x = other.x; y = other.y; z = other.z; w = other.w; return *this; }
 
     //operator
@@ -698,14 +701,14 @@ public:
 
     VecType operator-() const { return VecType(x, y, z); }
 
-    template <Size OD, typename OT, typename = 
+    template <Size OD, typename OT, typename =
 		typename std::enable_if<!std::is_reference<OT>::value>::type>
-	operator Vec<OD, OT>() const 
-	{ 
-		auto ret = Vec<OD, OT> (size()); 
-		for(size_t i(0); i < min(size(), ret.size()); i++) 
-			ret[i] = (*this)[i]; 
-		return ret; 
+	operator Vec<OD, OT>() const
+	{
+		auto ret = Vec<OD, OT> (size());
+		for(size_t i(0); i < min(size(), ret.size()); i++)
+			ret[i] = (*this)[i];
+		return ret;
 	}
 
 	template<Size S>
@@ -716,7 +719,7 @@ public:
 			ret[i] = (*this)[position + i];
 
 		return ret;
-	}	
+	}
 
 	Vec<dynamicSize, T> subVec(Size position = 0, Size psize = -1) const
 	{
@@ -751,12 +754,12 @@ public:
 
     Reference operator[](Size i)
 		{ if(i == 0) return x; if(i == 1) return y; if(i == 2) return z; return w; }
-    ConstReference operator[](Size i) const 
+    ConstReference operator[](Size i) const
 		{ if(i == 0) return x; if(i == 1) return y; if(i == 2) return z; return w; }
 
     Reference at(Size i)
 		{ if(i >= dim)	throw RangeError("nytl::RefVec::at"); return (*this)[i]; }
-    ConstReference at(Size i) const 
+    ConstReference at(Size i) const
 		{ if(i >= dim) throw RangeError("nytl::RefVec::at"); return (*this)[i]; }
 
     Reference front() noexcept { return x; }
@@ -791,3 +794,4 @@ template<typename T> constexpr size_t Vec<4, T&>::dim;
 
 }
 
+#endif //header guard

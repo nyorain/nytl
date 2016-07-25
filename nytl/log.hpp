@@ -27,6 +27,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_LOG_HPP
+#define NYTL_INCLUDE_LOG_HPP
+
 #include <nytl/misc.hpp>
 
 #include <iostream>
@@ -61,3 +64,5 @@ public:
 };
 
 }
+
+#endif //header guard

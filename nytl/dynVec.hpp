@@ -27,6 +27,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_DYNVEC_HPP
+#define NYTL_INCLUDE_DYNVEC_HPP
+
 #include <nytl/vec.hpp>
 #include <vector>
 
@@ -157,17 +160,17 @@ public:
     template<typename ot> VecType& operator <<=(const ot& lhs)
 		{ for(auto& val : *this) val <<= lhs; return *this; }
 
-    VecType operator-() const 
+    VecType operator-() const
 		{ VecType ret{}; for(Size i(0); i < size(); i++) ret[i] -= (*this)[i]; return ret; }
 
-    template <Size OD, typename ot, typename = typename 
-		std::enable_if<!std::is_reference<ot>::value>::type> operator Vec<OD, ot>() const 
-		{ 
-			Vec<OD, ot> ret(size()); 
-			ret.fill(ot()); 
-			for(Size i(0); i < min(ret.size(), size()); i++) 
-				ret[i] = (*this)[i]; 
-			return ret; 
+    template <Size OD, typename ot, typename = typename
+		std::enable_if<!std::is_reference<ot>::value>::type> operator Vec<OD, ot>() const
+		{
+			Vec<OD, ot> ret(size());
+			ret.fill(ot());
+			for(Size i(0); i < min(ret.size(), size()); i++)
+				ret[i] = (*this)[i];
+			return ret;
 		}
 
 	template<Size psize>
@@ -178,7 +181,7 @@ public:
 			ret[i] = (*this)[position + i];
 
 		return ret;
-	}	
+	}
 
 	Vec<dynamicSize, T> subVec(Size position = 0, Size psize = -1) const
 	{
@@ -234,3 +237,5 @@ public:
 };
 
 }
+
+#endif

@@ -27,6 +27,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_OBSERVE_HPP
+#define NYTL_INCLUDE_OBSERVE_HPP
+
 #include <vector>
 #include <algorithm>
 #include <atomic>
@@ -75,7 +78,7 @@ public:
 	{
 		for(auto i = 0u; i < observer_.size(); ++i)
 		{
-			if(observer_[i] == &obs) 
+			if(observer_[i] == &obs)
 			{
 				observer_.erase(observer_.cbegin() + i);
 				return true;
@@ -95,7 +98,7 @@ public:
 
 ///\ingroup utility
 ///\brief Smart pointer class that observes the lifetime of its object.
-///\details Basically a smart pointer that does always know, whether the object it points to is 
+///\details Basically a smart pointer that does always know, whether the object it points to is
 //alive or not. Does only work with objects of classes that are derived from nytl::Observeable.
 ///Semantics are related to std::unique_ptr/std::shared_ptr.
 template <typename T>
@@ -112,40 +115,40 @@ public:
 	~ObservingPtr(){ if(object_) object_->removeObserver(*this); }
 
 	ObservingPtr(const ObservingPtr& other) : object_(other.object_)
-	{ 
-		if(object_) object_->addObserver(*this); 
+	{
+		if(object_) object_->addObserver(*this);
 	}
 	ObservingPtr& operator=(const ObservingPtr& other)
-	{ 
+	{
 		reset(other.object_);
-		return *this; 
+		return *this;
 	}
 
 	ObservingPtr(ObservingPtr&& other) noexcept : object_(other.object_)
-	{ 
-		if(object_) object_->moveObserver(other, *this); 
-		other.object_ = nullptr; 
+	{
+		if(object_) object_->moveObserver(other, *this);
+		other.object_ = nullptr;
 	}
 	ObservingPtr& operator=(ObservingPtr&& other) noexcept
-	{ 
-		reset(); 
-		object_ = other.object_; 
-		if(object_) object_->moveObserver(other, *this); 
-		other.object_ = nullptr; 
-		return *this; 
+	{
+		reset();
+		object_ = other.object_;
+		if(object_) object_->moveObserver(other, *this);
+		other.object_ = nullptr;
+		return *this;
 	}
 
 	void reset(T* obj = nullptr)
-	{ 
-		if(obj) obj->addObserver(*this); 
-		if(object_) object_->removeObserver(*this); 
-		object_ = obj;  
+	{
+		if(obj) obj->addObserver(*this);
+		if(object_) object_->removeObserver(*this);
+		object_ = obj;
 	}
 	void reset(T& obj)
-	{ 
-		obj.addObserver(*this); 
+	{
+		obj.addObserver(*this);
 		if(object_) object_->removeObserver(*this);
-		object_ = &obj;  
+		object_ = &obj;
 	}
 
 	T* get() const { return object_; }
@@ -153,7 +156,7 @@ public:
 	T* operator->() const { return object_; }
 
 	operator bool() const { return (object_ != nullptr); }
-	void swap(ObservingPtr& other) noexcept 
+	void swap(ObservingPtr& other) noexcept
 	{
 		if(object_) object_->moveObserver(*this, other);
 		if(other.object_) other.object_->moveObserver(other, *this);
@@ -162,3 +165,5 @@ public:
 };
 
 }
+
+#endif //header guard

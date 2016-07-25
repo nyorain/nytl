@@ -27,6 +27,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_HIERACHY_HPP
+#define NYTL_INCLUDE_HIERACHY_HPP
+
 #include <nytl/nonCopyable.hpp>
 #include <nytl/bits/referenceIteration.inl>
 #include <nytl/bits/recursiveIteration.inl>
@@ -59,7 +62,7 @@ public:
 
 	using root_type = Root;
 	using child_type = Child;
-		
+
 private:
 	Vector_type children_;
 
@@ -86,9 +89,9 @@ public:
 	//recursive_iterator
 	rec_iterator recursive_begin()
 		{ return rec_iterator(children_.begin()); }
-	const_rec_iterator recursive_begin() const 
+	const_rec_iterator recursive_begin() const
 		{ return const_rec_iterator(children_.cbegin()); }
-	const_rec_iterator recursive_cbegin() const 
+	const_rec_iterator recursive_cbegin() const
 		{ return const_rec_iterator(children_.cbegin()); }
 	reverse_rec_iterator recursive_rbegin()
 		{ return reverse_rec_iterator(children_.rbegin()); }
@@ -97,7 +100,7 @@ public:
 	const_reverse_rec_iterator recursive_crbegin() const
 		{ return const_reverse_rec_iterator(children_.crbegin()); }
 
-	rec_iterator recursive_end() { return children_.empty() ? 
+	rec_iterator recursive_end() { return children_.empty() ?
 		rec_iterator(children_.end()) : children_[0]->recursive_end(); }
 	const_rec_iterator recursive_end() const { return children_.empty() ?
 		const_rec_iterator(children_.cend()) : children_[0]->recursive_cend(); }
@@ -114,11 +117,11 @@ public:
 	recursive_iteration recursive() { return recursive_iteration(*this); }
 	const_recursive_iteration recursive() const { return const_recursive_iteration(*this); }
 
-	const Vector_type& children() const { return children_; } 
+	const Vector_type& children() const { return children_; }
 	std::size_t childrenCount() const { return children_.size(); }
 
     virtual void addChild(Child& child) { children_.push_back(&child); }
-	virtual bool removeChild(Child& child)	
+	virtual bool removeChild(Child& child)
 	{
 	    for(auto it = children_.cbegin(); it != children_.cend(); ++it)
 	    {
@@ -163,7 +166,7 @@ protected:
 	virtual void destroy() override
 	{
 		T::destroy();
-	    if(parent_) 
+	    if(parent_)
 		{
 			parent_->removeChild(reinterpret_cast<Child&>(*this));
 			parent_ = nullptr;
@@ -193,10 +196,12 @@ public:
 	using child_type = Child;
 
 public:
-	virtual const root_type& root() const override 
+	virtual const root_type& root() const override
 		{ return reinterpret_cast<const root_type&>(*this); }
-	virtual root_type& root() override 
+	virtual root_type& root() override
 		{ return reinterpret_cast<root_type&>(*this); }
 };
 
 }
+
+#endif //header guard

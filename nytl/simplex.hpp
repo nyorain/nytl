@@ -26,6 +26,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_SIMPLEX_HPP
+#define NYTL_INCLUDE_SIMPLEX_HPP
+
 #include <nytl/vec.hpp>
 #include <nytl/mat.hpp>
 #include <nytl/scalar.hpp>
@@ -80,7 +83,7 @@ public:
 				std::tuple<Args...>,
 				TypeTuple<VecType, A + 1>
 			>::value
-		>>		
+		>>
 	Simplex(Args&&... args) noexcept : points_{std::forward<Args>(args)...} {}
 	Simplex() noexcept = default;
 
@@ -90,11 +93,11 @@ public:
 	///Returns the center point of the area.
 	VecType center() const;
 
-	///Converts the object into a Vec of points. 
+	///Converts the object into a Vec of points.
 	///Can be used to acces (read/change/manipulate) the points.
 	Vec<A + 1, VecType>& points(){ return points_; }
 
-	///Converts the object into a const Vec of poitns. 
+	///Converts the object into a const Vec of poitns.
 	///Can be used to const_iterate/read the points.
 	const Vec<A + 1, VecType>& points() const { return points_; }
 
@@ -104,7 +107,7 @@ public:
 	///in 3 dimensional space can be converted to a triangle in 2 dimensional space (by simply
 	///stripping the 3rd dimension).
 	///Works only if the new D is still greater equal A.
-	template<std::size_t OD, typename OP> 
+	template<std::size_t OD, typename OP>
 		operator Simplex<OD, OP, A>() const;
 };
 
@@ -121,3 +124,4 @@ template<std::size_t D, typename P = float> using Tetrahedron = Simplex<D, P, 3>
 
 }
 
+#endif //header guard

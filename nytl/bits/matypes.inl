@@ -24,6 +24,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_MATYPES_INL
+#define NYTL_INCLUDE_MATYPES_INL
+
 template<std::size_t D, class P> using SquareMat = Mat<D, D, P>;
 
 template<class P> using Mat2 = SquareMat<2,P>;
@@ -224,3 +227,5 @@ typedef Mat54<long> Mat54l;
 typedef Mat54<unsigned long> Mat54ul;
 typedef Mat54<short> Mat54s;
 typedef Mat54<unsigned short> Mat54us;
+
+#endif //header guard

@@ -24,6 +24,12 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_TYPEMAP_INL
+#define NYTL_INCLUDE_TYPEMAP_INL
+
+#include <istream>
+#include <memory>
+
 namespace nytl
 {
 
@@ -129,3 +135,5 @@ struct CheckValidWrapper<Any>
 } //namespace detail
 
 } //namespace nytl
+
+#endif //header guard

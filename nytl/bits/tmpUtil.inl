@@ -24,6 +24,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_TMPUTIL_INL
+#define NYTL_INCLUDE_TMPUTIL_INL
+
 namespace nytl
 {
 
@@ -44,3 +47,5 @@ template<typename...> using void_t = void;
 template<typename... T> void unused(T&&...) {}
 
 }
+
+#endif //header guard

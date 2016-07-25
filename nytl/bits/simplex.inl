@@ -23,6 +23,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_SIMPLEX_INL
+#define NYTL_INCLUDE_SIMPLEX_INL
+
 #ifdef DOXYGEN
 namespace nytl{
 #endif
@@ -74,3 +77,5 @@ template<std::size_t D, typename P, std::size_t A>
 #ifdef DOXYGEN
 } //nytl
 #endif
+
+#endif //header guard

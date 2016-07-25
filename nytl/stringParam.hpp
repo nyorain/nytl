@@ -25,6 +25,11 @@
 ///\file
 ///\brief Defined the StringParam and SizedStringParam classes for efficient string paramters.
 
+#pragma once
+
+#ifndef NYTL_INCLUDE_STRINGPARAM_HPP
+#define NYTL_INCLUDE_STRINGPARAM_HPP
+
 #include <string>
 #include <cstring>
 #include <nytl/range.hpp>
@@ -93,3 +98,5 @@ public:
 };
 
 }
+
+#endif //header guard

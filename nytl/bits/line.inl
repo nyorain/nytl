@@ -24,7 +24,10 @@
 
 #pragma once
 
-template<size_t D, typename P> bool 
+#ifndef NYTL_INCLUDE_LINE_INL
+#define NYTL_INCLUDE_LINE_INL
+
+template<size_t D, typename P> bool
 Line<D, P>::definedAt(const P& value, std::size_t dim) const
 {
     return ((smallestValue(dim) <= value) &&
@@ -54,3 +57,5 @@ float length(const Line<D, P>& line)
 {
 	return line.length();
 }
+
+#endif //header guard

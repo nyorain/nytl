@@ -24,13 +24,16 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_REFVECITERATOR_INL
+#define NYTL_INCLUDE_REFVECITERATOR_INL
+
 #include <iterator>
 
 namespace nytl
 {
 
 template<std::size_t dim, typename T>
-class ConstRefVecIterator 
+class ConstRefVecIterator
 	: public std::iterator<std::random_access_iterator_tag, T, std::size_t>
 {
 protected:
@@ -43,9 +46,9 @@ public:
     const T* operator->(){ return &ref_[idx_]; }
     const T& operator*(){ return ref_[idx_]; }
 
-    bool operator==(const ConstRefVecIterator& other) const 
+    bool operator==(const ConstRefVecIterator& other) const
 		{ return (&ref_ == &other.ref_) && (idx_ == other.idx_); }
-    bool operator!=(const ConstRefVecIterator& other) const 
+    bool operator!=(const ConstRefVecIterator& other) const
 		{ return (&ref_ != &other.ref_) || (idx_ != other.idx_); }
 
     ConstRefVecIterator& operator++(){ idx_++; return *this; }
@@ -64,7 +67,7 @@ public:
 
 //non-const
 template<std::size_t dim, typename T>
-class RefVecIterator 
+class RefVecIterator
 	: public std::iterator<std::random_access_iterator_tag, T, std::size_t>
 {
 protected:
@@ -77,9 +80,9 @@ public:
     T* operator->(){ return &ref_[idx_]; }
     T& operator*(){ return ref_[idx_]; }
 
-    bool operator==(const RefVecIterator& other) const 
+    bool operator==(const RefVecIterator& other) const
 		{ return (&ref_ == &other.ref_) && (idx_ == other.idx_); }
-    bool operator!=(const RefVecIterator& other) const 
+    bool operator!=(const RefVecIterator& other) const
 		{ return (&ref_ != &other.ref_) || (idx_ != other.idx_); }
 
     RefVecIterator& operator++(){ idx_++; return *this; }
@@ -99,3 +102,5 @@ public:
 };
 
 }
+
+#endif //header guard

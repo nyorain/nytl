@@ -6,12 +6,12 @@ set(NYTL_VMINOR 2)
 set(NYTL_VPATCH 0)
 
 set(CMAKE_BUILD_TYPE Debug)
-option(NYTL_TEST "Build the nytl tests" ON)
+option(NYTL_TEST "Build the nytl tests" OFF)
 
 include_directories(${CMAKE_SOURCE_DIR})
 
 set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED on)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 

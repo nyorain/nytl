@@ -27,6 +27,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_RECT_HPP
+#define NYTL_INCLUDE_RECT_HPP
+
 #include <nytl/vec.hpp>
 #include <nytl/line.hpp>
 
@@ -249,3 +252,5 @@ public:
 #include <nytl/bits/rect.inl>
 
 }
+
+#endif //header guard

@@ -27,6 +27,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_CONNECTION_HPP
+#define NYTL_INCLUDE_CONNECTION_HPP
+
 #include <nytl/nonCopyable.hpp>
 
 #include <cstdlib>
@@ -149,3 +152,5 @@ protected:
 };
 
 }
+
+#endif //header guard

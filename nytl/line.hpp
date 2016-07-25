@@ -27,6 +27,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_LINE_HPP
+#define NYTL_INCLUDE_LINE_HPP
+
 #include <nytl/vec.hpp>
 #include <nytl/scalar.hpp>
 #include <nytl/simplex.hpp>
@@ -83,7 +86,7 @@ public:
 
 	Vec<2, VecType>& points()
 		{ return reinterpret_cast<Vec<2, VecType>&>(*this); }
-	const Vec<2, VecType>& points() const 
+	const Vec<2, VecType>& points() const
 		{ return reinterpret_cast<const Vec<2, VecType>&>(*this); }
 
     template<size_t OD, typename OP>
@@ -124,3 +127,5 @@ public:
 #include <nytl/bits/line.inl>
 
 }
+
+#endif //header guard

@@ -24,6 +24,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_RANGE_HPP
+#define NYTL_INCLUDE_RANGE_HPP
+
 #include <cstdlib>
 #include <stdexcept>
 
@@ -151,3 +154,5 @@ struct ValidContainer<T, C,
 }
 
 }
+
+#endif //header guard

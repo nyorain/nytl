@@ -27,6 +27,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_CLONE_HPP
+#define NYTL_INCLUDE_CLONE_HPP
+
 #include <memory>
 #include <vector>
 #include <type_traits>
@@ -166,3 +169,5 @@ cloneVector(const std::vector<A>& VectorObject)
 }
 
 }
+
+#endif //header guard

@@ -24,6 +24,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_REFERENCEITERATION_INL
+#define NYTL_INCLUDE_REFERENCEITERATION_INL
+
 #include <type_traits>
 #include <iterator>
 
@@ -39,13 +42,13 @@ public:
 	ReferenceIterator(const T& other) : T(other) {}
 
 	auto operator->() -> decltype(*T{}) { return *(T::operator->()); }
-	auto operator*() -> typename std::remove_pointer<decltype(*T{})>::type 
+	auto operator*() -> typename std::remove_pointer<decltype(*T{})>::type
 		{ return *(T::operator*()); }
 };
 
 ///\ingroup utitliy
 ///\brief Automatically transforms a pointer iterator into a ReferenceIterator.
-template<typename T> ReferenceIterator<T> 
+template<typename T> ReferenceIterator<T>
 makeReferenceIterator(const T& it)
 {
 	return ReferenceIterator<T>(it);
@@ -68,14 +71,14 @@ public:
 public:
 	ReferenceIteration(T& object) : object_(&object) {}
 
-	iterator begin(){ object_->begin(); }	
+	iterator begin(){ object_->begin(); }
 	const_iterator begin() const { return object_->begin(); }
 	const_iterator cbegin() const { return object_->cbegin(); }
 	reverse_iterator rbegin() { return object_->rbegin(); }
 	const_reverse_iterator rbegin() const { return object_->rbegin(); }
 	const_reverse_iterator crbegin() const { return object_->crbegin(); }
 
-	iterator end(){ object_->end(); }	
+	iterator end(){ object_->end(); }
 	const_iterator end() const { return object_->end(); }
 	const_iterator cend() const { return object_->cend(); }
 	reverse_iterator rend(){ return object_->rend(); }
@@ -84,10 +87,12 @@ public:
 };
 
 ///\ingroup utitliy
-template<typename T> ReferenceIterator<T> 
+template<typename T> ReferenceIterator<T>
 makeReferenceIteration(const T& obj)
 {
 	return ReferenceIteration<T>(obj);
 }
 
 }
+
+#endif //header guard

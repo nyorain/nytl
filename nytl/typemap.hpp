@@ -27,6 +27,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_TYPEMAP_HPP
+#define NYTL_INCLUDE_TYPEMAP_HPP
+
 #include <nytl/any.hpp>
 #include <nytl/bits/tmpUtil.inl>
 #include <nytl/bits/typemap.inl>
@@ -271,3 +274,5 @@ unsigned int addType(Typemap<Identifier, Base, CArgs...>& m, const Identifier& i
 }
 
 }
+
+#endif //header guard

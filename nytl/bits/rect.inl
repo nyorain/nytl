@@ -24,20 +24,23 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_RECT_INL
+#define NYTL_INCLUDE_RECT_INL
+
 ///\relates nytl::Rect
-template<std::size_t D, typename P> bool 
+template<std::size_t D, typename P> bool
 intersects(const Rect<D, P>& r1, const Rect<D, P>& r2)
 {
     return all(r2.position < r1.position + r1.size) && all(r1.position < r2.position + r2.size);
 }
 
 ///\relates nytl::Rect
-template<std::size_t D, typename P> bool 
+template<std::size_t D, typename P> bool
 intersects(const Rect<D, P>& r1, const Line<D, P>& l2)
 {
     //TODO: algorithm might be wrong, might have bugs, !important
     if(contains(r1, l2.a) || contains(r1, l2.b)) return 1;
-    if(!l2.definedFor(r1.position[0], 0) || !l2.definedFor(r1.position[0] + r1.size[0], 0)) 
+    if(!l2.definedFor(r1.position[0], 0) || !l2.definedFor(r1.position[0] + r1.size[0], 0))
 		return 0;
 
     auto st = l2.valueAt(r1.position[0]);
@@ -61,24 +64,24 @@ intersects(const Rect<D, P>& r1, const Line<D, P>& l2)
 }
 
 ///\relates nytl::Rect
-template<std::size_t D, typename P> bool 
+template<std::size_t D, typename P> bool
 intersects(const Line<D, P>& a, const Rect<D, P>& b){ return intersects(b, a); }
 
 //contains
 ///\relates nytl::Rect
-template<std::size_t D, typename P> bool 
+template<std::size_t D, typename P> bool
 contains(const Rect<D, P>& r1, const Rect<D, P>& r2)
 {
     return contains(r1, r2.position) && contains(r1, r2.position + r2.size);
 }
 ///\relates nytl::Rect
-template<std::size_t D, typename P> bool 
+template<std::size_t D, typename P> bool
 contains(const Rect<D, P>& r1, const Line<D, P>& l2)
 {
     return contains(r1, l2.a) && contains(r1, l2.b);
 }
 ///\relates nytl::Rect
-template<std::size_t D, typename P> bool 
+template<std::size_t D, typename P> bool
 contains(const Rect<D, P>& r1, const Vec<D, P>& v2)
 {
     return all(r1.position <= v2) && all(v2 <= r1.position + r1.size);
@@ -87,8 +90,8 @@ contains(const Rect<D, P>& r1, const Vec<D, P>& v2)
 
 ///\relates nytl::Rect
 ///\brief Returns the difference between two rangles [AND ~].
-///\details Subtracts the second Rect from the first one and returns the rest of the first one. 
-///Since the result cant be expressed as a single Rect, it is a Vector of those. 
+///\details Subtracts the second Rect from the first one and returns the rest of the first one.
+///Since the result cant be expressed as a single Rect, it is a Vector of those.
 ///Asymmetrical operator.
 template<std::size_t D, class P>
 std::vector<Rect<D, P>> difference(const Rect<D, P>& ra, const Rect<D, P>& rb)
@@ -129,7 +132,7 @@ std::vector<Rect<D, P>> difference(const Rect<D, P>& ra, const Rect<D, P>& rb)
 }
 
 ///\relates nytl::Rect
-///\brief Returns the rangle in which area the two paramater rangles intersect [AND]. 
+///\brief Returns the rangle in which area the two paramater rangles intersect [AND].
 ///\details Symmetrical operator.
 template<std::size_t D, typename P>
 Rect<D, P> intersection(const Rect<D, P>& ra, const Rect<D, P>& rb)
@@ -140,8 +143,8 @@ Rect<D, P> intersection(const Rect<D, P>& ra, const Rect<D, P>& rb)
 }
 
 ///\relates nytl::Rect
-///\brief Returns the union of two Rects [OR]. 
-//\details Since it combines them the result cannot be expressed in a single rangle and is 
+///\brief Returns the union of two Rects [OR].
+//\details Since it combines them the result cannot be expressed in a single rangle and is
 ///therefore a Vector. Symmetrical operator.
 template<std::size_t D, typename P>
 std::vector<Rect<D, P>> combination(const Rect<D, P>& ra, const Rect<D, P>& rb)
@@ -203,10 +206,11 @@ std::vector<Rect<D, P>> operator-(const Rect<D, P>& ra, const Rect<D, P>& rb)
 }
 
 ///\relates nytl::Rect
-template<size_t D, typename T> 
+template<size_t D, typename T>
 std::ostream& operator<<(std::ostream& os, const Rect<D, T>& obj)
 {
     os << "position: " << obj.position << " size: " << obj.size;
     return os;
 }
 
+#endif //header guard

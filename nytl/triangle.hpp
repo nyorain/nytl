@@ -27,6 +27,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_TRIANGLE_HPP
+#define NYTL_INCLUDE_TRIANGLE_HPP
+
 #include <nytl/vec.hpp>
 #include <nytl/simplex.hpp>
 
@@ -88,7 +91,7 @@ public:
 
 	Vec<3, VecType>& points()
 		{ return reinterpret_cast<Vec<3, VecType>&>(*this); }
-	const Vec<3, VecType>& points() const 
+	const Vec<3, VecType>& points() const
 		{ return reinterpret_cast<const Vec<3, VecType>&>(*this); }
 
     template<size_t OD, typename OP> constexpr
@@ -111,3 +114,5 @@ public:
 #include <nytl/bits/triangle.inl>
 
 }
+
+#endif //header guard

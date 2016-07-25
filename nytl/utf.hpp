@@ -24,6 +24,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_UTF_HPP
+#define NYTL_INCLUDE_UTF_HPP
+
 #include <string>
 #include <array>
 #include <locale>
@@ -68,3 +71,5 @@ inline std::u16string utf32to16(const std::u32string& utf32);
 #include <nytl/bits/utf.inl>
 
 }
+
+#endif //header guard

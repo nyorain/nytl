@@ -27,6 +27,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_CACHE_HPP
+#define NYTL_INCLUDE_CACHE_HPP
+
 #include <nytl/clone.hpp>
 #include <unordered_map>
 #include <memory>
@@ -106,3 +109,5 @@ public:
 };
 
 }
+
+#endif //header guard

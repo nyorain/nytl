@@ -27,6 +27,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_MAT_HPP
+#define NYTL_INCLUDE_MAT_HPP
+
 #include <nytl/vec.hpp>
 #include <nytl/refVec.hpp>
 
@@ -203,12 +206,12 @@ public:
 
     Vec<C, P>& at(size_t row)
 		{ if(row >= R) throw std::out_of_range("nytl::Mat::at"); return data_[row]; }
-	const Vec<C, P>& at(size_t row) const 
+	const Vec<C, P>& at(size_t row) const
 		{ if(row >= R || row < 0) throw std::out_of_range("nytl::Mat::at"); return data_[row]; }
 
 	P& at(size_t r, size_t c)
 		{ if(r >= R || c > C) throw std::out_of_range("nytl::Mat::at"); return data_[r][c]; }
-	const P& at(size_t r, size_t c) const 
+	const P& at(size_t r, size_t c) const
 		{ if(r >= R || c > C) throw std::out_of_range("nytl::Mat::at"); return data_[r][c]; }
 
     reference front() noexcept { return data_[0][0]; }
@@ -222,3 +225,5 @@ public:
 #include <nytl/bits/mat.inl>
 
 } //nytl
+
+#endif //header guard

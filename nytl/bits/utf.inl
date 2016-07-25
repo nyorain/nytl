@@ -21,8 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
- 
+
 #pragma once
+
+#ifndef NYTL_INCLUDE_UTF_INL
+#define NYTL_INCLUDE_UTF_INL
 
 std::size_t charCount(const std::string& utf8)
 {
@@ -129,3 +132,5 @@ std::u16string utf32to16(const std::u32string& utf32)
 {
 	return utf8to16(utf32to8(utf32));
 }
+
+#endif //header guard

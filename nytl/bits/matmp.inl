@@ -24,16 +24,19 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_MATMP_INL
+#define NYTL_INCLUDE_MATMP_INL
+
 #include <nytl/bits/tmpUtil.inl>
 
 namespace detail
 {
 
 //makeRowRefVec
-template<std::size_t Size, typename Seq = std::make_index_sequence<Size>> 
+template<std::size_t Size, typename Seq = std::make_index_sequence<Size>>
 struct MakeRowRefVec;
 
-template<std::size_t Size, std::size_t... I> 
+template<std::size_t Size, std::size_t... I>
 struct MakeRowRefVec<Size, std::index_sequence<I...>>
 {
     template<std::size_t R, std::size_t C, typename P>
@@ -44,10 +47,10 @@ struct MakeRowRefVec<Size, std::index_sequence<I...>>
 };
 
 //makeRowVec
-template<std::size_t Size, typename Seq = std::make_index_sequence<Size>> 
+template<std::size_t Size, typename Seq = std::make_index_sequence<Size>>
 struct MakeRowVec;
 
-template<std::size_t Size, std::size_t... I> 
+template<std::size_t Size, std::size_t... I>
 struct MakeRowVec<Size, std::index_sequence<I...>>
 {
     template<size_t R, size_t C, typename P>
@@ -58,10 +61,10 @@ struct MakeRowVec<Size, std::index_sequence<I...>>
 };
 
 //initMat
-template<std::size_t Size, typename Seq = std::make_index_sequence<Size>> 
+template<std::size_t Size, typename Seq = std::make_index_sequence<Size>>
 struct InitMatData;
 
-template<std::size_t Size, std::size_t... I> 
+template<std::size_t Size, std::size_t... I>
 struct InitMatData<Size, std::index_sequence<I...>>
 {
     template<size_t R, size_t C, typename P, typename... Args>
@@ -78,10 +81,10 @@ struct InitMatData<Size, std::index_sequence<I...>>
 };
 
 //copyMatData
-template<std::size_t Size, typename Seq = std::make_index_sequence<Size>> 
+template<std::size_t Size, typename Seq = std::make_index_sequence<Size>>
 struct CopyMatData;
 
-template<std::size_t Size, size_t... I> 
+template<std::size_t Size, size_t... I>
 struct CopyMatData<Size, std::index_sequence<I...>>
 {
     template<size_t R, size_t C, typename P>
@@ -92,10 +95,10 @@ struct CopyMatData<Size, std::index_sequence<I...>>
 };
 
 //makeRowRefVec
-template<std::size_t Size, typename Seq = std::make_index_sequence<Size>> 
+template<std::size_t Size, typename Seq = std::make_index_sequence<Size>>
 struct MatTuple;
 
-template<std::size_t Size, size_t... I> 
+template<std::size_t Size, size_t... I>
 struct MatTuple<Size, std::index_sequence<I...>>
 {
     template<size_t R, size_t C, typename P>
@@ -106,3 +109,5 @@ struct MatTuple<Size, std::index_sequence<I...>>
 };
 
 }
+
+#endif //header guard

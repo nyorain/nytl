@@ -24,6 +24,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_ENUMOPS_HPP
+#define NYTL_INCLUDE_ENUMOPS_HPP
+
 #include <type_traits>
 
 ///\file
@@ -70,3 +73,5 @@ template <typename T> Flags<T> operator^(T bit, const Flags<T>& flags) { return 
 	inline nytl::Flags<T> operator&(T a, T b) { return nytl::Flags<T>(a) & b; } \
 	inline nytl::Flags<T> operator^(T a, T b) { return nytl::Flags<T>(a) ^ b; } \
 	inline nytl::Flags<T> operator~(T bit) { return nytl::Flags<T>(false, bit); }
+
+#endif //header guard

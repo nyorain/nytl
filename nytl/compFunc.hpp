@@ -27,6 +27,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_COMPFUNC_HPP
+#define NYTL_INCLUDE_COMPFUNC_HPP
+
 #include <nytl/functionTraits.hpp>
 #include <nytl/bits/tupleMap.inl>
 #include <nytl/bits/apply.inl>
@@ -182,3 +185,5 @@ template<typename S> using CompFunc = CompatibleFunction<S>;
 
 
 }
+
+#endif //heade guard

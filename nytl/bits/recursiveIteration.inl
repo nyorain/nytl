@@ -24,6 +24,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_RECURSIVEITERATION_INL
+#define NYTL_INCLUDE_RECURSIVEITERATION_INL
+
 #include <iterator>
 
 namespace nytl
@@ -46,7 +49,7 @@ public:
 	auto operator*() -> decltype(*it_) { return onParent_ ? *it_ : *child_; }
 
 	RecursiveIterator& operator++()
-	{ 
+	{
 		if(onParent_)
 		{
 			child_ = it_->recursive_begin();
@@ -65,7 +68,7 @@ public:
 			onParent_ = 1;
 		}
 
-		return *this; 
+		return *this;
 	}
 
 	RecursiveIterator operator++(int)
@@ -104,7 +107,7 @@ public:
 
 		return *this;
 	}
-	
+
 	RecursiveIterator operator--(int)
 	{
 		auto cop = *this;
@@ -115,7 +118,7 @@ public:
 
 ///\copydoc RecursiveIterator
 ///Const-version for the recursive iterator.
-template<typename T> 
+template<typename T>
 using ConstRecursiveIterator = RecursiveIterator<T, typename T::const_iterator>;
 
 
@@ -136,15 +139,17 @@ public:
 public:
 	RecursiveIteration(T& object) : object_(&object) {}
 
-	auto begin() -> decltype(object_->recursive_begin()) { object_->recursive_begin(); }	
-	auto cbegin() -> decltype(object_->recursive_cbegin()) { object_->recursive_cbegin(); }	
-	auto rbegin() -> decltype(object_->recursive_rbegin()) { object_->recursive_rbegin(); }	
-	auto crbegin() -> decltype(object_->recursive_crbegin()) { object_->recursive_crbegin(); }	
+	auto begin() -> decltype(object_->recursive_begin()) { object_->recursive_begin(); }
+	auto cbegin() -> decltype(object_->recursive_cbegin()) { object_->recursive_cbegin(); }
+	auto rbegin() -> decltype(object_->recursive_rbegin()) { object_->recursive_rbegin(); }
+	auto crbegin() -> decltype(object_->recursive_crbegin()) { object_->recursive_crbegin(); }
 
-	auto end() -> decltype(object_->recursive_end()) { object_->recursive_end(); }	
-	auto cend() -> decltype(object_->recursive_cend()) { object_->recursive_cend(); }	
-	auto rend() -> decltype(object_->recursive_rend()) { object_->recursive_rend(); }	
-	auto crend() -> decltype(object_->recursive_crend()) { object_->recursive_crend(); }	
+	auto end() -> decltype(object_->recursive_end()) { object_->recursive_end(); }
+	auto cend() -> decltype(object_->recursive_cend()) { object_->recursive_cend(); }
+	auto rend() -> decltype(object_->recursive_rend()) { object_->recursive_rend(); }
+	auto crend() -> decltype(object_->recursive_crend()) { object_->recursive_crend(); }
 };
 
 }
+
+#endif //header guard

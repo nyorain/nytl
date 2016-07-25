@@ -27,8 +27,12 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_MISC_HPP
+#define NYTL_INCLUDE_MISC_HPP
+
 #include <nytl/bits/tmpUtil.inl>
 #include <nytl/functionTraits.hpp>
+
 #include <string>
 #include <vector>
 #include <functional>
@@ -133,3 +137,5 @@ template<typename T> std::string dumpContainer(const T& obj, const char* sep = "
 }
 
 }
+
+#endif //header guard

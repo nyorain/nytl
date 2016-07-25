@@ -27,6 +27,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_NONCOPYABLE_HPP
+#define NYTL_INCLUDE_NONCOPYABLE_HPP
+
 namespace nytl
 {
 
@@ -61,3 +64,5 @@ protected:
 };
 
 }
+
+#endif //header guard

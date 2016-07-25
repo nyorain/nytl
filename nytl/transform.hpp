@@ -27,6 +27,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_TRANSFORM_HPP
+#define NYTL_INCLUDE_TRANSFORM_HPP
+
 #include <nytl/mat.hpp>
 #include <nytl/vec.hpp>
 #include <nytl/rect.hpp>
@@ -41,8 +44,8 @@ namespace nytl
 ///Returns the possible axis of rotation for a given dimension.
 ///To be more precise it returns the planes of rotations that exist in the given
 ///dimension. For 2 or 3 dimensions, thinking about rotations of axis might work, while
-///for higher dimensions it is easier to not think about rotations as axis, but rather 
-///about rotations ON planes. 
+///for higher dimensions it is easier to not think about rotations as axis, but rather
+///about rotations ON planes.
 ///E.g. in 2D, there is only one plane (xy), in 3D there are 3 planes (xy, xz, yz) and in
 ///4D there are 6 such planes on which a shape can be rotated.
 ///\note Constexpr function, can be used for template parameters.
@@ -70,7 +73,7 @@ constexpr std::size_t rotationPlanes(std::size_t dimension) { return fac(dimensi
 ///transform.translate({100, 100});
 ///transform.rotate(45);
 ///
-/////First rotates and then translated the transform Matrix. 
+/////First rotates and then translated the transform Matrix.
 ///transform.rotate(45);
 ///transform.translate({100, 100});
 ///
@@ -98,13 +101,14 @@ public:
 	using VecType = Vec<dim, Precision>;
 	using MatType = SquareMat<dim + 1, Precision>;
 	using RotType = Vec<rotationPlanes(dim), Precision>;
+	// using RotType = VecScalar<rotationPlanes(dim), Precision>;
 	using RectType = Rect<dim, Precision>;
 
 protected:
 	MatType mat_ {};
 
 public:
-    Transform() noexcept : mat_(identityMat<dim + 1, P>()) {} 
+    Transform() noexcept : mat_(identityMat<dim + 1, P>()) {}
     ~Transform() noexcept = default;
 
     void rotate(const RotType& rotation){ nytl::rotate(mat_, rotation); }
@@ -117,5 +121,6 @@ public:
     const MatType& transformMatrix() const { return mat_; }
 };
 
-
 }
+
+#endif //header guard

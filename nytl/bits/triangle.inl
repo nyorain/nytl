@@ -24,6 +24,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_TRIANGLE_INL
+#define NYTL_INCLUDE_TRIANGLE_INL
+
 //member
 template<std::size_t D, typename P>
 double Triangle<D, P>::size() const
@@ -64,3 +67,5 @@ bool contains(const Triangle<2, P>& tri, const Vec<2, P>& p)
 	auto bar = barycentric(tri, p);
 	return (all(bar <= 1.f) && all(bar >= 0.f) && sum(bar) == 1.f);
 }
+
+#endif //header guard

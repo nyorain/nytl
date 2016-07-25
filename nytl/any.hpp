@@ -27,7 +27,10 @@
 
 #pragma once
 
-#if __cplusplus >= 201411 || 1
+#ifndef NYTL_INCLUDE_ANY_HPP
+#define NYTL_INCLUDE_ANY_HPP
+
+#if __cplusplus >= 201411
  #include <experimental/any>
 #else
  #include <stdexcept>
@@ -40,7 +43,7 @@
 namespace nytl
 {
 
-#if __cplusplus >= 201411 || 1
+#if __cplusplus >= 201411
 using Any = std::experimental::any;
 using std::experimental::bad_any_cast;
 
@@ -80,7 +83,7 @@ protected:
 public:
 	Any() = default;
 
-	template<typename T, typename = std::enable_if_t<!std::is_same_v<Any, T>>>
+	template<typename T, typename = std::enable_if_t<!std::is_same<Any, T>::value>>
 	Any(T&& value)
 		: ptr_(new Implementation<typename std::decay<T>::type>(std::forward<T>(value))) {}
 
@@ -153,7 +156,7 @@ T any_cast(Any&& operand)
 //ehhhh...
 namespace std
 {
-#if __cplusplus < 201411 && 0
+#if __cplusplus < 201411
 	using any = nytl::Any;
 	using bad_any_cast = nytl::bad_any_cast;
 
@@ -165,3 +168,5 @@ namespace std
 	using namespace experimental::fundamentals_v1;
 #endif
 }
+
+#endif //header guard

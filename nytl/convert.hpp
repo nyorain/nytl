@@ -27,6 +27,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_CONVERT_HPP
+#define NYTL_INCLUDE_CONVERT_HPP
+
 #include <type_traits>
 
 namespace nytl
@@ -72,3 +75,5 @@ public:
 template<typename O> AutoCastable<O> convert(const O& other) { return {&other}; }
 
 }
+
+#endif //header guard

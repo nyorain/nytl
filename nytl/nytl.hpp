@@ -27,6 +27,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_NYTL_HPP
+#define NYTL_INCLUDE_NYTL_HPP
+
 #include <nytl/any.hpp>
 #include <nytl/cache.hpp>
 #include <nytl/callback.hpp>
@@ -57,3 +60,5 @@
 #include <nytl/triangle.hpp>
 #include <nytl/typemap.hpp>
 #include <nytl/vec.hpp>
+
+#endif //header guard

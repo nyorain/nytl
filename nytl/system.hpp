@@ -26,6 +26,10 @@
 ///\brief Defines useful macros and functions concerning system or compiler.
 
 #pragma once
+
+#ifndef NYTL_INCLUDE_SYSTEM_HPP
+#define NYTL_INCLUDE_SYSTEM_HPP
+
 #include <cstdint>
 
 namespace nytl
@@ -140,29 +144,6 @@ namespace nytl
 
 #endif //Compiler
 
-//deprecated
-#if __cplusplus >= 201402L
-	#define NYTL_DEPRECATED [[deprecated]]
-#else
-	#if defined(__GNUC__)
-		#define NYTL_DEPRECATED __attribute__ ((deprecated))
-	#elif defined(_MSC_VER)
-		#define NYTL_DEPRECATED __declspec(deprecated)
-	#else
-		//#pragma message("WARNING: You need to implement DEPRECATED for this compiler")
-		#define NYTL_DEPRECATED
-	#endif
-#endif
-
-//c++14 constexpr
-#ifndef NYTL_CPP14_CONSTEXPR
-    #if __cplusplus >= 201402L
-        #define NYTL_CPP14_CONSTEXPR constexpr
-    #else
-        #define NYTL_CPP14_CONSTEXPR
-    #endif
-#endif //NYTL_cpp14_constexpr
-
 //nytl pretty function
 #if defined(NYTL_COMPILER_CLANG) || defined(NYTL_COMPILER_GNU) || __GNUC__
 	#define NYTL_PRETTY_FUNCTION __PRETTY_FUNCTION__
@@ -212,3 +193,5 @@ inline bool bigEndian()
 }
 
 }
+
+#endif //header guard

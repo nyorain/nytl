@@ -27,6 +27,11 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_SCALAR_HPP
+#define NYTL_INCLUDE_SCALAR_HPP
+
+#include <functional>
+
 namespace nytl
 {
 
@@ -62,26 +67,9 @@ constexpr double mix(double x, double y, double a)
     return (x * (1 - a)) + (y * a);
 }
 
-//c++14 constexpr, if the constexpr keyword should only be used, if c++14 is used
-#ifndef NYTL_CPP14_CONSTEXPR
-    #if __cplusplus >= 201402L
-        #define NYTL_CPP14_CONSTEXPR constexpr
-    #else
-        #define NYTL_CPP14_CONSTEXPR
-    #endif
-#endif //NYTL_CPP14_CONSTEXPR
-
-
-//constexpr min/max
-#if __cplusplus >= 201402L
-    using std::min;
-    using std::max;
-
-#else
-    template<typename T> constexpr T min(const T& a, const T& b) { return a < b ? a : b; }
-    template<typename T> constexpr T max(const T& a, const T& b) { return a > b ? a : b; }
-
-#endif // c++14
+//TODO: fix that.
+using std::min;
+using std::max;
 
 constexpr unsigned long fac(unsigned long n)
 {
@@ -89,3 +77,5 @@ constexpr unsigned long fac(unsigned long n)
 }
 
 }
+
+#endif //header guard

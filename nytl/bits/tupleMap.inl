@@ -24,6 +24,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_TUPLEMAP_INL
+#define NYTL_INCLUDE_TUPLEMAP_INL
+
 #include <nytl/tmp.hpp>
 #include <tuple>
 #include <utility>
@@ -111,3 +114,5 @@ struct TupleMap<std::tuple<OA...>, std::tuple<NA...>, std::index_sequence<I...>>
 } //detail
 
 } //nytl
+
+#endif //header guard

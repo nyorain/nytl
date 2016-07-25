@@ -27,6 +27,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_REFERENCED_HPP
+#define NYTL_INCLUDE_REFERENCED_HPP
+
 #include <atomic>
 #include <utility>
 
@@ -109,3 +112,5 @@ public:
 };
 
 }
+
+#endif //header guard

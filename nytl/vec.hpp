@@ -27,6 +27,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_VEC_HPP
+#define NYTL_INCLUDE_VEC_HPP
+
 #include <nytl/tmp.hpp>
 #include <nytl/scalar.hpp>
 #include <nytl/misc.hpp>
@@ -81,7 +84,7 @@ using Vec4l = Vec4<long>;
 using Vec4ul = Vec4<unsigned long>;
 using Vec4b = Vec4<bool>;
 
-//better use dynmiacsize_type = 0? 
+//better use dynmiacsize_type = 0?
 //error messages with this one are kinda disgusting
 
 ///Constant that can be used as dimension parameter for the Vector to make its
@@ -101,8 +104,8 @@ namespace detail
 
 template<std::size_t D, typename P> using VecScalar = typename detail::VecScalar<D, P>::type;
 
-//For serveral operations with/for Vec and its specializations, parameters are passed by by-copy 
-//instead of by-reference. This have to be done because otherwise you could not perform 
+//For serveral operations with/for Vec and its specializations, parameters are passed by by-copy
+//instead of by-reference. This have to be done because otherwise you could not perform
 //certain operations of the Vector in realtion to its current state.
 //Example: v /= v[0]. If v[0] is passed as reference here, the components of the Vector are
 //devided by difference values, since v[0] changes during the operation. If we pass it as
@@ -212,17 +215,17 @@ public:
     template<typename OT> VecType& operator <<=(OT lhs)
 		{ for(auto& val : *this) val <<= lhs; return *this; }
 
-    VecType operator-() const 
+    VecType operator-() const
 		{ VecType ret{}; for(size_t i(0); i < size(); i++) ret[i] -= (*this)[i]; return ret; }
 
-    template <Size OD, typename OT, typename = 
+    template <Size OD, typename OT, typename =
 		typename std::enable_if<!std::is_reference<OT>::value>::type>
-	operator Vec<OD, OT>() const 
-	{ 
-		auto ret = Vec<OD, OT> (size()); 
-		for(size_t i(0); i < min(size(), ret.size()); i++) 
-			ret[i] = (*this)[i]; 
-		return ret; 
+	operator Vec<OD, OT>() const
+	{
+		auto ret = Vec<OD, OT> (size());
+		for(size_t i(0); i < min(size(), ret.size()); i++)
+			ret[i] = (*this)[i];
+		return ret;
 	}
 
 	template<Size S>
@@ -233,7 +236,7 @@ public:
 			ret[i] = (*this)[position + i];
 
 		return ret;
-	}	
+	}
 
 	Vec<dynamicSize, T> subVec(Size position = 0, Size psize = -1) const
 	{
@@ -271,7 +274,7 @@ public:
 
     Reference at(Size i)
 		{ if(i >= dim) throw RangeError("nytl::Vec::at: out of range"); return data_[i]; }
-    ConstReference at(Size i) const 
+    ConstReference at(Size i) const
 		{ if(i >= dim) throw RangeError("nytl::Vec::at: out of range"); return data_[i]; }
 
     Reference front() noexcept { return data_[0]; }
@@ -377,14 +380,14 @@ public:
 
     VecType operator-() const { return VecType(-x, -y); }
 
-    template <Size OD, typename OT, typename = 
+    template <Size OD, typename OT, typename =
 		typename std::enable_if<!std::is_reference<OT>::value>::type>
-	operator Vec<OD, OT>() const 
-	{ 
-		auto ret = Vec<OD, OT> (size()); 
-		for(size_t i(0); i < min(size(), ret.size()); i++) 
-			ret[i] = (*this)[i]; 
-		return ret; 
+	operator Vec<OD, OT>() const
+	{
+		auto ret = Vec<OD, OT> (size());
+		for(size_t i(0); i < min(size(), ret.size()); i++)
+			ret[i] = (*this)[i];
+		return ret;
 	}
 
 	template<Size S>
@@ -395,7 +398,7 @@ public:
 			ret[i] = (*this)[position + i];
 
 		return ret;
-	}	
+	}
 
 	Vec<dynamicSize, Value> subVec(Size position = 0, Size psize = -1) const
 	{
@@ -433,7 +436,7 @@ public:
 
     Reference at(Size i)
 		{ if(i >= dim) throw RangeError("nytl::Vec::at"); return *(data() + i); }
-    ConstReference at(Size i) const 
+    ConstReference at(Size i) const
 		{ if(i >= dim) throw RangeError("nytl::Vec::at"); return *(data() + i); }
 
     Reference front() noexcept { return x; }
@@ -541,14 +544,14 @@ public:
 
     VecType operator-() const { return VecType(-x, -y, -z); }
 
-    template <Size OD, typename OT, typename = 
+    template <Size OD, typename OT, typename =
 		typename std::enable_if<!std::is_reference<OT>::value>::type>
-	operator Vec<OD, OT>() const 
-	{ 
-		auto ret = Vec<OD, OT> (size()); 
-		for(size_t i(0); i < min(size(), ret.size()); i++) 
-			ret[i] = (*this)[i]; 
-		return ret; 
+	operator Vec<OD, OT>() const
+	{
+		auto ret = Vec<OD, OT> (size());
+		for(size_t i(0); i < min(size(), ret.size()); i++)
+			ret[i] = (*this)[i];
+		return ret;
 	}
 
 	template<Size S>
@@ -559,7 +562,7 @@ public:
 			ret[i] = (*this)[position + i];
 
 		return ret;
-	}	
+	}
 
 	Vec<dynamicSize, T> subVec(Size position = 0, Size psize = -1) const
 	{
@@ -597,7 +600,7 @@ public:
 
     Reference at(Size i)
 		{ if(i >= dim) throw RangeError("nytl::Vec::at"); return data() + i; }
-    ConstReference at(Size i) const 
+    ConstReference at(Size i) const
 		{ if(i >= dim) throw std::out_of_range("nytl::Vec::at"); return data() + i; }
 
     Reference front() noexcept { return x; }
@@ -712,14 +715,14 @@ public:
 
     VecType operator-() const { return  VecType(-x, -y, -z, -w); }
 
-    template <Size OD, typename OT, typename = 
+    template <Size OD, typename OT, typename =
 		typename std::enable_if<!std::is_reference<OT>::value>::type>
 	operator Vec<OD, OT>() const
-	{ 
-		auto ret = Vec<OD, OT> (size()); 
-		for(size_t i(0); i < min(size(), ret.size()); i++) 
-			ret[i] = (*this)[i]; 
-		return ret; 
+	{
+		auto ret = Vec<OD, OT> (size());
+		for(size_t i(0); i < min(size(), ret.size()); i++)
+			ret[i] = (*this)[i];
+		return ret;
 	}
 
 	template<Size S>
@@ -730,7 +733,7 @@ public:
 			ret[i] = (*this)[position + i];
 
 		return ret;
-	}	
+	}
 
 	Vec<dynamicSize, T> subVec(Size position = 0, Size psize = -1) const
 	{
@@ -768,7 +771,7 @@ public:
 
     Reference at(Size i)
 		{ if(i >= dim) throw RangeError("nytl::Vec::at"); return data() + i; }
-    ConstReference at(Size i) const 
+    ConstReference at(Size i) const
 		{ if(i >= dim) throw std::out_of_range("nytl::Vec::at"); return data() + i; }
 
     Reference front() noexcept { return x; }
@@ -777,7 +780,7 @@ public:
     Reference back() noexcept { return w; }
     ConstReference back() const noexcept { return w; }
 
-	void swap(VecType& other) { std::swap(x, other.x); std::swap(y, other.y); 
+	void swap(VecType& other) { std::swap(x, other.x); std::swap(y, other.y);
 		std::swap(z, other.z); std::swap(w, other.w); }
 
     //custom
@@ -821,6 +824,7 @@ template<typename T> class Vec<dynamicSize, T&>;
 
 }
 
+#endif //header guard
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \class nytl::Vec
@@ -835,10 +839,10 @@ template<typename T> class Vec<dynamicSize, T&>;
 /// \li nytl::Vec2i, nytl::Vec3i and nytl::Vec4i for int Vecs
 ///
 /// There are much more Vec typedefs. All of them are named after a common pattern:
-/// \c "nytl::Vec" + \c D + \c T with \c D = {2, 3, 4} and \c T of: 
+/// \c "nytl::Vec" + \c D + \c T with \c D = {2, 3, 4} and \c T of:
 /// \li f for float
 /// \li i for int
-/// \li ui for unsigned int 
+/// \li ui for unsigned int
 /// \li d for double
 /// \li b for bool
 /// \li c for char
@@ -858,15 +862,14 @@ template<typename T> class Vec<dynamicSize, T&>;
 /// fixed-size and therefore entirely allocated on the stack. Fixed-size Vec specializations
 /// are always pod classes which means they can be safely casted to other pod types (one can
 /// e.g. safely cast a Vec3<Vec2f> into a Mat32f).
-/// 
+///
 /// In difference to std::array it is meant like a representation of a matheMatical Vector, it
 /// also has specializations for Vec2, Vec3 and Vec4 which mache dealing with them easier.
 /// The available functions for dealing with Vec and the design of Vec itself is closely
 /// related to the design of Vec in glsl (free functional operators, matheMatical operators)
-/// while still oferring modern c++ features that make using them easier (e.g. iterators, tmp 
+/// while still oferring modern c++ features that make using them easier (e.g. iterators, tmp
 /// constructors or conversion operators).
 /// This is the most important class for all further matheMatical classes and operations in nytl
 /// since it can be used for storing position, size or as a general fixed- (or even dynamic-) sized
 /// container.
-////////////////////////////////////////////////////////////////////////////////////////////////// 
-
+//////////////////////////////////////////////////////////////////////////////////////////////////

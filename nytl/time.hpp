@@ -27,12 +27,13 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_TIME_HPP
+#define NYTL_INCLUDE_TIME_HPP
+
 #include <chrono>
 #include <ratio>
 
-#if __cplusplus >= 201402L
 using namespace std::literals::chrono_literals;
-#endif //c++14
 
 namespace nytl
 {
@@ -56,7 +57,7 @@ protected:
 public:
     TimeDuration() = default;
     TimeDuration(const stdDuration& other) : stdDuration(other) {}
-    template<class T, class R> TimeDuration(const std::chrono::duration<T, R>& other) 
+    template<class T, class R> TimeDuration(const std::chrono::duration<T, R>& other)
 		: stdDuration(std::chrono::duration_cast<stdDuration>(other)) {}
 
     TimeDuration& operator=(const stdDuration& other)
@@ -64,17 +65,17 @@ public:
     template<class T, class R> TimeDuration& operator=(const std::chrono::duration<T, R>& other)
 		{ stdDuration::operator=(other); return *this; }
 
-    double nanoseconds() const 
+    double nanoseconds() const
 	{ return std::chrono::duration_cast<duration<double,std::ratio<1,1000000000>>>(*this).count(); }
-    double microseconds() const 
+    double microseconds() const
 	{ return std::chrono::duration_cast<duration<double,std::ratio<1,1000000>>>(*this).count(); }
-    double milliseconds() const 
+    double milliseconds() const
 	{ return std::chrono::duration_cast<duration<double,std::ratio<1,1000>>>(*this).count(); }
-    double seconds() const 
+    double seconds() const
 	{ return std::chrono::duration_cast<duration<double,std::ratio<1,1>>>(*this).count(); }
-    double minutes() const 
+    double minutes() const
 	{ return std::chrono::duration_cast<duration<double,std::ratio<60,1>>>(*this).count(); }
-    double hours() const 
+    double hours() const
 	{ return std::chrono::duration_cast<duration<double,std::ratio<3600,1>>>(*this).count(); }
 
     TimePoint then() const;
@@ -90,7 +91,7 @@ public:
     TimePoint() : stdPoint(std::chrono::high_resolution_clock::now()) {};
     TimePoint(const TimeDuration& d) : stdPoint(std::chrono::high_resolution_clock::now() + d) {};
     TimePoint(const stdPoint& other) : stdPoint(other) {}
-    template<class T, class R> TimePoint(const std::chrono::time_point<T, R>& other) 
+    template<class T, class R> TimePoint(const std::chrono::time_point<T, R>& other)
 		: stdPoint(std::chrono::time_point_cast<stdPoint>(other)) {}
 
     TimePoint& operator=(const stdPoint& other){ stdPoint::operator=(other); return *this; }
@@ -120,3 +121,5 @@ public:
 };
 
 }
+
+#endif //header guard

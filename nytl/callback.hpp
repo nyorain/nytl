@@ -27,6 +27,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_CALLBACK_HPP
+#define NYTL_INCLUDE_CALLBACK_HPP
+
 #include <nytl/compFunc.hpp>
 #include <nytl/connection.hpp>
 
@@ -247,3 +250,5 @@ protected:
 };
 
 }
+
+#endif //header guard

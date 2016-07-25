@@ -24,6 +24,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_MAT_INL
+#define NYTL_INCLUDE_MAT_INL
+
 #ifdef DOXYGEN
 namespace nytl{
 #endif
@@ -457,3 +460,5 @@ Vec<R, P> operator*(const Vec<C, P>& v, const Mat<R, C, P>& ma)
 #ifdef DOXYGEN
 }
 #endif
+
+#endif //header guard

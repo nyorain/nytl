@@ -29,6 +29,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_TMP_HPP
+#define NYTL_INCLUDE_TMP_HPP
+
 #include <nytl/bits/tmpUtil.inl>
 #include <utility>
 #include <type_traits>
@@ -69,11 +72,11 @@ struct TuplePrependT<T<Body...>, Prepend>
     using type = T<Prepend, Body...>;
 };
 
-template<typename T, typename Prepend> using TuplePrepend = 
+template<typename T, typename Prepend> using TuplePrepend =
 	typename TuplePrependT<T, Prepend>::type;
 
 //type_tuple
-template<typename T, std::size_t size, template<typename...> class Tuple = std::tuple> 
+template<typename T, std::size_t size, template<typename...> class Tuple = std::tuple>
 struct TypeTupleT
 {
     using type = TuplePrepend<typename TypeTupleT<T, size - 1>::type, T>;
@@ -84,7 +87,7 @@ template<typename T, template<typename...> class Tuple> struct TypeTupleT<T, 1, 
     using type = Tuple<T>;
 };
 
-template<typename T, std::size_t size, template<typename...> class Tuple = std::tuple> 
+template<typename T, std::size_t size, template<typename...> class Tuple = std::tuple>
 using TypeTuple = typename TypeTupleT<T, size, Tuple>::type;
 
 
@@ -112,7 +115,7 @@ struct SeqAppendT<T<I, Body...>, Append>
     using type = T<I, Body..., Append>;
 };
 
-template<typename T, typename T::value_type Append> using SeqAppend = 
+template<typename T, typename T::value_type Append> using SeqAppend =
 	typename SeqAppendT<T, Append>::type;
 
 //seq_prepend
@@ -124,7 +127,7 @@ struct SeqPrependT<T<I, Body...>, Prepend>
     using type = T<I, Prepend, Body...>;
 };
 
-template<typename T, typename T::value_type Prepend> using SeqPrepend = 
+template<typename T, typename T::value_type Prepend> using SeqPrepend =
 	typename SeqPrependT<T, Prepend>::type;
 
 //seq_merge
@@ -145,7 +148,7 @@ struct SeqMergeRenumberT<T<I, IdxA...>, T<I, IdxB...>>
     using type = T<I, IdxA..., (sizeof...(IdxA) + IdxB)...>;
 };
 
-template<typename A, typename B> using SeqMergeRenumber = 
+template<typename A, typename B> using SeqMergeRenumber =
 	typename SeqMergeRenumberT<A, B>::type;
 
 //seq_print
@@ -167,3 +170,4 @@ template<typename T> void seqPrint(std::ostream& os)
 
 }
 
+#endif //header guard

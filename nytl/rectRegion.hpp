@@ -27,6 +27,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_RECTREGION_HPP
+#define NYTL_INCLUDE_RECTREGION_HPP
+
 #include <nytl/vec.hpp>
 #include <nytl/rect.hpp>
 #include <nytl/triangle.hpp>
@@ -142,11 +145,11 @@ public:
 	std::vector<RectType>& rects() { return rects_; }
 
 	template<Size OD, typename OP>
-	operator RectRegion<OD, OP>() const 
-	{ 
-		auto ret = RectRegion<OD, OP>{}; 
-		ret.rects_.insert(ret.rects_.cend(), rects_.cbegin(), rects_.cend()); 
-		return ret; 
+	operator RectRegion<OD, OP>() const
+	{
+		auto ret = RectRegion<OD, OP>{};
+		ret.rects_.insert(ret.rects_.cend(), rects_.cbegin(), rects_.cend());
+		return ret;
 	}
 };
 
@@ -154,3 +157,5 @@ public:
 #include <nytl/bits/rectRegion.inl>
 
 }
+
+#endif //header guard

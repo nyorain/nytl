@@ -27,6 +27,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_FUNCTIONTRAITS_HPP
+#define NYTL_INCLUDE_FUNCTIONTRAITS_HPP
+
 #include <tuple>
 
 namespace nytl
@@ -146,3 +149,5 @@ template<typename F>
 class FunctionTraits<F&&> : public FunctionTraits<F> {};
 
 }
+
+#endif //header guard

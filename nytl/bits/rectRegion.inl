@@ -24,6 +24,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_RECTREGION_INL
+#define NYTL_INCLUDE_RECTREGION_INL
+
 #ifdef DOXYGEN
 namespace nytl{
 #endif
@@ -73,10 +76,10 @@ bool intersects(const RectRegion<D, P>& ra, const Triangle<D, P>& tb)
 
     return false;
 }
-template<std::size_t D, typename P> 
+template<std::size_t D, typename P>
 bool intersects(const Rect<D, P>& a, const RectRegion<D, P>& b){ return intersects(b, a); }
 
-template<std::size_t D, typename P> 
+template<std::size_t D, typename P>
 bool intersects(const Line<D, P>& a, const RectRegion<D, P>& b){ return intersects(b, a); }
 
 template<std::size_t D, typename P>
@@ -137,7 +140,7 @@ bool contains(const RectRegion<D, P>& ra, const Vec<D, P>& pb)
     return false;
 }
 
-template<std::size_t D, typename P>  
+template<std::size_t D, typename P>
 bool contains(const Rect<D, P>& a, const RectRegion<D, P>& b)
 {
 	for(auto& r1 : b.rects())
@@ -148,7 +151,7 @@ bool contains(const Rect<D, P>& a, const RectRegion<D, P>& b)
 	return true;
 }
 
-template<std::size_t D, typename P>  
+template<std::size_t D, typename P>
 bool contains(const Triangle<D, P>& a, const RectRegion<D, P>& b)
 {
 	for(auto& r1 : b.rects())
@@ -215,7 +218,7 @@ void RectRegion<D, P>::subtract(const RectType& r)
 				if(!result.empty())
 				{
 					r1 = result[0];
-					addVec.insert(addVec.cend(), result.cbegin() + 1, result.cend());				
+					addVec.insert(addVec.cend(), result.cbegin() + 1, result.cend());
 				}
 				else
 				{
@@ -339,3 +342,5 @@ RectRegion<D, P> operator^(RectRegion<D, P> a, const Rect<D, P>& b)
 #ifdef DOXYGEN
 }
 #endif
+
+#endif //header guard
