@@ -60,12 +60,12 @@ inline char& nth(std::string& utf8, std::size_t n, std::uint8_t& size);
 
 ///\{
 ///Various conversion functions between different utf unicode encodings.
-inline std::u16string utf8to16(const std::string& utf8);
-inline std::u32string utf8to32(const std::string& utf8);
-inline std::string utf16to8(const std::u16string& utf16);
-inline std::u32string utf16to32(const std::u16string& utf16);
-inline std::string utf32to8(const std::u32string& utf32);
-inline std::u16string utf32to16(const std::u32string& utf32);
+inline std::string toUtf8(const std::u16string& utf16);
+inline std::string toUtf8(const std::u32string& utf32);
+inline std::u16string toUtf16(const std::string& utf8);
+inline std::u16string toUtf16(const std::u32string& utf32);
+inline std::u32string toUtf32(const std::string& utf8);
+inline std::u32string toUtf32(const std::u16string& utf16);
 ///\}
 
 #include <nytl/bits/utf.inl>

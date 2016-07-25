@@ -104,33 +104,33 @@ char& nth(std::string& utf8, std::size_t n, std::uint8_t& size)
 	return *ret;
 }
 
-std::u16string utf8to16(const std::string& utf8)
+std::u16string toUtf16(const std::string& utf8)
 {
 	std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> converter;
 	return converter.from_bytes(utf8);
 }
-std::u32string utf8to32(const std::string& utf8)
+std::u32string toUtf32(const std::string& utf8)
 {
 	std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> converter;
 	return converter.from_bytes(utf8);
 }
-std::string utf16to8(const std::u16string& utf16)
+std::string toUtf8(const std::u16string& utf16)
 {
 	std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> converter;
 	return converter.to_bytes(utf16);
 }
-std::u32string utf16to32(const std::u16string& utf16)
+std::u32string toUtf32(const std::u16string& utf16)
 {
-	return utf8to32(utf16to8(utf16));
+	return toUtf32(toUtf8(utf16));
 }
-std::string utf32to8(const std::u32string& utf32)
+std::string toUtf8(const std::u32string& utf32)
 {
 	std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> converter;
 	return converter.to_bytes(utf32);
 }
-std::u16string utf32to16(const std::u32string& utf32)
+std::u16string toUtf16(const std::u32string& utf32)
 {
-	return utf8to16(utf32to8(utf32));
+	return toUtf16(toUtf8(utf32));
 }
 
 #endif //header guard
