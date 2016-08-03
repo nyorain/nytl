@@ -30,13 +30,15 @@
 #ifndef NYTL_INCLUDE_CACHE_HPP
 #define NYTL_INCLUDE_CACHE_HPP
 
-#include <nytl/clone.hpp>
 #include <unordered_map>
 #include <memory>
 
 namespace nytl
 {
 
+//XXX: better performance: make Cache intrusive ref counted and Base parameter of MultiCache
+//does also define the pointer type to use. Would avoid shared_ptr.
+//XXX: threadsafety?
 struct Cache
 {
 	Cache() = default;

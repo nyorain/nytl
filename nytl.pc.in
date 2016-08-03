@@ -3,5 +3,5 @@ includedir=${prefix}/include
 
 Name: nytl
 Description: header-only c++11 utility template functions and classes
-Version: @NYTL_VMAJOR@.@NYTL_VMINOR@
+Version: @vmajor@.@vminor@.@vpatch@
 Cflags: -I${includedir}

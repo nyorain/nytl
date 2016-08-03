@@ -1,9 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.1.0)
 PROJECT(nytl)
 
-set(NYTL_VMAJOR 0)
-set(NYTL_VMINOR 2)
-set(NYTL_VPATCH 0)
+set(vmajor 0)
+set(vminor 2)
+set(vpatch 0)
 
 set(CMAKE_BUILD_TYPE Debug)
 option(NYTL_TEST "Build the nytl tests" OFF)

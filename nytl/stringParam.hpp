@@ -54,17 +54,28 @@ class StringParam
 public:
 	constexpr StringParam() noexcept = default;
 	constexpr StringParam(const char* chars) noexcept : data_(chars) {}
-	StringParam(const std::string& string) noexcept : data_(string.c_str())
-		{ if(string.empty()) data_ = nullptr; } ///XXX: is this check needed/useful?
+	StringParam(const std::string& string) noexcept : data_(string.c_str()) {} 
 
 	constexpr bool empty() const noexcept { return data_ == nullptr; }
 	constexpr const char* data() const noexcept { return data_; }
+	std::string string() const { return data_; }
 
 	constexpr operator const char*() const noexcept { return data_; }
 
 public:
 	const char* data_ = nullptr;
 };
+
+bool operator==(const StringParam& param, const char* other) 
+	{ return std::strcmp(param.data(), other) == 0; }
+bool operator!=(const StringParam& param, const char* other) 
+	{ return std::strcmp(param.data(), other) != 0; }
+
+bool operator==(const StringParam& param, const std::string& other)
+	{ return std::strcmp(param.data(), other.c_str()) == 0; }
+bool operator!=(const StringParam& param, const std::string& other)
+	{ return std::strcmp(param.data(), other.c_str()) != 0; }
+
 
 ///Class dervied from StringParam that also holds the length of the stored string.
 ///Can be used as parameter type for strings which size is needed in performance-critical
@@ -74,12 +85,15 @@ class SizedStringParam : public StringParam
 {
 public:
 	constexpr SizedStringParam() noexcept = default;
+	constexpr SizedStringParam(const char* chars, std::size_t length) noexcept
+		: StringParam(chars), length_(length) {}
+	constexpr SizedStringParam(const Range<char>& range) noexcept
+		: StringParam(range.data()), length_(range.size()) {}
+
 	SizedStringParam(const char* chars) noexcept
 		: StringParam(chars), length_(std::strlen(chars)) {}
 	SizedStringParam(const std::string& string) noexcept
 		: StringParam(string), length_(string.size()) {}
-	constexpr SizedStringParam(const Range<char>& range) noexcept
-		: StringParam(range.data()), length_(range.size()) {}
 
 	constexpr std::size_t length() const noexcept { return length_; }
 	constexpr std::size_t size() const noexcept { return length_; }
