@@ -38,7 +38,7 @@
 #include <nytl/convert.hpp>
 #include <nytl/compFunc.hpp>
 #include <nytl/dynVec.hpp>
-#include <nytl/enumOps.hpp>
+#include <nytl/flags.hpp>
 #include <nytl/functionTraits.hpp>
 #include <nytl/line.hpp>
 #include <nytl/log.hpp>
