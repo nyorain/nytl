@@ -38,39 +38,44 @@ template<typename T, typename U = std::underlying_type_t<T>>
 class Flags
 {
 public:
-	Flags() = default;
-	Flags(T bit) : value_(static_cast<U>(bit)) {}
-	Flags(bool, T bit) : value_(~static_cast<U>(bit)) {}
-	Flags(const Flags& rhs) : value_(rhs.value()) {}
-	Flags& operator=(const Flags& rhs) { value_ = rhs.value(); return *this; }
-	Flags& operator|=(const Flags& rhs) { value_ |= rhs.value(); return *this; }
-    Flags& operator&=(const Flags& rhs) { value_ &= rhs.value_; return *this; }
-    Flags& operator^=(const Flags& rhs) { value_ ^= rhs.value(); return *this; }
-    Flags operator|(const Flags& rhs) const { return Flags(rhs) |= *this; }
-    Flags operator&(const Flags& rhs) const { return Flags(rhs) &= *this; }
-    Flags operator^(const Flags& rhs) const { return Flags(rhs) ^= *this; }
-    operator bool() const { return (value()); }
-    bool operator!() const { return !(value()); }
-    bool operator==(const Flags& rhs) const { return value_ == rhs.value(); }
-    bool operator!=(const Flags& rhs) const { return value_ != rhs.value(); }
+	constexpr Flags() noexcept = default;
+	constexpr Flags(T bit) noexcept : value_(static_cast<U>(bit)) {}
+	constexpr Flags(bool, T bit) noexcept : value_(~static_cast<U>(bit)) {}
+	constexpr Flags(const Flags& rhs) noexcept : value_(rhs.value()) {}
+	~Flags() noexcept = default;
 
-    explicit operator U() const { return value_; }
-	const U& value() const { return value_; }
+	constexpr Flags& operator=(const Flags& r) noexcept { value_ = r.value(); return *this; }
+	constexpr Flags& operator|=(const Flags& r) noexcept { value_ |= r.value(); return *this; }
+    constexpr Flags& operator&=(const Flags& r) noexcept { value_ &= r.value_; return *this; }
+    constexpr Flags& operator^=(const Flags& r) noexcept { value_ ^= r.value(); return *this; }
+    constexpr Flags operator|(const Flags& r) const noexcept { return Flags(r) |= *this; }
+    constexpr Flags operator&(const Flags& r) const noexcept { return Flags(r) &= *this; }
+    constexpr Flags operator^(const Flags& r) const noexcept { return Flags(r) ^= *this; }
+    constexpr operator bool() const noexcept { return (value()); }
+    constexpr bool operator!() const noexcept { return !(value()); }
+    constexpr bool operator==(const Flags& rhs) const noexcept { return value_ == rhs.value(); }
+    constexpr bool operator!=(const Flags& rhs) const noexcept { return value_ != rhs.value(); }
+
+    constexpr explicit operator U() const noexcept { return value_; }
+	constexpr const U& value() const noexcept { return value_; }
 
 protected:
 	U value_ {};
 };
 
-template <typename T> Flags<T> operator|(T bit, const Flags<T>& flags) { return flags | bit; }
-template <typename T> Flags<T> operator&(T bit, const Flags<T>& flags) { return flags & bit; }
-template <typename T> Flags<T> operator^(T bit, const Flags<T>& flags) { return flags ^ bit; }
+template <typename T> Flags<T> constexpr operator|(T bit, const Flags<T>& flags) noexcept
+	{ return flags | bit; }
+template <typename T> Flags<T> constexpr operator&(T bit, const Flags<T>& flags) noexcept
+	{ return flags & bit; }
+template <typename T> Flags<T> constexpr operator^(T bit, const Flags<T>& flags) noexcept
+	{ return flags ^ bit; }
 
 }
 
 #define NYTL_FLAG_OPS(T) \
-	inline nytl::Flags<T> operator|(T a, T b) { return nytl::Flags<T>(a) | b; } \
-	inline nytl::Flags<T> operator&(T a, T b) { return nytl::Flags<T>(a) & b; } \
-	inline nytl::Flags<T> operator^(T a, T b) { return nytl::Flags<T>(a) ^ b; } \
-	inline nytl::Flags<T> operator~(T bit) { return nytl::Flags<T>(false, bit); }
+	constexpr nytl::Flags<T> operator|(T a, T b) noexcept { return nytl::Flags<T>(a) | b; } \
+	constexpr nytl::Flags<T> operator&(T a, T b) noexcept { return nytl::Flags<T>(a) & b; } \
+	constexpr nytl::Flags<T> operator^(T a, T b) noexcept { return nytl::Flags<T>(a) ^ b; } \
+	constexpr nytl::Flags<T> operator~(T bit) noexcept { return nytl::Flags<T>(false, bit); }
 
 #endif //header guard
