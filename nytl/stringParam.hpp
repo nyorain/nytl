@@ -66,14 +66,14 @@ public:
 	const char* data_ = nullptr;
 };
 
-bool operator==(const StringParam& param, const char* other) 
+inline bool operator==(const StringParam& param, const char* other) 
 	{ return std::strcmp(param.data(), other) == 0; }
-bool operator!=(const StringParam& param, const char* other) 
+inline bool operator!=(const StringParam& param, const char* other) 
 	{ return std::strcmp(param.data(), other) != 0; }
 
-bool operator==(const StringParam& param, const std::string& other)
+inline bool operator==(const StringParam& param, const std::string& other)
 	{ return std::strcmp(param.data(), other.c_str()) == 0; }
-bool operator!=(const StringParam& param, const std::string& other)
+inline bool operator!=(const StringParam& param, const std::string& other)
 	{ return std::strcmp(param.data(), other.c_str()) != 0; }
 
 
