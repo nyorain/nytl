@@ -1,17 +1,17 @@
 // The MIT License (MIT)
-// 
+//
 // Copyright (c) 2016 nyorain
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -68,10 +68,10 @@ public:
 
 public:
 	constexpr Range() noexcept = default;
-	constexpr Range(std::nullptr_t, std::size_t = 1) noexcept : data_(nullptr), size_(0) {}
-	constexpr Range(const T& value, std::size_t size = 1) noexcept : data_(&value), size_(size) {}
-	constexpr Range(const T* value, std::size_t size = 1) noexcept : data_(value), size_(size) {}
-	template<std::size_t N> constexpr Range(const T (&value)[N]) noexcept : data_(value), size_(N) {}
+	constexpr Range(std::nullptr_t, std::size_t = 0) noexcept : data_(nullptr), size_(0) {}
+	constexpr Range(const T& value, std::size_t size) noexcept : data_(&value), size_(size) {}
+	constexpr Range(const T* value, std::size_t size) noexcept : data_(value), size_(size) {}
+	template<std::size_t N> constexpr Range(const T (&arr)[N]) noexcept : data_(arr), size_(N) {}
 
 	constexpr Range(const std::initializer_list<T>& list) noexcept
 		: data_(list.begin()), size_(list.size()) {}
@@ -121,7 +121,7 @@ protected:
 ///\{
 ///Utility functions for easily constructing a range object.
 ///Only needed until c++17.
-template<typename T, typename = std::enable_if_t<!std::is_pointer<T>::value>>
+template<typename T>
 Range<T> constexpr makeRange(const T& value, std::size_t size){ return {value, size}; }
 
 template<template<class...> typename C, typename T, typename... TA> Range<T>
