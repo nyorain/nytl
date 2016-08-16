@@ -27,20 +27,21 @@
 
 #include <cstdlib>
 #include <stdexcept>
-#include <type_traits>
-
-#include <vector>
-#include <string>
-#include <array>
 
 namespace nytl
 {
 
-///The Range class represents a part of a non-owned contigous sequence.
+namespace detail { template<typename T, typename C, typename = void> struct ValidContainer; }
+
+///The Range class represents a part of a non-owned contiguous sequence.
 ///Can be useful to pass mulitple parameters (without size limitations) to a function.
 ///Does not allocate any additional memory on the heap since it simply references the
 ///sequence it was constructed with. Therefore one must assure that the sequence will live longer
 ///than the Range object.
+///It can be implicitly constructed (converted) from containers that have a "data" and a
+///"size" member function, e.g. std::vector, std::string and std::string.
+///Note that one cannot construct a Range from non-contiguous containers such as list,
+///deque or map.
 ///Alternative names: span, array_view
 template<typename T>
 class Range
@@ -74,15 +75,13 @@ public:
 	constexpr Range(std::nullptr_t, std::size_t = 0) noexcept : data_(nullptr), size_(0) {}
 	constexpr Range(const T& value, std::size_t size) noexcept : data_(&value), size_(size) {}
 	constexpr Range(const T* value, std::size_t size) noexcept : data_(value), size_(size) {}
-
 	template<std::size_t N> constexpr Range(const T (&arr)[N]) noexcept : data_(arr), size_(N) {}
-	template<std::size_t N> Range(const std::array<T, N>& o) noexcept : data_(o.data()), size_(N) {}
-
-	Range(const std::vector<T>& vector) noexcept : data_(vector.data()), size_(vector.size()) {}
-	Range(const std::basic_string<T>& str) noexcept : data_(str.data()), size_(str.size()) {}
 
 	constexpr Range(const std::initializer_list<T>& list) noexcept
 		: data_(list.begin()), size_(list.size()) {}
+
+	template<typename C, typename = typename detail::ValidContainer<T, C>::type>
+	Range(const C& con) noexcept : data_(con.size()), size_(con.size()) {}
 
 	constexpr ConstPointer data() const noexcept { return data_; }
 	constexpr std::size_t size() const noexcept { return size_; }
@@ -129,12 +128,32 @@ protected:
 template<typename T>
 Range<T> constexpr makeRange(const T& value, std::size_t size){ return {value, size}; }
 
-template<template<class...> typename C, typename T, typename... TA> Range<T>
-makeRange(const C<T, TA...>& container){ return Range<T>(container); }
+template<typename C> constexpr Range<typename C::value_type>
+makeRange(const C& container){ return {container}; }
 
 template<typename T, std::size_t N> Range<T>
 makeRange(const T (&array)[N]) { return Range<T>(array); }
 ///\}
+
+
+namespace detail
+{
+
+template<typename T, typename C>
+struct ValidContainer<T, C,
+	typename std::enable_if<
+		std::is_convertible<
+			decltype(*std::declval<C>().data()),
+			const T&
+		>::value &&
+		std::is_convertible<
+			decltype(std::declval<C>().size()),
+			std::size_t
+		>::value
+	>::type
+> { using type = void; };
+
+}
 
 }
 
