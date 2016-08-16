@@ -27,6 +27,7 @@
 
 #include <cstdlib>
 #include <stdexcept>
+#include <type_traits>
 
 #include <vector>
 #include <string>
@@ -34,8 +35,6 @@
 
 namespace nytl
 {
-
-namespace detail { template<typename T, typename C, typename = void> struct ValidContainer; }
 
 ///The Range class represents a part of a non-owned contigous sequence.
 ///Can be useful to pass mulitple parameters (without size limitations) to a function.
