@@ -128,7 +128,7 @@ protected:
 template<typename T>
 Range<T> constexpr makeRange(const T& value, std::size_t size){ return {value, size}; }
 
-template<typename C> constexpr Range<typename C::value_type>
+template<typename C> constexpr Range<decltype(*std::declval<C>().data())>
 makeRange(const C& container){ return {container}; }
 
 template<typename T, std::size_t N> Range<T>
