@@ -28,6 +28,10 @@
 #include <cstdlib>
 #include <stdexcept>
 
+#include <vector>
+#include <string>
+#include <array>
+
 namespace nytl
 {
 
@@ -71,13 +75,15 @@ public:
 	constexpr Range(std::nullptr_t, std::size_t = 0) noexcept : data_(nullptr), size_(0) {}
 	constexpr Range(const T& value, std::size_t size) noexcept : data_(&value), size_(size) {}
 	constexpr Range(const T* value, std::size_t size) noexcept : data_(value), size_(size) {}
+
 	template<std::size_t N> constexpr Range(const T (&arr)[N]) noexcept : data_(arr), size_(N) {}
+	template<std::size_t N> Range(const std::array<T, N>& o) noexcept : data_(o.data()), size_(N) {}
+
+	Range(const std::vector<T>& vector) noexcept : data_(vector.data()), size_(vector.size()) {}
+	Range(const std::basic_string<T>& str) noexcept : data_(str.data()), size_(str.size()) {}
 
 	constexpr Range(const std::initializer_list<T>& list) noexcept
 		: data_(list.begin()), size_(list.size()) {}
-
-	template<typename C, typename = typename detail::ValidContainer<T, C>::type>
-	Range(const C& con) noexcept : data_(&(*con.begin())), size_(con.end() - con.begin()) {}
 
 	constexpr ConstPointer data() const noexcept { return data_; }
 	constexpr std::size_t size() const noexcept { return size_; }
@@ -130,26 +136,6 @@ makeRange(const C<T, TA...>& container){ return Range<T>(container); }
 template<typename T, std::size_t N> Range<T>
 makeRange(const T (&array)[N]) { return Range<T>(array); }
 ///\}
-
-
-namespace detail
-{
-
-template<typename T, typename C>
-struct ValidContainer<T, C,
-	typename std::enable_if<
-		std::is_convertible<
-			decltype(*std::declval<C>().begin()),
-			const T&
-		>::value &&
-		std::is_convertible<
-			decltype(std::declval<C>().end() - std::declval<C>().begin()),
-			std::size_t
-		>::value
-	>::type
-> { using type = void; };
-
-}
 
 }
 
