@@ -30,7 +30,6 @@
 #ifndef NYTL_INCLUDE_NYTL_HPP
 #define NYTL_INCLUDE_NYTL_HPP
 
-#include <nytl/any.hpp>
 #include <nytl/cache.hpp>
 #include <nytl/callback.hpp>
 #include <nytl/clone.hpp>
@@ -51,6 +50,7 @@
 #include <nytl/referenced.hpp>
 #include <nytl/refVec.hpp>
 #include <nytl/scalar.hpp>
+#include <nytl/scope.hpp>
 #include <nytl/simplex.hpp>
 #include <nytl/stringParam.hpp>
 #include <nytl/system.hpp>
