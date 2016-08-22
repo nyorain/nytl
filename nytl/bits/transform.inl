@@ -1,26 +1,24 @@
-/*
- * The MIT License (MIT)
- *
- * Copyright (c) 2016 nyorain
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+// The MIT License (MIT)
+//
+// Copyright (c) 2016 nyorain
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 #pragma once
 
@@ -156,24 +154,24 @@ SquareMat<D, P> rotateCopy(SquareMat<D, P> mat, const Vec<D, P>& rot)
 }
 
 template<typename P>
-SquareMat<4, P> perspective3(P left, P right, P top, P bottom, P pnear, P far)
+SquareMat<4, P> frustrum3(P left, P right, P top, P bottom, P pnear, P far)
 {
 	auto ret = SquareMat<4, P>(0);
 
 	ret[0][0] = (P(2) * pnear) / (right - left);
 	ret[1][1] = (P(2) * pnear) / (top - bottom);
+	ret[2][2] = -(far * pnear) / (far - pnear);
 
-	ret[2][0] = (right + left) / (right - left);
-	ret[2][1] = (top + bottom) / (top - bottom);
-	ret[2][2] = (-far - pnear) / (far - pnear);
-	ret[2][3] = -1;
+	ret[0][2] = (right + left) / (right - left);
+	ret[1][2] = (top + bottom) / (top - bottom);
+	ret[3][2] = -1;
 
-	ret[3][2] = (P(-2) * far * pnear) / (far - pnear);
+	ret[2][3] = (P(-2) * far * pnear) / (far - pnear);
 	return ret;
 }
 
 template<typename P>
-SquareMat<4, P> perspective3Symmetrical(P width, P height, P pnear, P pfar)
+SquareMat<4, P> frustum3Symmetrical(P width, P height, P pnear, P pfar)
 {
 	return perspective3(-width / P(2), width / P(2), height / P(2), -height / P(2), pnear, pfar);
 }
@@ -188,9 +186,9 @@ SquareMat<4, P> perspective3(P fov, P aspect, P pnear, P pfar)
 	ret[1][1] = f;
 
 	ret[2][2] = -(pfar + pnear) / (pfar - pnear);
-	ret[2][3] = -1;
+	ret[3][2] = -1;
 
-	ret[3][2] = -(P(2) * pfar * pnear) / (pfar - pnear);
+	ret[2][3] = -(P(2) * pfar * pnear) / (pfar - pnear);
 	return ret;
 }
 
@@ -202,12 +200,11 @@ SquareMat<4, P> ortho3(P left, P right, P top, P bottom, P pnear, P far)
 
 	ret[0][0] = P(2) / (right - left);
 	ret[1][1] = P(2) / (top - bottom);
+	ret[2][2] = P(2) / (far - pnear);
 
-	ret[2][2] = P(-2) / (far - pnear);
-
-	ret[3][0] = - ((right + left) / (right - left));
-	ret[3][1] = - ((top + bottom) / (top - bottom));
-	ret[3][2] = - (far + pnear) / (far - pnear);
+	ret[0][3] = - ((right + left) / (right - left));
+	ret[1][3] = - ((top + bottom) / (top - bottom));
+	ret[2][3] = - ((far + pnear) / (far - pnear));
 	ret[3][3] = 1;
 	return ret;
 }
@@ -221,17 +218,19 @@ SquareMat<4, P> ortho3(P width, P height, P pnear, P pfar)
 template<typename P>
 SquareMat<4, P> lookAt(const Vec3<P>& eye, const Vec3<P>& center, const Vec3<P>& up)
 {
-	const auto f = normalize(center - eye);
-	const auto s = normalize(cross(f, up));
-	const auto u = cross(s, f);
+	const auto z = normalize(center - eye); //z
+	const auto x = normalize(cross(z, up)); //x
+	const auto y = cross(x, z); //y
 
 	auto ret = identityMat<4, P>();
-	ret.col(0) = s;
-	ret.col(1) = u;
-	ret.col(2) = -f;
-	ret[3][0] = -dot(s, eye);
-	ret[3][1] = -dot(u, eye);
-	ret[3][2] = dot(f, eye);
+
+	ret.row(0) = x;
+	ret.row(1) = y;
+	ret.row(2) = -z;
+
+	ret[0][3] = -dot(x, eye);
+	ret[1][3] = -dot(y, eye);
+	ret[2][3] = dot(z, eye);
 
 	return ret;
 }
@@ -239,5 +238,3 @@ SquareMat<4, P> lookAt(const Vec3<P>& eye, const Vec3<P>& center, const Vec3<P>&
 #ifdef DOXYGEN
 }
 #endif
-
-#endif //header guard

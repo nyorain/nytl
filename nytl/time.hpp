@@ -29,7 +29,6 @@
 #define NYTL_INCLUDE_TIME_HPP
 
 #include <chrono>
-#include <ratio>
 
 ///This enabled the chrono literals
 using namespace std::literals::chrono_literals;
