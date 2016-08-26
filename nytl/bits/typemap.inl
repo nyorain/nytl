@@ -25,8 +25,10 @@
 #ifndef NYTL_INCLUDE_TYPEMAP_INL
 #define NYTL_INCLUDE_TYPEMAP_INL
 
+#include <nytl/bits/tmpUtil.inl>
 #include <istream>
 #include <memory>
+#include <any>
 
 namespace nytl
 {
@@ -45,7 +47,7 @@ struct Loader
 };
 
 template<typename T>
-struct Loader<T, void_t<decltype(T{}.load(std::cin))>>
+struct Loader<T, void_t<decltype(T{}.load(std::declval<std::istream>()))>>
 {
 	static bool call(std::istream& is, T& obj)
 	{
@@ -81,9 +83,9 @@ template<typename T, typename... Args> struct CreateWrapper<void, T, Args...>
     static void* call(Args... args) { return new T(args...); };
 };
 
-template<typename T, typename... Args> struct CreateWrapper<Any, T, Args...>
+template<typename T, typename... Args> struct CreateWrapper<std::any, T, Args...>
 {
-    static Any call(Args... args) { return Any(T(args...)); };
+    static std::any call(Args... args) { return Any(T(args...)); };
 };
 
 //createLoad
@@ -107,13 +109,13 @@ template<typename T, typename... Args> struct CreateLoadWrapper<void, T, Args...
 	};
 };
 
-template<typename T, typename... Args> struct CreateLoadWrapper<Any, T, Args...>
+template<typename T, typename... Args> struct CreateLoadWrapper<std::any, T, Args...>
 {
-    static Any call(std::istream& is, Args... args)
+    static std::any call(std::istream& is, Args... args)
 	{
 		auto ret = T(args...);
-		if(!load(is, ret)) return Any();
-		return Any(ret);
+		if(!load(is, ret)) return {};
+		return {ret};
 	};
 };
 
@@ -125,9 +127,9 @@ struct CheckValidWrapper
 };
 
 template<>
-struct CheckValidWrapper<Any>
+struct CheckValidWrapper<std::any>
 {
-	static bool call(const Any& obj){ return !obj.empty(); }
+	static bool call(const std::any& obj){ return obj.has_value(); }
 };
 
 } //namespace detail

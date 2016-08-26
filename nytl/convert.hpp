@@ -49,7 +49,7 @@ struct Converter<T, O, decltype(static_cast<T>(std::declval<O>()))>
 ///The convert function can be used to call specialization of the Converted struct.
 ///This can be used to implement free conversion operations in a consistent way.
 template<typename T, typename O>
-auto convert(const O& other) -> decltype(Converter<T, O>::call(other))
+auto convert(const O& other)
 {
 	return Converter<T, O>::call(other);
 }
@@ -70,6 +70,7 @@ public:
 ///Convert overload that only takes one template parameter which will be deduced.
 ///Returns a wrapper object that will implicitly cast into any object into which the given
 ///object of type O can be converted.
+///alternative name: auto_cast
 template<typename O> AutoCastable<O> convert(const O& other) { return {&other}; }
 
 }

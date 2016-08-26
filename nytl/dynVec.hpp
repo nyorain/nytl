@@ -51,6 +51,8 @@ using DynVecl = DynVec<long>;
 using DynVecul = DynVec<unsigned long>;
 using DynVecd = DynVec<double>;
 using DynVecb = DynVec<bool>;
+using DynVecs = DynVec<short>;
+using DynVecus = DynVec<unsigned short>;
 
 template<typename T>
 class Vec<dynamicSize, T>
@@ -102,9 +104,7 @@ public:
 
 	template<Size OD, typename OT>
 	Vec(const Vec<OD, OT>& other) : data_(other.size())
-	{
-		for(std::size_t i(0); i < other.size(); ++i) data_[i] = other[i];
-	}
+		{ for(std::size_t i(0); i < other.size(); ++i) data_[i] = other[i]; }
 
     Vec() = default;
     ~Vec() noexcept = default;
@@ -116,47 +116,39 @@ public:
     VecType& operator=(VecType&& other) noexcept = default;
 
     //operator
-    template <Size OD, typename ot> VecType& operator +=(const Vec<OD, ot>& lhs)
-		{ for(Size i = 0; i < min(lhs.size(), size()); i++) (*this)[i] += lhs[i]; return *this; }
-    template <Size OD, typename ot> VecType& operator -=(const Vec<OD, ot>& lhs)
-		{ for(Size i = 0; i < min(lhs.size(), size()); i++) (*this)[i] -= lhs[i]; return *this; }
-    template <Size OD, typename ot> VecType& operator *=(const Vec<OD, ot>& lhs)
-		{ for(Size i = 0; i < min(lhs.size(), size()); i++) (*this)[i] *= lhs[i]; return *this; }
-    template <Size OD, typename ot> VecType& operator /=(const Vec<OD, ot>& lhs)
-		{ for(Size i = 0; i < min(lhs.size(), size()); i++) (*this)[i] /= lhs[i]; return *this; }
-    template <Size OD, typename ot> VecType& operator %=(const Vec<OD, ot>& lhs)
-		{ for(Size i = 0; i < min(lhs.size(), size()); i++) (*this)[i] %= lhs[i]; return *this; }
-    template <Size OD, typename ot> VecType& operator |=(const Vec<OD, ot>& lhs)
-		{ for(Size i = 0; i < min(lhs.size(), size()); i++) (*this)[i] |= lhs[i]; return *this; }
-    template <Size OD, typename ot> VecType& operator ^=(const Vec<OD, ot>& lhs)
-		{ for(Size i = 0; i < min(lhs.size(), size()); i++) (*this)[i] ^= lhs[i]; return *this; }
-    template <Size OD, typename ot> VecType& operator &=(const Vec<OD, ot>& lhs)
-		{ for(Size i = 0; i < min(lhs.size(), size()); i++) (*this)[i] &= lhs[i]; return *this; }
-    template <Size OD, typename ot> VecType& operator >>=(const Vec<OD, ot>& lhs)
-		{ for(Size i = 0; i < min(lhs.size(), size()); i++) (*this)[i] >>= lhs[i]; return *this; }
-    template <Size OD, typename ot> VecType& operator <<=(const Vec<OD, ot>& lhs)
-		{ for(Size i = 0; i < min(lhs.size(), size()); i++) (*this)[i] <<= lhs[i]; return *this; }
+    template <Size OD, typename OT> constexpr VecType& operator +=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] += lhs[i];  return *this; }
+    template <Size OD, typename OT> constexpr VecType& operator -=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] -= lhs[i];  return *this; }
+    template <Size OD, typename OT> constexpr VecType& operator *=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] *= lhs[i];  return *this; }
+    template <Size OD, typename OT> constexpr VecType& operator /=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] /= lhs[i];  return *this; }
+    template <Size OD, typename OT> constexpr VecType& operator %=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] %= lhs[i];  return *this; }
+    template <Size OD, typename OT> constexpr VecType& operator |=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] |= lhs[i];  return *this; }
+    template <Size OD, typename OT> constexpr VecType& operator ^=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] ^= lhs[i];  return *this; }
+    template <Size OD, typename OT> constexpr VecType& operator &=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] &= lhs[i];  return *this; }
 
-    template<typename ot> VecType& operator +=(const ot& lhs)
-		{ for(auto& val : *this) val += lhs; return *this; }
-    template<typename ot> VecType& operator -=(const ot& lhs)
-		{ for(auto& val : *this) val -= lhs; return *this; }
-    template<typename ot> VecType& operator *=(const ot& lhs)
-		{ for(auto& val : *this) val *= lhs; return *this; }
-    template<typename ot> VecType& operator /=(const ot& lhs)
-		{ for(auto& val : *this) val /= lhs; return *this; }
-    template<typename ot> VecType& operator %=(const ot& lhs)
-		{ for(auto& val : *this) val %= lhs; return *this; }
-    template<typename ot> VecType& operator |=(const ot& lhs)
-		{ for(auto& val : *this) val |= lhs; return *this; }
-    template<typename ot> VecType& operator ^=(const ot& lhs)
-		{ for(auto& val : *this) val ^= lhs; return *this; }
-    template<typename ot> VecType& operator &=(const ot& lhs)
-		{ for(auto& val : *this) val &= lhs; return *this; }
-    template<typename ot> VecType& operator >>=(const ot& lhs)
-		{ for(auto& val : *this) val >>= lhs; return *this; }
-    template<typename ot> VecType& operator <<=(const ot& lhs)
-		{ for(auto& val : *this) val <<= lhs; return *this; }
+    template<typename OT> constexpr VecType& operator +=(OT lhs)
+		{ for(auto& val : *this) val += lhs;  return *this; }
+    template<typename OT> constexpr VecType& operator -=(OT lhs)
+		{ for(auto& val : *this) val -= lhs;  return *this; }
+    template<typename OT> constexpr VecType& operator *=(OT lhs)
+		{ for(auto& val : *this) val *= lhs;  return *this; }
+    template<typename OT> constexpr VecType& operator /=(OT lhs)
+		{ for(auto& val : *this) val /= lhs;  return *this; }
+    template<typename OT> constexpr VecType& operator %=(OT lhs)
+		{ for(auto& val : *this) val %= lhs;  return *this; }
+    template<typename OT> constexpr VecType& operator |=(OT lhs)
+		{ for(auto& val : *this) val |= lhs;  return *this; }
+    template<typename OT> constexpr VecType& operator ^=(OT lhs)
+		{ for(auto& val : *this) val ^= lhs;  return *this; }
+    template<typename OT> constexpr VecType& operator &=(OT lhs)
+		{ for(auto& val : *this) val &= lhs;  return *this; }
 
     VecType operator-() const
 		{ VecType ret{}; for(Size i(0); i < size(); i++) ret[i] -= (*this)[i]; return ret; }
@@ -232,6 +224,7 @@ public:
     ConstReference back() const noexcept { return data_.back(); }
 
 	void swap(VecType& other){ data_.swap(other.data_); }
+	friend constexpr void swap(VecType& a, VecType& b) { a.swap(b); }
 };
 
 }

@@ -238,3 +238,5 @@ SquareMat<4, P> lookAt(const Vec3<P>& eye, const Vec3<P>& center, const Vec3<P>&
 #ifdef DOXYGEN
 }
 #endif
+
+#endif //header guard

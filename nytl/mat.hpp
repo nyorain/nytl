@@ -49,6 +49,8 @@ class Mat;
 
 ///\ingroup math
 ///Matrix template class.
+///Row major. Note that iteration over the matrix iterates over all components as laid out in memory
+///order instead of iterating over the rows.
 template<std::size_t R, std::size_t C, typename P> class Mat :
 	DeriveDummy<typename std::enable_if<(R > 0) && (C > 0) && (!std::is_reference<P>::value)>::type>
 {
@@ -68,11 +70,11 @@ public:
     using difference_type = std::ptrdiff_t;
 
     using MatType = Mat<R, C, P>;
-    using rows_Vec = Vec<R, P>;
-    using cols_Vec = Vec<C, P>;
+    using RowType = Vec<R, P>;
+    using ColType = Vec<C, P>;
 
     static constexpr bool is_squared = (R == C);
-    static constexpr size_type Mat_size = R * C;
+    static constexpr size_type MatSize = R * C;
 
 	static constexpr Size rows() { return R; }
 	static constexpr Size cols() { return C; }
@@ -81,18 +83,23 @@ public:
 	Vec<R, Vec<C, P>> data_;
 
 public:
+	///Constructs the matrix from the given components.
     template<typename... Args, typename = typename
 		std::enable_if_t<
 			std::is_convertible<
 				std::tuple<Args...>,
-				TypeTuple<value_type, Mat_size>
+				TypeTuple<value_type, MatSize>
 			>::value>
 		>
     Mat(Args&&... args) noexcept
 		{ detail::InitMatData<R * C>::call(data_, std::make_tuple(args...)); }
 
+	///Inits all matrix components with the given value
 	Mat(const P& val) noexcept
 		{ detail::InitMatData<R * C>::call(data_, val); }
+
+	///Constructs the rows from the given vectors
+	Mat(const Vec<R, Vec<C, P>>& rows) noexcept : data_(rows) {}
 
 	Mat() noexcept = default;
 	~Mat() noexcept = default;
@@ -103,12 +110,12 @@ public:
 	MatType& operator=(const MatType& other) noexcept = default;
 	MatType& operator=(MatType&& other) noexcept = default;
 
-	///Initialized the Matrix with the given values
+	///Initialize the Matrix with the given values
     template<typename... Args, typename = typename
 		std::enable_if_t<
 			std::is_convertible<
 				std::tuple<Args...>,
-				TypeTuple<value_type, Mat_size>
+				TypeTuple<value_type, MatSize>
 			>::value>
 		>
     void init(Args&&... args)
@@ -140,7 +147,7 @@ public:
 	std::unique_ptr<P[]> copyData() const { return detail::CopyMatData<R * C>::call(data_); }
 
 	///Returns a std::tuple filled with the components of the Matrix
-	TypeTuple<P, Mat_size> asTuple() const { return detail::MatTuple<R * C>::call(data_); }
+	TypeTuple<P, MatSize> asTuple() const { return detail::MatTuple<R * C>::call(data_); }
 
 	///Swaps the both given columns.
 	void swapCol(std::size_t a, std::size_t b){ std::swap(col(a), col(b)); }
@@ -178,7 +185,7 @@ public:
     template<std::size_t OR, std::size_t OC, class OP> operator Mat<OR, OC, OP>() const;
 
     //stl container
-    constexpr size_type size() const { return Mat_size; }
+    constexpr size_type size() const { return MatSize; }
     constexpr bool empty() const { return size() == 0; }
 
     void fill(const value_type& val) { for(auto& r : data_)for(auto& c : r) c = val; }
@@ -187,9 +194,9 @@ public:
     const_iterator begin() const noexcept { return &data_[0][0]; }
     const_iterator cbegin() const noexcept { return &data_[0][0]; }
 
-    iterator end() noexcept { return begin() + Mat_size; }
-    const_iterator end() const noexcept { return begin() + Mat_size; }
-    const_iterator cend() const noexcept { return begin() + Mat_size; }
+    iterator end() noexcept { return begin() + MatSize; }
+    const_iterator end() const noexcept { return begin() + MatSize; }
+    const_iterator cend() const noexcept { return begin() + MatSize; }
 
     reverse_iterator rbegin() noexcept { return reverse_iterator(end()); }
     const_reverse_iterator rbegin() const noexcept { return const_reverse_iterator(cend()); }

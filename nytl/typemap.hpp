@@ -28,8 +28,6 @@
 #ifndef NYTL_INCLUDE_TYPEMAP_HPP
 #define NYTL_INCLUDE_TYPEMAP_HPP
 
-#include <nytl/any.hpp>
-#include <nytl/bits/tmpUtil.inl>
 #include <nytl/bits/typemap.inl>
 
 #include <unordered_map>
@@ -53,7 +51,7 @@ namespace nytl
 ///passsing) and Any (prefer this method over void). Defaulted to Any.
 ///\tparam CA Additional construction args an objects needs on creation.
 ///\sa Serializer
-template<typename I, typename B = Any, typename... CArgs>
+template<typename I, typename B = std::any, typename... CArgs>
 class Typemap
 {
 public:
@@ -61,7 +59,7 @@ public:
 	using Identifier = I;
     using Pointer = typename std::conditional<
 		std::is_same<Base, void>::value, void*, typename std::conditional<
-		std::is_same<Base, Any>::value, Any, std::unique_ptr<Base>>::type>::type;
+		std::is_same<Base, std::any>::value, std::any, std::unique_ptr<Base>>::type>::type;
 	template <typename T> using Factory = detail::CreateWrapper<B, T>;
 	template <typename T> using LoadFactory = detail::CreateLoadWrapper<B, T, CArgs...>;
 

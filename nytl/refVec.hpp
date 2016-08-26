@@ -48,6 +48,8 @@ using RefVec2c = RefVec2<char>;
 using RefVec2uc = RefVec2<unsigned char>;
 using RefVec2l = RefVec2<long>;
 using RefVec2ul = RefVec2<unsigned long>;
+using RefVec2s = RefVec2<short>;
+using RefVec2us = RefVec2<unsigned short>;
 
 using RefVec3f = RefVec3<float>;
 using RefVec3i = RefVec3<int>;
@@ -57,6 +59,8 @@ using RefVec3c = RefVec3<char>;
 using RefVec3uc = RefVec3<unsigned char>;
 using RefVec3l = RefVec3<long>;
 using RefVec3ul = RefVec3<unsigned long>;
+using RefVec3s = RefVec3<short>;
+using RefVec3us = RefVec3<unsigned short>;
 
 using RefVec4f = RefVec4<float>;
 using RefVec4i = RefVec4<int>;
@@ -66,6 +70,8 @@ using RefVec4c = RefVec4<char>;
 using RefVec4uc = RefVec4<unsigned char>;
 using RefVec4l = RefVec4<long>;
 using RefVec4ul = RefVec4<unsigned long>;
+using RefVec4s = RefVec4<short>;
+using RefVec4us = RefVec4<unsigned short>;
 
 template<size_t D, typename T>
 class Vec<D, T&>
@@ -105,10 +111,10 @@ public:
 	using difference_type = Difference;
 
 public:
-    constexpr Size size() const noexcept { return dim; }
-    constexpr Size length() const noexcept { return dim; }
-    constexpr Size max_size() const noexcept { return dim; }
-    constexpr bool empty() const noexcept { return dim == 0; }
+    static constexpr Size size() noexcept { return dim; }
+    static constexpr Size length() noexcept { return dim; }
+    static constexpr Size max_size() noexcept { return dim; }
+    static constexpr bool empty() noexcept { return dim == 0; }
 
 public:
     pointer data_[dim];
@@ -121,65 +127,65 @@ public:
 				TypeTuple<value_type, dim>
 			>::value
 		>>
-    Vec(Args&&... args) : data_{&args...} {}
+    constexpr Vec(Args&&... args) : data_{&args...} {}
     ~Vec() noexcept = default;
 
-    Vec(const RefVecType& other) noexcept = default;
-    Vec(const VecType& other) noexcept
+    constexpr Vec(const RefVecType& other) noexcept = default;
+    constexpr Vec(const VecType& other) noexcept
 		{ for(Size i(0); i < dim; ++i) data_[i] = &other[i]; }
 
-    RefVecType& operator=(const VecType& other) noexcept
+    constexpr RefVecType& operator=(const VecType& other) noexcept
 		{ for(Size i(0); i < dim; ++i) *data_[i] = other[i]; return *this; }
 
     //operator
-    template <std::size_t OD, typename ot> RefVecType& operator +=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] += lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator -=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] -= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator *=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] *= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator /=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] /= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator %=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] %= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator |=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] |= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator ^=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] ^= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator &=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] &= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator >>=(const Vec<OD, ot>& lhs)
+    template<Size OD, typename OT> constexpr VecType& operator+=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] += lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator-=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] -= lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator*=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] *= lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator/=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] /= lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator%=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] %= lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator|=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] |= lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator^=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] ^= lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator&=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] &= lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator>>=(const Vec<OD, OT>& lhs)
 		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] >>= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator <<=(const Vec<OD, ot>& lhs)
+    template<Size OD, typename OT> constexpr VecType& operator<<=(const Vec<OD, OT>& lhs)
 		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] <<= lhs[i]; return *this; }
 
-    template<typename OT> RefVecType& operator +=(OT lhs)
+    template<typename OT> constexpr VecType& operator+=(OT lhs)
 		{ for(auto& val : *this) val += lhs; return *this; }
-    template<typename OT> RefVecType& operator -=(OT lhs)
+    template<typename OT> constexpr VecType& operator-=(OT lhs)
 		{ for(auto& val : *this) val -= lhs; return *this; }
-    template<typename OT> RefVecType& operator *=(OT lhs)
+    template<typename OT> constexpr VecType& operator*=(OT lhs)
 		{ for(auto& val : *this) val *= lhs; return *this; }
-    template<typename OT> RefVecType& operator /=(OT lhs)
+    template<typename OT> constexpr VecType& operator/=(OT lhs)
 		{ for(auto& val : *this) val /= lhs; return *this; }
-    template<typename OT> RefVecType& operator %=(OT lhs)
+    template<typename OT> constexpr VecType& operator%=(OT lhs)
 		{ for(auto& val : *this) val %= lhs; return *this; }
-    template<typename OT> RefVecType& operator |=(OT lhs)
+    template<typename OT> constexpr VecType& operator|=(OT lhs)
 		{ for(auto& val : *this) val |= lhs; return *this; }
-    template<typename OT> RefVecType& operator ^=(OT lhs)
+    template<typename OT> constexpr VecType& operator^=(OT lhs)
 		{ for(auto& val : *this) val ^= lhs; return *this; }
-    template<typename OT> RefVecType& operator &=(OT lhs)
+    template<typename OT> constexpr VecType& operator&=(OT lhs)
 		{ for(auto& val : *this) val &= lhs; return *this; }
-    template<typename OT> RefVecType& operator >>=(OT lhs)
+    template<typename OT> constexpr VecType& operator>>=(OT lhs)
 		{ for(auto& val : *this) val >>= lhs; return *this; }
-    template<typename OT> RefVecType& operator <<=(OT lhs)
+    template<typename OT> constexpr VecType& operator<<=(OT lhs)
 		{ for(auto& val : *this) val <<= lhs; return *this; }
 
-    VecType operator-() const
+    constexpr VecType operator-() const
 		{ VecType ret{}; for(size_t i(0); i < size(); i++) ret[i] -= (*this)[i]; return ret; }
 
     template <Size OD, typename OT, typename =
 		typename std::enable_if<!std::is_reference<OT>::value>::type>
-	operator Vec<OD, OT>() const
+	constexpr operator Vec<OD, OT>() const
 	{
 		auto ret = Vec<OD, OT> (size());
 		for(size_t i(0); i < min(size(), ret.size()); i++)
@@ -188,7 +194,7 @@ public:
 	}
 
 	template<Size S>
-	Vec<S, T> subVec(Size position = 0) const
+	constexpr Vec<S, T> subVec(Size position = 0) const
 	{
 		auto ret = Vec<S, T> {};
 		for(std::size_t i(0); i < min(S, size() - position); ++i)
@@ -207,46 +213,48 @@ public:
 	}
 
 	//stl
-	//TODO: correct data implementations
+	//TODO: correct data implementation
+	//could be done holding an internal Vec. Data would become invalid and must be const...
+	//just not implement data?
     //ConstPointer data() const noexcept { return data_; }
     //pointer data() noexcept { return data_; }
 
-    void fill(const Value& val) { for(auto& v : data_) *v = val; }
+    constexpr void fill(const Value& val) { for(auto& v : data_) *v = val; }
 
-    Iterator begin() noexcept { return Iterator(*this); }
-    ConstIterator begin() const noexcept { return ConstIterator(*this); }
-    ConstIterator cbegin() const noexcept { return ConstIterator(*this); }
+    constexpr Iterator begin() noexcept { return Iterator(*this); }
+    constexpr ConstIterator begin() const noexcept { return ConstIterator(*this); }
+    constexpr ConstIterator cbegin() const noexcept { return ConstIterator(*this); }
 
-    Iterator end() noexcept { return Iterator(*this, dim); }
-    ConstIterator end() const noexcept { return ConstIterator(*this, dim); }
-    ConstIterator cend() const noexcept { return ConstIterator(*this, dim); }
+    constexpr Iterator end() noexcept { return Iterator(*this, dim); }
+    constexpr ConstIterator end() const noexcept { return ConstIterator(*this, dim); }
+    constexpr ConstIterator cend() const noexcept { return ConstIterator(*this, dim); }
 
-    ReverseIterator rbegin() noexcept { return ReverseIterator(end()); }
-    ConstReverseIterator rbegin() const noexcept { return ConstReverseIterator(cend()); }
-    ConstReverseIterator crbegin() const noexcept { return ConstReverseIterator(cend()); }
+    constexpr ReverseIterator rbegin() noexcept { return ReverseIterator(end()); }
+    constexpr ConstReverseIterator rbegin() const noexcept { return ConstReverseIterator(cend()); }
+    constexpr ConstReverseIterator crbegin() const noexcept { return ConstReverseIterator(cend()); }
 
-    ReverseIterator rend() noexcept { return ReverseIterator(begin()); }
-    ConstReverseIterator rend() const noexcept { return ConstReverseIterator(cbegin()); }
-    ConstReverseIterator crend() const noexcept { return constReverseIterator(cbegin()); }
+    constexpr ReverseIterator rend() noexcept { return ReverseIterator(begin()); }
+    constexpr ConstReverseIterator rend() const noexcept { return ConstReverseIterator(cbegin()); }
+    constexpr ConstReverseIterator crend() const noexcept { return constReverseIterator(cbegin()); }
 
-    Reference operator[](Size i){ return *data_[i]; }
-    ConstReference operator[](Size i) const { return *data_[i]; }
+    constexpr Reference operator[](Size i){ return *data_[i]; }
+    constexpr ConstReference operator[](Size i) const { return *data_[i]; }
 
-    Reference at(Size i)
+    constexpr Reference at(Size i)
 		{ if(i >= dim || i < 0) throw RangeError("nytl::Vec::at"); return *data_[i]; }
-    ConstReference at(Size i) const
+    constexpr ConstReference at(Size i) const
 		{ if(i >= dim || i < 0) throw RangeError("nytl::Vec::at"); return *data_[i]; }
 
-    Reference front() noexcept { return *data_[0]; }
-    ConstReference front() const noexcept { return *data_[0]; }
+    constexpr Reference front() noexcept { return *data_[0]; }
+    constexpr ConstReference front() const noexcept { return *data_[0]; }
 
-    Reference back() noexcept { return *data_[dim - 1]; }
-    ConstReference back() const noexcept { return *data_[dim - 1]; }
+    constexpr Reference back() noexcept { return *data_[dim - 1]; }
+    constexpr ConstReference back() const noexcept { return *data_[dim - 1]; }
 
-	void swap(VecType& other)
+	constexpr void swap(VecType& other)
 		{ for(Size i(0); i < size(); ++i) std::swap(*data_[i], other[i]); }
 
-	friend void swap(RefVecType& a, RefVecType& b) { a.swap(b); }
+	friend constexpr void swap(RefVecType& a, RefVecType& b) { a.swap(b); }
 };
 
 template<typename T> class Vec<2, T&>
@@ -286,73 +294,73 @@ public:
 	using difference_type = Difference;
 
 public:
-    constexpr Size size() const noexcept { return dim; }
-    constexpr Size length() const noexcept { return dim; }
-    constexpr Size max_size() const noexcept { return dim; }
-    constexpr bool empty() const noexcept { return dim == 0; }
+    static constexpr Size size() noexcept { return dim; }
+    static constexpr Size length() noexcept { return dim; }
+    static constexpr Size max_size() noexcept { return dim; }
+    static constexpr bool empty() noexcept { return dim == 0; }
 
 public:
     Reference x;
     Reference y;
 
 public:
-    Vec(Reference a, Reference b) : x(a), y(b) {}
+    constexpr Vec(Reference a, Reference b) : x(a), y(b) {}
     ~Vec() noexcept = default;
 
-    Vec(const RefVecType& other) noexcept = default;
+    constexpr Vec(const RefVecType& other) noexcept = default;
 
-    Vec(VecType& other) noexcept : x(other.x), y(other.y) {}
-    RefVecType& operator=(const VecType& other) noexcept
+    constexpr Vec(VecType& other) noexcept : x(other.x), y(other.y) {}
+    constexpr RefVecType& operator=(const VecType& other) noexcept
 		{ x = other.x; y = other.y; return *this; }
 
     //operator
-    template <std::size_t OD, typename ot> RefVecType& operator +=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] += lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator -=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] -= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator *=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] *= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator /=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] /= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator %=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] %= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator |=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] |= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator ^=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] ^= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator &=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] &= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator >>=(const Vec<OD, ot>& lhs)
+    template<Size OD, typename OT> constexpr VecType& operator+=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] += lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator-=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] -= lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator*=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] *= lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator/=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] /= lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator%=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] %= lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator|=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] |= lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator^=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] ^= lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator&=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] &= lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator>>=(const Vec<OD, OT>& lhs)
 		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] >>= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator <<=(const Vec<OD, ot>& lhs)
+    template<Size OD, typename OT> constexpr VecType& operator<<=(const Vec<OD, OT>& lhs)
 		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] <<= lhs[i]; return *this; }
 
-    template<typename OT> RefVecType& operator +=(OT lhs)
+    template<typename OT> constexpr VecType& operator+=(OT lhs)
 		{ for(auto& val : *this) val += lhs; return *this; }
-    template<typename OT> RefVecType& operator -=(OT lhs)
+    template<typename OT> constexpr VecType& operator-=(OT lhs)
 		{ for(auto& val : *this) val -= lhs; return *this; }
-    template<typename OT> RefVecType& operator *=(OT lhs)
+    template<typename OT> constexpr VecType& operator*=(OT lhs)
 		{ for(auto& val : *this) val *= lhs; return *this; }
-    template<typename OT> RefVecType& operator /=(OT lhs)
+    template<typename OT> constexpr VecType& operator/=(OT lhs)
 		{ for(auto& val : *this) val /= lhs; return *this; }
-    template<typename OT> RefVecType& operator %=(OT lhs)
+    template<typename OT> constexpr VecType& operator%=(OT lhs)
 		{ for(auto& val : *this) val %= lhs; return *this; }
-    template<typename OT> RefVecType& operator |=(OT lhs)
+    template<typename OT> constexpr VecType& operator|=(OT lhs)
 		{ for(auto& val : *this) val |= lhs; return *this; }
-    template<typename OT> RefVecType& operator ^=(OT lhs)
+    template<typename OT> constexpr VecType& operator^=(OT lhs)
 		{ for(auto& val : *this) val ^= lhs; return *this; }
-    template<typename OT> RefVecType& operator &=(OT lhs)
+    template<typename OT> constexpr VecType& operator&=(OT lhs)
 		{ for(auto& val : *this) val &= lhs; return *this; }
-    template<typename OT> RefVecType& operator >>=(OT lhs)
+    template<typename OT> constexpr VecType& operator>>=(OT lhs)
 		{ for(auto& val : *this) val >>= lhs; return *this; }
-    template<typename OT> RefVecType& operator <<=(OT lhs)
+    template<typename OT> constexpr VecType& operator<<=(OT lhs)
 		{ for(auto& val : *this) val <<= lhs; return *this; }
 
-    VecType operator-() const { return VecType(-x, -y); }
+    constexpr VecType operator-() const { return VecType(-x, -y); }
 
     template <Size OD, typename OT, typename =
 		typename std::enable_if<!std::is_reference<OT>::value>::type>
-	operator Vec<OD, OT>() const
+	constexpr operator Vec<OD, OT>() const
 	{
 		auto ret = Vec<OD, OT> (size());
 		for(size_t i(0); i < min(size(), ret.size()); i++)
@@ -361,7 +369,7 @@ public:
 	}
 
 	template<Size S>
-	Vec<S, T> subVec(Size position = 0) const
+	constexpr Vec<S, T> subVec(Size position = 0) const
 	{
 		auto ret = Vec<S, T> {};
 		for(std::size_t i(0); i < min(S, size() - position); ++i)
@@ -380,43 +388,43 @@ public:
 	}
 
     //stl norm stuff, std::array
-    ConstPointer data() const noexcept { return &x; }
-    Pointer data() noexcept { return &x; }
+    constexpr ConstPointer data() const noexcept { return &x; }
+    constexpr Pointer data() noexcept { return &x; }
 
-    void fill(const Value& val) { x = val; y = val; }
+    constexpr void fill(const Value& val) { x = val; y = val; }
 
-    Iterator begin() noexcept { return Iterator(*this); }
-    ConstIterator begin() const noexcept { return ConstIterator(*this); }
-    ConstIterator cbegin() const noexcept { return ConstIterator(*this); }
+    constexpr Iterator begin() noexcept { return Iterator(*this); }
+    constexpr ConstIterator begin() const noexcept { return ConstIterator(*this); }
+    constexpr ConstIterator cbegin() const noexcept { return ConstIterator(*this); }
 
-    Iterator end() noexcept { return Iterator(*this, dim); }
-    ConstIterator end() const noexcept { return ConstIterator(*this, dim); }
-    ConstIterator cend() const noexcept { return ConstIterator(*this, dim); }
+    constexpr Iterator end() noexcept { return Iterator(*this, dim); }
+    constexpr ConstIterator end() const noexcept { return ConstIterator(*this, dim); }
+    constexpr ConstIterator cend() const noexcept { return ConstIterator(*this, dim); }
 
-    ReverseIterator rbegin() noexcept { return ReverseIterator(end()); }
-    ConstReverseIterator rbegin() const noexcept { return ConstReverseIterator(cend()); }
-    ConstReverseIterator crbegin() const noexcept { return ConstReverseIterator(cend()); }
+    constexpr ReverseIterator rbegin() noexcept { return ReverseIterator(end()); }
+    constexpr ConstReverseIterator rbegin() const noexcept { return ConstReverseIterator(cend()); }
+    constexpr ConstReverseIterator crbegin() const noexcept { return ConstReverseIterator(cend()); }
 
-    ReverseIterator rend() noexcept { return ReverseIterator(begin()); }
-    ConstReverseIterator rend() const noexcept { return ConstReverseIterator(cbegin()); }
-    ConstReverseIterator crend() const noexcept { return ConstReverseIterator(cbegin()); }
+    constexpr ReverseIterator rend() noexcept { return ReverseIterator(begin()); }
+    constexpr ConstReverseIterator rend() const noexcept { return ConstReverseIterator(cbegin()); }
+    constexpr ConstReverseIterator crend() const noexcept { return ConstReverseIterator(cbegin()); }
 
-    Reference operator[](Size i){ if(i == 0) return x; return y; }
-    ConstReference operator[](Size i) const { if(i == 0) return x; return y; }
+    constexpr Reference operator[](Size i){ if(i == 0) return x; return y; }
+    constexpr ConstReference operator[](Size i) const { if(i == 0) return x; return y; }
 
-    Reference at(Size i)
+    constexpr Reference at(Size i)
 		{ if(i >= dim)	throw RangeError("nytl::RefVec::at"); return (*this)[i]; }
-    ConstReference at(Size i) const
+    constexpr ConstReference at(Size i) const
 		{ if(i >= dim) throw std::out_of_range("nytl::RefVec::at"); return (*this)[i]; }
 
-    Reference front() noexcept { return x; }
-    ConstReference front() const noexcept { return x; }
+    constexpr Reference front() noexcept { return x; }
+    constexpr ConstReference front() const noexcept { return x; }
 
-    Reference back() noexcept { return y; }
-    ConstReference back() const noexcept { return y; }
+    constexpr Reference back() noexcept { return y; }
+    constexpr ConstReference back() const noexcept { return y; }
 
-	void swap(VecType& other){ std::swap(x, other.x); std::swap(y, other.y); }
-	friend void swap(RefVecType& a, RefVecType& b) { a.swap(b); }
+	constexpr void swap(VecType& other){ std::swap(x, other.x); std::swap(y, other.y); }
+	friend constexpr void swap(RefVecType& a, RefVecType& b) { a.swap(b); }
 };
 
 template<typename T> class Vec<3, T&>
@@ -456,10 +464,10 @@ public:
 	using difference_type = Difference;
 
 public:
-    constexpr Size size() const noexcept { return dim; }
-    constexpr Size length() const noexcept { return dim; }
-    constexpr Size max_size() const noexcept { return dim; }
-    constexpr bool empty() const noexcept { return dim == 0; }
+    static constexpr Size size() noexcept { return dim; }
+    static constexpr Size length() noexcept { return dim; }
+    static constexpr Size max_size() noexcept { return dim; }
+    static constexpr bool empty() noexcept { return dim == 0; }
 
 public:
     Reference x;
@@ -467,63 +475,63 @@ public:
     Reference z;
 
 public:
-    Vec(Reference a, Reference b, Reference c) noexcept : x(a), y(b), z(c) {}
+    constexpr Vec(Reference a, Reference b, Reference c) noexcept : x(a), y(b), z(c) {}
     ~Vec() noexcept = default;
 
-    Vec(const RefVecType& other) noexcept = default;
+    constexpr Vec(const RefVecType& other) noexcept = default;
 
-    Vec(const VecType& other) noexcept : x(other.x), y(other.y), z(other.z) {}
-    RefVecType& operator=(const VecType& other) noexcept
+    constexpr Vec(const VecType& other) noexcept : x(other.x), y(other.y), z(other.z) {}
+    constexpr RefVecType& operator=(const VecType& other) noexcept
 		{ x = other.x; y = other.y; z = other.z; return *this; }
 
     //operator
-    template <std::size_t OD, typename ot> RefVecType& operator +=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] += lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator -=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] -= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator *=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] *= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator /=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] /= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator %=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] %= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator |=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] |= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator ^=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] ^= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator &=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] &= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator >>=(const Vec<OD, ot>& lhs)
+    template<Size OD, typename OT> constexpr VecType& operator+=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] += lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator-=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] -= lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator*=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] *= lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator/=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] /= lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator%=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] %= lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator|=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] |= lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator^=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] ^= lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator&=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] &= lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator>>=(const Vec<OD, OT>& lhs)
 		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] >>= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator <<=(const Vec<OD, ot>& lhs)
+    template<Size OD, typename OT> constexpr VecType& operator<<=(const Vec<OD, OT>& lhs)
 		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] <<= lhs[i]; return *this; }
 
-    template<typename OT> RefVecType& operator +=(OT lhs)
+    template<typename OT> constexpr VecType& operator+=(OT lhs)
 		{ for(auto& val : *this) val += lhs; return *this; }
-    template<typename OT> RefVecType& operator -=(OT lhs)
+    template<typename OT> constexpr VecType& operator-=(OT lhs)
 		{ for(auto& val : *this) val -= lhs; return *this; }
-    template<typename OT> RefVecType& operator *=(OT lhs)
+    template<typename OT> constexpr VecType& operator*=(OT lhs)
 		{ for(auto& val : *this) val *= lhs; return *this; }
-    template<typename OT> RefVecType& operator /=(OT lhs)
+    template<typename OT> constexpr VecType& operator/=(OT lhs)
 		{ for(auto& val : *this) val /= lhs; return *this; }
-    template<typename OT> RefVecType& operator %=(OT lhs)
+    template<typename OT> constexpr VecType& operator%=(OT lhs)
 		{ for(auto& val : *this) val %= lhs; return *this; }
-    template<typename OT> RefVecType& operator |=(OT lhs)
+    template<typename OT> constexpr VecType& operator|=(OT lhs)
 		{ for(auto& val : *this) val |= lhs; return *this; }
-    template<typename OT> RefVecType& operator ^=(OT lhs)
+    template<typename OT> constexpr VecType& operator^=(OT lhs)
 		{ for(auto& val : *this) val ^= lhs; return *this; }
-    template<typename OT> RefVecType& operator &=(OT lhs)
+    template<typename OT> constexpr VecType& operator&=(OT lhs)
 		{ for(auto& val : *this) val &= lhs; return *this; }
-    template<typename OT> RefVecType& operator >>=(OT lhs)
+    template<typename OT> constexpr VecType& operator>>=(OT lhs)
 		{ for(auto& val : *this) val >>= lhs; return *this; }
-    template<typename OT> RefVecType& operator <<=(OT lhs)
+    template<typename OT> constexpr VecType& operator<<=(OT lhs)
 		{ for(auto& val : *this) val <<= lhs; return *this; }
 
-    VecType operator-() const { return VecType(-x, -y, -z); }
+    constexpr VecType operator-() const { return VecType(-x, -y, -z); }
 
     template <Size OD, typename OT, typename =
 		typename std::enable_if<!std::is_reference<OT>::value>::type>
-	operator Vec<OD, OT>() const
+	constexpr operator Vec<OD, OT>() const
 	{
 		auto ret = Vec<OD, OT> (size());
 		for(size_t i(0); i < min(size(), ret.size()); i++)
@@ -532,7 +540,7 @@ public:
 	}
 
 	template<Size S>
-	Vec<S, T> subVec(Size position = 0) const
+	constexpr Vec<S, T> subVec(Size position = 0) const
 	{
 		auto ret = Vec<S, T> {};
 		for(std::size_t i(0); i < min(S, size() - position); ++i)
@@ -551,49 +559,49 @@ public:
 	}
 
     //stl norm stuff, std::array
-    ConstPointer data() const noexcept { return &x; }
-    Pointer data() noexcept { return &x; }
+    constexpr ConstPointer data() const noexcept { return &x; }
+    constexpr Pointer data() noexcept { return &x; }
 
-    void fill(const Value& val) { x = val; y = val; z = val; }
+    constexpr void fill(const Value& val) { x = val; y = val; z = val; }
 
-    Iterator begin() noexcept { return Iterator(*this); }
-    ConstIterator begin() const noexcept { return ConstIterator(*this); }
-    ConstIterator cbegin() const noexcept { return ConstIterator(*this); }
+    constexpr Iterator begin() noexcept { return Iterator(*this); }
+    constexpr ConstIterator begin() const noexcept { return ConstIterator(*this); }
+    constexpr ConstIterator cbegin() const noexcept { return ConstIterator(*this); }
 
-    Iterator end() noexcept { return Iterator(*this, dim); }
-    ConstIterator end() const noexcept { return ConstIterator(*this, dim); }
-    ConstIterator cend() const noexcept { return ConstIterator(*this, dim); }
+    constexpr Iterator end() noexcept { return Iterator(*this, dim); }
+    constexpr ConstIterator end() const noexcept { return ConstIterator(*this, dim); }
+    constexpr ConstIterator cend() const noexcept { return ConstIterator(*this, dim); }
 
-    ReverseIterator rbegin() noexcept { return ReverseIterator(end()); }
-    ConstReverseIterator rbegin() const noexcept { return ConstReverseIterator(cend()); }
-    ConstReverseIterator crbegin() const noexcept { return ConstReverseIterator(cend()); }
+    constexpr ReverseIterator rbegin() noexcept { return ReverseIterator(end()); }
+    constexpr ConstReverseIterator rbegin() const noexcept { return ConstReverseIterator(cend()); }
+    constexpr ConstReverseIterator crbegin() const noexcept { return ConstReverseIterator(cend()); }
 
-    ReverseIterator rend() noexcept { return ReverseIterator(begin()); }
-    ConstReverseIterator rend() const noexcept { return ConstReverseIterator(cbegin()); }
-    ConstReverseIterator crend() const noexcept { return ConstReverseIterator(cbegin()); }
+    constexpr ReverseIterator rend() noexcept { return ReverseIterator(begin()); }
+    constexpr ConstReverseIterator rend() const noexcept { return ConstReverseIterator(cbegin()); }
+    constexpr ConstReverseIterator crend() const noexcept { return ConstReverseIterator(cbegin()); }
 
-    Reference operator[](Size i){ if(i == 0) return x; if(i == 1) return y; return z; }
-    ConstReference operator[](Size i) const { if(i == 0) return x; if(i == 1) return y; return z; }
+    constexpr Reference operator[](Size i){ if(i == 0) return x; if(i == 1) return y; return z; }
+    constexpr ConstReference operator[](Size i) const { if(i == 0) return x; if(i == 1) return y; return z; }
 
-    Reference at(Size i)
+    constexpr Reference at(Size i)
 		{ if(i >= dim)	throw RangeError("nytl::RefVec::at"); return (*this)[i]; }
-    ConstReference at(Size i) const
+    constexpr ConstReference at(Size i) const
 		{ if(i >= dim) throw RangeError("nytl::RefVec::at"); return (*this)[i]; }
 
-    Reference front() noexcept { return x; }
-    ConstReference front() const noexcept { return x; }
+    constexpr Reference front() noexcept { return x; }
+    constexpr ConstReference front() const noexcept { return x; }
 
-    Reference back() noexcept { return z; }
-    ConstReference back() const noexcept { return z; }
+    constexpr Reference back() noexcept { return z; }
+    constexpr ConstReference back() const noexcept { return z; }
 
-	void swap(VecType& other)
+	constexpr void swap(VecType& other)
 		{ std::swap(x, other.x); std::swap(y, other.y); std::swap(z, other.z); }
-	friend void swap(RefVecType& a, RefVecType& b) { a.swap(b); }
+	friend constexpr void swap(RefVecType& a, RefVecType& b) { a.swap(b); }
 
     //custom
-    Vec2<Reference> xy() const noexcept { return Vec2<Reference>(x,y); }
-    Vec2<Reference> yz() const noexcept { return Vec2<Reference>(y,z); }
-    Vec2<Reference> xz() const noexcept { return Vec2<Reference>(x,z); }
+    constexpr Vec2<Reference> xy() const noexcept { return Vec2<Reference>(x,y); }
+    constexpr Vec2<Reference> yz() const noexcept { return Vec2<Reference>(y,z); }
+    constexpr Vec2<Reference> xz() const noexcept { return Vec2<Reference>(x,z); }
 };
 
 template<typename T> class Vec<4, T&>
@@ -633,10 +641,10 @@ public:
 	using difference_type = Difference;
 
 public:
-    constexpr Size size() const noexcept { return dim; }
-    constexpr Size length() const noexcept { return dim; }
-    constexpr Size max_size() const noexcept { return dim; }
-    constexpr bool empty() const noexcept { return dim == 0; }
+    static constexpr Size size() noexcept { return dim; }
+    static constexpr Size length() noexcept { return dim; }
+    static constexpr Size max_size() noexcept { return dim; }
+    static constexpr bool empty() noexcept { return dim == 0; }
 
 public:
     Reference x;
@@ -645,63 +653,64 @@ public:
     Reference w;
 
 public:
-    Vec(Reference a, Reference b, Reference c, Reference d) noexcept : x(a), y(b), z(c), w(d) {}
+    constexpr Vec(Reference a, Reference b, Reference c, Reference d) 
+		noexcept : x(a), y(b), z(c), w(d) {}
     ~Vec() noexcept = default;
 
-    Vec(const RefVecType& other) noexcept = default;
+    constexpr Vec(const RefVecType& other) noexcept = default;
 
-    Vec(const VecType& other) noexcept : x(other.x), y(other.y), z(other.z), w(other.w) {}
-    RefVecType& operator=(const VecType& other) noexcept
+    constexpr Vec(const VecType& other) noexcept : x(other.x), y(other.y), z(other.z), w(other.w) {}
+    constexpr RefVecType& operator=(const VecType& other) noexcept
 		{ x = other.x; y = other.y; z = other.z; w = other.w; return *this; }
 
     //operator
-    template <std::size_t OD, typename ot> RefVecType& operator +=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] += lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator -=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] -= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator *=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] *= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator /=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] /= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator %=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] %= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator |=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] |= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator ^=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] ^= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator &=(const Vec<OD, ot>& lhs)
-		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] &= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator >>=(const Vec<OD, ot>& lhs)
+    template<Size OD, typename OT> constexpr VecType& operator+=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] += lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator-=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] -= lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator*=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] *= lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator/=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] /= lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator%=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] %= lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator|=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] |= lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator^=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] ^= lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator&=(const Vec<OD, OT>& lhs)
+		{ for(Size i = 0; i < min(lhs.size(), dim); i++) (*this)[i] &= lhs[i];  return *this; }
+    template<Size OD, typename OT> constexpr VecType& operator>>=(const Vec<OD, OT>& lhs)
 		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] >>= lhs[i]; return *this; }
-    template <std::size_t OD, typename ot> RefVecType& operator <<=(const Vec<OD, ot>& lhs)
+    template<Size OD, typename OT> constexpr VecType& operator<<=(const Vec<OD, OT>& lhs)
 		{ for(size_t i = 0; i < min(lhs.size(), dim); i++) (*this)[i] <<= lhs[i]; return *this; }
 
-    template<typename OT> RefVecType& operator +=(OT lhs)
+    template<typename OT> constexpr VecType& operator+=(OT lhs)
 		{ for(auto& val : *this) val += lhs; return *this; }
-    template<typename OT> RefVecType& operator -=(OT lhs)
+    template<typename OT> constexpr VecType& operator-=(OT lhs)
 		{ for(auto& val : *this) val -= lhs; return *this; }
-    template<typename OT> RefVecType& operator *=(OT lhs)
+    template<typename OT> constexpr VecType& operator*=(OT lhs)
 		{ for(auto& val : *this) val *= lhs; return *this; }
-    template<typename OT> RefVecType& operator /=(OT lhs)
+    template<typename OT> constexpr VecType& operator/=(OT lhs)
 		{ for(auto& val : *this) val /= lhs; return *this; }
-    template<typename OT> RefVecType& operator %=(OT lhs)
+    template<typename OT> constexpr VecType& operator%=(OT lhs)
 		{ for(auto& val : *this) val %= lhs; return *this; }
-    template<typename OT> RefVecType& operator |=(OT lhs)
+    template<typename OT> constexpr VecType& operator|=(OT lhs)
 		{ for(auto& val : *this) val |= lhs; return *this; }
-    template<typename OT> RefVecType& operator ^=(OT lhs)
+    template<typename OT> constexpr VecType& operator^=(OT lhs)
 		{ for(auto& val : *this) val ^= lhs; return *this; }
-    template<typename OT> RefVecType& operator &=(OT lhs)
+    template<typename OT> constexpr VecType& operator&=(OT lhs)
 		{ for(auto& val : *this) val &= lhs; return *this; }
-    template<typename OT> RefVecType& operator >>=(OT lhs)
+    template<typename OT> constexpr VecType& operator>>=(OT lhs)
 		{ for(auto& val : *this) val >>= lhs; return *this; }
-    template<typename OT> RefVecType& operator <<=(OT lhs)
+    template<typename OT> constexpr VecType& operator<<=(OT lhs)
 		{ for(auto& val : *this) val <<= lhs; return *this; }
 
-    VecType operator-() const { return VecType(x, y, z); }
+    constexpr VecType operator-() const { return VecType(x, y, z); }
 
     template <Size OD, typename OT, typename =
 		typename std::enable_if<!std::is_reference<OT>::value>::type>
-	operator Vec<OD, OT>() const
+	constexpr operator Vec<OD, OT>() const
 	{
 		auto ret = Vec<OD, OT> (size());
 		for(size_t i(0); i < min(size(), ret.size()); i++)
@@ -710,7 +719,7 @@ public:
 	}
 
 	template<Size S>
-	Vec<S, T> subVec(Size position = 0) const
+	constexpr Vec<S, T> subVec(Size position = 0) const
 	{
 		auto ret = Vec<S, T> {};
 		for(std::size_t i(0); i < min(S, size() - position); ++i)
@@ -729,60 +738,60 @@ public:
 	}
 
     //stl norm stuff, std::array
-    ConstPointer data() const noexcept { return &x; }
-    Pointer data() noexcept { return &x; }
+    constexpr ConstPointer data() const noexcept { return &x; }
+    constexpr Pointer data() noexcept { return &x; }
 
-    void fill(const Value& val) { x = val; y = val; z = val; w = val; }
+    constexpr void fill(const Value& val) { x = val; y = val; z = val; w = val; }
 
-    Iterator begin() noexcept { return Iterator(*this); }
-    ConstIterator begin() const noexcept { return ConstIterator(*this); }
-    ConstIterator cbegin() const noexcept { return ConstIterator(*this); }
+    constexpr Iterator begin() noexcept { return Iterator(*this); }
+    constexpr ConstIterator begin() const noexcept { return ConstIterator(*this); }
+    constexpr ConstIterator cbegin() const noexcept { return ConstIterator(*this); }
 
-    Iterator end() noexcept { return Iterator(*this, dim); }
-    ConstIterator end() const noexcept { return ConstIterator(*this, dim); }
-    ConstIterator cend() const noexcept { return ConstIterator(*this, dim); }
+    constexpr Iterator end() noexcept { return Iterator(*this, dim); }
+    constexpr ConstIterator end() const noexcept { return ConstIterator(*this, dim); }
+    constexpr ConstIterator cend() const noexcept { return ConstIterator(*this, dim); }
 
-    ReverseIterator rbegin() noexcept { return ReverseIterator(end()); }
-    ConstReverseIterator rbegin() const noexcept { return ConstReverseIterator(cend()); }
-    ConstReverseIterator crbegin() const noexcept { return ConstReverseIterator(cend()); }
+    constexpr ReverseIterator rbegin() noexcept { return ReverseIterator(end()); }
+    constexpr ConstReverseIterator rbegin() const noexcept { return ConstReverseIterator(cend()); }
+    constexpr ConstReverseIterator crbegin() const noexcept { return ConstReverseIterator(cend()); }
 
-    ReverseIterator rend() noexcept { return ReverseIterator(begin()); }
-    ConstReverseIterator rend() const noexcept { return ConstReverseIterator(cbegin()); }
-    ConstReverseIterator crend() const noexcept { return ConstReverseIterator(cbegin()); }
+    constexpr ReverseIterator rend() noexcept { return ReverseIterator(begin()); }
+    constexpr ConstReverseIterator rend() const noexcept { return ConstReverseIterator(cbegin()); }
+    constexpr ConstReverseIterator crend() const noexcept { return ConstReverseIterator(cbegin()); }
 
-    Reference operator[](Size i)
+    constexpr Reference operator[](Size i)
 		{ if(i == 0) return x; if(i == 1) return y; if(i == 2) return z; return w; }
-    ConstReference operator[](Size i) const
+    constexpr ConstReference operator[](Size i) const
 		{ if(i == 0) return x; if(i == 1) return y; if(i == 2) return z; return w; }
 
-    Reference at(Size i)
+    constexpr Reference at(Size i)
 		{ if(i >= dim)	throw RangeError("nytl::RefVec::at"); return (*this)[i]; }
-    ConstReference at(Size i) const
+    constexpr ConstReference at(Size i) const
 		{ if(i >= dim) throw RangeError("nytl::RefVec::at"); return (*this)[i]; }
 
-    Reference front() noexcept { return x; }
-    ConstReference front() const noexcept { return x; }
+    constexpr Reference front() noexcept { return x; }
+    constexpr ConstReference front() const noexcept { return x; }
 
-    Reference back() noexcept { return w; }
-    ConstReference back() const noexcept { return w; }
+    constexpr Reference back() noexcept { return w; }
+    constexpr ConstReference back() const noexcept { return w; }
 
-	void swap(VecType& other)
+	constexpr void swap(VecType& other)
 		{ using std::swap; swap(x, other.x); swap(y, other.y); swap(z, other.z); swap(w, other.w);}
 
-	friend void swap(RefVecType& a, RefVecType& b){ a.swap(b); }
+	friend constexpr void swap(RefVecType& a, RefVecType& b){ a.swap(b); }
 
     //custom
-    Vec2<Reference> xy() const noexcept { return Vec2<Reference>(x,y); }
-    Vec2<Reference> xz() const noexcept { return Vec2<Reference>(x,z); }
-    Vec2<Reference> xw() const noexcept { return Vec2<Reference>(x,w); }
-    Vec2<Reference> yz() const noexcept { return Vec2<Reference>(y,z); }
-    Vec2<Reference> yw() const noexcept { return Vec2<Reference>(y,w); }
-    Vec2<Reference> zw() const noexcept { return Vec2<Reference>(z,w); }
+    constexpr Vec2<Reference> xy() const noexcept { return Vec2<Reference>(x,y); }
+    constexpr Vec2<Reference> xz() const noexcept { return Vec2<Reference>(x,z); }
+    constexpr Vec2<Reference> xw() const noexcept { return Vec2<Reference>(x,w); }
+    constexpr Vec2<Reference> yz() const noexcept { return Vec2<Reference>(y,z); }
+    constexpr Vec2<Reference> yw() const noexcept { return Vec2<Reference>(y,w); }
+    constexpr Vec2<Reference> zw() const noexcept { return Vec2<Reference>(z,w); }
 
-    Vec3<Reference> xyz() const noexcept { return Vec3<Reference>(x,y,z); }
-    Vec3<Reference> xyw() const noexcept { return Vec3<Reference>(x,y,w); }
-    Vec3<Reference> xzw() const noexcept { return Vec3<Reference>(x,z,w); }
-    Vec3<Reference> yzw() const noexcept { return Vec3<Reference>(y,z,w); }
+    constexpr Vec3<Reference> xyz() const noexcept { return Vec3<Reference>(x,y,z); }
+    constexpr Vec3<Reference> xyw() const noexcept { return Vec3<Reference>(x,y,w); }
+    constexpr Vec3<Reference> xzw() const noexcept { return Vec3<Reference>(x,z,w); }
+    constexpr Vec3<Reference> yzw() const noexcept { return Vec3<Reference>(y,z,w); }
 };
 
 template<size_t dim, typename T> constexpr size_t Vec<dim, T&>::dim;
