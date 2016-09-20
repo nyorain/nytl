@@ -19,6 +19,7 @@ matrix:
       env: COMPILER=g++-6
 
 script:
+  - find /usr/include/c++
   - mkdir build
   - cd build
   - cmake -DCMAKE_CXX_COMPILER=$COMPILER -DTest=ON ..
