@@ -12,11 +12,11 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-5
-      env: COMPILER=g++-5
-      
+            - g++-6
+      env: COMPILER=g++-6
+
 script:
   - mkdir build
   - cd build
-  - cmake -DCMAKE_CXX_COMPILER=$COMPILER .. 
+  - cmake -DCMAKE_CXX_COMPILER=$COMPILER -DTest=ON ..
   - make

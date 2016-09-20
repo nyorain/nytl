@@ -22,8 +22,8 @@
 
 #pragma once
 
-#ifndef NYTL_INCLUDE_VEC_INL
-#define NYTL_INCLUDE_VEC_INL
+#ifndef NYTL_INCLUDE_VEC_OPS
+#define NYTL_INCLUDE_VEC_OPS
 
 #include <nytl/vec.hpp>
 

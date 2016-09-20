@@ -6,22 +6,21 @@ set(vminor 2)
 set(vpatch 0)
 
 set(CMAKE_BUILD_TYPE Debug)
-option(NYTL_TEST "Build the nytl tests" OFF)
+option(Test "Build and execute the nytl tests (Requires gcc or clang)" OFF)
 
 include_directories(${CMAKE_SOURCE_DIR})
 
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# set(CMAKE_CXX_STANDARD 14)
+# set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++17 -Wall -Wextra") # C++ 17
 
-set(CMAKE_CXX_FLAGS "-Wall -Wextra")
-
-if(NYTL_TEST)
+if(Test)
 	add_subdirectory(tests)
 	enable_testing()
 	add_test(NAME utilityTest COMMAND test_utility)
 	add_test(NAME mathTest COMMAND test_math)
 	add_test(NAME funcTest COMMAND test_func)
-endif(NYTL_TEST)
+endif()
 
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
@@ -34,5 +33,6 @@ configure_file(
 	"${CMAKE_CURRENT_BINARY_DIR}/nytl.pc"
 	@ONLY)
 
+# install: pkg-config and nytl directory
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/nytl.pc" DESTINATION lib/pkgconfig)
 install(DIRECTORY nytl DESTINATION include)

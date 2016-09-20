@@ -41,7 +41,7 @@ template<typename T, typename O, typename = void>
 struct Converter;
 
 template<typename T, typename O>
-struct Converter<T, O, decltype(static_cast<T>(std::declval<O>()))>
+struct Converter<T, O, std::void_t<decltype(static_cast<T>(std::declval<O>()))>>
 {
 	static O call(const T& other) { return static_cast<O>(other); }
 };

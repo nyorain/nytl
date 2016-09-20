@@ -7,6 +7,7 @@
 #include <nytl/triangle.hpp>
 #include <nytl/refVec.hpp>
 #include <nytl/dynVec.hpp>
+#include <nytl/vecOps.hpp>
 using namespace nytl;
 
 #include <type_traits>
