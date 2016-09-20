@@ -14,7 +14,7 @@ matrix:
           packages:
             - g++-6
             - gcc-6
-            - libstdc++6
+            - libstdc++6-4.4
             - libstdc++6-4.4-dev
       env: COMPILER=g++-6
 
