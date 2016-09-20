@@ -1,4 +1,4 @@
-#nytl [![Build Status](https://travis-ci.org/nyorain/nytl.svg?branch=master)](https://travis-ci.org/nyorain/nytl)
+#nytl
 
 nytl is a generic header-only template library for c++14. It provides math classes with useful operations like e.g. [nytl::Vec], [nytl::Mat] or [nytl::Rect].
 Then there is a smaller part about functions and function-conversions with classes like [nytl::CompatibleFunction], [nytl::Callback] or [nytl::FunctionTraits]. 
