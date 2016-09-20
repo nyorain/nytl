@@ -13,7 +13,7 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-6
-            - libstdc++6-dev
+            - libstdc++6-4.4-dev
       env: COMPILER=g++-6
 
 script:
