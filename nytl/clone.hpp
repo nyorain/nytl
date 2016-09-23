@@ -63,7 +63,7 @@ template<typename T>
 class AbstractCloneMovable
 {
 private:
-	template<typename X> friend std::unique_ptr<X> cloneMove(X&&);
+	template<typename X> friend std::unique_ptr<X> cloneMove(X&);
 	virtual T* cloneMove() = 0;
 
 protected:
@@ -85,7 +85,7 @@ template<typename Base, typename Derived>
 class DeriveCloneMovable : public Base
 {
 private:
-	template<typename X> friend std::unique_ptr<X> cloneMove(X&&);
+	template<typename X> friend std::unique_ptr<X> cloneMove(X&);
     virtual Base* cloneMove() override
 		{ return new Derived(std::move(static_cast<Derived&>(*this))); }
 
