@@ -38,19 +38,20 @@ constexpr const double cDeg = cPi / 180.0;
 constexpr const double cE = 2.71828182845;
 
 //degrees/radians
-template<typename prec>
-constexpr auto degrees(const prec& rad) -> decltype(rad / cDeg)
+template<typename P>
+constexpr auto degrees(const P& rad) -> decltype(rad / cDeg)
 {
     return rad / cDeg;
 }
 
-template<typename prec>
-constexpr auto radians(const prec& deg) -> decltype(deg * cDeg)
+template<typename P>
+constexpr auto radians(const P& deg) -> decltype(deg * cDeg)
 {
     return deg * cDeg;
 }
 
 //clamp
+///TODO: use std version instead
 constexpr double clamp(double val, double minVal, double maxVal)
 {
     return
@@ -65,7 +66,7 @@ constexpr double mix(double x, double y, double a)
     return (x * (1 - a)) + (y * a);
 }
 
-//TODO: fix that.
+//TODO: fix that. change everywhere to std::min/max
 using std::min;
 using std::max;
 

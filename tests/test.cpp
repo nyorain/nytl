@@ -1,2 +1,10 @@
 #include <nytl/nytl.hpp>
-int main () {}
+
+struct T : public nytl::CloneMovable<T> {};
+
+int main() 
+{
+	T t;
+	auto& tref = t;
+	auto moved = nytl::cloneMove(tref);
+}

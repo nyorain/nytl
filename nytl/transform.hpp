@@ -99,11 +99,7 @@ public:
 	using VecType = Vec<dim, Precision>;
 	using MatType = SquareMat<dim + 1, Precision>;
 	using RotType = Vec<rotationPlanes(dim), Precision>;
-	// using RotType = VecScalar<rotationPlanes(dim), Precision>;
 	using RectType = Rect<dim, Precision>;
-
-protected:
-	MatType mat_ {};
 
 public:
     Transform() noexcept : mat_(identityMat<dim + 1, P>()) {}
@@ -117,6 +113,9 @@ public:
 
     MatType& transformMatrix() { return mat_; }
     const MatType& transformMatrix() const { return mat_; }
+
+protected:
+	MatType mat_ {};
 };
 
 }

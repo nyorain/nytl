@@ -42,7 +42,7 @@ class CloneMovable
 {
 private:
 	virtual T* cloneMove() { return new T(std::move(static_cast<T&>(*this))); }
-	template<typename X> friend std::unique_ptr<X> cloneMove(const X&);
+	template<typename X> friend std::unique_ptr<X> cloneMove(X&);
 
 protected:
 	virtual ~CloneMovable() = default;
@@ -142,9 +142,9 @@ std::unique_ptr<T> clone(const std::unique_ptr<T>& value)
 ///\ingroup utility
 ///Clones the object by moving it. The given argument will no longer be valid after this call.
 template<typename T>
-std::unique_ptr<T> cloneMove(T&& value)
+std::unique_ptr<T> cloneMove(T& value)
 {
-	return std::unique_ptr<T>(static_cast<T*>(std::forward<T>(value).cloneMove()));
+	return std::unique_ptr<T>(static_cast<T*>(value.cloneMove()));
 }
 
 ///\ingroup utility

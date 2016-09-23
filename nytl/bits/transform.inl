@@ -20,6 +20,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+//TODO: some of those functions are not correctly implemented...
+
 #pragma once
 
 #ifndef NYTL_INCLUDE_TRANSFORM_INL
