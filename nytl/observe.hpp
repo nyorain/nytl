@@ -36,8 +36,6 @@
 namespace nytl
 {
 
-///TODO: threadsafety? better use shared/weak pointer implementation?
-
 class Observable;
 
 ///\ingroup utility
@@ -54,7 +52,11 @@ class Observer
 ///\ingroup utility
 ///\brief Utility class to make the objects lifetime observable.
 ///\details Base class that can be derived from if the lifetime of objects of this class should be
-///observeable by others. Also see nytl::Observer and nytl::ObservingPtr.
+///observeable by others.
+///Note that this class is not threadsafe, and calls to move/add/remove Observer must interfer in
+///any way.
+///\sa nytl::Observer
+///\sa nytl::ObservingPtr.
 class Observable
 {
 protected:
@@ -96,16 +98,12 @@ public:
 
 ///\ingroup utility
 ///\brief Smart pointer class that observes the lifetime of its object.
-///\details Basically a smart pointer that does always know, whether the object it points to is
+///\details Basically a smart pointer that does always know whether the object it points to is
 //alive or not. Does only work with objects of classes that are derived from nytl::Observeable.
 ///Semantics are related to std::unique_ptr/std::shared_ptr.
 template <typename T>
 class ObservingPtr : public Observer
 {
-private:
-	T* object_ {nullptr};
-	virtual void destructionCallback(Observable&) override { object_ = nullptr; }
-
 public:
 	ObservingPtr() = default;
 	ObservingPtr(T* obj) : object_(obj) { if(object_) object_->addObserver(*this); }
@@ -160,6 +158,10 @@ public:
 		if(other.object_) other.object_->moveObserver(other, *this);
 		std::swap(object_, other.object_);
 	}
+
+private:
+	T* object_ {nullptr};
+	virtual void destructionCallback(Observable&) override { object_ = nullptr; }
 };
 
 }

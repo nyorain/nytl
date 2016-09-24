@@ -30,6 +30,7 @@
 
 #include <nytl/vec.hpp>
 #include <nytl/line.hpp>
+#include <nytl/fwd/rect.hpp>
 
 #include <vector>
 #include <ostream>
@@ -37,39 +38,6 @@
 
 namespace nytl
 {
-//Rect
-template<std::size_t D, class P> class Rect;
-
-template<typename P> using Rect2 = Rect<2, P>;
-template<typename P> using Rect3 = Rect<3, P>;
-template<typename P> using Rect4 = Rect<4, P>;
-
-using Rect2i = Rect<2, int>;
-using Rect2ui = Rect<2, unsigned int>;
-using Rect2d = Rect<2, double>;
-using Rect2f = Rect<2, float>;
-using Rect2c = Rect<2, char>;
-using Rect2uc = Rect<2, unsigned char>;
-using Rect2l = Rect<2, long>;
-using Rect2ul = Rect<2, unsigned long>;
-
-using Rect3i = Rect<3, int>;
-using Rect3ui = Rect<3, unsigned int>;
-using Rect3d = Rect<3, double>;
-using Rect3f = Rect<3, float>;
-using Rect3c = Rect<3, char>;
-using Rect3uc = Rect<3, unsigned char>;
-using Rect3l = Rect<3, long>;
-using Rect3ul = Rect<3, unsigned long>;
-
-using Rect4i = Rect<4, int>;
-using Rect4ui = Rect<4, unsigned int>;
-using Rect4d = Rect<4, double>;
-using Rect4f = Rect<4, float>;
-using Rect4c = Rect<4, char>;
-using Rect4uc = Rect<4, unsigned char>;
-using Rect4l = Rect<4, long>;
-using Rect4ul = Rect<4, unsigned long>;
 
 ///\ingroup math
 ///\brief Templated class that represents the matheMatic hyperRect (n-box) concept.

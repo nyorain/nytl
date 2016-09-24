@@ -49,28 +49,16 @@ using RectRegion2i = RectRegion<2, int>;
 using RectRegion2ui = RectRegion<2, unsigned int>;
 using RectRegion2d = RectRegion<2, double>;
 using RectRegion2f = RectRegion<2, float>;
-using RectRegion2c = RectRegion<2, char>;
-using RectRegion2uc = RectRegion<2, unsigned char>;
-using RectRegion2l = RectRegion<2, long>;
-using RectRegion2ul = RectRegion<2, unsigned long>;
 
 using RectRegion3i = RectRegion<3, int>;
 using RectRegion3ui = RectRegion<3, unsigned int>;
 using RectRegion3d = RectRegion<3, double>;
 using RectRegion3f = RectRegion<3, float>;
-using RectRegion3c = RectRegion<3, char>;
-using RectRegion3uc = RectRegion<3, unsigned char>;
-using RectRegion3l = RectRegion<3, long>;
-using RectRegion3ul = RectRegion<3, unsigned long>;
 
 using RectRegion4i = RectRegion<4, int>;
 using RectRegion4ui = RectRegion<4, unsigned int>;
 using RectRegion4d = RectRegion<4, double>;
 using RectRegion4f = RectRegion<4, float>;
-using RectRegion4c = RectRegion<4, char>;
-using RectRegion4uc = RectRegion<4, unsigned char>;
-using RectRegion4l = RectRegion<4, long>;
-using RectRegion4ul = RectRegion<4, unsigned long>;
 
 ///\ingroup math
 ///Region composed of Rectangles.

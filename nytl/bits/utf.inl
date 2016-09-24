@@ -62,7 +62,6 @@ const char& nth(const std::string& utf8, std::size_t n, std::uint8_t& size)
 	size = 0;
 
 	std::size_t count = 0u;
-	std::size_t charNum = 0u;
 	for(auto& byte : utf8)
 	{
 		if(count == n)
@@ -85,7 +84,6 @@ char& nth(std::string& utf8, std::size_t n, std::uint8_t& size)
 	size = 0;
 
 	std::size_t count = 0u;
-	std::size_t charNum = 0u;
 	for(auto& byte : utf8)
 	{
 		if(count == n)
@@ -148,7 +146,7 @@ std::u32string toUtf32(const std::wstring& wide)
 std::wstring toWide(const std::string& utf8)
 {
 	std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-	converter.from_bytes(utf8);
+	return converter.from_bytes(utf8);
 }
 std::wstring toWide(const std::u16string& utf16)
 {

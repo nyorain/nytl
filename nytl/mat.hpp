@@ -30,6 +30,8 @@
 
 #include <nytl/vec.hpp>
 #include <nytl/refVec.hpp>
+#include <nytl/bits/matmp.inl>
+#include <nytl/fwd/mat.hpp>
 
 #include <iomanip>
 #include <memory>
@@ -39,13 +41,6 @@
 
 namespace nytl
 {
-
-//typedefs
-template<std::size_t R, std::size_t C, typename P>
-class Mat;
-
-#include <nytl/bits/matmp.inl>
-#include <nytl/bits/matypes.inl>
 
 ///\ingroup math
 ///Matrix template class.

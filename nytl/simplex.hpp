@@ -33,6 +33,8 @@
 #include <nytl/scalar.hpp>
 #include <nytl/bits/tmpUtil.inl>
 
+#include <nytl/fwd/simplex.hpp>
+
 #include <vector>
 #include <type_traits>
 #include <utility>
@@ -57,7 +59,7 @@ template<std::size_t D, std::size_t A> using DimMatch = typename std::enable_if<
 ///The area is called unique, since it does have a variable number of points defining it; always
 ///enough to describe exactly one, unambigous area with the given dimension and precision in
 ///the given space.
-template<std::size_t D, typename P = float, std::size_t A = D>
+template<std::size_t D, typename P, std::size_t A>
 class Simplex : public DeriveDummy<DimMatch<D, A>>
 {
 public:
@@ -112,11 +114,8 @@ public:
 
 //To get the additional features for each specialization, include the corresponding headers:
 //#include <nytl/line.hpp>
-template<std::size_t D, typename P = float> using Line = Simplex<D, P, 1>;
 //#include <nytl/triangle.hpp>
-template<std::size_t D, typename P = float> using Triangle = Simplex<D, P, 2>;
 //#include <nytl/tetrahedron.hpp>
-template<std::size_t D, typename P = float> using Tetrahedron = Simplex<D, P, 3>;
 
 //operators/utility
 #include <nytl/bits/simplex.inl>

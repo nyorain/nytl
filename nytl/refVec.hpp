@@ -44,34 +44,19 @@ using RefVec2f = RefVec2<float>;
 using RefVec2i = RefVec2<int>;
 using RefVec2ui = RefVec2<unsigned int>;
 using RefVec2d = RefVec2<double>;
-using RefVec2c = RefVec2<char>;
-using RefVec2uc = RefVec2<unsigned char>;
-using RefVec2l = RefVec2<long>;
-using RefVec2ul = RefVec2<unsigned long>;
-using RefVec2s = RefVec2<short>;
-using RefVec2us = RefVec2<unsigned short>;
+using RefVec2b = RefVec2<bool>;
 
 using RefVec3f = RefVec3<float>;
 using RefVec3i = RefVec3<int>;
 using RefVec3ui = RefVec3<unsigned int>;
 using RefVec3d = RefVec3<double>;
-using RefVec3c = RefVec3<char>;
-using RefVec3uc = RefVec3<unsigned char>;
-using RefVec3l = RefVec3<long>;
-using RefVec3ul = RefVec3<unsigned long>;
-using RefVec3s = RefVec3<short>;
-using RefVec3us = RefVec3<unsigned short>;
+using RefVec3b = RefVec3<bool>;
 
 using RefVec4f = RefVec4<float>;
 using RefVec4i = RefVec4<int>;
 using RefVec4ui = RefVec4<unsigned int>;
 using RefVec4d = RefVec4<double>;
-using RefVec4c = RefVec4<char>;
-using RefVec4uc = RefVec4<unsigned char>;
-using RefVec4l = RefVec4<long>;
-using RefVec4ul = RefVec4<unsigned long>;
-using RefVec4s = RefVec4<short>;
-using RefVec4us = RefVec4<unsigned short>;
+using RefVec4b = RefVec4<bool>;
 
 template<size_t D, typename T>
 class Vec<D, T&>
@@ -653,7 +638,7 @@ public:
     Reference w;
 
 public:
-    constexpr Vec(Reference a, Reference b, Reference c, Reference d) 
+    constexpr Vec(Reference a, Reference b, Reference c, Reference d)
 		noexcept : x(a), y(b), z(c), w(d) {}
     ~Vec() noexcept = default;
 

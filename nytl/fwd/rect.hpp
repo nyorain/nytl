@@ -21,42 +21,39 @@
 // SOFTWARE.
 
 ///\file
-///Defines ScopeGuard that can be used to execute a function when going out of scope.
-
-//TODO: possiblity to differenciate between "succeeded" and "failed (i.e. exception)" scope
-//we cannot simply use std::uncaught_exception since if the scope in which the ScopeGuard
-//lives is itself called during stack unwinding (i.e. from a destructor) the scope would
-//always "fail"
-//
-//if one wants to make a destructor throw, simply makde a destroy/close function that might
-//throw and then call it in the destructor using a try/catch block.
-//C++17 will allow us determine the ScopeExitReason.
+///\brief Includes the Rect template class as well as several operators for it.
 
 #pragma once
+
+#ifndef NYTL_INCLUDE_FWD_RECT_HPP
+#define NYTL_INCLUDE_FWD_RECT_HPP
+
+#include <cstdint>
 
 namespace nytl
 {
 
-///Utility template that can be used to execute code when going out of scope.
-template<typename F>
-class ScopeGuard
-{
-public:
-	F function;
+template<std::size_t D, class P> class Rect;
 
-public:
-	ScopeGuard(const F& f) : function(f) {}
-	~ScopeGuard() { function(); }
-};
+template<typename P> using Rect2 = Rect<2, P>;
+template<typename P> using Rect3 = Rect<3, P>;
+template<typename P> using Rect4 = Rect<4, P>;
 
-template<typename F> ScopeGuard<F> makeScopeGuard(const F& func) { return {func}; }
+using Rect2i = Rect<2, int>;
+using Rect2ui = Rect<2, unsigned int>;
+using Rect2d = Rect<2, double>;
+using Rect2f = Rect<2, float>;
 
-#define CAT_IMPL(A, B) A ## B
-#define CAT(A, B) CAT_IMPL(A, B)
+using Rect3i = Rect<3, int>;
+using Rect3ui = Rect<3, unsigned int>;
+using Rect3d = Rect<3, double>;
+using Rect3f = Rect<3, float>;
 
-#define NYTL_SCOPE_EXIT(x) auto CAT(nytlScopeGuard, __LINE__) = makeScopeGuard(x);
-
-#undef CAT
-#undef CAT_IMPL
+using Rect4i = Rect<4, int>;
+using Rect4ui = Rect<4, unsigned int>;
+using Rect4d = Rect<4, double>;
+using Rect4f = Rect<4, float>;
 
 }
+
+#endif //header guard

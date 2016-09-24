@@ -20,43 +20,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-///\file
-///Defines ScopeGuard that can be used to execute a function when going out of scope.
-
-//TODO: possiblity to differenciate between "succeeded" and "failed (i.e. exception)" scope
-//we cannot simply use std::uncaught_exception since if the scope in which the ScopeGuard
-//lives is itself called during stack unwinding (i.e. from a destructor) the scope would
-//always "fail"
-//
-//if one wants to make a destructor throw, simply makde a destroy/close function that might
-//throw and then call it in the destructor using a try/catch block.
-//C++17 will allow us determine the ScopeExitReason.
-
 #pragma once
+
+#include <cstdint>
+
+#include <nytl/fwd/flags.hpp>
+#include <nytl/fwd/simplex.hpp>
+#include <nytl/fwd/typemap.hpp>
+#include <nytl/fwd/vec.hpp>
+#include <nytl/fwd/rect.hpp>
+#include <nytl/fwd/mat.hpp>
 
 namespace nytl
 {
 
-///Utility template that can be used to execute code when going out of scope.
-template<typename F>
-class ScopeGuard
-{
-public:
-	F function;
+class Logger;
+class StringParam;
+class Timer;
+class StringParam;
+class SizedStringParam;
+class Observable;
+class Observer;
 
-public:
-	ScopeGuard(const F& f) : function(f) {}
-	~ScopeGuard() { function(); }
-};
+template<typename ID> class Connectable;
+template<typename ID> class Connection;
+template<typename ID> class ConnectionRef;
+template<typename ID> class ConnectionGuard;
 
-template<typename F> ScopeGuard<F> makeScopeGuard(const F& func) { return {func}; }
+template<typename Signature> class Callback;
+using CbConn = Connection<std::size_t>;
+using CbConnRef = ConnectionRef<std::size_t>;
+using CbConnGuard = ConnectionGuard<std::size_t>;
 
-#define CAT_IMPL(A, B) A ## B
-#define CAT(A, B) CAT_IMPL(A, B)
+template<typename T> class Range;
+template<typename Signature> class CompatibleFunction;
 
-#define NYTL_SCOPE_EXIT(x) auto CAT(nytlScopeGuard, __LINE__) = makeScopeGuard(x);
-
-#undef CAT
-#undef CAT_IMPL
+template<typename T> class IntrusivePtr;
+template<typename T> class ObservingPtr;
 
 }

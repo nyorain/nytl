@@ -31,6 +31,7 @@
 #include <nytl/tmp.hpp>
 #include <nytl/scalar.hpp>
 #include <nytl/misc.hpp>
+#include <nytl/fwd/vec.hpp>
 
 #include <iostream>
 #include <algorithm>
@@ -43,50 +44,6 @@
 
 namespace nytl
 {
-
-
-template<std::size_t D, typename T> class Vec;
-
-//typedefs
-template<typename T = float> using Vec2 = Vec<2, T>;
-template<typename T = float> using Vec3 = Vec<3, T>;
-template<typename T = float> using Vec4 = Vec<4, T>;
-
-using Vec2f = Vec2<float>;
-using Vec2i = Vec2<int>;
-using Vec2ui = Vec2<unsigned int>;
-using Vec2d = Vec2<double>;
-using Vec2c = Vec2<char>;
-using Vec2uc = Vec2<unsigned char>;
-using Vec2l = Vec2<long>;
-using Vec2ul = Vec2<unsigned long>;
-using Vec2b = Vec2<bool>;
-using Vec2s = Vec2<short>;
-using Vec2us = Vec2<unsigned short>;
-
-using Vec3f = Vec3<float>;
-using Vec3i = Vec3<int>;
-using Vec3ui = Vec3<unsigned int>;
-using Vec3d = Vec3<double>;
-using Vec3c = Vec3<char>;
-using Vec3uc = Vec3<unsigned char>;
-using Vec3l = Vec3<long>;
-using Vec3ul = Vec3<unsigned long>;
-using Vec3b = Vec3<bool>;
-using Vec3s = Vec3<short>;
-using Vec3us = Vec3<unsigned short>;
-
-using Vec4f = Vec4<float>;
-using Vec4i = Vec4<int>;
-using Vec4ui = Vec4<unsigned int>;
-using Vec4d = Vec4<double>;
-using Vec4c = Vec4<char>;
-using Vec4uc = Vec4<unsigned char>;
-using Vec4l = Vec4<long>;
-using Vec4ul = Vec4<unsigned long>;
-using Vec4b = Vec4<bool>;
-using Vec4s = Vec4<short>;
-using Vec4us = Vec4<unsigned short>;
 
 //better use dynmiacsize_type = 0?
 //error messages with this one are kinda disgusting

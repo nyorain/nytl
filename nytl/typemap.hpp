@@ -28,6 +28,7 @@
 #ifndef NYTL_INCLUDE_TYPEMAP_HPP
 #define NYTL_INCLUDE_TYPEMAP_HPP
 
+#include <nytl/fwd/typemap.hpp>
 #include <nytl/bits/typemap.inl>
 
 #include <unordered_map>
@@ -51,7 +52,7 @@ namespace nytl
 ///passsing) and Any (prefer this method over void). Defaulted to Any.
 ///\tparam CA Additional construction args an objects needs on creation.
 ///\sa Serializer
-template<typename I, typename B = std::any, typename... CArgs>
+template<typename I, typename B, typename... CArgs>
 class Typemap
 {
 public:

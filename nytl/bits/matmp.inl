@@ -27,6 +27,12 @@
 
 #include <nytl/bits/tmpUtil.inl>
 
+#include <cstdint>
+#include <memory>
+
+namespace nytl
+{
+
 namespace detail
 {
 
@@ -105,6 +111,8 @@ struct MatTuple<Size, std::index_sequence<I...>>
         return TypeTuple<P, sizeof...(I)>{v[I / C][I % R]...};
     }
 };
+
+}
 
 }
 
