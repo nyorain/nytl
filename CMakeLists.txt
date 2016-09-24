@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.1.0)
+﻿CMAKE_MINIMUM_REQUIRED(VERSION 3.1.0)
 PROJECT(nytl)
 
 set(vmajor 0)
@@ -6,13 +6,14 @@ set(vminor 2)
 set(vpatch 0)
 
 set(CMAKE_BUILD_TYPE Debug)
-option(Test "Build and execute the nytl tests (Requires gcc or clang)" OFF)
+option(Test "Build and execute the nytl tests" OFF)
 
 include_directories(${CMAKE_SOURCE_DIR})
 
 # set(CMAKE_CXX_STANDARD 14)
 # set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++17 -Wall -Wextra") # C++ 17
+
 
 if(Test)
 	add_subdirectory(tests)

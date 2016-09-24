@@ -38,9 +38,9 @@ class NonCopyable
 private:
 	NonCopyable(const NonCopyable&) = delete;
 	NonCopyable& operator =(const NonCopyable&) = delete;
+
 protected:
 	NonCopyable() noexcept = default;
-	NonCopyable(NonCopyable&) noexcept = default;
 
 	NonCopyable(NonCopyable&&) noexcept = default;
 	NonCopyable& operator=(NonCopyable&&) noexcept = default;
@@ -58,7 +58,6 @@ private:
 
 protected:
 	NonMovable() noexcept = default;
-	NonMovable(NonMovable&) noexcept = default;
 };
 
 }

@@ -29,6 +29,7 @@
 #define NYTL_INCLUDE_SCALAR_HPP
 
 #include <functional>
+#include <algorithm>
 
 namespace nytl
 {

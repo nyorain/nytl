@@ -29,10 +29,10 @@ namespace detail
 {
 
 constexpr std::size_t dMin(std::size_t a, std::size_t b)
-	{ return (a == dynamicSize || b == dynamicSize) ? dynamicSize : min(a, b); }
+	{ return (a == dynamicSize || b == dynamicSize) ? dynamicSize : std::min(a, b); }
 
 constexpr std::size_t dMax(std::size_t a, std::size_t b)
-	{ return (a == dynamicSize || b == dynamicSize) ? dynamicSize : max(a, b); }
+	{ return (a == dynamicSize || b == dynamicSize) ? dynamicSize : std::max(a, b); }
 
 }
 
