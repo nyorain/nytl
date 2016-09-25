@@ -36,7 +36,6 @@ namespace nytl
 
 //XXX: better performance: make Cache intrusive ref counted and Base parameter of MultiCache
 //does also define the pointer type to use. Would avoid shared_ptr.
-//XXX: threadsafety?
 struct Cache
 {
 	Cache() = default;
@@ -46,6 +45,7 @@ struct Cache
 ///\brief Base class for classes that carry associated Cache objects.
 ///\details Objects of classes dervied from MultiCache are able to hold multiple associated Cache
 ///objects that have Base as common base class and can be individually accessed by a given key.
+///Note that this class is not threadsafe in any way.
 template<typename Key, typename Base = Cache>
 class MultiCache
 {
