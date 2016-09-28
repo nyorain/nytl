@@ -6,16 +6,13 @@ Additionally nytl provides some generic utility stuff, like [nytl::Referenced] a
 The name nytl does stand for "ny template library", since it was originally created for the _[ny]_ gui library.
 nytl is really lightweight, yet it offers some pretty useful features for most modern c++ projects.
 
-nytl is licensed under the MIT License, so you can freely use it in your projects. If you start an open-source project using nytl, i would really appreciate if you let me know.
-
 nytl is currently in an __alpha__ state, its newest release is __[version 0.2-alpha]__.
 
 __Also have a look at the documentation__ (you can also generate it using cmake/doxygen, WIP): http://nyorain.github.io/nytl/
 
 ##Contributing
-If you find any bug or mistake or would like some new features or additional documentation or examples, just contact me.
-Contributors to library, documentation or examples are always appreciated. Just fork it and start a pull request, start an issue or send me a mail at nyorain@gmail.com. If you just have any ideas, questions or suggestions, just let me know.
-Everything is usually answered in a few days.
+If you find any bug or mistakes or would like some new features, additional documentation or examples, just contact me.
+Contributors to library, documentation or examples are always appreciated. Just fork it and start a pull request or start an issue. If you just have any ideas, questions or suggestions, just let me know.
 
 ##Getting Started 
 ###Building nytl
