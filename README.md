@@ -10,7 +10,7 @@ It is really lightweight yet it offers some pretty useful features for most mode
 Since there is no good tool for extracting template-heavy C++ code at the moment, all documentation
 is directly inside the header files and there is currently no good way of extracting it.
 
-Currently in an __alpha__ state, its newest release is __[version 0.2-alpha]__.
+Currently in an __alpha__ state, its newest release is __[version 0.3-alpha]__.
 
 ##Contributing
 If you find any bug or mistakes or would like some new features, additional documentation or examples, just contact me.
@@ -95,5 +95,5 @@ std::cout << (ptr) << "\n"; //outputs 0, since holds no valid object
 [doc/examples]: doc/examples
 [doc/examples/callback.cpp]: doc/examples/callback.cpp
 [doc/examples/serialize.cpp]: doc/examples/serialize.cpp
-[version 0.2-alpha]: https://github.com/nyorain/nytl/releases
+[version 0.3-alpha]: https://github.com/nyorain/nytl/releases
 [ny]: https://github.com/nyorain/ny
