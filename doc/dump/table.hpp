@@ -1,3 +1,7 @@
+// Copyright (c) 2016 nyorain
+// Distributed under the Boost Software License, Version 1.0.
+// See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
+
 #include <cstdint>
 #include <type_traits>
 #include <iterator>
@@ -6,6 +10,13 @@
 
 #include <nytl/tmp.hpp>
 using namespace nytl;
+
+//The goal:
+//abstract vec and mat to a common base class
+//abstract the semantics of a type away from its memory representation and general functions
+// -> meaning: implemenent all differnt operation for a table, without defining which one is
+// 	the "right" one (e.g. for multiplication) since that might differ.
+//  Introduce sth. like a Meaning or Type template parameter to make it typesafe.
 
 using Expand = int[];
 template<typename... Args> constexpr std::size_t mult(Args&&... args)

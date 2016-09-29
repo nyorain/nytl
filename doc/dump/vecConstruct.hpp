@@ -1,5 +1,13 @@
+// Copyright (c) 2016 nyorain 
+// Distributed under the Boost Software License, Version 1.0.
+// See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
+
 #include <cstdint>
 #include <utility>
+
+//The goal:
+//make it possible to construct a vector like this:
+//auto v = nytl::Vec<7, int>(vec2, vec3, 5, vec2);
 
 using Expand = int[];
 

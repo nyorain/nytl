@@ -14,19 +14,13 @@ include_directories(${CMAKE_SOURCE_DIR})
 # set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++17 -Wall -Wextra") # C++ 17
 
-
 if(Test)
-	add_subdirectory(tests)
+	add_subdirectory(doc/tests)
 	enable_testing()
 	add_test(NAME utilityTest COMMAND test_utility)
 	add_test(NAME mathTest COMMAND test_math)
 	add_test(NAME funcTest COMMAND test_func)
 endif()
-
-find_package(Doxygen)
-if(DOXYGEN_FOUND)
-	add_subdirectory(doc)
-endif(DOXYGEN_FOUND)
 
 #pkg-config
 configure_file(

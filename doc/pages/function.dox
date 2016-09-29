@@ -1,6 +1,0 @@
-///\defgroup function
-///Several generic useful templates/classes dealing with function-like objects.
-///
-///\example callback.cpp Simple example for the nytl::Callback class.
-///\example serialize.cpp Example for serializing types and retrieving/setting typeNames.
-
