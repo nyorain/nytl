@@ -31,7 +31,7 @@
 ///These functions have the following return types:
 ///- Either (if possible) the tested objects' type (e.g. nytl::intersection for rects)
 ///- Or a vector filled with objects with the same type as the tested ones
-///- Or A *Region wrapper class for this vector, which then again provied useful utilities 
+///- Or A *Region wrapper class for this vector, which then again provied useful utilities
 ///   (see nytl::RectRegion and nytl::SimplexRegion).
 ///
 ///\subsection MAR Angle representation
@@ -42,4 +42,3 @@
 ///This can be easily achieved with nytl::radians or nytl::degrees.
 ///
 ///\example vec.cpp Some example operations for nytl::Vec.
-

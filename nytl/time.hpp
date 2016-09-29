@@ -36,14 +36,14 @@ using std::chrono::time_point_cast;
 class Timer
 {
 public:
-    TimePoint point = Clock::now();
+	TimePoint point = Clock::now();
 
 public:
 	///Resets the given timer.
-    void reset(){ point = Clock::now(); };
+	void reset(){ point = Clock::now(); };
 
 	///Returns the timer since the last reset.
-    TimeDuration elapsed() const { return Clock::now() - point; };
+	TimeDuration elapsed() const { return Clock::now() - point; };
 };
 
 }

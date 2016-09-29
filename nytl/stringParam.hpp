@@ -34,7 +34,7 @@ class StringParam
 public:
 	constexpr StringParam() noexcept = default;
 	constexpr StringParam(const char* chars) noexcept : data_(chars) {}
-	StringParam(const std::string& string) noexcept : data_(string.c_str()) {} 
+	StringParam(const std::string& string) noexcept : data_(string.c_str()) {}
 
 	constexpr bool empty() const noexcept { return data_ == nullptr; }
 	constexpr const char* data() const noexcept { return data_; }
@@ -46,9 +46,9 @@ public:
 	const char* data_ = nullptr;
 };
 
-inline bool operator==(const StringParam& param, const char* other) 
+inline bool operator==(const StringParam& param, const char* other)
 	{ return std::strcmp(param.data(), other) == 0; }
-inline bool operator!=(const StringParam& param, const char* other) 
+inline bool operator!=(const StringParam& param, const char* other)
 	{ return std::strcmp(param.data(), other) != 0; }
 
 inline bool operator==(const StringParam& param, const std::string& other)

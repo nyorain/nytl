@@ -93,7 +93,7 @@ using DefaultSerializer = Serializer<>;
 template<typename T, typename Base, typename... CArgs>
 unsigned int addType(Serializer<Base, CArgs...>& m)
 {
-    return m.template add<T>();
+	return m.template add<T>();
 }
 
 }

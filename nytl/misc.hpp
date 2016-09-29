@@ -1,4 +1,4 @@
-// Copyright (c) 2016 nyorain 
+// Copyright (c) 2016 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
@@ -32,39 +32,39 @@ namespace nytl
 template<typename U, typename V, typename... A>
 std::function<U(A...)> memberCallback(U (V::*func)(A ...), typename std::remove_const<V>::type* obj)
 {
-    return ([func, obj](A... params)
-    {
-        return (obj->*func)(std::forward<A>(params)...);
-    });
+	return ([func, obj](A... params)
+	{
+		return (obj->*func)(std::forward<A>(params)...);
+	});
 }
 
 template<typename U, typename V, typename... A>
 std::function<U(A...)> memberCallback(U (V::*func)(A...) const, const V* obj)
 {
-    return ([func, obj](A... params)
-    {
-        return (obj->*func)(std::forward<A>(params)...);
-    });
+	return ([func, obj](A... params)
+	{
+		return (obj->*func)(std::forward<A>(params)...);
+	});
 }
 
 template<typename U, typename V, typename... A>
 std::function<U(A...)> memberCallback(U (V::*func)(A ...), typename std::remove_const<V>::type& obj)
 {
 	auto* tmp = &obj;
-    return ([=](A... params)
-    {
-        return (tmp->*func)(std::forward<A>(params)...);
-    });
+	return ([=](A... params)
+	{
+		return (tmp->*func)(std::forward<A>(params)...);
+	});
 }
 
 template<typename U, typename V, typename... A>
 std::function<U(A...)> memberCallback(U (V::*func)(A...) const, const V& obj)
 {
 	auto* tmp = &obj;
-    return ([=](A ... params)
-    {
-        return (tmp->*func)(std::forward<A>(params)...);
-    });
+	return ([=](A ... params)
+	{
+		return (tmp->*func)(std::forward<A>(params)...);
+	});
 }
 ///\}
 
@@ -72,7 +72,7 @@ std::function<U(A...)> memberCallback(U (V::*func)(A...) const, const V& obj)
 ///Prints the given args to the given output stream.
 template<typename... Args> void printVars(std::ostream& out, Args ... args)
 {
-    Expand{(out << args, 0)...};
+	Expand{(out << args, 0)...};
 }
 
 
@@ -80,21 +80,21 @@ template<typename... Args> void printVars(std::ostream& out, Args ... args)
 inline std::vector<std::string>& split(const std::string &s, char delim,
 		std::vector<std::string> &elems)
 {
-    std::stringstream ss(s);
-    std::string item;
-    while (std::getline(ss, item, delim))
-    {
-        elems.push_back(item);
-    }
-    return elems;
+	std::stringstream ss(s);
+	std::string item;
+	while (std::getline(ss, item, delim))
+	{
+		elems.push_back(item);
+	}
+	return elems;
 }
 
 ///\ingroup utility
 inline std::vector<std::string> split(const std::string &s, char delim)
 {
-    std::vector<std::string> elems;
-    split(s, delim, elems);
-    return elems;
+	std::vector<std::string> elems;
+	split(s, delim, elems);
+	return elems;
 }
 
 ///\ingroup utility
@@ -102,18 +102,18 @@ inline std::vector<std::string> split(const std::string &s, char delim)
 ///\param sep The sperator used after every container component.
 template<typename T> std::string dumpContainer(const T& obj, const char* sep = ",\n")
 {
-    std::stringstream ss;
+	std::stringstream ss;
 
-    bool first = 1;
-    for(auto& val : obj)
-    {
-        if(!first) ss << sep;
-        else first = 0;
+	bool first = 1;
+	for(auto& val : obj)
+	{
+		if(!first) ss << sep;
+		else first = 0;
 
-        ss << val;
-    }
+		ss << val;
+	}
 
-    return ss.str();
+	return ss.str();
 }
 
 }

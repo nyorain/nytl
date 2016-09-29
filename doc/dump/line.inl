@@ -42,29 +42,29 @@ struct SimplexIntersects<D, P, 1>
 template<size_t D, typename P> bool
 Line<D, P>::definedAt(const P& value, std::size_t dim) const
 {
-    return ((smallestValue(dim) <= value) &&
-            (greatestValue(dim) >= value));
+	return ((smallestValue(dim) <= value) &&
+			(greatestValue(dim) >= value));
 }
 
 template<size_t D, typename P> Vec<D, P>
 Line<D, P>::valueAt(const P& value, std::size_t dim) const
 {
-    if(!definedAt(value, dim))
-    {
+	if(!definedAt(value, dim))
+	{
 		//throw?
-        return {};
-    }
-    else if(gradient()[dim] == 0)
-    {
-        auto ret = a;
-        ret[dim] = value;
-        return ret;
-    }
-    else
-    {
-        auto ret = a + ((value - a[dim]) * gradient(dim));
-        return ret;
-    }
+		return {};
+	}
+	else if(gradient()[dim] == 0)
+	{
+		auto ret = a;
+		ret[dim] = value;
+		return ret;
+	}
+	else
+	{
+		auto ret = a + ((value - a[dim]) * gradient(dim));
+		return ret;
+	}
 }
 
 template<std::size_t D, typename P>

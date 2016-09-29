@@ -28,17 +28,17 @@ public:
 
 	constexpr Flags& operator=(const Flags& r) noexcept { value_ = r.value(); return *this; }
 	constexpr Flags& operator|=(const Flags& r) noexcept { value_ |= r.value(); return *this; }
-    constexpr Flags& operator&=(const Flags& r) noexcept { value_ &= r.value_; return *this; }
-    constexpr Flags& operator^=(const Flags& r) noexcept { value_ ^= r.value(); return *this; }
-    constexpr Flags operator|(const Flags& r) const noexcept { return Flags(r) |= *this; }
-    constexpr Flags operator&(const Flags& r) const noexcept { return Flags(r) &= *this; }
-    constexpr Flags operator^(const Flags& r) const noexcept { return Flags(r) ^= *this; }
-    constexpr operator bool() const noexcept { return (value()); }
-    constexpr bool operator!() const noexcept { return !(value()); }
-    constexpr bool operator==(const Flags& rhs) const noexcept { return value_ == rhs.value(); }
-    constexpr bool operator!=(const Flags& rhs) const noexcept { return value_ != rhs.value(); }
+	constexpr Flags& operator&=(const Flags& r) noexcept { value_ &= r.value_; return *this; }
+	constexpr Flags& operator^=(const Flags& r) noexcept { value_ ^= r.value(); return *this; }
+	constexpr Flags operator|(const Flags& r) const noexcept { return Flags(r) |= *this; }
+	constexpr Flags operator&(const Flags& r) const noexcept { return Flags(r) &= *this; }
+	constexpr Flags operator^(const Flags& r) const noexcept { return Flags(r) ^= *this; }
+	constexpr operator bool() const noexcept { return (value()); }
+	constexpr bool operator!() const noexcept { return !(value()); }
+	constexpr bool operator==(const Flags& rhs) const noexcept { return value_ == rhs.value(); }
+	constexpr bool operator!=(const Flags& rhs) const noexcept { return value_ != rhs.value(); }
 
-    constexpr explicit operator U() const noexcept { return value_; }
+	constexpr explicit operator U() const noexcept { return value_; }
 	constexpr const U& value() const noexcept { return value_; }
 
 protected:

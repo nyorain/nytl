@@ -58,10 +58,10 @@ public:
 	using Pointer = Precision*;
 	using ConstPointer = const Precision*;
 
-    using RectRegionType = RectRegion;
-    using VecType = Vec<dim, Precision>;
-    using RectType = Rect<dim, Precision>;
-    using LineType = Line<dim, Precision>;
+	using RectRegionType = RectRegion;
+	using VecType = Vec<dim, Precision>;
+	using RectType = Rect<dim, Precision>;
+	using LineType = Line<dim, Precision>;
 
 	//stl conformance
 	using value_type = Precision;
@@ -73,20 +73,20 @@ public:
 
 
 public:
-    std::vector<RectType> rects_ {};
+	std::vector<RectType> rects_ {};
 
 public:
-    RectRegion(const std::vector<RectType>& rects) : rects_(rects) {};
-    RectRegion() noexcept = default;
-    ~RectRegion() noexcept = default;
+	RectRegion(const std::vector<RectType>& rects) : rects_(rects) {};
+	RectRegion() noexcept = default;
+	~RectRegion() noexcept = default;
 
-    RectRegion(const RectRegionType& other) = default;
-    RectRegion& operator=(const RectRegionType& other) = default;
+	RectRegion(const RectRegionType& other) = default;
+	RectRegion& operator=(const RectRegionType& other) = default;
 
-    RectRegion(RectRegionType&& other) noexcept = default;
-    RectRegion& operator=(RectRegionType&& other) noexcept = default;
+	RectRegion(RectRegionType&& other) noexcept = default;
+	RectRegion& operator=(RectRegionType&& other) noexcept = default;
 
-    //change the RectRegion
+	//change the RectRegion
 	void add(const RectType& r);
 	void add(const RectRegionType& r);
 
@@ -100,10 +100,10 @@ public:
 	RectRegion& operator|=(const RectType& r);
 	RectRegion& operator|=(const RectRegionType& r);
 
-    RectRegion& operator&=(const RectType& r);
+	RectRegion& operator&=(const RectType& r);
 	RectRegion& operator&=(const RectRegionType& r);
 
-    RectRegion& operator^=(const RectType& r);
+	RectRegion& operator^=(const RectType& r);
 	RectRegion& operator^=(const RectRegionType& r);
 
 	//

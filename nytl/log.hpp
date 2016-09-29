@@ -22,24 +22,24 @@ namespace nytl
 class Logger
 {
 public:
-    std::string prefix {};
-    std::string name {"log"};
-    std::ostream* stream {nullptr};
+	std::string prefix {};
+	std::string name {"log"};
+	std::ostream* stream {nullptr};
 
 public:
-    Logger() = default;
-    Logger(std::ostream& os) : stream(&os){};
-    Logger(const std::string& pre, const std::string& strm, std::ostream& str = std::cout)
+	Logger() = default;
+	Logger(std::ostream& os) : stream(&os){};
+	Logger(const std::string& pre, const std::string& strm, std::ostream& str = std::cout)
 		: prefix(pre), name(strm), stream(&str) {}
 
 	///Outputs the given args to the ostream if valid.
-    template<typename... Args> inline
-    void output(Args&&... args) const
+	template<typename... Args> inline
+	void output(Args&&... args) const
 		{  if(stream) printVars(*stream, prefix, name, ": ", std::forward<Args>(args)..., "\n"); }
 
 	///Operator wrapper for output().
-    template<typename... Args> inline
-    void operator()(Args&&... args) const
+	template<typename... Args> inline
+	void operator()(Args&&... args) const
 		{ output(std::forward<Args>(args)...); }
 };
 

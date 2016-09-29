@@ -68,7 +68,7 @@ class DeriveCloneMovable : public Base
 {
 private:
 	template<typename X> friend std::unique_ptr<X> cloneMove(X&);
-    virtual Base* cloneMove() override
+	virtual Base* cloneMove() override
 		{ return new Derived(std::move(static_cast<Derived&>(*this))); }
 
 protected:
@@ -84,7 +84,7 @@ class DeriveCloneable : public DeriveCloneMovable<Base, Derived>
 {
 private:
 	template<typename X> friend std::unique_ptr<X> clone(const X&);
-    virtual Base* clone() const override //Base return type since it uses CRTP
+	virtual Base* clone() const override //Base return type since it uses CRTP
 		{ return new Derived(static_cast<const Derived&>(*this)); }
 
 protected:
@@ -139,13 +139,13 @@ std::unique_ptr<T> cloneMove(T& value)
 template<class A> std::vector<decltype(clone(A{}))>
 cloneVector(const std::vector<A>& VectorObject)
 {
-    std::vector<A> ret;
-    ret.reserve(VectorObject.size());
+	std::vector<A> ret;
+	ret.reserve(VectorObject.size());
 
-    for(auto& val : VectorObject)
-        ret.emplace_back(clone(val));
+	for(auto& val : VectorObject)
+		ret.emplace_back(clone(val));
 
-    return ret;
+	return ret;
 }
 
 }

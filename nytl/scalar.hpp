@@ -24,29 +24,29 @@ constexpr const double cE = 2.71828182845;
 template<typename P>
 constexpr auto degrees(const P& rad) -> decltype(rad / cDeg)
 {
-    return rad / cDeg;
+	return rad / cDeg;
 }
 
 template<typename P>
 constexpr auto radians(const P& deg) -> decltype(deg * cDeg)
 {
-    return deg * cDeg;
+	return deg * cDeg;
 }
 
 //clamp
 ///TODO: use std version instead
 constexpr double clamp(double val, double minVal, double maxVal)
 {
-    return
-        val <= minVal ? minVal :
-        val >= maxVal ? maxVal:
-        val;
+	return
+		val <= minVal ? minVal :
+		val >= maxVal ? maxVal:
+		val;
 }
 
 //mix
 constexpr double mix(double x, double y, double a)
 {
-    return (x * (1 - a)) + (y * a);
+	return (x * (1 - a)) + (y * a);
 }
 
 //TODO: fix that. change everywhere to std::min/max

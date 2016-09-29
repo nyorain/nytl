@@ -64,20 +64,20 @@ public:
 
 public:
 	///Destroys the Callback object and removes all registered functions.
-    virtual ~Callback(){ clear(); }
+	virtual ~Callback(){ clear(); }
 
-    ///Registers a function without returning a Connection object.
-    CbConn operator+=(FuncArg func)
-    {
-        return add(func);
-    };
+	///Registers a function without returning a Connection object.
+	CbConn operator+=(FuncArg func)
+	{
+		return add(func);
+	};
 
 	///Resets all registered function and sets the given one as only Callback function.
-    CbConn operator=(FuncArg func)
-    {
-        clear();
-        return add(func);
-    };
+	CbConn operator=(FuncArg func)
+	{
+		clear();
+		return add(func);
+	};
 
 	///\brief Registers a Callback function.
 	///\details The function must have a compatible signature to the Callbacks one but
@@ -86,69 +86,69 @@ public:
 	///\return A Connection object for the registered function which can be used to
 	///unregister it and check if it is registered.
 	///\sa Connection
-    CbConn add(FuncArg func)
-    {
-        slots_.emplace_back();
+	CbConn add(FuncArg func)
+	{
+		slots_.emplace_back();
 
-        auto ptr = std::make_shared<std::size_t>(++highestID_);
-        slots_.back().data = ptr;
-        slots_.back().func = func.function();
+		auto ptr = std::make_shared<std::size_t>(++highestID_);
+		slots_.back().data = ptr;
+		slots_.back().func = func.function();
 
-        return {*this, ptr};
-    };
+		return {*this, ptr};
+	};
 
 	///Calls all registered functions and returns a Vector with the returned objects.
-    std::vector<Ret> call(Args... a)
-    {
-        auto Vec = slots_; //if called functions manipulate Callback
+	std::vector<Ret> call(Args... a)
+	{
+		auto Vec = slots_; //if called functions manipulate Callback
 
-        std::vector<Ret> ret;
-        ret.reserve(slots_.size());
+		std::vector<Ret> ret;
+		ret.reserve(slots_.size());
 
-        for(auto& slot : Vec)
-            ret.push_back(slot.func({*this, slot.data}, std::forward<Args>(a)...));
+		for(auto& slot : Vec)
+			ret.push_back(slot.func({*this, slot.data}, std::forward<Args>(a)...));
 
-        return ret;
-    };
+		return ret;
+	};
 
 	///Clears all registered functions.
-    void clear()
-    {
-        slots_.clear();
-    }
+	void clear()
+	{
+		slots_.clear();
+	}
 
 	///Operator version of call. Calls all registered functions and return their returned objects.
-    std::vector<Ret> operator() (Args... a)
-    {
-        return call(std::forward<Args>(a)...);
-    }
+	std::vector<Ret> operator() (Args... a)
+	{
+		return call(std::forward<Args>(a)...);
+	}
 
 protected:
-    struct CallbackSlot
-    {
-        ConnectionDataPtr<std::size_t> data;
-        std::function<Ret(const CbConnRef&, Args...)> func;
-    };
+	struct CallbackSlot
+	{
+		ConnectionDataPtr<std::size_t> data;
+		std::function<Ret(const CbConnRef&, Args...)> func;
+	};
 
 protected:
-    size_t highestID_ {0};
-    std::vector<CallbackSlot> slots_;
+	size_t highestID_ {0};
+	std::vector<CallbackSlot> slots_;
 
 protected:
-    virtual void remove(size_t id) override
-    {
-        if(id == 0) return;
-        for(auto it = slots_.cbegin(); it != slots_.cend(); ++it)
-        {
-            if(*it->data == id)
-            {
-                *it->data = 0;
-                slots_.erase(it);
-                return;
-            }
+	virtual void remove(size_t id) override
+	{
+		if(id == 0) return;
+		for(auto it = slots_.cbegin(); it != slots_.cend(); ++it)
+		{
+			if(*it->data == id)
+			{
+				*it->data = 0;
+				slots_.erase(it);
+				return;
+			}
 
-        }
-    };
+		}
+	};
 
 };
 
@@ -162,70 +162,70 @@ public:
 	using FuncArg = CompFunc<void(const CbConnRef&, Args...)>;
 
 public:
-    virtual ~Callback() { clear(); }
+	virtual ~Callback() { clear(); }
 
-    CbConn operator+=(FuncArg func)
-    {
-        return add(func);
-    };
+	CbConn operator+=(FuncArg func)
+	{
+		return add(func);
+	};
 
-    CbConn operator=(FuncArg func)
-    {
-        clear();
-        return add(func);
-    };
+	CbConn operator=(FuncArg func)
+	{
+		clear();
+		return add(func);
+	};
 
-    CbConn add(FuncArg func)
-    {
-        slots_.emplace_back();
+	CbConn add(FuncArg func)
+	{
+		slots_.emplace_back();
 
-        auto ptr = std::make_shared<std::size_t>(++highestID);
-        slots_.back().data = ptr;
-        slots_.back().func = func.function();
+		auto ptr = std::make_shared<std::size_t>(++highestID);
+		slots_.back().data = ptr;
+		slots_.back().func = func.function();
 
-        return {*this, ptr};
-    };
+		return {*this, ptr};
+	};
 
-    void call(Args... a)
-    {
-        auto Vec = slots_;
-        for(auto& slot : Vec) slot.func({*this, slot.data}, std::forward<Args>(a)...);
-    };
+	void call(Args... a)
+	{
+		auto Vec = slots_;
+		for(auto& slot : Vec) slot.func({*this, slot.data}, std::forward<Args>(a)...);
+	};
 
-    void clear()
-    {
-        slots_.clear();
-    }
+	void clear()
+	{
+		slots_.clear();
+	}
 
-    void operator() (Args... a)
-    {
-        call(std::forward<Args>(a)...);
-    }
-
-protected:
-    struct CallbackSlot
-    {
-        ConnectionDataPtr<std::size_t> data;
-        std::function<void(const CbConnRef&, Args ...)> func;
-    };
+	void operator() (Args... a)
+	{
+		call(std::forward<Args>(a)...);
+	}
 
 protected:
-    size_t highestID {0};
-    std::vector<CallbackSlot> slots_;
+	struct CallbackSlot
+	{
+		ConnectionDataPtr<std::size_t> data;
+		std::function<void(const CbConnRef&, Args ...)> func;
+	};
 
-    virtual void remove(size_t id) override
-    {
-        if(id == 0) return;
-        for(auto it = slots_.cbegin(); it != slots_.cend(); ++it)
-        {
-            if(*it->data == id)
-            {
-                *it->data = 0;
-                slots_.erase(it);
-                return;
-            }
-        }
-    };
+protected:
+	size_t highestID {0};
+	std::vector<CallbackSlot> slots_;
+
+	virtual void remove(size_t id) override
+	{
+		if(id == 0) return;
+		for(auto it = slots_.cbegin(); it != slots_.cend(); ++it)
+		{
+			if(*it->data == id)
+			{
+				*it->data = 0;
+				slots_.erase(it);
+				return;
+			}
+		}
+	};
 
 };
 

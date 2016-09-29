@@ -23,51 +23,51 @@ struct TupleMapImpl; //unspecified
 template<typename... OA, typename... NA, std::size_t I>
 struct TupleMapImpl<std::tuple<OA...>, std::tuple<NA...>, I>
 {
-    using OrgTuple = std::tuple<OA...>;
-    using NewTuple = std::tuple<NA...>;
+	using OrgTuple = std::tuple<OA...>;
+	using NewTuple = std::tuple<NA...>;
 
-    constexpr static const bool value = std::is_convertible<
+	constexpr static const bool value = std::is_convertible<
 			typename std::tuple_element<0, OrgTuple>::type,
 			typename std::tuple_element<0, NewTuple>::type
 		>::value;
 
 	using type = typename std::conditional<
-        value,  //condition
-        SeqPrepend< //match
-            typename TupleMapImpl<
-                TupleEraseFirst<OrgTuple>,
-                TupleEraseFirst<NewTuple>,
-                I + 1
-            >::type,
-            I
-        >,
-        typename TupleMapImpl< //no match
-            TupleEraseFirst<OrgTuple>,
-            NewTuple,
-            I + 1
-        >::type
-    >::type;
+		value,  //condition
+		SeqPrepend< //match
+			typename TupleMapImpl<
+				TupleEraseFirst<OrgTuple>,
+				TupleEraseFirst<NewTuple>,
+				I + 1
+			>::type,
+			I
+		>,
+		typename TupleMapImpl< //no match
+			TupleEraseFirst<OrgTuple>,
+			NewTuple,
+			I + 1
+		>::type
+	>::type;
 };
 
 template<typename... OrgLeft, std::size_t idx>
 struct TupleMapImpl<std::tuple<OrgLeft...>, std::tuple<>, idx>
 {
-    using type = std::index_sequence<>;
+	using type = std::index_sequence<>;
 };
 
 template<std::size_t idx>
 struct TupleMapImpl<std::tuple<>, std::tuple<>, idx>
 {
-    using type = std::index_sequence<>;
+	using type = std::index_sequence<>;
 };
 
 template<typename... NewLeft, std::size_t idx>
 struct TupleMapImpl<std::tuple<>, std::tuple<NewLeft...>, idx>
 {
-    using type = std::index_sequence<>;
+	using type = std::index_sequence<>;
 
-    //XXX ERROR. Should not happen! Indicates that args are not compatible.
-    //how to show error if this is used, but only IF it is used (std::conditional must still work)?
+	//XXX ERROR. Should not happen! Indicates that args are not compatible.
+	//how to show error if this is used, but only IF it is used (std::conditional must still work)?
 };
 
 
@@ -79,16 +79,16 @@ struct TupleMap; //unspecified
 template<typename... OA, typename... NA, std::size_t... I>
 struct TupleMap<std::tuple<OA...>, std::tuple<NA...>, std::index_sequence<I...>>
 {
-    using NewTup = typename std::tuple<NA...>;
-    using OrgTup = typename std::tuple<OA...>;
-    using Seq = std::index_sequence<I...>;
+	using NewTup = typename std::tuple<NA...>;
+	using OrgTup = typename std::tuple<OA...>;
+	using Seq = std::index_sequence<I...>;
 
-    static constexpr NewTup map(OA... args) noexcept
-    {
+	static constexpr NewTup map(OA... args) noexcept
+	{
 		unused(args...); //because of warnings on gcc when paras are unused
-        return std::tuple<NA...>(std::forward<decltype(std::get<I>(OrgTup(args...)))>
+		return std::tuple<NA...>(std::forward<decltype(std::get<I>(OrgTup(args...)))>
 				(std::get<I>(OrgTup(args...)))...);
-    }
+	}
 };
 
 } //detail

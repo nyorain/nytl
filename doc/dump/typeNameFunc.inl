@@ -26,30 +26,30 @@ struct TypeNameFuncHelper
 			constexpr auto suffix2 = "";
 			constexpr auto typeRepeats = 1;
 		#elif defined(NYTL_COMPILER_CLANG)
- 			constexpr auto prefix =
+			 constexpr auto prefix =
 				"static nytl::detail::StringWrapper nytl::detail::TypeNameFuncHelper<";
- 			constexpr auto suffix1 = ">::call() [T = ";
- 			constexpr auto suffix2 = "]";
- 			constexpr auto typeRepeats = 2;
+			 constexpr auto suffix1 = ">::call() [T = ";
+			 constexpr auto suffix2 = "]";
+			 constexpr auto typeRepeats = 2;
 		#elif defined(NYTL_COMPILER_GNU)
 			constexpr auto prefix = "static nytl::detail::StringWrapper "
 		"nytl::detail::TypeNameFuncHelper<T>::call() [with T = ";
- 			constexpr auto suffix1 = "]";
- 			constexpr auto suffix2 = "";
- 			constexpr auto typeRepeats = 1;
+			 constexpr auto suffix1 = "]";
+			 constexpr auto suffix2 = "";
+			 constexpr auto typeRepeats = 1;
 		#else
- 			//#warning "nytl::TypeNameFuncHelper does not support your compiler."
+			 //#warning "nytl::TypeNameFuncHelper does not support your compiler."
 			constexpr auto prefix = "";
- 			constexpr auto suffix1 = "";
- 			constexpr auto suffix2 = "";
- 			constexpr auto typeRepeats = 1;
+			 constexpr auto suffix1 = "";
+			 constexpr auto suffix2 = "";
+			 constexpr auto typeRepeats = 1;
 			return typeid(T).name();
 		#endif
 
- 			constexpr auto fLength = sizeof(NYTL_PRETTY_FUNCTION) - 1u;
- 			constexpr auto pLength = sizeof(prefix) - 1u;
- 			constexpr auto sLength = sizeof(suffix1) - 1u + sizeof(suffix2) - 1u;
- 			constexpr auto tLength = (fLength - (pLength + sLength)) / typeRepeats;
+			 constexpr auto fLength = sizeof(NYTL_PRETTY_FUNCTION) - 1u;
+			 constexpr auto pLength = sizeof(prefix) - 1u;
+			 constexpr auto sLength = sizeof(suffix1) - 1u + sizeof(suffix2) - 1u;
+			 constexpr auto tLength = (fLength - (pLength + sLength)) / typeRepeats;
 
 			static char name[tLength + 1u] = {};
 			std::memcpy(name, NYTL_PRETTY_FUNCTION + pLength, tLength - 1u);

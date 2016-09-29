@@ -75,7 +75,7 @@ template<std::size_t D, typename P>
 class Transform
 {
 public:
-    static constexpr std::size_t dim = D;
+	static constexpr std::size_t dim = D;
 
 	using Precision = P;
 	using VecType = Vec<dim, Precision>;
@@ -84,17 +84,17 @@ public:
 	using RectType = Rect<dim, Precision>;
 
 public:
-    Transform() noexcept : mat_(identityMat<dim + 1, P>()) {}
-    ~Transform() noexcept = default;
+	Transform() noexcept : mat_(identityMat<dim + 1, P>()) {}
+	~Transform() noexcept = default;
 
-    void rotate(const RotType& rotation){ nytl::rotate(mat_, rotation); }
-    void translate(const VecType& translation){ nytl::translate(mat_, translation); }
-    void scale(const VecType& scaling){ nytl::scale(mat_, scaling); }
+	void rotate(const RotType& rotation){ nytl::rotate(mat_, rotation); }
+	void translate(const VecType& translation){ nytl::translate(mat_, translation); }
+	void scale(const VecType& scaling){ nytl::scale(mat_, scaling); }
 
 	void resetTransform() { identity(mat_); };
 
-    MatType& transformMatrix() { return mat_; }
-    const MatType& transformMatrix() const { return mat_; }
+	MatType& transformMatrix() { return mat_; }
+	const MatType& transformMatrix() const { return mat_; }
 
 protected:
 	MatType mat_ {};

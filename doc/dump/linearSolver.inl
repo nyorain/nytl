@@ -188,7 +188,7 @@ std::ostream& operator<<(std::ostream& os, const SolutionSet<N>& sol)
 	const char* sep = "";
 	for(auto& exp : sol.solution_)
 	{
-	   	os << sep;
+		   os << sep;
 		sep = " | ";
 
 		bool first = 1;

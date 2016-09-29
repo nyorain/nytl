@@ -47,7 +47,7 @@ private:
 	Vector_type children_;
 
 protected:
-    HierachyBase() = default;
+	HierachyBase() = default;
 	virtual ~HierachyBase(){ destroy(); }
 
 public:
@@ -100,31 +100,31 @@ public:
 	const Vector_type& children() const { return children_; }
 	std::size_t childrenCount() const { return children_.size(); }
 
-    virtual void addChild(Child& child) { children_.push_back(&child); }
+	virtual void addChild(Child& child) { children_.push_back(&child); }
 	virtual bool removeChild(Child& child)
 	{
-	    for(auto it = children_.cbegin(); it != children_.cend(); ++it)
-	    {
-            if(*it == &child)
-            {
-                children_.erase(it);
-                return 1;
-            }
-        }
-	    return 0;
+		for(auto it = children_.cbegin(); it != children_.cend(); ++it)
+		{
+			if(*it == &child)
+			{
+				children_.erase(it);
+				return 1;
+			}
+		}
+		return 0;
 	}
 
 	virtual void destroy()
 	{
 		//c->destroy will trigger removeChild for this object, which may invalidate iterators
 		auto cpy = children_;
-	    for(auto* c : cpy)
-        {
-            static_cast<node_type*>(c)->destroy();
-        }
+		for(auto* c : cpy)
+		{
+			static_cast<node_type*>(c)->destroy();
+		}
 
-	    children_.clear();
-    };
+		children_.clear();
+	};
 
 	virtual const Root& root() const = 0;
 	virtual Root& root() = 0;
@@ -146,7 +146,7 @@ protected:
 	virtual void destroy() override
 	{
 		T::destroy();
-	    if(parent_)
+		if(parent_)
 		{
 			parent_->removeChild(reinterpret_cast<Child&>(*this));
 			parent_ = nullptr;

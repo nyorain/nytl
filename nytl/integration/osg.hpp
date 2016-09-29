@@ -88,15 +88,15 @@ osg::Vec3us toOsg(const Vec3us& v) { return reinterpret_cast<const osg::Vec3us&>
 osg::Vec4us toOsg(const Vec4us& v) { return reinterpret_cast<const osg::Vec4us&>(v); }
 
 //Converter convinience specializations for all to/from glm conversions
-template<typename T, typename O> 
-struct Converter<T, O, 
+template<typename T, typename O>
+struct Converter<T, O,
 	std::enable_if_t<std::is_convertible<decltype(fromOsg(std::declval<T>())), O>::value>>
 {
 	static O call(const T& lhs) { return fromOsg(lhs); }
 };
 
-template<typename T, typename O> 
-struct Converter<T, O, 
+template<typename T, typename O>
+struct Converter<T, O,
 	std::enable_if_t<std::is_convertible<decltype(toOsg(std::declval<T>())), O>::value>>
 {
 	static O call(const T& lhs) { return toOsg(lhs); }
@@ -109,48 +109,48 @@ struct Converter<T, O,
 // The classes that have to be defined.
 // namespace osg
 // {
-// 
+//
 // class Matrixf;
 // class Matrixd;
-// 
+//
 // class Vec2f;
 // class Vec3f;
 // class Vec4f;
-// 
+//
 // class Vec2d;
 // class Vec3d;
 // class Vec4d;
-// 
+//
 // class Vec2i;
 // class Vec3i;
 // class Vec4i;
-// 
+//
 // class Vec2ui;
 // class Vec3ui;
 // class Vec4ui;
-// 
+//
 // class Vec2b;
 // class Vec3b;
 // class Vec4b;
-// 
+//
 // class Vec2ub;
 // class Vec3ub;
 // class Vec4ub;
-// 
+//
 // class Vec2s;
 // class Vec3s;
 // class Vec4s;
-// 
+//
 // class Vec2us;
 // class Vec3us;
 // class Vec4us;
-// 
+//
 // }
 
-// The osg headers that one has to include 
+// The osg headers that one has to include
 // #include <osg/Matrixf>
 // #include <osg/Matrixd>
-// 
+//
 // #include <osg/Vec2f>
 // #include <osg/Vec2d>
 // #include <osg/Vec2i>
@@ -159,7 +159,7 @@ struct Converter<T, O,
 // #include <osg/Vec2ub>
 // #include <osg/Vec2s>
 // #include <osg/Vec2us>
-// 
+//
 // #include <osg/Vec3f>
 // #include <osg/Vec3d>
 // #include <osg/Vec3i>
@@ -168,7 +168,7 @@ struct Converter<T, O,
 // #include <osg/Vec3ub>
 // #include <osg/Vec3s>
 // #include <osg/Vec3us>
-// 
+//
 // #include <osg/Vec4f>
 // #include <osg/Vec4d>
 // #include <osg/Vec4i>

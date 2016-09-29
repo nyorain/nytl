@@ -27,7 +27,7 @@ template<typename T> struct TupleEraseFirstT;
 template<template<typename...> class T, typename Head, typename ... Tail>
 struct TupleEraseFirstT<T<Head, Tail...>>
 {
-    using type = T<Tail...>;
+	using type = T<Tail...>;
 };
 
 template<typename T> using TupleEraseFirst = typename TupleEraseFirstT<T>::type;
@@ -38,7 +38,7 @@ template<typename T, typename Append> struct TupleAppendT;
 template<template<typename...> class T, typename... Body, typename Append>
 struct TupleAppendT<T<Body...>, Append>
 {
-    using type = T<Body..., Append>;
+	using type = T<Body..., Append>;
 };
 
 template<typename T, typename Append> using TupleAppend = typename TupleAppendT<T, Append>::type;
@@ -49,7 +49,7 @@ template<typename T, typename Append> struct TuplePrependT;
 template<template<typename...> class T, typename... Body, typename Prepend>
 struct TuplePrependT<T<Body...>, Prepend>
 {
-    using type = T<Prepend, Body...>;
+	using type = T<Prepend, Body...>;
 };
 
 template<typename T, typename Prepend> using TuplePrepend =
@@ -59,12 +59,12 @@ template<typename T, typename Prepend> using TuplePrepend =
 template<typename T, std::size_t size, template<typename...> class Tuple = std::tuple>
 struct TypeTupleT
 {
-    using type = TuplePrepend<typename TypeTupleT<T, size - 1>::type, T>;
+	using type = TuplePrepend<typename TypeTupleT<T, size - 1>::type, T>;
 };
 
 template<typename T, template<typename...> class Tuple> struct TypeTupleT<T, 1, Tuple>
 {
-    using type = Tuple<T>;
+	using type = Tuple<T>;
 };
 
 template<typename T, std::size_t size, template<typename...> class Tuple = std::tuple>
@@ -80,7 +80,7 @@ template<typename T> struct SeqEraseFirstT;
 template<typename I, template<typename, I...> class T, I Head, I... Tail>
 struct SeqEraseFirstT<T<I, Head, Tail...>>
 {
-    using type = T<I, Tail...>;
+	using type = T<I, Tail...>;
 };
 
 template<typename T> using SeqEraseFirst = typename SeqEraseFirstT<T>::type;
@@ -92,7 +92,7 @@ template<typename T, typename T::value_type Append> struct SeqAppendT;
 template<typename I, template<typename, I...> class T, I... Body, I Append>
 struct SeqAppendT<T<I, Body...>, Append>
 {
-    using type = T<I, Body..., Append>;
+	using type = T<I, Body..., Append>;
 };
 
 template<typename T, typename T::value_type Append> using SeqAppend =
@@ -104,7 +104,7 @@ template<typename T, typename T::value_type Prepend> struct SeqPrependT;
 template<typename I, template<typename, I...> class T, I... Body, I Prepend>
 struct SeqPrependT<T<I, Body...>, Prepend>
 {
-    using type = T<I, Prepend, Body...>;
+	using type = T<I, Prepend, Body...>;
 };
 
 template<typename T, typename T::value_type Prepend> using SeqPrepend =
@@ -115,7 +115,7 @@ template<typename A, typename B> struct SeqMergeT;
 template<typename I, template<typename, I...> class T, I... IdxA, I... IdxB>
 struct SeqMergeT<T<I, IdxA...>, T<I, IdxB...>>
 {
-    using type = T<I, IdxA..., IdxB...>;
+	using type = T<I, IdxA..., IdxB...>;
 };
 
 template<typename A, typename B> using SeqMerge = typename SeqMergeT<A, B>::type;
@@ -125,7 +125,7 @@ template<typename A, typename B> struct SeqMergeRenumberT;
 template<typename I, template<typename, I...> class T, I... IdxA, I... IdxB>
 struct SeqMergeRenumberT<T<I, IdxA...>, T<I, IdxB...>>
 {
-    using type = T<I, IdxA..., (sizeof...(IdxA) + IdxB)...>;
+	using type = T<I, IdxA..., (sizeof...(IdxA) + IdxB)...>;
 };
 
 template<typename A, typename B> using SeqMergeRenumber =
@@ -136,11 +136,11 @@ template<typename T> struct SeqPrint;
 template<typename I, template<typename, I...> class T, I... idx>
 struct SeqPrint<T<I, idx...>>
 {
-    static std::ostream& print(std::ostream& o)
-    {
-        Expand{((void) (o << idx << " "), 0)...};
-        return o;
-    };
+	static std::ostream& print(std::ostream& o)
+	{
+		Expand{((void) (o << idx << " "), 0)...};
+		return o;
+	};
 };
 
 template<typename T> void seqPrint(std::ostream& os)

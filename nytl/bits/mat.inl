@@ -209,8 +209,8 @@ template<std::size_t R, std::size_t C, typename P>
 void ref(Mat<R, C, P>& m)
 {
 	std::size_t c = 0;
-    for(std::size_t r = 0; r < R; ++r, ++c)
-    {
+	for(std::size_t r = 0; r < R; ++r, ++c)
+	{
 		for(; c < C; ++c)
 		{
 			//basically pivotize
@@ -276,12 +276,12 @@ unsigned int analyzeRefMat(const Mat<R, C, P>& m)
 template<size_t R, size_t C, typename P>
 void rref(Mat<R, C, P>& m)
 {
-    ref(m);
+	ref(m);
 
-    for(int r = R - 1; r >= 0; --r)
-    {
+	for(int r = R - 1; r >= 0; --r)
+	{
 		std::size_t c = 0;
-        for(; c < C; ++c)
+		for(; c < C; ++c)
 		{
 			if(m[r][c] != 0) break;
 		}
@@ -291,13 +291,13 @@ void rref(Mat<R, C, P>& m)
 			continue;
 		}
 
-        m[r] /= m[r][c];
+		m[r] /= m[r][c];
 
-        for(std::size_t r2 = 0; r2 < std::size_t(r); ++r2)
-        {
-            m[r2] -= m[r2][c] * m[r];
-        }
-    }
+		for(std::size_t r2 = 0; r2 < std::size_t(r); ++r2)
+		{
+			m[r2] -= m[r2][c] * m[r];
+		}
+	}
 }
 
 ///\relates Mat
@@ -330,9 +330,9 @@ namespace detail
 constexpr const unsigned int cDWidth = 6;
 inline unsigned int getNumberOfDigits(double i)
 {
-    return ((i < 10 && i > 0) || i == 0) ? 1 :
-    (i > -10 && i < 0) ? 2 :
-    (i > 0) ? (unsigned int) std::log10((double) i) + 1 : (unsigned int) std::log((double) -i) + 2;
+	return ((i < 10 && i > 0) || i == 0) ? 1 :
+	(i > -10 && i < 0) ? 2 :
+	(i > 0) ? (unsigned int) std::log10((double) i) + 1 : (unsigned int) std::log((double) -i) + 2;
 }
 
 }
@@ -341,30 +341,30 @@ inline unsigned int getNumberOfDigits(double i)
 template<size_t R, size_t C, class P>
 std::ostream& operator<<(std::ostream& os, const Mat<R, C, P>& obj)
 {
-    auto org = os.precision();
-    os << "{" << "\n";
+	auto org = os.precision();
+	os << "{" << "\n";
 
-    for(unsigned int i(0); i < R; i++)
-    {
-        os << "  " << "(";
-        for(unsigned int o(0); o < C; o++)
-        {
+	for(unsigned int i(0); i < R; i++)
+	{
+		os << "  " << "(";
+		for(unsigned int o(0); o < C; o++)
+		{
 			using namespace detail;
-            os	<< std::setw(cDWidth)
+			os	<< std::setw(cDWidth)
 				<< std::setprecision(cDWidth - getNumberOfDigits(obj[i][o]) + 4)
 				<< obj[i][o];
 
-            if(o != C - 1)
-                os << ", ";
-        }
+			if(o != C - 1)
+				os << ", ";
+		}
 
-        os << ")" << "\n";
-    }
+		os << ")" << "\n";
+	}
 
-    os << "}";
-    os.precision(org);
+	os << "}";
+	os.precision(org);
 
-    return os;
+	return os;
 }
 
 //todo: more efficiency with wrapper classes for operations
@@ -373,7 +373,7 @@ std::ostream& operator<<(std::ostream& os, const Mat<R, C, P>& obj)
 template<size_t R, size_t C, typename P>
 Mat<R, C, P> operator+(Mat<R, C, P> ma, const Mat<R, C, P>& mb)
 {
-    return std::move(ma += mb);
+	return std::move(ma += mb);
 }
 
 
@@ -382,7 +382,7 @@ Mat<R, C, P> operator+(Mat<R, C, P> ma, const Mat<R, C, P>& mb)
 template<size_t R, size_t C, typename P> Mat<R, C, P>
 operator-(Mat<R, C, P> ma, const Mat<R, C, P>& mb)
 {
-    return std::move(ma -= mb);
+	return std::move(ma -= mb);
 }
 
 
@@ -392,14 +392,14 @@ operator-(Mat<R, C, P> ma, const Mat<R, C, P>& mb)
 template<size_t R, size_t C, typename P>
 Mat<R, C, P> operator*(Mat<R, C, P> ma, const P& other)
 {
-    return std::move(ma *= other);
+	return std::move(ma *= other);
 }
 
 ///\relates Mat
 template<size_t R, size_t C, typename P>
 Mat<R, C, P> operator*(const P& other, Mat<R, C, P> ma)
 {
-    return std::move(ma *= other);
+	return std::move(ma *= other);
 }
 
 //Mat and Mat
@@ -407,13 +407,13 @@ Mat<R, C, P> operator*(const P& other, Mat<R, C, P> ma)
 template <size_t RA, size_t CA, size_t CB, typename P> Mat<RA, CB, P>
 operator*(const Mat<RA, CA, P>& ma, const Mat<CA, CB, P>& mb)
 {
-    Mat<RA, CB, P> ret {};
+	Mat<RA, CB, P> ret {};
 
-    for(size_t r(0); r < RA; ++r)
-        for(size_t c(0); c < CB; ++c)
-            ret[r][c] = sum(ma.row(r) * mb.col(c));
+	for(size_t r(0); r < RA; ++r)
+		for(size_t c(0); c < CB; ++c)
+			ret[r][c] = sum(ma.row(r) * mb.col(c));
 
-    return ret;
+	return ret;
 }
 
 //Mat and Vector
@@ -421,20 +421,20 @@ operator*(const Mat<RA, CA, P>& ma, const Mat<CA, CB, P>& mb)
 template<size_t R, size_t C, typename P>
 Vec<R, P> operator*(const Mat<R, C, P>& ma, const Vec<C, P>& v)
 {
-    Vec<R, P> ret {};
-    ret.fill(P());
+	Vec<R, P> ret {};
+	ret.fill(P());
 
-    for(size_t i(0); i < R; i++)
-        ret[i] = sum(ma.row(i) * v);
+	for(size_t i(0); i < R; i++)
+		ret[i] = sum(ma.row(i) * v);
 
-    return ret;
+	return ret;
 }
 
 ///\relates Mat
 template<size_t R, size_t C, typename P>
 Vec<R, P> operator*(const Vec<C, P>& v, const Mat<R, C, P>& ma)
 {
-    return (ma * v);
+	return (ma * v);
 }
 
 #ifdef DOXYGEN

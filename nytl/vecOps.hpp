@@ -20,9 +20,9 @@ namespace nytl
 template<std::size_t D, typename T>
 constexpr auto sum(const Vec<D, T>& v) -> decltype(v[0] + v[0])
 {
-    auto ret = decltype(v[0] + v[0]) {};
-    for(auto& val : v) ret += val;
-    return ret;
+	auto ret = decltype(v[0] + v[0]) {};
+	for(auto& val : v) ret += val;
+	return ret;
 }
 
 ///\relates nytl::Vec
@@ -30,9 +30,9 @@ constexpr auto sum(const Vec<D, T>& v) -> decltype(v[0] + v[0])
 template<std::size_t D, typename T>
 constexpr auto multiply(const Vec<D, T>& v) -> decltype(v[0] * v[0])
 {
-    auto ret = decltype(v[0] * v[0]) (1);
-    for(auto& val : v) ret *= val;
-    return ret;
+	auto ret = decltype(v[0] * v[0]) (1);
+	for(auto& val : v) ret *= val;
+	return ret;
 }
 
 ///\relates nytl::Vec
@@ -40,9 +40,9 @@ constexpr auto multiply(const Vec<D, T>& v) -> decltype(v[0] * v[0])
 template<std::size_t D, typename T>
 constexpr auto length(const Vec<D, T>& v) -> decltype(sqrt(v[0] * v[0]))
 {
-    decltype(v[0] * v[0]) ret{};
-    for(auto& val : v) ret += val * val;
-    return std::sqrt(ret);
+	decltype(v[0] * v[0]) ret{};
+	for(auto& val : v) ret += val * val;
+	return std::sqrt(ret);
 }
 
 ///\relates nytl::Vec
@@ -51,7 +51,7 @@ constexpr auto length(const Vec<D, T>& v) -> decltype(sqrt(v[0] * v[0]))
 template<std::size_t D, typename T>
 constexpr auto norm(const Vec<D, T>& v) -> decltype(length(v))
 {
-    return length(v);
+	return length(v);
 }
 
 ///\relates nytl::Vec
@@ -59,7 +59,7 @@ constexpr auto norm(const Vec<D, T>& v) -> decltype(length(v))
 template<std::size_t DA, std::size_t DB, typename TA, typename TB>
 constexpr auto dot(const Vec<DA, TA>& va, const Vec<DB, TB>& vb) -> decltype(sum(va * vb))
 {
-    return sum(va * vb);
+	return sum(va * vb);
 }
 
 ///\relates nytl::Vec
@@ -68,7 +68,7 @@ constexpr auto dot(const Vec<DA, TA>& va, const Vec<DB, TB>& vb) -> decltype(sum
 template<std::size_t DA, std::size_t DB, typename TA, typename TB>
 constexpr auto scalar(const Vec<DA, TA>& va, const Vec<DB, TB>& vb) -> decltype(sum(va * vb))
 {
-    return sum(va * vb);
+	return sum(va * vb);
 }
 
 ///\relates nytl::Vec
@@ -76,7 +76,7 @@ constexpr auto scalar(const Vec<DA, TA>& va, const Vec<DB, TB>& vb) -> decltype(
 template<typename TA, typename TB>
 constexpr auto cross(const Vec<3, TA>& va, const Vec<3, TB>& vb) -> Vec<3, decltype(va[0] * vb[0])>
 {
-    return Vec<3, decltype(va[0] * vb[0])>
+	return Vec<3, decltype(va[0] * vb[0])>
 		{
 			va[2] * va[3] - va[3] * vb[2],
 			va[3] * va[1] - va[1] * vb[3],
@@ -89,7 +89,7 @@ constexpr auto cross(const Vec<3, TA>& va, const Vec<3, TB>& vb) -> Vec<3, declt
 template<std::size_t DA, std::size_t DB, typename TA, typename TB>
 constexpr double angle(const Vec<DA, TA>& va, const Vec<DB, TB>& vb)
 {
-    return std::acos(sum(va * vb) / (length(va) * length(vb)));
+	return std::acos(sum(va * vb) / (length(va) * length(vb)));
 }
 
 ///\relates nytl::Vec
@@ -98,7 +98,7 @@ constexpr double angle(const Vec<DA, TA>& va, const Vec<DB, TB>& vb)
 template<std::size_t DA, std::size_t DB, typename TA, typename TB>
 constexpr double smallerAngle(const Vec<DA, TA>& va, const Vec<DB, TB>& vb)
 {
-    return std::acos(abs(sum(va * vb)) / (length(va) * length(vb)));
+	return std::acos(abs(sum(va * vb)) / (length(va) * length(vb)));
 }
 
 //todo: cangle for 3-Densional (or all) Vectors
@@ -107,9 +107,9 @@ constexpr double smallerAngle(const Vec<DA, TA>& va, const Vec<DB, TB>& vb)
 template<typename TA, typename TB>
 constexpr double cangle(const Vec<2, TA>& va, const Vec<2, TB>& vb)
 {
-    auto val = atan2(va.y, va.x) - atan2(vb.y, vb.x);
-    if(val <= 0) return (2 * cPi) + val;
-    return val;
+	auto val = atan2(va.y, va.x) - atan2(vb.y, vb.x);
+	if(val <= 0) return (2 * cPi) + val;
+	return val;
 }
 
 ///\relates nytl::Vec
@@ -117,7 +117,7 @@ constexpr double cangle(const Vec<2, TA>& va, const Vec<2, TB>& vb)
 template<std::size_t D, typename T>
 constexpr auto normalize(const Vec<D, T>& va) -> decltype(va / length(va))
 {
-    return va / length(va);
+	return va / length(va);
 }
 
 ///\relates nytl::Vec
@@ -135,23 +135,23 @@ constexpr auto pow(Vec<D, TA> base, const TB& exp) -> Vec<D, decltype(std::pow(b
 template<std::size_t D, typename T>
 constexpr auto distance(const Vec<D, T>& va, const Vec<D, T>& vb) -> decltype(length(va - vb))
 {
-    return length(vb - va);
+	return length(vb - va);
 }
 
 ///\relates nytl::Vec
 template<std::size_t D, typename T>
 constexpr Vec<D, double> radians(Vec<D, T> va)
 {
-    for(auto& val : va) val = radians(val);
-    return va;
+	for(auto& val : va) val = radians(val);
+	return va;
 }
 
 ///\relates nytl::Vec
 template<std::size_t D, typename T>
 constexpr Vec<D, double> degrees(Vec<D, T> va)
 {
-    for(auto& val : va) val = degrees(val);
-    return va;
+	for(auto& val : va) val = degrees(val);
+	return va;
 }
 
 ///\relates nytl::Vec
@@ -159,43 +159,43 @@ template<std::size_t D, typename T>
 constexpr Vec<D, T> abs(Vec<D, T> va)
 {
 	using std::abs;
-    for(auto& val : va) val = abs(val);
-    return va;
+	for(auto& val : va) val = abs(val);
+	return va;
 }
 
 ///\relates nytl::Vec
 template<std::size_t D, typename TA, typename TB, typename Tc>
 constexpr Vec<D, TA> clamp(Vec<D, TA> val, const Vec<D, TB>& minVal, const Vec<D, Tc>& maxVal)
 {
-    for(std::size_t i(0); i < min(min(val.size(), minVal.size()), maxVal.size()); ++i)
+	for(std::size_t i(0); i < min(min(val.size(), minVal.size()), maxVal.size()); ++i)
 		val[i] = clamp(val[i], minVal[i], maxVal[i]);
-    return val;
+	return val;
 }
 
 ///\relates nytl::Vec
 template<std::size_t D, typename TA, typename TB, typename Tc>
 constexpr Vec<D, TA> clamp(Vec<D, TA> val, const TB& minVal, const Tc& maxVal)
 {
-    for(auto& v : val) v = clamp(v, minVal, maxVal);
-    return val;
+	for(auto& v : val) v = clamp(v, minVal, maxVal);
+	return val;
 }
 
 ///\relates nytl::Vec
 template<std::size_t D, typename TA, typename TB>
 constexpr Vec<D, TA> mix(Vec<D, TA> x, const Vec<D, TA>& y, const Vec<D, TB>& a)
 {
-    for(std::size_t i(0); i < min(min(x.size(), y.size()), a.size()); ++i)
+	for(std::size_t i(0); i < min(min(x.size(), y.size()), a.size()); ++i)
 		x[i] = mix(x[i], y[i], a[i]);
-    return x;
+	return x;
 }
 
 ///\relates nytl::Vec
 template<std::size_t D, typename TA, typename TB>
 constexpr Vec<D, TA> mix(Vec<D, TA> x, const Vec<D, TA>& y, const TB& a)
 {
-    for(std::size_t i(0); i < min(min(x.size(), y.size()), a.size()); ++i)
+	for(std::size_t i(0); i < min(min(x.size(), y.size()), a.size()); ++i)
 		x[i] = mix(x[i], y[i], a);
-    return x;
+	return x;
 }
 
 ///\relates nytl::Vec
@@ -203,30 +203,30 @@ template<std::size_t D, typename TA, typename TB>
 constexpr Vec<D, TA> mix(const TA& x, const TA& y, const Vec<D, TB>& a)
 {
 	Vec<D, TA> ret(a.size());
-    for(std::size_t i(0); i < a.size(); ++i) ret[i] = mix(x, y, a[i]);
-    return ret;
+	for(std::size_t i(0); i < a.size(); ++i) ret[i] = mix(x, y, a[i]);
+	return ret;
 }
 
 ///\relates nytl::Vec
 template<std::size_t D, typename T>
 constexpr auto smallest(const Vec<D, T>& a)
 {
-    auto ret = a[0];
-    for(auto& val : a)
+	auto ret = a[0];
+	for(auto& val : a)
 		if(val < ret) ret = val;
 
-    return ret;
+	return ret;
 }
 
 ///\relates nytl::Vec
 template<std::size_t D, typename T>
 constexpr auto greatest(const Vec<D, T>& a)
 {
-    auto ret = a[0];
-    for(auto& val : a)
-        if(val > ret) ret = val;
+	auto ret = a[0];
+	for(auto& val : a)
+		if(val > ret) ret = val;
 
-    return ret;
+	return ret;
 }
 
 //boolean Vec operations
@@ -234,24 +234,24 @@ constexpr auto greatest(const Vec<D, T>& a)
 template<std::size_t D>
 constexpr bool any(const Vec<D, bool>& v)
 {
-    for(auto val : v) if(val) return true;
-    return false;
+	for(auto val : v) if(val) return true;
+	return false;
 }
 
 ///\relates nytl::Vec
 template<std::size_t D>
 constexpr bool all(const Vec<D, bool>& v)
 {
-    for(auto val : v) if(!val) return false;
-    return true;
+	for(auto val : v) if(!val) return false;
+	return true;
 }
 
 ///\relates nytl::Vec
 template<std::size_t D>
 constexpr bool none(const Vec<D, bool>& v)
 {
-    for(auto val : v) if(val) return false;
-    return true;
+	for(auto val : v) if(val) return false;
+	return true;
 }
 
 ///\relates nytl::Vec
@@ -266,8 +266,8 @@ constexpr Vec<N, T> subVec(const Vec<D, T>& va, std::size_t pos = 0)
 template<std::size_t D, typename T>
 constexpr Vec<D, T> operator!(Vec<D, T> v)
 {
-    for(auto& val : v) val = !val;
-    return v;
+	for(auto& val : v) val = !val;
+	return v;
 }
 
 //component-wise
@@ -275,44 +275,44 @@ constexpr Vec<D, T> operator!(Vec<D, T> v)
 template<std::size_t D, typename T>
 constexpr Vec<D, T> max(const Vec<D, T>& va, const Vec<D, T>& vb)
 {
-    Vec<D, T> ret(min(va.size(), vb.size()));
-    for(std::size_t i(0); i < min(va.size(), vb.size()); ++i)
-        ret[i] = max(va[i], vb[i]);
+	Vec<D, T> ret(min(va.size(), vb.size()));
+	for(std::size_t i(0); i < min(va.size(), vb.size()); ++i)
+		ret[i] = max(va[i], vb[i]);
 
-    return ret;
+	return ret;
 }
 
 ///\relates nytl::Vec
 template<std::size_t D, typename T>
 constexpr Vec<D, T> max(const Vec<D, T>& va, const T& value)
 {
-    Vec<D, T> ret(va.size());
-    for(std::size_t i(0); i < va.size(); ++i)
-        ret[i] = max(va[i], value);
+	Vec<D, T> ret(va.size());
+	for(std::size_t i(0); i < va.size(); ++i)
+		ret[i] = max(va[i], value);
 
-    return ret;
+	return ret;
 }
 
 ///\relates nytl::Vec
 template<std::size_t D, typename T>
 constexpr Vec<D, T> min(const Vec<D, T>& va, const Vec<D, T>& vb)
 {
-    Vec<D, T> ret(min(va.size(), vb.size()));
-    for(std::size_t i(0); i < min(va.size(), vb.size()); ++i)
-        ret[i] = min(va[i], vb[i]);
+	Vec<D, T> ret(min(va.size(), vb.size()));
+	for(std::size_t i(0); i < min(va.size(), vb.size()); ++i)
+		ret[i] = min(va[i], vb[i]);
 
-    return ret;
+	return ret;
 }
 
 ///\relates nytl::Vec
 template<std::size_t D, typename T>
 constexpr Vec<D, T> min(const Vec<D, T>& va, const T& value)
 {
-    Vec<D, T> ret(va.size());
-    for(std::size_t i(0); i < va.size(); ++i)
-        ret[i] = min(va[i], value);
+	Vec<D, T> ret(va.size());
+	for(std::size_t i(0); i < va.size(); ++i)
+		ret[i] = min(va[i], value);
 
-    return ret;
+	return ret;
 }
 
 }

@@ -11,36 +11,36 @@
 template<std::size_t D, typename P> bool
 intersects(const Rect<D, P>& r1, const Rect<D, P>& r2)
 {
-    return all(r2.position < r1.position + r1.size) && all(r1.position < r2.position + r2.size);
+	return all(r2.position < r1.position + r1.size) && all(r1.position < r2.position + r2.size);
 }
 
 ///\relates nytl::Rect
 template<std::size_t D, typename P> bool
 intersects(const Rect<D, P>& r1, const Line<D, P>& l2)
 {
-    //TODO: algorithm might be wrong, might have bugs, !important
-    if(contains(r1, l2.a) || contains(r1, l2.b)) return 1;
-    if(!l2.definedFor(r1.position[0], 0) || !l2.definedFor(r1.position[0] + r1.size[0], 0))
+	//TODO: algorithm might be wrong, might have bugs, !important
+	if(contains(r1, l2.a) || contains(r1, l2.b)) return 1;
+	if(!l2.definedFor(r1.position[0], 0) || !l2.definedFor(r1.position[0] + r1.size[0], 0))
 		return 0;
 
-    auto st = l2.valueAt(r1.position[0]);
-    auto en = l2.valueAt(r1.position[0] + r1.size[0]);
+	auto st = l2.valueAt(r1.position[0]);
+	auto en = l2.valueAt(r1.position[0] + r1.size[0]);
 
-    for(std::size_t i(1); i < D; ++i)
-    {
-        int stV = 1;
-        int enV = 1;
+	for(std::size_t i(1); i < D; ++i)
+	{
+		int stV = 1;
+		int enV = 1;
 
-        if(st[i] < r1.position[i]) stV = 0;
-        else if(st[i] > r1.position[i] + r1.size[i]) stV = 2;
+		if(st[i] < r1.position[i]) stV = 0;
+		else if(st[i] > r1.position[i] + r1.size[i]) stV = 2;
 
-        if(en[i] < r1.position[i]) enV = 0;
-        else if(en[i] > r1.position[i] + r1.size[i]) enV = 2;
+		if(en[i] < r1.position[i]) enV = 0;
+		else if(en[i] > r1.position[i] + r1.size[i]) enV = 2;
 
-        if(stV == enV && stV != 1 && enV != 1) return false;
-    }
+		if(stV == enV && stV != 1 && enV != 1) return false;
+	}
 
-    return true;
+	return true;
 }
 
 ///\relates nytl::Rect
@@ -52,19 +52,19 @@ intersects(const Line<D, P>& a, const Rect<D, P>& b){ return intersects(b, a); }
 template<std::size_t D, typename P> bool
 contains(const Rect<D, P>& r1, const Rect<D, P>& r2)
 {
-    return contains(r1, r2.position) && contains(r1, r2.position + r2.size);
+	return contains(r1, r2.position) && contains(r1, r2.position + r2.size);
 }
 ///\relates nytl::Rect
 template<std::size_t D, typename P> bool
 contains(const Rect<D, P>& r1, const Line<D, P>& l2)
 {
-    return contains(r1, l2.a) && contains(r1, l2.b);
+	return contains(r1, l2.a) && contains(r1, l2.b);
 }
 ///\relates nytl::Rect
 template<std::size_t D, typename P> bool
 contains(const Rect<D, P>& r1, const Vec<D, P>& v2)
 {
-    return all(r1.position <= v2) && all(v2 <= r1.position + r1.size);
+	return all(r1.position <= v2) && all(v2 <= r1.position + r1.size);
 }
 
 
@@ -76,39 +76,39 @@ contains(const Rect<D, P>& r1, const Vec<D, P>& v2)
 template<std::size_t D, class P>
 std::vector<Rect<D, P>> difference(const Rect<D, P>& ra, const Rect<D, P>& rb)
 {
-    std::vector<Rect<D, P>> ret;
-    if(!intersects(ra, rb)) return std::vector<Rect<D, P>>{ra};
+	std::vector<Rect<D, P>> ret;
+	if(!intersects(ra, rb)) return std::vector<Rect<D, P>>{ra};
 
-    for(std::size_t i(0); i < D; ++i)
-    {
-        if(ra.position[i] < rb.position[i]) //begin Rect
-        {
-            auto pos = ra.position;
-            for(std::size_t o(0); o < i; ++o)
-                pos[o] = rb.position[o];
+	for(std::size_t i(0); i < D; ++i)
+	{
+		if(ra.position[i] < rb.position[i]) //begin Rect
+		{
+			auto pos = ra.position;
+			for(std::size_t o(0); o < i; ++o)
+				pos[o] = rb.position[o];
 
-            auto size = (ra.position + ra.size) - pos;
-            size[i] = rb.position[i] - pos[i];
+			auto size = (ra.position + ra.size) - pos;
+			size[i] = rb.position[i] - pos[i];
 
-            ret.push_back(Rect<D,P>(pos, size));
-        }
+			ret.push_back(Rect<D,P>(pos, size));
+		}
 
-        if(ra.position[i] + ra.size[i] > rb.position[i] + rb.size[i]) //end Rect
-        {
-            auto pos = ra.position;
-            pos[i] = rb.position[i] + rb.size[i];
-            for(std::size_t o(0); o < i; ++o)
-                pos[o] = std::max(rb.position[o], ra.position[o]);
+		if(ra.position[i] + ra.size[i] > rb.position[i] + rb.size[i]) //end Rect
+		{
+			auto pos = ra.position;
+			pos[i] = rb.position[i] + rb.size[i];
+			for(std::size_t o(0); o < i; ++o)
+				pos[o] = std::max(rb.position[o], ra.position[o]);
 
-            auto size = (ra.position + ra.size) - pos;
-            for(std::size_t o(0); o < i; ++o)
-                size[o] = (rb.position[o] + rb.size[o]) - pos[o];
+			auto size = (ra.position + ra.size) - pos;
+			for(std::size_t o(0); o < i; ++o)
+				size[o] = (rb.position[o] + rb.size[o]) - pos[o];
 
-            ret.push_back(Rect<D, P>(pos, size));
-        }
-    }
+			ret.push_back(Rect<D, P>(pos, size));
+		}
+	}
 
-    return ret;
+	return ret;
 }
 
 ///\relates nytl::Rect
@@ -117,9 +117,9 @@ std::vector<Rect<D, P>> difference(const Rect<D, P>& ra, const Rect<D, P>& rb)
 template<std::size_t D, typename P>
 Rect<D, P> intersection(const Rect<D, P>& ra, const Rect<D, P>& rb)
 {
-    auto pos = max(ra.topLeft(), rb.topLeft());
-    auto size = min(ra.bottomRight(), rb.bottomRight()) - pos;
-    return Rect<D, P>(pos, size); //max and min component-wise
+	auto pos = max(ra.topLeft(), rb.topLeft());
+	auto size = min(ra.bottomRight(), rb.bottomRight()) - pos;
+	return Rect<D, P>(pos, size); //max and min component-wise
 }
 
 ///\relates nytl::Rect
@@ -129,9 +129,9 @@ Rect<D, P> intersection(const Rect<D, P>& ra, const Rect<D, P>& rb)
 template<std::size_t D, typename P>
 std::vector<Rect<D, P>> combination(const Rect<D, P>& ra, const Rect<D, P>& rb)
 {
-    auto ret = difference(ra, rb);
-    ret.push_back(rb);
-    return ret;
+	auto ret = difference(ra, rb);
+	ret.push_back(rb);
+	return ret;
 }
 
 ///\relates nytl::Rect
@@ -140,21 +140,21 @@ std::vector<Rect<D, P>> combination(const Rect<D, P>& ra, const Rect<D, P>& rb)
 template<std::size_t D, typename P>
 std::vector<Rect<D, P>> symmetricDifference(const Rect<D, P>& ra, const Rect<D, P>& rb)
 {
-    //return combination(difference(ra, rb), difference(rb, ra));
-    auto result = combination(ra, rb);
-    auto ret = result;
+	//return combination(difference(ra, rb), difference(rb, ra));
+	auto result = combination(ra, rb);
+	auto ret = result;
 
-    for(std::size_t i(0); i < result.size(); i++)
-    {
-        auto vVec = difference(result[i], intersection(ra, rb));
-        if(!vVec.empty())
-        {
-            ret[i] = vVec[0];
-            ret.insert(ret.cend(), vVec.cbegin() + 1, vVec.cend());
-        }
-    }
+	for(std::size_t i(0); i < result.size(); i++)
+	{
+		auto vVec = difference(result[i], intersection(ra, rb));
+		if(!vVec.empty())
+		{
+			ret[i] = vVec[0];
+			ret.insert(ret.cend(), vVec.cbegin() + 1, vVec.cend());
+		}
+	}
 
-    return ret;
+	return ret;
 }
 
 
@@ -162,35 +162,35 @@ std::vector<Rect<D, P>> symmetricDifference(const Rect<D, P>& ra, const Rect<D, 
 template<std::size_t D, typename P>
 Rect<D, P> operator&(const Rect<D, P>& ra, const Rect<D, P>& rb)
 {
-    return intersection(ra, rb);
+	return intersection(ra, rb);
 }
 
 ///\relates nytl::Rect
 template<std::size_t D, typename P>
 std::vector<Rect<D, P>> operator^(const Rect<D, P>& ra, const Rect<D, P>& rb)
 {
-    return symmeticDifference(ra, rb);
+	return symmeticDifference(ra, rb);
 }
 
 ///\relates nytl::Rect
 template<std::size_t D, typename P>
 std::vector<Rect<D, P>> operator|(const Rect<D, P>& ra, const Rect<D, P>& rb)
 {
-    return combination(ra, rb);
+	return combination(ra, rb);
 }
 
 template<std::size_t D, typename P>
 std::vector<Rect<D, P>> operator-(const Rect<D, P>& ra, const Rect<D, P>& rb)
 {
-    return difference(ra, rb);
+	return difference(ra, rb);
 }
 
 ///\relates nytl::Rect
 template<size_t D, typename T>
 std::ostream& operator<<(std::ostream& os, const Rect<D, T>& obj)
 {
-    os << "position: " << obj.position << " size: " << obj.size;
-    return os;
+	os << "position: " << obj.position << " size: " << obj.size;
+	return os;
 }
 
 #endif //header guard

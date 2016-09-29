@@ -11,7 +11,7 @@ std::size_t charCount(const std::string& utf8)
 {
 	std::size_t count = 0u;
 	for(auto& byte : utf8)
-    	if((byte & 0xc0) != 0x80) ++count;
+		if((byte & 0xc0) != 0x80) ++count;
 
 	return count;
 }
@@ -30,7 +30,7 @@ std::array<char, 4> nth(const std::string& utf8, std::size_t n)
 			++charNum;
 		}
 
-      	if((byte & 0xc0) != 0x80) ++count;
+		  if((byte & 0xc0) != 0x80) ++count;
 		if(count > n) break;
 	}
 
@@ -52,7 +52,7 @@ const char& nth(const std::string& utf8, std::size_t n, std::uint8_t& size)
 			++size;
 		}
 
-      	if((byte & 0xc0) != 0x80) ++count;
+		  if((byte & 0xc0) != 0x80) ++count;
 		if(count > n) break;
 	}
 
@@ -74,7 +74,7 @@ char& nth(std::string& utf8, std::size_t n, std::uint8_t& size)
 			++size;
 		}
 
-      	if((byte & 0xc0) != 0x80) ++count;
+		  if((byte & 0xc0) != 0x80) ++count;
 		if(count > n) break;
 	}
 

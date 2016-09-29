@@ -45,11 +45,11 @@ public:
 	static constexpr std::size_t simplexDim = A;
 
 	using Precision = P;
-    using VecType = Vec<D, P>;
+	using VecType = Vec<D, P>;
 	using Size = std::size_t;
 
 	//stl
-    using value_type = Precision;
+	using value_type = Precision;
 	using size_type = Size;
 
 public:
@@ -105,7 +105,7 @@ public:
 	using Size = typename VectorType::size_type;
 
 	//stl
-    using value_type = SimplexType;
+	using value_type = SimplexType;
 	using size_type = Size;
 
 public:

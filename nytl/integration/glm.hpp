@@ -130,15 +130,15 @@ nytl::Mat4<T> fromGlm(const glm::tmat4x4<T, P>& m)
 
 
 //Converter convinience specializations for all to/from glm conversions
-template<typename T, typename O> 
-struct Converter<T, O, 
+template<typename T, typename O>
+struct Converter<T, O,
 	std::enable_if_t<std::is_convertible<decltype(fromGlm(std::declval<T>())), O>::value>>
 {
 	static O call(const T& lhs) { return fromGlm(lhs); }
 };
 
-template<typename T, typename O> 
-struct Converter<T, O, 
+template<typename T, typename O>
+struct Converter<T, O,
 	std::enable_if_t<std::is_convertible<decltype(toGlm(std::declval<T>())), O>::value>>
 {
 	static O call(const T& lhs) { return toGlm(lhs); }

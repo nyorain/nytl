@@ -31,44 +31,44 @@ namespace nytl
 //http://sourceforge.net/p/predef/wiki
 //OS////////////
 #if defined(_WIN32) || defined(__WIN32__)
-    #define NYTL_OS_WINDOWS 1
-    #define NYTL_OS_NAME "Windows"
+	#define NYTL_OS_WINDOWS 1
+	#define NYTL_OS_NAME "Windows"
 
-    #ifdef _WIN64
-        #define NYTL_OS_64 1
-        #define NYTL_OS_WINDOWS64 1
-    #endif // _WIN64
+	#ifdef _WIN64
+		#define NYTL_OS_64 1
+		#define NYTL_OS_WINDOWS64 1
+	#endif // _WIN64
 
 #elif defined(__linux__) || defined(linux) || defined(__linux)
-    #define NYTL_OS_LINUX 1
+	#define NYTL_OS_LINUX 1
 
-    #ifdef __ANDROID__
-        #define NYTL_OS_ANDROID 1
-        #define NYTL_OS_NAME "Android"
-    #else
-        #define NYTL_OS_NAME "Linux"
-    #endif //__ANDROID__
+	#ifdef __ANDROID__
+		#define NYTL_OS_ANDROID 1
+		#define NYTL_OS_NAME "Android"
+	#else
+		#define NYTL_OS_NAME "Linux"
+	#endif //__ANDROID__
 
 #elif defined(__APPLE__) || defined(__MACH__) || defined(macintosh) || defined(Macintosh)
-    #define NYTL_OS_MACOS 1
+	#define NYTL_OS_MACOS 1
 
-    #include "TargetConditionals.h"
-    #ifdef TARGET_OS_IPHONE
-        #define NYTL_OS_IOS 1
-        #define NYTL_OS_NAME "ios"
-    #else
-        #define NYTL_OS_NAME "MacOS"
-    #endif //IOS
+	#include "TargetConditionals.h"
+	#ifdef TARGET_OS_IPHONE
+		#define NYTL_OS_IOS 1
+		#define NYTL_OS_NAME "ios"
+	#else
+		#define NYTL_OS_NAME "MacOS"
+	#endif //IOS
 
 #elif defined(__FreeBSD__) || defined(__OpenBSD__)
-    #define NYTL_OS_BSD 1
-    #define NYTL_OS_NAME "BSD"
+	#define NYTL_OS_BSD 1
+	#define NYTL_OS_NAME "BSD"
 
 #else
-    #define NYTL_OS_UNKOWN 1
-    #define NYTL_OS_NAME "Unknown"
+	#define NYTL_OS_UNKOWN 1
+	#define NYTL_OS_NAME "Unknown"
 
-    //#warning NYTL::SYSTEM: unknown or unsupported OS
+	//#warning NYTL::SYSTEM: unknown or unsupported OS
 
 #endif //OS
 
@@ -76,51 +76,51 @@ namespace nytl
 
 //Compiler////
 #if defined(__BORLANDC__)
-    #define NYTL_COMPILER_BORLAND 1
-    #define NYTL_COMPILER_NAME "Borland"
+	#define NYTL_COMPILER_BORLAND 1
+	#define NYTL_COMPILER_NAME "Borland"
 
 
 #elif defined(__MINGW32__)
-    #define NYTL_COMPILER_MINGW 1
-    #define NYTL_COMPILER_NAME "MINGW"
+	#define NYTL_COMPILER_MINGW 1
+	#define NYTL_COMPILER_NAME "MINGW"
 
-    #define NYTL_MINGW32_VERSION (_MINGW32_MAJOR_VERSION * 100 + _MINGW32_MINOR_VERSION)
+	#define NYTL_MINGW32_VERSION (_MINGW32_MAJOR_VERSION * 100 + _MINGW32_MINOR_VERSION)
 
-    #if defined(__MINGW64__)
-        #define NYTL_COMPILER_64 1
-        #define NYTL_COMPILER_MINGW64 1
-        #define NYTL_MINGW64_VERSION (_MINGW64_MAJOR_VERSION * 100 + _MINGW64_MINOR_VERSION)
-    #endif
+	#if defined(__MINGW64__)
+		#define NYTL_COMPILER_64 1
+		#define NYTL_COMPILER_MINGW64 1
+		#define NYTL_MINGW64_VERSION (_MINGW64_MAJOR_VERSION * 100 + _MINGW64_MINOR_VERSION)
+	#endif
 
 #elif defined(__clang__)
-    #define NYTL_COMPILER_CLANG 1
-    #define NYTL_COMPILER_NAME "Clang"
+	#define NYTL_COMPILER_CLANG 1
+	#define NYTL_COMPILER_NAME "Clang"
 
-    #define NYTL_CLANG_VERSION ( __clang_major__ * 100 + __clang_minor__)
+	#define NYTL_CLANG_VERSION ( __clang_major__ * 100 + __clang_minor__)
 
 #elif defined(__INTEL_COMPILER)
-    #define NYTL_COMPILER_INTEL 1
-    #define NYTL_COMPILER_NAME "Intel"
+	#define NYTL_COMPILER_INTEL 1
+	#define NYTL_COMPILER_NAME "Intel"
 
-    #define NYTL_INTEL_VERSION __INTEL_COMPILER
+	#define NYTL_INTEL_VERSION __INTEL_COMPILER
 
 #elif defined(_MSC_VER)
-    #define NYTL_COMPILER_MSC 1
-    #define NYTL_COMPILER_NAME "MSC"
+	#define NYTL_COMPILER_MSC 1
+	#define NYTL_COMPILER_NAME "MSC"
 
-    #define NYTL_MSC_VERSION _MSC_VER
+	#define NYTL_MSC_VERSION _MSC_VER
 
 #elif defined(__GNUC__)
-    #define NYTL_COMPILER_GNU 1
-    #define NYTL_COMPILER_NAME "GNU"
+	#define NYTL_COMPILER_GNU 1
+	#define NYTL_COMPILER_NAME "GNU"
 
-    #define NYTL_GNU_VERSION (__GNUC__ * 100 + __GNUC_MINOR__)
+	#define NYTL_GNU_VERSION (__GNUC__ * 100 + __GNUC_MINOR__)
 
 #else
-    #define NYTL_COMPILER_UNKNOWN 1
-    #define NYTL_COMPILER_NAME "Unknown"
+	#define NYTL_COMPILER_UNKNOWN 1
+	#define NYTL_COMPILER_NAME "Unknown"
 
-    //#warning NYTL::SYSTEM: unknown or unsupported Compiler
+	//#warning NYTL::SYSTEM: unknown or unsupported Compiler
 
 #endif //Compiler
 
@@ -136,34 +136,34 @@ namespace nytl
 ///\ingroup utility
 constexpr const char* osName()
 {
-    return NYTL_OS_NAME;
+	return NYTL_OS_NAME;
 }
 
 ///\ingroup utility
 constexpr const char* compilerName()
 {
-    return NYTL_COMPILER_NAME;
+	return NYTL_COMPILER_NAME;
 }
 
 ///\ingroup utility
 constexpr bool is64Bit()
 {
-    #ifdef NYTL_OS_64
-        return 1;
-    #else
-        return 0;
-    #endif // NYTL_OS_64
+	#ifdef NYTL_OS_64
+		return 1;
+	#else
+		return 0;
+	#endif // NYTL_OS_64
 }
 
 namespace detail
 {
-    static constexpr std::uint32_t dummyEndianTest = 0x1;
+	static constexpr std::uint32_t dummyEndianTest = 0x1;
 }
 
 ///\ingroup utility
 inline bool littleEndian()
 {
-    return (((std::uint8_t*)&detail::dummyEndianTest)[0] == 1);
+	return (((std::uint8_t*)&detail::dummyEndianTest)[0] == 1);
 }
 
 ///\ingroup utility

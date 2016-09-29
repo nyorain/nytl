@@ -31,7 +31,7 @@ protected:
 	friend class ConnectionRef<ID>;
 
 	virtual ~Connectable() = default;
-    virtual void remove(ID id) = 0;
+	virtual void remove(ID id) = 0;
 };
 
 ///Underlaying connection data.
@@ -47,27 +47,27 @@ template<typename ID>
 class Connection
 {
 public:
-    Connection(Connectable<ID>& call, const ConnectionDataPtr<ID>& data) noexcept
+	Connection(Connectable<ID>& call, const ConnectionDataPtr<ID>& data) noexcept
 		: callback_(&call), data_(data) {}
 
 	Connection() = default;
-    ~Connection() = default;
+	~Connection() = default;
 
-    Connection(const Connection&) = default;
-    Connection& operator=(const Connection&) = default;
+	Connection(const Connection&) = default;
+	Connection& operator=(const Connection&) = default;
 
-    Connection(Connection&&) = default;
-    Connection& operator=(Connection&&) = default;
+	Connection(Connection&&) = default;
+	Connection& operator=(Connection&&) = default;
 
 	///Unregisters the function associated with this Connection from the Callback object.
-    void destroy() { if(callback_ && connected()) callback_->remove(*data_); callback_ = nullptr; }
+	void destroy() { if(callback_ && connected()) callback_->remove(*data_); callback_ = nullptr; }
 
 	///Returns whether the function is still registered and the Callback is still alive.
-    bool connected() const { return (callback_) && (data_) && (*data_ != 0); }
+	bool connected() const { return (callback_) && (data_) && (*data_ != 0); }
 
 protected:
 	Connectable<ID>* callback_ {nullptr};
-    ConnectionDataPtr<ID> data_ {nullptr};
+	ConnectionDataPtr<ID> data_ {nullptr};
 };
 
 ///\ingroup function
@@ -85,26 +85,26 @@ template<typename ID>
 class ConnectionRef
 {
 public:
-    ConnectionRef(Connectable<ID>& call, const ConnectionDataPtr<ID>& data) noexcept
+	ConnectionRef(Connectable<ID>& call, const ConnectionDataPtr<ID>& data) noexcept
 		: callback_(&call), data_(data) {}
 
-    ~ConnectionRef() = default;
+	~ConnectionRef() = default;
 
-    ConnectionRef(const ConnectionRef& other) = default;
-    ConnectionRef& operator=(const ConnectionRef& other) = default;
+	ConnectionRef(const ConnectionRef& other) = default;
+	ConnectionRef& operator=(const ConnectionRef& other) = default;
 
-    ConnectionRef(ConnectionRef&& other) = default;
-    ConnectionRef& operator=(ConnectionRef&& other) = default;
+	ConnectionRef(ConnectionRef&& other) = default;
+	ConnectionRef& operator=(ConnectionRef&& other) = default;
 
 	///Disconnected the Connection, unregisters the associated function.
-    void destroy() const { if(callback_ && connected()) callback_->remove(*data_); }
+	void destroy() const { if(callback_ && connected()) callback_->remove(*data_); }
 
 	///Returns whether the Callback function is still registered.
-    bool connected() const { return (callback_) && (*data_ != 0); }
+	bool connected() const { return (callback_) && (*data_ != 0); }
 
 protected:
 	Connectable<ID>* callback_ {nullptr};
-    ConnectionDataPtr<ID> data_ {nullptr};
+	ConnectionDataPtr<ID> data_ {nullptr};
 };
 
 ///\ingroup function

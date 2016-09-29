@@ -43,56 +43,56 @@ public:
 	using ArgsTuple = std::tuple<A...>;
 
 protected:
-    Function func_ {};
+	Function func_ {};
 
 public:
-    CompatibleFunction() = default;
-    ~CompatibleFunction() = default;
+	CompatibleFunction() = default;
+	~CompatibleFunction() = default;
 
-    //constructor
-    template<typename F, typename = std::enable_if_t<IsCallable<F>>>
-    CompatibleFunction(F func) noexcept { set(func); }
+	//constructor
+	template<typename F, typename = std::enable_if_t<IsCallable<F>>>
+	CompatibleFunction(F func) noexcept { set(func); }
 
-    template<typename F, typename O, typename = std::enable_if_t<IsCallable<F>>>
-    CompatibleFunction(F func, O& object) noexcept { set(memberCallback(func, object)); }
+	template<typename F, typename O, typename = std::enable_if_t<IsCallable<F>>>
+	CompatibleFunction(F func, O& object) noexcept { set(memberCallback(func, object)); }
 
-    CompatibleFunction(const CompFuncType& other) noexcept
+	CompatibleFunction(const CompFuncType& other) noexcept
 		: func_(other.func_) {}
-    template<typename Sig> CompatibleFunction(const CompatibleFunction<Sig>& other) noexcept
+	template<typename Sig> CompatibleFunction(const CompatibleFunction<Sig>& other) noexcept
 		{ set(other.func_); }
 
-    //assignement
-    template<typename F, typename = typename std::enable_if_t<IsCallable<F>>>
-    CompFuncType& operator=(F func) noexcept { set(func); return *this; }
+	//assignement
+	template<typename F, typename = typename std::enable_if_t<IsCallable<F>>>
+	CompFuncType& operator=(F func) noexcept { set(func); return *this; }
 
-    CompFuncType& operator=(const CompFuncType& other) noexcept
+	CompFuncType& operator=(const CompFuncType& other) noexcept
 		{ func_ = other.func_; return *this; }
-    template<typename Sig> CompFuncType& operator=(const CompatibleFunction<Sig>& other) noexcept
+	template<typename Sig> CompFuncType& operator=(const CompatibleFunction<Sig>& other) noexcept
 		{ set(other.func_); return *this; }
 
-    //set
-    template<typename F>
-    void set(F func) noexcept
-    {
+	//set
+	template<typename F>
+	void set(F func) noexcept
+	{
 		using FuncTraits = FunctionTraits<F>;
-        using RealArgsTuple = typename FuncTraits::ArgTuple;
+		using RealArgsTuple = typename FuncTraits::ArgTuple;
 		using RealRet = typename FuncTraits::ReturnType;
-        using MapType = detail::TupleMap<ArgsTuple, RealArgsTuple>;
+		using MapType = detail::TupleMap<ArgsTuple, RealArgsTuple>;
 
-        static_assert(std::is_convertible<R, RealRet>::value, "Return types not compatible");
-        static_assert(MapType::Seq::size() == FuncTraits::arg_size, "Arguments not compatible");
+		static_assert(std::is_convertible<R, RealRet>::value, "Return types not compatible");
+		static_assert(MapType::Seq::size() == FuncTraits::arg_size, "Arguments not compatible");
 
-        func_ = [=](A... args) -> Ret {
-                return static_cast<Ret>(apply(func, MapType::map(std::forward<A>(args)...)));
-            };
-    }
+		func_ = [=](A... args) -> Ret {
+				return static_cast<Ret>(apply(func, MapType::map(std::forward<A>(args)...)));
+			};
+	}
 
 //get
-    Function function() const noexcept { return func_; }
+	Function function() const noexcept { return func_; }
 
-    //call
-    Ret call(A... args) const { func_(std::forward<A>(args)...); }
-    Ret operator()(A... args) const { func_(std::forward<A>(args)...); }
+	//call
+	Ret call(A... args) const { func_(std::forward<A>(args)...); }
+	Ret operator()(A... args) const { func_(std::forward<A>(args)...); }
 
 	operator bool() const { return function(); }
 };
@@ -111,51 +111,51 @@ protected:
 	Function func_;
 
 public:
-    CompatibleFunction() = default;
-    ~CompatibleFunction() = default;
+	CompatibleFunction() = default;
+	~CompatibleFunction() = default;
 
-    //constructor
-    template<typename F, typename = typename std::enable_if_t<IsCallable<F>>>
-    CompatibleFunction(F func) noexcept { set(func); }
+	//constructor
+	template<typename F, typename = typename std::enable_if_t<IsCallable<F>>>
+	CompatibleFunction(F func) noexcept { set(func); }
 
-    template<typename F, typename O, typename = typename std::enable_if_t<IsCallable<F>>>
-    CompatibleFunction(F func, O object) noexcept { set(memberCallback(func, object)); }
+	template<typename F, typename O, typename = typename std::enable_if_t<IsCallable<F>>>
+	CompatibleFunction(F func, O object) noexcept { set(memberCallback(func, object)); }
 
-    CompatibleFunction(const CompFuncType& other) noexcept
+	CompatibleFunction(const CompFuncType& other) noexcept
 		: func_(other.func_) {}
-    template<typename Sig> CompatibleFunction(const CompatibleFunction<Sig>& other) noexcept
+	template<typename Sig> CompatibleFunction(const CompatibleFunction<Sig>& other) noexcept
 		{ set(other.func_); }
 
-    //assignement
-    template<typename F, typename = typename std::enable_if_t<IsCallable<F>>>
-    CompFuncType& operator=(F func) noexcept { set(func); return *this; }
+	//assignement
+	template<typename F, typename = typename std::enable_if_t<IsCallable<F>>>
+	CompFuncType& operator=(F func) noexcept { set(func); return *this; }
 
-    CompFuncType& operator=(const CompFuncType& other) noexcept
+	CompFuncType& operator=(const CompFuncType& other) noexcept
 		{ func_ = other.func_; return *this; }
-    template<typename Sig> CompFuncType& operator=(const CompatibleFunction<Sig>& other) noexcept
+	template<typename Sig> CompFuncType& operator=(const CompatibleFunction<Sig>& other) noexcept
 		{ set(other.func_); return *this; }
 
-    //set
-    template<typename F>
-    void set(F func) noexcept
-    {
+	//set
+	template<typename F>
+	void set(F func) noexcept
+	{
 		using FuncTraits = FunctionTraits<F>;
-        using RealArgsTuple = typename FuncTraits::ArgTuple;
-        using MapType = detail::TupleMap<ArgsTuple, RealArgsTuple>;
+		using RealArgsTuple = typename FuncTraits::ArgTuple;
+		using MapType = detail::TupleMap<ArgsTuple, RealArgsTuple>;
 
-        static_assert(MapType::Seq::size() == FuncTraits::ArgSize, "Arguments not compatible");
+		static_assert(MapType::Seq::size() == FuncTraits::ArgSize, "Arguments not compatible");
 
-        func_ = [=](A... args) -> Ret {
-                apply(func, MapType::map(std::forward<A>(args)...));
-            };
-    }
+		func_ = [=](A... args) -> Ret {
+				apply(func, MapType::map(std::forward<A>(args)...));
+			};
+	}
 
-    //get
-    Function function() const noexcept { return func_; }
+	//get
+	Function function() const noexcept { return func_; }
 
-    //call
-    Ret call(A... args) const { func_(std::forward<A>(args)...); }
-    Ret operator()(A... args) const { func_(std::forward<A>(args)...); }
+	//call
+	Ret call(A... args) const { func_(std::forward<A>(args)...); }
+	Ret operator()(A... args) const { func_(std::forward<A>(args)...); }
 
 	operator bool() const { return function(); }
 };

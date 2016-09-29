@@ -19,7 +19,7 @@ namespace detail
 {
 
 template<int N, typename... Ts> using NthTypeOf =
-    typename std::tuple_element<N, std::tuple<Ts...>>::type;
+	typename std::tuple_element<N, std::tuple<Ts...>>::type;
 
 template<std::size_t N>
 struct nth

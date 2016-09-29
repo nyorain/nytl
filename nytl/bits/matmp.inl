@@ -25,11 +25,11 @@ struct MakeRowRefVec;
 template<std::size_t Size, std::size_t... I>
 struct MakeRowRefVec<Size, std::index_sequence<I...>>
 {
-    template<std::size_t R, std::size_t C, typename P>
-    static RefVec<sizeof...(I), P> call(Vec<R, Vec<C, P>>& v, std::size_t i)
-    {
-        return RefVec<sizeof...(I), P>(v[I][i]...);
-    }
+	template<std::size_t R, std::size_t C, typename P>
+	static RefVec<sizeof...(I), P> call(Vec<R, Vec<C, P>>& v, std::size_t i)
+	{
+		return RefVec<sizeof...(I), P>(v[I][i]...);
+	}
 };
 
 //makeRowVec
@@ -39,11 +39,11 @@ struct MakeRowVec;
 template<std::size_t Size, std::size_t... I>
 struct MakeRowVec<Size, std::index_sequence<I...>>
 {
-    template<size_t R, size_t C, typename P>
-    static Vec<sizeof...(I), P> call(const Vec<R, Vec<C, P>>& v, std::size_t i)
-    {
-        return Vec<sizeof...(I), P>(v[I][i]...);
-    }
+	template<size_t R, size_t C, typename P>
+	static Vec<sizeof...(I), P> call(const Vec<R, Vec<C, P>>& v, std::size_t i)
+	{
+		return Vec<sizeof...(I), P>(v[I][i]...);
+	}
 };
 
 //initMat
@@ -53,17 +53,17 @@ struct InitMatData;
 template<std::size_t Size, std::size_t... I>
 struct InitMatData<Size, std::index_sequence<I...>>
 {
-    template<size_t R, size_t C, typename P, typename... Args>
-    static void call(Vec<R, Vec<C, P>>& v, std::tuple<Args...> args)
-    {
-        Expand{0, ((v[I / C][I % C] = std::get<I>(args)), 0)... };
-    }
+	template<size_t R, size_t C, typename P, typename... Args>
+	static void call(Vec<R, Vec<C, P>>& v, std::tuple<Args...> args)
+	{
+		Expand{0, ((v[I / C][I % C] = std::get<I>(args)), 0)... };
+	}
 
-    template<size_t R, size_t C, typename P>
-    static void call(Vec<R, Vec<C, P>>& v, const P& val)
-    {
-        Expand{0, ((v[I / C][I % C] = val), 0)... };
-    }
+	template<size_t R, size_t C, typename P>
+	static void call(Vec<R, Vec<C, P>>& v, const P& val)
+	{
+		Expand{0, ((v[I / C][I % C] = val), 0)... };
+	}
 };
 
 //copyMatData
@@ -73,11 +73,11 @@ struct CopyMatData;
 template<std::size_t Size, size_t... I>
 struct CopyMatData<Size, std::index_sequence<I...>>
 {
-    template<size_t R, size_t C, typename P>
-    static std::unique_ptr<P[]> call(const Vec<R, Vec<C, P>>& v)
-    {
-        return std::unique_ptr<P[]>(new P[R * C]{v[I / C][I % R]...});
-    }
+	template<size_t R, size_t C, typename P>
+	static std::unique_ptr<P[]> call(const Vec<R, Vec<C, P>>& v)
+	{
+		return std::unique_ptr<P[]>(new P[R * C]{v[I / C][I % R]...});
+	}
 };
 
 //makeRowRefVec
@@ -87,11 +87,11 @@ struct MatTuple;
 template<std::size_t Size, size_t... I>
 struct MatTuple<Size, std::index_sequence<I...>>
 {
-    template<size_t R, size_t C, typename P>
-    static TypeTuple<P, sizeof...(I)> call(const Vec<R, Vec<C, P>>& v)
-    {
-        return TypeTuple<P, sizeof...(I)>{v[I / C][I % R]...};
-    }
+	template<size_t R, size_t C, typename P>
+	static TypeTuple<P, sizeof...(I)> call(const Vec<R, Vec<C, P>>& v)
+	{
+		return TypeTuple<P, sizeof...(I)>{v[I / C][I % R]...};
+	}
 };
 
 }

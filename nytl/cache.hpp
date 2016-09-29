@@ -1,4 +1,4 @@
-// Copyright (c) 2016 nyorain 
+// Copyright (c) 2016 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
@@ -57,11 +57,11 @@ public:
 	///\return The associated Cache for a given key, nullptr if none is found for that key.
 	const Base* cache(const Key& id) const
 	{
-        auto it = cache_.find(id);
+		auto it = cache_.find(id);
 		if(it != cache_.end())
 			return it->second.get();
 
-        return nullptr;
+		return nullptr;
 	}
 
 	///Stores a Cache object with for a given key. If there exists already some Cache object for
@@ -71,7 +71,7 @@ public:
 	T& cache(const Key& id, std::shared_ptr<T> c) const
 	{
 		auto& ret = *c;
-        cache_[id] = std::move(c);
+		cache_[id] = std::move(c);
 		return ret;
 	}
 
@@ -79,14 +79,14 @@ public:
 	///\return 1 if an found Cache object was cleared, 0 otherwise.
 	bool resetCache(const Key& id) const
 	{
-        auto it = cache_.find(id);
+		auto it = cache_.find(id);
 		if(it != cache_.cend())
 		{
 			cache_.erase(it);
 			return 1;
 		}
 
-        return 0;
+		return 0;
 	}
 };
 

@@ -34,24 +34,24 @@ template<std::size_t R, std::size_t C, typename P> class Mat :
 public:
 	using Size = std::size_t;
 
-    using value_type = P;
-    using reference = value_type&;
-    using const_reference = const value_type&;
-    using pointer = value_type*;
-    using const_pointer = const value_type*;
-    using iterator = pointer;
-    using const_iterator = const_pointer;
-    using reverse_iterator = std::reverse_iterator<iterator>;
-    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
-    using size_type = std::size_t;
-    using difference_type = std::ptrdiff_t;
+	using value_type = P;
+	using reference = value_type&;
+	using const_reference = const value_type&;
+	using pointer = value_type*;
+	using const_pointer = const value_type*;
+	using iterator = pointer;
+	using const_iterator = const_pointer;
+	using reverse_iterator = std::reverse_iterator<iterator>;
+	using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+	using size_type = std::size_t;
+	using difference_type = std::ptrdiff_t;
 
-    using MatType = Mat<R, C, P>;
-    using RowType = Vec<R, P>;
-    using ColType = Vec<C, P>;
+	using MatType = Mat<R, C, P>;
+	using RowType = Vec<R, P>;
+	using ColType = Vec<C, P>;
 
-    static constexpr bool is_squared = (R == C);
-    static constexpr size_type MatSize = R * C;
+	static constexpr bool is_squared = (R == C);
+	static constexpr size_type MatSize = R * C;
 
 	static constexpr Size rows() { return R; }
 	static constexpr Size cols() { return C; }
@@ -61,14 +61,14 @@ public:
 
 public:
 	///Constructs the matrix from the given components.
-    template<typename... Args, typename = typename
+	template<typename... Args, typename = typename
 		std::enable_if_t<
 			std::is_convertible<
 				std::tuple<Args...>,
 				TypeTuple<value_type, MatSize>
 			>::value>
 		>
-    Mat(Args&&... args) noexcept
+	Mat(Args&&... args) noexcept
 		{ detail::InitMatData<R * C>::call(data_, std::make_tuple(args...)); }
 
 	///Inits all matrix components with the given value
@@ -88,17 +88,17 @@ public:
 	MatType& operator=(MatType&& other) noexcept = default;
 
 	///Initialize the Matrix with the given values
-    template<typename... Args, typename = typename
+	template<typename... Args, typename = typename
 		std::enable_if_t<
 			std::is_convertible<
 				std::tuple<Args...>,
 				TypeTuple<value_type, MatSize>
 			>::value>
 		>
-    void init(Args&&... args)
+	void init(Args&&... args)
 		{ detail::InitMatData<R * C>::call(data_, std::make_tuple(args...)); }
 
-    ///Returns a reference of a certain row of the Matrix.
+	///Returns a reference of a certain row of the Matrix.
 	///If captured with a reference (and got by a non-const object) the actual values of the
 	///Matrix can be changed with it.
 	Vec<C, P>& row(size_t i){ return data_[i]; }
@@ -114,8 +114,8 @@ public:
 	///Returns a Vec (just the values, no references) of a certain row.
 	Vec<R, P> col(size_t i) const { return detail::MakeRowVec<R>::call(data_, i); }
 
-    ///Returns a plain pointer to the data of the Matrix.
-    pointer data(){ return (pointer) data_.data(); }
+	///Returns a plain pointer to the data of the Matrix.
+	pointer data(){ return (pointer) data_.data(); }
 
 	///Returns a const plain pointer to the data of the Matrix.
 	const_pointer data() const { return (const_pointer) data_.data(); }
@@ -132,20 +132,20 @@ public:
 	///Swaps the both given rows
 	void swapRow(std::size_t a, std::size_t b){ std::swap(row(a), row(b)); }
 
-    //math
-    MatType& operator +=(const Mat<R, C, P>& other){ data_ += other.data_; return *this; }
-   	MatType& operator -=(const Mat<R, C, P>& other){ data_ -= other.data_; return *this; }
-    MatType& operator *=(const Mat<C, R, P>& other)
-    {
+	//math
+	MatType& operator +=(const Mat<R, C, P>& other){ data_ += other.data_; return *this; }
+	   MatType& operator -=(const Mat<R, C, P>& other){ data_ -= other.data_; return *this; }
+	MatType& operator *=(const Mat<C, R, P>& other)
+	{
 		auto od = data_;
 		for(size_t r(0); r < R; r++)
 			for(size_t c(0); c < C; c++)
 				data_[r][c] = sum(od[r] * other.col(c));
 		return *this;
 	}
-    Mat<R, C, P>& operator *=(const P& other){ for(auto& val : *this) val *= other; return *this; }
+	Mat<R, C, P>& operator *=(const P& other){ for(auto& val : *this) val *= other; return *this; }
 
-    //invert TODO
+	//invert TODO
 	///\brief Only available for squared (R == C) Mat objects.
 	///\return Returns whether the Mat object is invertible.
 	template<typename TD = bool>
@@ -155,38 +155,38 @@ public:
 	///\details Only available for squared (R == C) Mat objects.
 	///\exception nytl::InvalidMatrix if the matrix is not invertable.
 	///Check this with invertable() before using invert().
-    template<typename TD = void>
+	template<typename TD = void>
 		typename std::enable_if<is_squared, TD>::type invert();
 
 	///\brief Converts the Mat object to a Mat object with different template parameters.
-    template<std::size_t OR, std::size_t OC, class OP> operator Mat<OR, OC, OP>() const;
+	template<std::size_t OR, std::size_t OC, class OP> operator Mat<OR, OC, OP>() const;
 
-    //stl container
-    constexpr size_type size() const { return MatSize; }
-    constexpr bool empty() const { return size() == 0; }
+	//stl container
+	constexpr size_type size() const { return MatSize; }
+	constexpr bool empty() const { return size() == 0; }
 
-    void fill(const value_type& val) { for(auto& r : data_)for(auto& c : r) c = val; }
+	void fill(const value_type& val) { for(auto& r : data_)for(auto& c : r) c = val; }
 
-    iterator begin() noexcept { return &data_[0][0]; }
-    const_iterator begin() const noexcept { return &data_[0][0]; }
-    const_iterator cbegin() const noexcept { return &data_[0][0]; }
+	iterator begin() noexcept { return &data_[0][0]; }
+	const_iterator begin() const noexcept { return &data_[0][0]; }
+	const_iterator cbegin() const noexcept { return &data_[0][0]; }
 
-    iterator end() noexcept { return begin() + MatSize; }
-    const_iterator end() const noexcept { return begin() + MatSize; }
-    const_iterator cend() const noexcept { return begin() + MatSize; }
+	iterator end() noexcept { return begin() + MatSize; }
+	const_iterator end() const noexcept { return begin() + MatSize; }
+	const_iterator cend() const noexcept { return begin() + MatSize; }
 
-    reverse_iterator rbegin() noexcept { return reverse_iterator(end()); }
-    const_reverse_iterator rbegin() const noexcept { return const_reverse_iterator(cend()); }
-    const_reverse_iterator crbegin() const noexcept { return const_reverse_iterator(cend()); }
+	reverse_iterator rbegin() noexcept { return reverse_iterator(end()); }
+	const_reverse_iterator rbegin() const noexcept { return const_reverse_iterator(cend()); }
+	const_reverse_iterator crbegin() const noexcept { return const_reverse_iterator(cend()); }
 
-    reverse_iterator rend() noexcept { return reverse_iterator(begin()); }
-    const_reverse_iterator rend() const noexcept { return const_reverse_iterator(cbegin()); }
-    const_reverse_iterator crend() const noexcept { return const_reverse_iterator(cbegin()); }
+	reverse_iterator rend() noexcept { return reverse_iterator(begin()); }
+	const_reverse_iterator rend() const noexcept { return const_reverse_iterator(cbegin()); }
+	const_reverse_iterator crend() const noexcept { return const_reverse_iterator(cbegin()); }
 
-    Vec<C, P>& operator[](size_t row){ return data_[row]; }
+	Vec<C, P>& operator[](size_t row){ return data_[row]; }
 	const Vec<C, P>& operator[](size_t row) const { return data_[row]; }
 
-    Vec<C, P>& at(size_t row)
+	Vec<C, P>& at(size_t row)
 		{ if(row >= R) throw std::out_of_range("nytl::Mat::at"); return data_[row]; }
 	const Vec<C, P>& at(size_t row) const
 		{ if(row >= R || row < 0) throw std::out_of_range("nytl::Mat::at"); return data_[row]; }
@@ -196,11 +196,11 @@ public:
 	const P& at(size_t r, size_t c) const
 		{ if(r >= R || c > C) throw std::out_of_range("nytl::Mat::at"); return data_[r][c]; }
 
-    reference front() noexcept { return data_[0][0]; }
-    const_reference front() const noexcept { return data_[0][0]; }
+	reference front() noexcept { return data_[0][0]; }
+	const_reference front() const noexcept { return data_[0][0]; }
 
-    reference back() noexcept { return data_[R - 1][C - 1]; }
-    const_reference back() const noexcept { return data_[R - 1][C - 1]; }
+	reference back() noexcept { return data_[R - 1][C - 1]; }
+	const_reference back() const noexcept { return data_[R - 1][C - 1]; }
 };
 
 //operators and utility functions

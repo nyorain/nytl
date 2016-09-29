@@ -38,29 +38,29 @@ public:
 	static constexpr std::size_t simplexDim = 3;
 
 	using Precision = P;
-    using VecType = Vec<D, P>;
-    using TetrahedronType = Tetrahedron<D, P>;
-    using LineType = Line<D, P>;
-    using TriangleType = Triangle<D, P>;
+	using VecType = Vec<D, P>;
+	using TetrahedronType = Tetrahedron<D, P>;
+	using LineType = Line<D, P>;
+	using TriangleType = Triangle<D, P>;
 	using Size = std::size_t;
 
 	//stl
-    using value_type = Precision;
+	using value_type = Precision;
 	using size_type = Size;
 
 public:
-    VecType a {};
-    VecType b {};
-    VecType c {};
-    VecType d {};
+	VecType a {};
+	VecType b {};
+	VecType c {};
+	VecType d {};
 
 public:
-    Simplex(const VecType& xa, const VecType& xb, const VecType& xc, const VecType& xd) noexcept
+	Simplex(const VecType& xa, const VecType& xb, const VecType& xc, const VecType& xd) noexcept
 		: a(xa), b(xb), c(xc), d(xd) {}
-    Simplex() noexcept = default;
+	Simplex() noexcept = default;
 
 	//default
-    double size() const;
+	double size() const;
 	VecType center() const;
 	bool valid() const;
 
@@ -69,26 +69,26 @@ public:
 	const Vec<4, VecType>& points() const
 		{ return reinterpret_cast<const Vec<4, VecType>&>(*this); }
 
-    template<size_t OD, typename OP> constexpr
-    operator Tetrahedron<OD, OP>() const { return Tetrahedron<OD, OP>(a, b, c, d); }
+	template<size_t OD, typename OP> constexpr
+	operator Tetrahedron<OD, OP>() const { return Tetrahedron<OD, OP>(a, b, c, d); }
 
 	//Tetrahedron specific
 	//edges
-    LineType ab() const { return LineType(a, b); }
-    LineType ac() const { return LineType(a, c); }
-    LineType ad() const { return LineType(a, d); }
+	LineType ab() const { return LineType(a, b); }
+	LineType ac() const { return LineType(a, c); }
+	LineType ad() const { return LineType(a, d); }
 
-    LineType ba() const { return LineType(b, a); }
-    LineType bc() const { return LineType(b, c); }
-    LineType bd() const { return LineType(b, d); }
+	LineType ba() const { return LineType(b, a); }
+	LineType bc() const { return LineType(b, c); }
+	LineType bd() const { return LineType(b, d); }
 
-    LineType ca() const { return LineType(c, a); }
-    LineType cb() const { return LineType(c, b); }
-    LineType cd() const { return LineType(c, d); }
+	LineType ca() const { return LineType(c, a); }
+	LineType cb() const { return LineType(c, b); }
+	LineType cd() const { return LineType(c, d); }
 
-    LineType da() const { return LineType(d, a); }
-    LineType db() const { return LineType(d, b); }
-    LineType dc() const { return LineType(d, c); }
+	LineType da() const { return LineType(d, a); }
+	LineType db() const { return LineType(d, b); }
+	LineType dc() const { return LineType(d, c); }
 
 	//faces
 	TriangleType abc() const { return TriangleType(a, b, c); }

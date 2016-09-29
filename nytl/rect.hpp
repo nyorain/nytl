@@ -1,4 +1,4 @@
-// Copyright (c) 2016 nyorain 
+// Copyright (c) 2016 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
@@ -39,11 +39,11 @@ public:
 
 	using Size = std::size_t;
 	using Precision = P;
-    using VecType = Vec<dim, Precision>;
+	using VecType = Vec<dim, Precision>;
 	using RectType = Rect;
 
 	//stl
-    using value_type = Precision;
+	using value_type = Precision;
 	using size_type = Size;
 
 public:
@@ -74,15 +74,15 @@ template<typename P>
 class Rect<2, P>
 {
 public:
-    static constexpr std::size_t dim = 2;
+	static constexpr std::size_t dim = 2;
 
 	using Size = std::size_t;
 	using Precision = P;
-    using VecType = Vec<dim, Precision>;
+	using VecType = Vec<dim, Precision>;
 	using RectType = Rect;
 
 	//stl
-    using value_type = Precision;
+	using value_type = Precision;
 	using size_type = Size;
 
 public:
@@ -97,7 +97,7 @@ public:
 
 	VecType center() const { return static_cast<Precision>(position + (size / Precision(2))); };
 
-    VecType topLeft() const { return position; }
+	VecType topLeft() const { return position; }
 	VecType topRight() const { return position + VecType(size.x, 0); }
 	VecType bottomLeft() const { return position + VecType(0, size.y);}
 	VecType bottomRight() const { return position + size; }
@@ -107,20 +107,20 @@ public:
 	const P& top() const { return position.y; }
 	P bottom() const { return position.y + size.y; }
 
-    P& left() { return position.x; }
+	P& left() { return position.x; }
 	P& top() { return position.y; }
 
 	const P& width() const { return size.x; }
 	const P& height() const { return size.y; }
 
-    P& width() { return size.x; }
+	P& width() { return size.x; }
 	P& height() { return size.y; }
 
 	Precision area() const { return multiply(size); }
 	Precision inside() const { return area(); }
-    bool empty() const { return all(size > 0); }
+	bool empty() const { return all(size > 0); }
 
-    //conversion
+	//conversion
 	template<Size OD, typename OP>
 	operator Rect<OD, OP>() const { return Rect<OD, OP>(position, size); }
 };
@@ -130,16 +130,16 @@ template<typename P>
 class Rect<3, P>
 {
 public:
-    static constexpr std::size_t dim = 3;
+	static constexpr std::size_t dim = 3;
 
 	using Size = std::size_t;
 	using Precision = P;
-    using VecType = Vec<dim, Precision>;
+	using VecType = Vec<dim, Precision>;
 	using VecType2 = Vec<2, Precision>;
 	using RectType = Rect;
 
 	//stl
-    using value_type = Precision;
+	using value_type = Precision;
 	using size_type = Size;
 
 public:
@@ -150,20 +150,20 @@ public:
 	Rect(const VecType& pposition, const VecType& psize = VecType()) noexcept
 		: position(pposition), size(psize) {}
 	Rect(P x = P(), P y = P(), P z = P(), P width = P(), P height = P(), P depth = P()) noexcept
-        : position(x,y,z), size(width,height,depth) {}
+		: position(x,y,z), size(width,height,depth) {}
 
 	VecType center() const { return static_cast<Precision>(position + (size / Precision(2))); };
 
-    VecType2 topLeft() const { return position.xy(); }
+	VecType2 topLeft() const { return position.xy(); }
 	VecType2 topRight() const { return position.xy() + VecType2(size.x, 0); }
 	VecType2 bottomLeft() const { return position.xy() + VecType2(0, size.y);}
 	VecType2 bottomRight() const { return position.xy() + size.xy(); }
 
-    VecType frontTopLeft() const { return position; }
+	VecType frontTopLeft() const { return position; }
 	VecType frontTopRight() const { return position + VecType(size.x, 0, 0); }
 	VecType frontBottomLeft() const { return position + VecType(0, size.y, 0);}
 	VecType frontBottomRight() const { return position + VecType(size.x, size.y, 0); }
-    VecType backTopLeft() const { return position + VecType(0, 0, size.z); }
+	VecType backTopLeft() const { return position + VecType(0, 0, size.z); }
 	VecType backTopRight() const { return position + VecType(size.x, 0, size.z); }
 	VecType backBottomLeft() const { return position + VecType(0, size.y, size.z);}
 	VecType backBottomRight() const { return position + size; }
@@ -175,7 +175,7 @@ public:
 	const P& front() const { return position.z + size.z; }
 	P back() const { return position.z + size.z; }
 
-    P& left() { return position.x; }
+	P& left() { return position.x; }
 	P& top() { return position.y; }
 	P& front() { return position.z; }
 
@@ -183,15 +183,15 @@ public:
 	const P& height() const { return size.y; }
 	const P& depth() const { return size.z; }
 
-    P& width() { return size.x; }
+	P& width() { return size.x; }
 	P& height() { return size.y; }
 	P& depth() { return size.z; }
 
 	Precision volume() const { return multiply(size); }
 	Precision inside() const { return volume(); }
-    bool empty() const { return any(size > 0); }
+	bool empty() const { return any(size > 0); }
 
-    //conversion
+	//conversion
 	template<size_t oD, class oP>
 	operator Rect<oD, oP>() const { return Rect<oD, oP>(position, size); }
 };

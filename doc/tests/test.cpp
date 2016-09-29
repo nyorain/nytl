@@ -2,7 +2,7 @@
 
 struct T : public nytl::CloneMovable<T> {};
 
-int main() 
+int main()
 {
 	T t;
 	auto& tref = t;

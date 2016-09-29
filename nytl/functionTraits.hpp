@@ -28,21 +28,21 @@ template<typename T>
 struct IsCallableImpl<T, typename std::enable_if<std::is_class<T>::value>::type>
 {
 private:
-    typedef char(&yes)[1];
-    typedef char(&no)[2];
+	typedef char(&yes)[1];
+	typedef char(&no)[2];
 
-    struct Fallback
-    {
-        void operator()();
-    };
-    struct Derived : T, Fallback { };
+	struct Fallback
+	{
+		void operator()();
+	};
+	struct Derived : T, Fallback { };
 
-    template<typename U, U> struct Check;
-    template<typename> static yes test(...);
-    template<typename C> static no test(Check<void (Fallback::*)(), &C::operator()>*);
+	template<typename U, U> struct Check;
+	template<typename> static yes test(...);
+	template<typename C> static no test(Check<void (Fallback::*)(), &C::operator()>*);
 
 public:
-    static constexpr bool value = sizeof(test<Derived>(0)) == sizeof(yes);
+	static constexpr bool value = sizeof(test<Derived>(0)) == sizeof(yes);
 };
 
 template<typename R, typename S, typename... Args>
@@ -90,20 +90,20 @@ class FunctionTraits<Ret(Args...)>
 {
 public:
 	using Size = std::size_t;
-    using ArgTuple = std::tuple<Args...>;
+	using ArgTuple = std::tuple<Args...>;
 
 protected:
-    template<std::size_t i>
+	template<std::size_t i>
 	struct ArgImpl
-    {
-        using type = typename std::tuple_element<i, ArgTuple>::type;
-    };
+	{
+		using type = typename std::tuple_element<i, ArgTuple>::type;
+	};
 
 public:
-    using ReturnType = Ret;
+	using ReturnType = Ret;
 	using Signature = Ret(Args...);
-    template<std::size_t i> using ArgType = typename ArgImpl<i>::type;
-    constexpr static Size ArgSize = std::tuple_size<ArgTuple>::value;
+	template<std::size_t i> using ArgType = typename ArgImpl<i>::type;
+	constexpr static Size ArgSize = std::tuple_size<ArgTuple>::value;
 };
 
 //function pointer

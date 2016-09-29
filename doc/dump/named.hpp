@@ -100,18 +100,18 @@ struct TypeNames
 	static std::string names(bool space)
 	{
 		std::string ret {};
-        bool first = 1;
-        auto fnc = [&](const std::string& s)
-            {
-                if(!first) ret.append(", ");
-                else first = 0;
-                ret.append(s);
-            };
+		bool first = 1;
+		auto fnc = [&](const std::string& s)
+			{
+				if(!first) ret.append(", ");
+				else first = 0;
+				ret.append(s);
+			};
 
-        using expander = int[];
+		using expander = int[];
 		int counter = 0;
-        expander{((void) fnc(typeName<T>((++counter == sizeof...(T) && space) ? 1 : 0)) , 0)...};
-        return ret;
+		expander{((void) fnc(typeName<T>((++counter == sizeof...(T) && space) ? 1 : 0)) , 0)...};
+		return ret;
 	}
 };
 

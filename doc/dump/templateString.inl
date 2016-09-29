@@ -123,15 +123,15 @@ class TemplateString
 private:
 	using Size = std::size_t;
 
-    static constexpr char const content_[sizeof...(C) + 1] = { C...,'\0' };
-    static constexpr Size size_ = sizeof...(C);
+	static constexpr char const content_[sizeof...(C) + 1] = { C...,'\0' };
+	static constexpr Size size_ = sizeof...(C);
 
 public:
-    static constexpr char const* data() noexcept { return content_; }
-    static constexpr Size size() noexcept { return size_; };
+	static constexpr char const* data() noexcept { return content_; }
+	static constexpr Size size() noexcept { return size_; };
 
-    static constexpr char const* cbegin() noexcept { return content_; }
-    static constexpr char const* cend() noexcept { return size_; }
+	static constexpr char const* cbegin() noexcept { return content_; }
+	static constexpr char const* cend() noexcept { return size_; }
 
 	static constexpr ConstString constString() noexcept { return ConstString(content_); }
 };
@@ -193,20 +193,20 @@ auto tspeek(TemplateString<C...>)
 
 /* 2^4 = 16 */
 #define NYTL_TS16(n,x) \
-        nytl::tsgrab<0x##n##0>(x), nytl::tsgrab<0x##n##1>(x) \
-      , nytl::tsgrab<0x##n##2>(x), nytl::tsgrab<0x##n##3>(x) \
-      , nytl::tsgrab<0x##n##4>(x), nytl::tsgrab<0x##n##5>(x) \
-      , nytl::tsgrab<0x##n##6>(x), nytl::tsgrab<0x##n##7>(x) \
-      , nytl::tsgrab<0x##n##8>(x), nytl::tsgrab<0x##n##9>(x) \
-      , nytl::tsgrab<0x##n##A>(x), nytl::tsgrab<0x##n##B>(x) \
-      , nytl::tsgrab<0x##n##C>(x), nytl::tsgrab<0x##n##D>(x) \
-      , nytl::tsgrab<0x##n##E>(x), nytl::tsgrab<0x##n##F>(x)
+		nytl::tsgrab<0x##n##0>(x), nytl::tsgrab<0x##n##1>(x) \
+	  , nytl::tsgrab<0x##n##2>(x), nytl::tsgrab<0x##n##3>(x) \
+	  , nytl::tsgrab<0x##n##4>(x), nytl::tsgrab<0x##n##5>(x) \
+	  , nytl::tsgrab<0x##n##6>(x), nytl::tsgrab<0x##n##7>(x) \
+	  , nytl::tsgrab<0x##n##8>(x), nytl::tsgrab<0x##n##9>(x) \
+	  , nytl::tsgrab<0x##n##A>(x), nytl::tsgrab<0x##n##B>(x) \
+	  , nytl::tsgrab<0x##n##C>(x), nytl::tsgrab<0x##n##D>(x) \
+	  , nytl::tsgrab<0x##n##E>(x), nytl::tsgrab<0x##n##F>(x)
 
 /* 2^6 = 64 */
 #define NYTL_TS64(n,x) \
-        NYTL_TS16(n##0,x), NYTL_TS16(n##1,x), NYTL_TS16(n##2,x) \
-      , NYTL_TS16(n##3,x)
+		NYTL_TS16(n##0,x), NYTL_TS16(n##1,x), NYTL_TS16(n##2,x) \
+	  , NYTL_TS16(n##3,x)
 
 //TemplateStringMacro
 #define TS_(...) \
-    decltype(nytl::tspeek(nytl::TemplateString<NYTL_TS64(,makeMultipleConstString(__VA_ARGS__, "\0"))>()))
+	decltype(nytl::tspeek(nytl::TemplateString<NYTL_TS64(,makeMultipleConstString(__VA_ARGS__, "\0"))>()))
