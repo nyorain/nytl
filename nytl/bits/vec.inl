@@ -1,4 +1,4 @@
-// Copyright (c) 2016 nyorain 
+// Copyright (c) 2016 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
@@ -52,7 +52,14 @@ operator>>(std::istream& is, Vec<D, T>& obj)
 	return is;
 }
 
-//+todo: Vec and Vec unefficient atm, some proxy class
+///\relates nytl::Vec
+template<std::size_t D, typename T>
+constexpr Vec<D, T> operator!(Vec<D, T> v)
+{
+	for(auto& val : v) val = !val;
+	return v;
+}
+
 ///\relates nytl::Vec
 template<std::size_t D, typename T, typename O>
 auto operator+(const Vec<D, T>& mVec, const O& other)
@@ -424,32 +431,6 @@ template<std::size_t DA, typename TA, typename TB>
 Vec<DA, bool> operator>=(const Vec<DA, TA>& va, const TB& b)
 {
 	return greaterThanEqual(va, b);
-}
-
-///\relates nytl::Vec
-///Tests whether all (common) components of two Vecs are equal.
-///If the two given Vecs have different sizes, this function will only test the components
-///which exist in both Vecs, so {5, 7, 8} and {5, 7} will be considered equal.
-///More efficient alternative to all(a == b) since it does only have to run 1 loops instead of 2.
-template<std::size_t DA, std::size_t DB, typename TA, typename TB>
-bool allEqual(const Vec<DA, TA>& va, const Vec<DB, TB>& vb)
-{
-	for(std::size_t i(0); i < min(va.size(), vb.size()); ++i)
-		if(va[i] != vb[i]) return 0;
-
-	return 1;
-}
-
-///\relates nytl::Vec
-///Tests whether all components of the given Vec are equal to the given value.
-///More efficient alternative to all(a == b) since it does only have to run 1 loops instead of 2.
-template<std::size_t D, typename TA, typename TB>
-bool allEqual(const Vec<D, TA>& va, const TB& value)
-{
-	for(std::size_t i(0); i < D; ++i)
-		if(va[i] != value) return 0;
-
-	return 1;
 }
 
 #endif //header guard
