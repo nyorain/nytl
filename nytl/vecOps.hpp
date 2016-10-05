@@ -18,7 +18,7 @@ namespace nytl
 ///\relates nytl::Vec
 ///\return The sum of all vector components.
 template<std::size_t D, typename T>
-constexpr auto sum(const Vec<D, T>& v) -> decltype(v[0] + v[0])
+constexpr auto sum(const Vec<D, T>& v)
 {
 	auto ret = decltype(v[0] + v[0]) {};
 	for(const auto& val : v) ret += val;
@@ -28,7 +28,7 @@ constexpr auto sum(const Vec<D, T>& v) -> decltype(v[0] + v[0])
 ///\relates nytl::Vec
 ///\return The product of all vector components.
 template<std::size_t D, typename T>
-constexpr auto multiply(const Vec<D, T>& v) -> decltype(v[0] * v[0])
+constexpr auto multiply(const Vec<D, T>& v)
 {
 	auto ret = decltype(v[0] * v[0]) (1);
 	for(const auto& val : v) ret *= val;
@@ -38,7 +38,7 @@ constexpr auto multiply(const Vec<D, T>& v) -> decltype(v[0] * v[0])
 ///\relates nytl::Vec
 ///\return The length of the vector (square-root of the sum of all its component squared).
 template<std::size_t D, typename T>
-constexpr auto length(const Vec<D, T>& v) -> decltype(sqrt(v[0] * v[0]))
+constexpr auto length(const Vec<D, T>& v)
 {
 	decltype(v[0] * v[0]) ret{};
 	for(const auto& val : v) ret += val * val;
@@ -49,7 +49,7 @@ constexpr auto length(const Vec<D, T>& v) -> decltype(sqrt(v[0] * v[0]))
 ///Alias function for length.
 ///\return the length (norm) of the given vector.
 template<std::size_t D, typename T>
-constexpr auto norm(const Vec<D, T>& v) -> decltype(length(v))
+constexpr auto norm(const Vec<D, T>& v)
 {
 	return length(v);
 }
@@ -57,7 +57,7 @@ constexpr auto norm(const Vec<D, T>& v) -> decltype(length(v))
 ///\relates nytl::Vec
 ///\return The dot product of the given vectors.
 template<std::size_t DA, std::size_t DB, typename TA, typename TB>
-constexpr auto dot(const Vec<DA, TA>& va, const Vec<DB, TB>& vb) -> decltype(sum(va * vb))
+constexpr auto dot(const Vec<DA, TA>& va, const Vec<DB, TB>& vb)
 {
 	return sum(va * vb);
 }
@@ -66,7 +66,7 @@ constexpr auto dot(const Vec<DA, TA>& va, const Vec<DB, TB>& vb) -> decltype(sum
 ///Alias function for dot.
 ///\return The dot (scalar) product of the given vectors.
 template<std::size_t DA, std::size_t DB, typename TA, typename TB>
-constexpr auto scalar(const Vec<DA, TA>& va, const Vec<DB, TB>& vb) -> decltype(sum(va * vb))
+constexpr auto scalar(const Vec<DA, TA>& va, const Vec<DB, TB>& vb)
 {
 	return sum(va * vb);
 }
@@ -74,7 +74,7 @@ constexpr auto scalar(const Vec<DA, TA>& va, const Vec<DB, TB>& vb) -> decltype(
 ///\relates nytl::Vec
 ///\return The cross product for 2 3-Densional vectors.
 template<typename TA, typename TB>
-constexpr auto cross(const Vec<3, TA>& va, const Vec<3, TB>& vb) -> Vec<3, decltype(va[0] * vb[0])>
+constexpr auto cross(const Vec<3, TA>& va, const Vec<3, TB>& vb)
 {
 	return Vec<3, decltype(va[0] * vb[0])>
 		{
@@ -115,14 +115,14 @@ constexpr double cangle(const Vec<2, TA>& va, const Vec<2, TB>& vb)
 ///\relates nytl::Vec
 ///\return A normalized (i.e. length = 1, preserving the direction) copy of the given Vec.
 template<std::size_t D, typename T>
-constexpr auto normalize(const Vec<D, T>& va) -> decltype(va / length(va))
+constexpr auto normalize(const Vec<D, T>& va)
 {
 	return va / length(va);
 }
 
 ///\relates nytl::Vec
 template<std::size_t D, typename TA, typename TB>
-constexpr auto pow(Vec<D, TA> base, const TB& exp) -> Vec<D, decltype(std::pow(base[0], exp))>
+constexpr auto pow(Vec<D, TA> base, const TB& exp)
 {
 	for(auto& val : base) val = std::pow(val, exp);
 	return base;
@@ -131,7 +131,7 @@ constexpr auto pow(Vec<D, TA> base, const TB& exp) -> Vec<D, decltype(std::pow(b
 ///\relates nytl::Vec
 ///\return The distance between two points represented as Vecs.
 template<std::size_t D, typename T>
-constexpr auto distance(const Vec<D, T>& va, const Vec<D, T>& vb) -> decltype(length(va - vb))
+constexpr auto distance(const Vec<D, T>& va, const Vec<D, T>& vb)
 {
 	return length(vb - va);
 }
@@ -324,81 +324,37 @@ constexpr Vec<N, T> subVec(const Vec<D, T>& va, std::size_t pos = 0)
 	return va.template subVec<N>(pos);
 }
 
+namespace detail
+{
 
-
+//Metafunction that can be used to determine the first type of variadic arguments
 template<typename H, typename... Args>
-H dummy(const H& h, const Args&... args);
+H firstArgType(const H& h, const Args&... args);
 
+}
 
-template<std::size_t D, typename... Args>
-struct Recurser;
-
-template<std::size_t D, typename H, typename... Args>
-struct Recurser<D, H, Args...>
-{
-	constexpr static auto call(const H& h, const Args&... args)
-	{
-		if(D < h.size()) return h[D];
-	}
-};
-
-
-
-template<std::size_t D, typename T, typename Seq = std::make_index_sequence<D>>
-struct VecJoinInit;
-
-template<std::size_t D, typename T, std::size_t... I>
-struct VecJoinInit<D, T, std::index_sequence<I...>>
-{
-	template<typename H, typename... Args>
-	constexpr static auto qN(std::size_t id, const H& head, const Args&... args)
-	{
-		if(id < head.size()) return head[id];
-		return qN(id - head.size(), args...);
-	}
-
-	// template<typename H, typename... Args>
-	// constexpr static auto qI(std::size_t id, const H& head, const Args&... args)
-	// {
-	// 	if(id < head.size()) return id;
-	// 	return qI(id, args...);
-	// }
-
-	template<typename... Args>
-	constexpr static auto call(const Args&... args)
-	{
-		// constexpr auto tup = std::make_tuple(args...);
-
-		// auto n = 0u;
-		// auto i = 0u;
-		// constexpr auto init = [&](std::size_t i) {
-		// 	return i;	
-		// };
-
-		return Vec<D, T>{qN(I, args...)...};
-	}
-};
-
+//XXX: this can maybe be done constexpr with c++17 (hard, only for static size Vecs)
 //alternative name: combine, merge
 ///\relates nytl::Vec
-///Helper that combines two nytl::Vec objects to a larger one.
+///Helper that combines multiple nytl::Vec objects to a larger one.
+///Undefined behaviour if objects other than nytl::Vec are passed
+///The value type of the returned vector is the same as the one the first passed Vec has.
 template<typename... Args>
-constexpr auto join(const Args&... args)
+auto join(const Args&... args)
 {
-	// constexpr auto dim = (DA == dynamicSize || DB == dynamicSize) ? dynamicSize : DA + DB;
-	using T = typename decltype(dummy(args...))::Value;
+	using T = typename decltype(detail::firstArgType(args...))::Value;
 	constexpr auto dim = (... || (args.dim == dynamicSize)) ? dynamicSize : (... + args.dim);
+	auto s = (... + args.size());
 
-	return VecJoinInit<dim, T>::call(args...);
+	Vec<dim, T> ret(s);
+	auto id = 0u;
 
-	// VecJoinInit<
-	// 	... + args.size(),
-	// 	..., std::make_index_sequence<args.size()>>>::call(args...);
+	auto set = [&](const auto& arg){
+		for(auto val : arg) ret[id++] = val;
+	};
 
-	// Vec<dim, T> ret(va.size() + vb.size());
-	// for(auto i = 0u; i < va.size(); ++i) ret[i] = va[i];
-	// for(auto i = 0u; i < vb.size(); ++i) ret[va.size() + i] = vb[i];
-	// return ret;
+	(set(args), ...);
+	return ret;
 }
 
 //component-wise

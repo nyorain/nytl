@@ -114,6 +114,7 @@ public:
 	///Clears all registered functions.
 	void clear()
 	{
+		for(auto& s : slots_) *s.data = 0;
 		slots_.clear();
 	}
 
@@ -194,6 +195,7 @@ public:
 
 	void clear()
 	{
+		for(auto& s : slots_) *s.data = 0;
 		slots_.clear();
 	}
 
