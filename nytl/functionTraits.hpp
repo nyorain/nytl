@@ -112,11 +112,19 @@ class FunctionTraits<Ret(*)(Args...)> : public FunctionTraits<Ret(Args...)> {};
 
 //member function pointer
 template<typename C, typename Ret, typename... Args>
-class FunctionTraits<Ret(C::*)(Args...)> : public FunctionTraits<Ret(Args...)> {};
+class FunctionTraits<Ret(C::*)(Args...)> : public FunctionTraits<Ret(Args...)> 
+{
+public:
+	using Class = C;
+};
 
 //const member function pointer
 template<typename C, typename Ret, typename... Args>
-class FunctionTraits<Ret(C::*)(Args...) const> : public FunctionTraits<Ret(Args...)> {};
+class FunctionTraits<Ret(C::*)(Args...) const> : public FunctionTraits<Ret(Args...)>
+{
+public:
+	using Class = const C;
+};
 
 //functor, class
 template<typename F>
