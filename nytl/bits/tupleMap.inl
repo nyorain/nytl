@@ -8,6 +8,8 @@
 #define NYTL_INCLUDE_TUPLEMAP_INL
 
 #include <nytl/tmp.hpp>
+#include <nytl/bits/apply.inl>
+
 #include <tuple>
 #include <utility>
 
@@ -116,13 +118,9 @@ struct TupleMap<std::tuple<OA...>, std::tuple<NA...>, R, std::index_sequence<I..
 	template<typename F>
 	static constexpr auto map(F f, OA... args) noexcept
 	{
-		// unused(args...); //because of warnings on gcc when paras are unused
-		// OrgTup orgTup(std::forward<OA>(args)...);
-		// return NewTup((std::forward<std::tuple_element_t<I, OrgTup>>
-		// 	(std::get<I>(orgTup)))...);
-		
+		unused(args...); //gcc bug
 		return apply(f, NewTup((std::forward<std::tuple_element_t<I, OrgTup>>
-			(std::get<I>(OrgType(std::forward<OA>(args)...))))...));
+			(std::get<I>(OrgTup(std::forward<OA>(args)...))))...));
 	}
 };
 
@@ -136,13 +134,11 @@ struct TupleMap<std::tuple<OA...>, std::tuple<NA...>, void, std::index_sequence<
 	template<typename F>
 	static constexpr auto map(F f, OA... args) noexcept
 	{
-		// unused(args...); //because of warnings on gcc when paras are unused
-		// OrgTup orgTup(std::forward<OA>(args)...);
-		// return NewTup((std::forward<std::tuple_element_t<I, OrgTup>>
-		// 	(std::get<I>(orgTup)))...);
-		
-		apply(f, NewTup((std::forward<std::tuple_element_t<I, OrgTup>>
-			(std::get<I>(OrgType(std::forward<OA>(args)...))))...));
+		unused(args...); //gcc bug
+		// apply(f, NewTup((std::forward<std::tuple_element_t<I, OrgTup>>
+		// 	(std::get<I>(OrgTup(std::forward<OA>(args)...))))...));
+
+		apply(f, NewTup(std::any(42)));
 	}
 };
 

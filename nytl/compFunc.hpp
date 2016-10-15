@@ -12,7 +12,6 @@
 
 #include <nytl/functionTraits.hpp>
 #include <nytl/bits/tupleMap.inl>
-#include <nytl/bits/apply.inl>
 
 #include <type_traits>
 #include <utility>
@@ -77,7 +76,7 @@ public:
 		using FuncTraits = FunctionTraits<F>;
 		using RealArgsTuple = typename FuncTraits::ArgTuple;
 		using RealRet = typename FuncTraits::ReturnType;
-		using MapType = detail::TupleMap<ArgsTuple, RealArgsTuple>;
+		using MapType = detail::TupleMap<ArgsTuple, RealArgsTuple, RealRet>;
 		constexpr auto first = SeqGet<0, typename MapType::Seq, true>;
 
 		static_assert(std::is_convertible<R, RealRet>::value, "Return types not compatible");
@@ -85,7 +84,7 @@ public:
 		static_assert(first != std::size_t(-1), "Arguments not compatible");
 
 		func_ = [=](A... args) -> Ret {
-				return static_cast<Ret>(apply(func, MapType::map(std::forward<A>(args)...)));
+				return static_cast<Ret>(MapType::map(func, std::forward<A>(args)...));
 			};
 	}
 
@@ -143,14 +142,14 @@ public:
 	{
 		using FuncTraits = FunctionTraits<F>;
 		using RealArgsTuple = typename FuncTraits::ArgTuple;
-		using MapType = detail::TupleMap<ArgsTuple, RealArgsTuple>;
+		using MapType = detail::TupleMap<ArgsTuple, RealArgsTuple, void>;
 		constexpr auto first = SeqGet<0, typename MapType::Seq, true>;
 
 		static_assert(MapType::Seq::size() == FuncTraits::ArgSize, "Arguments not compatible");
 		static_assert(first != std::size_t(-1), "Arguments not compatible");
 
 		func_ = [=](A... args) -> Ret {
-				apply(func, MapType::map(std::forward<A>(args)...));
+				MapType::map(func, std::forward<A>(args)...);
 			};
 	}
 
