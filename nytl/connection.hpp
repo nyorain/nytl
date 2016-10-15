@@ -91,11 +91,11 @@ public:
 
 	~ConnectionRef() = default;
 
-	ConnectionRef(const ConnectionRef& other) = delete;
-	ConnectionRef& operator=(const ConnectionRef& other) = delete;
+	ConnectionRef(const ConnectionRef& other) = default;
+	ConnectionRef& operator=(const ConnectionRef& other) = default;
 
-	ConnectionRef(ConnectionRef&& other) = delete;
-	ConnectionRef& operator=(ConnectionRef&& other) = delete;
+	ConnectionRef(ConnectionRef&& other) = default;
+	ConnectionRef& operator=(ConnectionRef&& other) = default;
 
 	///Disconnected the Connection, unregisters the associated function.
 	void destroy() const { if(connected()) callback_->removeConnection(*data_); }
