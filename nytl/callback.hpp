@@ -231,6 +231,16 @@ protected:
 
 };
 
+
+///Makes implicit conversion of a nytl::ConnectionRef to e.g. a std::any object that
+///is used as first signature parameter impossible.
+template<typename ID, typename B>
+struct ConvertException<nytl::ConnectionRef<ID>, B> : public std::false_type {};
+
+template<typename ID> 
+struct ConvertException<nytl::ConnectionRef<ID>, nytl::ConnectionRef<ID>> 
+	: public std::true_type {};
+
 }
 
 #endif //header guard

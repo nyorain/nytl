@@ -39,3 +39,11 @@ The nytl headers do not provide such a specialization for std::any (since it can
 but users of nytl may do so. The only thing nytl specialized is that nytl::ConnectionRef will
 never be converted to sth else (like e.g. wrapped inside an any object), which is useful for 
 nytl::Callback.
+
+One additionally have to care about type conversions:
+
+Signature: void(int, const std::any&, int)
+Function: void(int, std::any&&)
+	=> The Function will be called with the first and last parameter, the last one wrapped into
+		an any object. The second one (the const std::any&) will not be used, since it cannot
+		be converted to a std::any&& object.

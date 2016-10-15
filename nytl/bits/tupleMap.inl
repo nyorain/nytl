@@ -104,12 +104,14 @@ struct TupleMapImpl<std::tuple<>, std::tuple<NewLeft...>, idx>
 
 
 //TupleMap
-template<typename OrgTup, typename NewTup, typename R, typename Seq =
-	typename detail::TupleMapImpl<OrgTup, NewTup>::type>
+template<typename OrgTup, typename NewTup, typename R, 
+	typename Seq = typename detail::TupleMapImpl<OrgTup, NewTup>::type,
+	typename Seq2 = std::make_index_sequence<Seq::size()>>
 struct TupleMap; //unspecified
 
-template<typename... OA, typename... NA, std::size_t... I, typename R>
-struct TupleMap<std::tuple<OA...>, std::tuple<NA...>, R, std::index_sequence<I...>>
+template<typename... OA, typename... NA, std::size_t... I, std::size_t... N, typename R>
+struct TupleMap<std::tuple<OA...>, std::tuple<NA...>, R, 
+	std::index_sequence<I...>, std::index_sequence<N...>>
 {
 	using NewTup = typename std::tuple<NA...>;
 	using OrgTup = typename std::tuple<OA...>;
@@ -118,14 +120,20 @@ struct TupleMap<std::tuple<OA...>, std::tuple<NA...>, R, std::index_sequence<I..
 	template<typename F>
 	static constexpr auto map(F f, OA... args) noexcept
 	{
-		unused(args...); //gcc bug
-		return apply(f, NewTup((std::forward<std::tuple_element_t<I, OrgTup>>
-			(std::get<I>(OrgTup(std::forward<OA>(args)...))))...));
+		unused(args...); //gcc bug, warns they are not used
+		OrgTup orgTup(std::forward<OA>(args)...);
+
+		return apply(f, NewTup( 
+			static_cast<std::tuple_element_t<N, NewTup>>(
+			std::forward<std::tuple_element_t<I, OrgTup>>(
+			std::get<I>(orgTup)))...));
 	}
 };
 
-template<typename... OA, typename... NA, std::size_t... I>
-struct TupleMap<std::tuple<OA...>, std::tuple<NA...>, void, std::index_sequence<I...>>
+//void specialization
+template<typename... OA, typename... NA, std::size_t... I, std::size_t... N>
+struct TupleMap<std::tuple<OA...>, std::tuple<NA...>, void, 
+	std::index_sequence<I...>, std::index_sequence<N...>>
 {
 	using NewTup = typename std::tuple<NA...>;
 	using OrgTup = typename std::tuple<OA...>;
@@ -134,15 +142,16 @@ struct TupleMap<std::tuple<OA...>, std::tuple<NA...>, void, std::index_sequence<
 	template<typename F>
 	static constexpr auto map(F f, OA... args) noexcept
 	{
-		unused(args...); //gcc bug
-		// apply(f, NewTup((std::forward<std::tuple_element_t<I, OrgTup>>
-		// 	(std::get<I>(OrgTup(std::forward<OA>(args)...))))...));
+		unused(args...); //gcc bug, warns they are not used
+		OrgTup orgTup(std::forward<OA>(args)...);
 
-		apply(f, NewTup(std::any(42)));
+		apply(f, NewTup(
+			static_cast<std::tuple_element_t<N, NewTup>>(
+			std::forward<std::tuple_element_t<I, OrgTup>>(
+			std::get<I>(orgTup)))...));
 	}
 };
 
-//returns the first value of an integer sequence
 
 } //detail
 
