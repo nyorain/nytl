@@ -47,6 +47,7 @@ template<typename ID>
 class Connection
 {
 public:
+	Connetion() = default;
 	Connection(Connectable<ID>& call, const ConnectionDataPtr<ID>& data) noexcept
 		: callback_(&call), data_(data) {}
 
@@ -85,6 +86,7 @@ template<typename ID>
 class ConnectionRef
 {
 public:
+	ConnectionRef() = default;
 	ConnectionRef(Connectable<ID>& call, const ConnectionDataPtr<ID>& data) noexcept
 		: callback_(&call), data_(data) {}
 
@@ -113,6 +115,7 @@ template<typename ID>
 class ConnectionGuard : public NonCopyable
 {
 public:
+	ConnectionGuard() = default;
 	ConnectionGuard(const Connection<ID>& conn) : connection_(conn) {}
 	~ConnectionGuard() { connection_.destroy(); }
 
