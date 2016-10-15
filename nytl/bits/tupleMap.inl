@@ -14,6 +14,39 @@
 namespace nytl
 {
 
+template<typename A, typename B>
+struct ConvertException : public std::true_type {};
+
+template<typename A, typename B>
+struct IsConvertible
+{
+	static constexpr auto value = std::is_convertible<A, B>::value & ConvertException<A, B>::value;
+};
+
+template<typename A, typename B> 
+struct ConvertException<A&, B> : public ConvertException<A, B> {};
+
+template<typename A, typename B> 
+struct ConvertException<const A, B> : public ConvertException<A, B> {};
+
+template<typename A, typename B> 
+struct ConvertException<volatile A, B> : public ConvertException<A, B> {};
+
+template<typename A, typename B> 
+struct ConvertException<A, B&> : public ConvertException<A, B> {};
+
+template<typename A, typename B> 
+struct ConvertException<A, const B> : public ConvertException<A, B> {};
+
+template<typename A, typename B> 
+struct ConvertException<A, volatile B> : public ConvertException<A, B> {};
+
+template<typename A, typename B> 
+struct ConvertException<const A, const B> : public ConvertException<A, B> {};
+
+template<typename A, typename B> 
+struct ConvertException<A&, B&> : public ConvertException<A, B> {};
+
 namespace detail
 {
 
@@ -26,7 +59,7 @@ struct TupleMapImpl<std::tuple<OA...>, std::tuple<NA...>, I>
 	using OrgTuple = std::tuple<OA...>;
 	using NewTuple = std::tuple<NA...>;
 
-	constexpr static const bool value = std::is_convertible<
+	constexpr static const bool value = IsConvertible<
 			typename std::tuple_element<0, OrgTuple>::type,
 			typename std::tuple_element<0, NewTuple>::type
 		>::value;
@@ -64,32 +97,56 @@ struct TupleMapImpl<std::tuple<>, std::tuple<>, idx>
 template<typename... NewLeft, std::size_t idx>
 struct TupleMapImpl<std::tuple<>, std::tuple<NewLeft...>, idx>
 {
-	using type = std::index_sequence<>;
-
-	//XXX ERROR. Should not happen! Indicates that args are not compatible.
-	//how to show error if this is used, but only IF it is used (std::conditional must still work)?
+	using type = std::index_sequence<std::size_t(-1)>;
 };
 
 
 //TupleMap
-template<typename OrgTup, typename NewTup, typename Seq =
+template<typename OrgTup, typename NewTup, typename R, typename Seq =
 	typename detail::TupleMapImpl<OrgTup, NewTup>::type>
 struct TupleMap; //unspecified
 
-template<typename... OA, typename... NA, std::size_t... I>
-struct TupleMap<std::tuple<OA...>, std::tuple<NA...>, std::index_sequence<I...>>
+template<typename... OA, typename... NA, std::size_t... I, typename R>
+struct TupleMap<std::tuple<OA...>, std::tuple<NA...>, R, std::index_sequence<I...>>
 {
 	using NewTup = typename std::tuple<NA...>;
 	using OrgTup = typename std::tuple<OA...>;
 	using Seq = std::index_sequence<I...>;
 
-	static constexpr NewTup map(OA... args) noexcept
+	template<typename F>
+	static constexpr auto map(F f, OA... args) noexcept
 	{
-		unused(args...); //because of warnings on gcc when paras are unused
-		return std::tuple<NA...>(std::forward<decltype(std::get<I>(OrgTup(args...)))>
-				(std::get<I>(OrgTup(args...)))...);
+		// unused(args...); //because of warnings on gcc when paras are unused
+		// OrgTup orgTup(std::forward<OA>(args)...);
+		// return NewTup((std::forward<std::tuple_element_t<I, OrgTup>>
+		// 	(std::get<I>(orgTup)))...);
+		
+		return apply(f, NewTup((std::forward<std::tuple_element_t<I, OrgTup>>
+			(std::get<I>(OrgType(std::forward<OA>(args)...))))...));
 	}
 };
+
+template<typename... OA, typename... NA, std::size_t... I>
+struct TupleMap<std::tuple<OA...>, std::tuple<NA...>, void, std::index_sequence<I...>>
+{
+	using NewTup = typename std::tuple<NA...>;
+	using OrgTup = typename std::tuple<OA...>;
+	using Seq = std::index_sequence<I...>;
+
+	template<typename F>
+	static constexpr auto map(F f, OA... args) noexcept
+	{
+		// unused(args...); //because of warnings on gcc when paras are unused
+		// OrgTup orgTup(std::forward<OA>(args)...);
+		// return NewTup((std::forward<std::tuple_element_t<I, OrgTup>>
+		// 	(std::get<I>(orgTup)))...);
+		
+		apply(f, NewTup((std::forward<std::tuple_element_t<I, OrgTup>>
+			(std::get<I>(OrgType(std::forward<OA>(args)...))))...));
+	}
+};
+
+//returns the first value of an integer sequence
 
 } //detail
 

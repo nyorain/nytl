@@ -74,6 +74,30 @@ using TypeTuple = typename TypeTupleT<T, size, Tuple>::type;
 
 
 //SEQEUNCE
+///\tparam Default Whether the value of this should be 0 if N is zero and there are no more
+///sequence values
+template<std::size_t N, typename Seq, bool D = false> struct SeqGetT;
+
+template<std::size_t N, typename I, template<typename, I...> class T, bool D, I Head, I... Tail>
+struct SeqGetT<N, T<I, Head, Tail...>, D>
+{
+	static constexpr auto value = SeqGetT<N - 1, T<I, Tail...>>::value;
+};
+
+template<typename I, template<typename, I...> class T, bool D, I Head, I... Tail>
+struct SeqGetT<0, T<I, Head, Tail...>, D>
+{
+	static constexpr auto value = Head;
+};
+
+template<typename I, template<typename, I...> class T>
+struct SeqGetT<0, T<I>, true>
+{
+	static constexpr auto value = 0;
+};
+
+template<std::size_t N, typename T, bool D = false> constexpr auto SeqGet = SeqGetT<N, T, D>::value;
+
 //seq_erase_first
 template<typename T> struct SeqEraseFirstT;
 

@@ -94,9 +94,7 @@ int main()
 
 		auto conn3 = cb1.add([](const CbConnRef& ref)
 				{
-					auto ref2 = ref;
-					ref2.destroy();
-
+					ref.destroy();
 					assert(!ref.connected());
 				});
 

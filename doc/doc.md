@@ -18,3 +18,24 @@ Vec3f(1.f, 2.f, 5.f) / Vec2i(2, 4) = Vec3f(0.5f, 0.5f 5.f)
 Vec4ui(0, 0, 1, 0) + 22 = Vec4ui(22, 22, 23, 22)
 
 Vec2ui(1, 2) > Vec4ui(4, 5, 6, 7) = Vec2b(false, false)
+
+CompFunc
+========
+
+Problems with types that can be constructed from any object like std::any.
+
+Signature: void(int, int)
+Function: void(std::any)
+	=> The Function will be called with the first int parameter wrapped inside an any object
+
+Signature: void(int, std::any)
+Function: void(std::any)
+	=> The Function will be called with the first int parameter wrapped inside an any object
+
+The solution to this problem is nytl::IsCompatible or nytl::ConversionException.
+Those templates can be specialized to make conversion not possible for CompFunc objects.
+
+The nytl headers do not provide such a specialization for std::any (since it can be really useful)
+but users of nytl may do so. The only thing nytl specialized is that nytl::ConnectionRef will
+never be converted to sth else (like e.g. wrapped inside an any object), which is useful for 
+nytl::Callback.

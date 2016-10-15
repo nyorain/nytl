@@ -208,7 +208,7 @@ protected:
 	struct CallbackSlot
 	{
 		ConnectionDataPtr<CbIdType> data;
-		std::function<void(const CbConnRef&, Args ...)> func;
+		std::function<void(const CbConnRef&, Args...)> func;
 	};
 
 protected:

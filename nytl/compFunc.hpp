@@ -78,16 +78,18 @@ public:
 		using RealArgsTuple = typename FuncTraits::ArgTuple;
 		using RealRet = typename FuncTraits::ReturnType;
 		using MapType = detail::TupleMap<ArgsTuple, RealArgsTuple>;
+		constexpr auto first = SeqGet<0, typename MapType::Seq, true>;
 
 		static_assert(std::is_convertible<R, RealRet>::value, "Return types not compatible");
-		static_assert(MapType::Seq::size() == FuncTraits::arg_size, "Arguments not compatible");
+		static_assert(MapType::Seq::size() == FuncTraits::ArgSize, "Arguments not compatible");
+		static_assert(first != std::size_t(-1), "Arguments not compatible");
 
 		func_ = [=](A... args) -> Ret {
 				return static_cast<Ret>(apply(func, MapType::map(std::forward<A>(args)...)));
 			};
 	}
 
-//get
+	//get
 	Function function() const noexcept { return func_; }
 
 	//call
@@ -142,8 +144,10 @@ public:
 		using FuncTraits = FunctionTraits<F>;
 		using RealArgsTuple = typename FuncTraits::ArgTuple;
 		using MapType = detail::TupleMap<ArgsTuple, RealArgsTuple>;
+		constexpr auto first = SeqGet<0, typename MapType::Seq, true>;
 
 		static_assert(MapType::Seq::size() == FuncTraits::ArgSize, "Arguments not compatible");
+		static_assert(first != std::size_t(-1), "Arguments not compatible");
 
 		func_ = [=](A... args) -> Ret {
 				apply(func, MapType::map(std::forward<A>(args)...));
