@@ -47,11 +47,10 @@ template<typename ID>
 class Connection
 {
 public:
-	Connetion() = default;
+	Connection() = default;
 	Connection(Connectable<ID>& call, const ConnectionDataPtr<ID>& data) noexcept
 		: callback_(&call), data_(data) {}
 
-	Connection() = default;
 	~Connection() = default;
 
 	Connection(const Connection&) = default;
