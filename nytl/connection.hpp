@@ -31,7 +31,7 @@ protected:
 	friend class ConnectionRef<ID>;
 
 	virtual ~Connectable() = default;
-	virtual void remove(ID id) = 0;
+	virtual void removeConnection(ID id) = 0;
 };
 
 ///Underlaying connection data.
@@ -60,7 +60,7 @@ public:
 	Connection& operator=(Connection&&) = default;
 
 	///Unregisters the function associated with this Connection from the Callback object.
-	void destroy() { if(callback_ && connected()) callback_->remove(*data_); callback_ = nullptr; }
+	void destroy() { if(connected()) callback_->removeConnection(*data_); callback_ = nullptr; }
 
 	///Returns whether the function is still registered and the Callback is still alive.
 	bool connected() const { return (callback_) && (data_) && (*data_ != 0); }
@@ -97,7 +97,7 @@ public:
 	ConnectionRef& operator=(ConnectionRef&& other) = default;
 
 	///Disconnected the Connection, unregisters the associated function.
-	void destroy() const { if(callback_ && connected()) callback_->remove(*data_); }
+	void destroy() const { if(connected()) callback_->removeConnection(*data_); }
 
 	///Returns whether the Callback function is still registered.
 	bool connected() const { return (callback_) && (*data_ != 0); }

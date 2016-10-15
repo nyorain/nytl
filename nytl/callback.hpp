@@ -22,15 +22,15 @@
 namespace nytl
 {
 
-//First declaration - undefined.
+///First declaration - undefined.
+///Signature must have the format ReturnType(Args...)
 template <class Signature> class Callback;
 
-using CbConn = Connection<std::size_t>;
-using CbConnRef = ConnectionRef<std::size_t>;
-using CbConnGuard = ConnectionGuard<std::size_t>;
-
-//TODO make Callback threadsafe using a lockfree list as container. There are already shared
-//pointers anyway so it should not be that expensive.
+///If anyone feels like unsigned int is too small, let us know.
+using CbIdType = unsigned int;
+using CbConn = Connection<CbIdType>;
+using CbConnRef = ConnectionRef<CbIdType>;
+using CbConnGuard = ConnectionGuard<CbIdType>;
 
 ///\brief Represents a Callback for which listener functions can be registered.
 ///\ingroup function
@@ -57,7 +57,7 @@ using CbConnGuard = ConnectionGuard<std::size_t>;
 ///At the moment Callback is not fully threadsafe, if one thread calls e.g. call() while another
 ///one calls add() it may cause undefined behaviour.
 template <class Ret, class ... Args>
-class Callback<Ret(Args...)> : public Connectable<std::size_t>
+class Callback<Ret(Args...)> : public Connectable<CbIdType>
 {
 public:
 	using FuncArg = CompFunc<Ret(const CbConnRef&, Args...)>;
@@ -90,7 +90,7 @@ public:
 	{
 		slots_.emplace_back();
 
-		auto ptr = std::make_shared<std::size_t>(++highestID_);
+		auto ptr = std::make_shared<CbIdType>(++highestID_);
 		slots_.back().data = ptr;
 		slots_.back().func = func.function();
 
@@ -127,16 +127,16 @@ public:
 protected:
 	struct CallbackSlot
 	{
-		ConnectionDataPtr<std::size_t> data;
+		ConnectionDataPtr<CbIdType> data;
 		std::function<Ret(const CbConnRef&, Args...)> func;
 	};
 
 protected:
-	size_t highestID_ {0};
+	CbIdType highestID_ {0};
 	std::vector<CallbackSlot> slots_;
 
 protected:
-	virtual void remove(size_t id) override
+	virtual void removeConnection(CbIdType id) override
 	{
 		if(id == 0) return;
 		for(auto it = slots_.cbegin(); it != slots_.cend(); ++it)
@@ -157,7 +157,7 @@ protected:
 //The Callback specialization for a void return type.
 //\details There has to be a specialization since call cannot return a std::vector of void.
 template <typename... Args>
-class Callback<void(Args...)> : public Connectable<std::size_t>
+class Callback<void(Args...)> : public Connectable<CbIdType>
 {
 public:
 	using FuncArg = CompFunc<void(const CbConnRef&, Args...)>;
@@ -180,7 +180,7 @@ public:
 	{
 		slots_.emplace_back();
 
-		auto ptr = std::make_shared<std::size_t>(++highestID);
+		auto ptr = std::make_shared<CbIdType>(++highestID);
 		slots_.back().data = ptr;
 		slots_.back().func = func.function();
 
@@ -207,15 +207,15 @@ public:
 protected:
 	struct CallbackSlot
 	{
-		ConnectionDataPtr<std::size_t> data;
+		ConnectionDataPtr<CbIdType> data;
 		std::function<void(const CbConnRef&, Args ...)> func;
 	};
 
 protected:
-	size_t highestID {0};
+	CbIdType highestID {0};
 	std::vector<CallbackSlot> slots_;
 
-	virtual void remove(size_t id) override
+	virtual void removeConnection(CbIdType id) override
 	{
 		if(id == 0) return;
 		for(auto it = slots_.cbegin(); it != slots_.cend(); ++it)

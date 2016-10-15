@@ -32,9 +32,10 @@ template<typename ID> class ConnectionRef;
 template<typename ID> class ConnectionGuard;
 
 template<typename Signature> class Callback;
-using CbConn = Connection<std::size_t>;
-using CbConnRef = ConnectionRef<std::size_t>;
-using CbConnGuard = ConnectionGuard<std::size_t>;
+using CbIdType = unsigned int;
+using CbConn = Connection<CbIdType>;
+using CbConnRef = ConnectionRef<CbIdType>;
+using CbConnGuard = ConnectionGuard<CbIdType>;
 
 template<typename T> class Range;
 template<typename Signature> class CompatibleFunction;
