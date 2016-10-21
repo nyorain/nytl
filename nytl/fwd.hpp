@@ -1,4 +1,4 @@
-// Copyright (c) 2016 nyorain 
+// Copyright (c) 2016 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
@@ -32,10 +32,10 @@ template<typename ID> class ConnectionRef;
 template<typename ID> class ConnectionGuard;
 
 template<typename Signature> class Callback;
-using CbIdType = unsigned int;
-using CbConn = Connection<CbIdType>;
-using CbConnRef = ConnectionRef<CbIdType>;
-using CbConnGuard = ConnectionGuard<CbIdType>;
+
+using CallbackID = struct CallbackIDType_T*;
+using CbConn = Connection<CallbackID>;
+using CbConnRef = ConnectionRef<CallbackID>;
 
 template<typename T> class Range;
 template<typename Signature> class CompatibleFunction;

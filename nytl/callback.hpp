@@ -26,10 +26,9 @@ namespace nytl
 //Signature must have the format ReturnType(Args...)
 template <class Signature> class Callback;
 
-//unsigned int should be enough in all cases
-using CbIdType = unsigned int;
-using CbConn = Connection<CbIdType>;
-using CbConnRef = ConnectionRef<CbIdType>;
+using CallbackID = struct CallbackIDType_T*; //Callback unique ID type
+using CbConn = Connection<CallbackID>; //CallbackConnection
+using CbConnRef = ConnectionRef<CallbackID>; //CallbackConnectionReference
 
 ///\ingroup function
 ///Like Connection representing some kind of connection but does not own (i.e. destroy) the
@@ -105,10 +104,11 @@ protected:
 ///The class is not designed threadsafe, if one thread calls e.g. call() while another
 ///one calls add() it may cause undefined behaviour.
 template <class Ret, class ... Args>
-class Callback<Ret(Args...)> : public Connectable<CbIdType>
+class Callback<Ret(Args...)> : public Connectable<CallbackID>
 {
 public:
 	using FuncArg = CompFunc<Ret(CbConnRef&&, Args...)>;
+	using ID = CallbackID;
 
 public:
 	///Destroys the Callback object and removes all registered functions.
@@ -116,14 +116,14 @@ public:
 
 	///Registers a function without returning a Connection object.
 	///\sa add
-	CbIdType operator+=(FuncArg func)
+	ID operator+=(FuncArg func)
 	{
 		return add(func);
 	};
 
 	///Resets all registered function and sets the given one as only Callback function.
 	///\sa add
-	CbIdType operator=(FuncArg func)
+	ID operator=(FuncArg func)
 	{
 		clear();
 		return add(func);
@@ -136,11 +136,12 @@ public:
 	///\return A unique connection id for the registered function which can be used to
 	///unregister it and check if it is registered.
 	///\sa Connection
-	CbIdType add(FuncArg func)
+	ID add(FuncArg func)
 	{
 		slots_.emplace_back();
+		auto id = ++reinterpret_cast<std::uintptr_t&>(highestID_);
 
-		slots_.back().id = ++highestID_;
+		slots_.back().id = reinterpret_cast<ID>(id);
 		slots_.back().func = func.function();
 
 		return slots_.back().id;
@@ -175,14 +176,14 @@ public:
 	///Removes the callback function registered with the given id.
 	///Returns whether the function could be found. If the id is invalid or the
 	///associated function was already removed, returns false.
-	bool removeConnection(CbIdType id) override
+	bool removeConnection(ID id) override
 	{
-		if(id == 0) return false;
+		if(id == nullptr) return false;
 		for(auto it = slots_.begin(); it != slots_.end(); ++it)
 		{
 			if(it->id == id)
 			{
-				it->id = 0;
+				it->id = nullptr;
 				slots_.erase(it);
 				return true;
 			}
@@ -194,11 +195,11 @@ public:
 protected:
 	struct CallbackSlot
 	{
-		CbIdType id;
+		CallbackID id;
 		std::function<Ret(CbConnRef&&, Args...)> func;
 	};
 
-	CbIdType highestID_ {0};
+	CallbackID highestID_ {};
 	std::vector<CallbackSlot> slots_;
 };
 
@@ -206,30 +207,32 @@ protected:
 //The Callback specialization for a void return type.
 //\details There has to be a specialization since call cannot return a std::vector of void.
 template <typename... Args>
-class Callback<void(Args...)> : public Connectable<CbIdType>
+class Callback<void(Args...)> : public Connectable<CallbackID>
 {
 public:
 	using FuncArg = CompFunc<void(CbConnRef&&, Args...)>;
+	using ID = CallbackID;
 
 public:
 	virtual ~Callback() { clear(); }
 
-	CbIdType operator+=(FuncArg func)
+	ID operator+=(FuncArg func)
 	{
 		return add(func);
 	};
 
-	CbIdType operator=(FuncArg func)
+	ID operator=(FuncArg func)
 	{
 		clear();
 		return add(func);
 	};
 
-	CbIdType add(FuncArg func)
+	ID add(FuncArg func)
 	{
 		slots_.emplace_back();
+		auto id = ++reinterpret_cast<std::uintptr_t&>(highestID_);
 
-		slots_.back().id = ++highestID_;
+		slots_.back().id = reinterpret_cast<ID>(id);
 		slots_.back().func = func.function();
 
 		return slots_.back().id;
@@ -251,14 +254,14 @@ public:
 		call(std::forward<Args>(a)...);
 	}
 
-	bool removeConnection(CbIdType id) override
+	bool removeConnection(ID id) override
 	{
-		if(id == 0) return false;
+		if(id == nullptr) return false;
 		for(auto it = slots_.begin(); it != slots_.end(); ++it)
 		{
 			if(it->id == id)
 			{
-				it->id = 0;
+				it->id = nullptr;
 				slots_.erase(it);
 				return false;
 			}
@@ -270,11 +273,11 @@ public:
 protected:
 	struct CallbackSlot
 	{
-		CbIdType id;
+		CallbackID id;
 		std::function<void(CbConnRef&&, Args...)> func;
 	};
 
-	CbIdType highestID_ {0};
+	CallbackID highestID_ {0};
 	std::vector<CallbackSlot> slots_;
 };
 
