@@ -84,26 +84,22 @@ int main()
 	{
 		Callback<void(float)> cb1;
 
-		auto conn1 = cb1.add(&testFunc2);
+		{
+			auto conn1 = nytl::makeConnection(cb1, cb1.add(&testFunc2));
+		} //at the end of this scope, testFunc2 is no longer registered as callback function
+
 		auto conn2 = cb1.add(testFunc2);
 
 		cb1 = testFunc3;
 
-		assert(!conn1.connected());
-		assert(!conn2.connected());
-
-		auto conn3 = cb1.add([](const CbConnRef& ref)
+		auto conn3 = cb1.add([](CbConnRef ref)
 				{
 					ref.destroy();
-					assert(!ref.connected());
 				});
 
 		auto conn4 = cb1.add(testFunc3);
 
 		cb1(5.f);
-
-		assert(!conn3.connected());
-		assert(conn4.connected());
 	}
 
 	return EXIT_SUCCESS;

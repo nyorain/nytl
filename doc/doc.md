@@ -47,3 +47,13 @@ Function: void(int, std::any&&)
 	=> The Function will be called with the first and last parameter, the last one wrapped into
 		an any object. The second one (the const std::any&) will not be used, since it cannot
 		be converted to a std::any&& object.
+
+Callback
+========
+
+auto id = callback.add(&func);
+callback.remove(id);
+
+callback.add(&func);
+
+auto connection = nytl::ConnectionGuard(callback, callback.add(&func));

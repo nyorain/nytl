@@ -1,4 +1,4 @@
-// Copyright (c) 2016 nyorain 
+// Copyright (c) 2016 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
@@ -22,15 +22,62 @@
 namespace nytl
 {
 
-///First declaration - undefined.
-///Signature must have the format ReturnType(Args...)
+//First declaration - undefined.
+//Signature must have the format ReturnType(Args...)
 template <class Signature> class Callback;
 
-///If anyone feels like unsigned int is too small, let us know.
+//unsigned int should be enough in all cases
 using CbIdType = unsigned int;
 using CbConn = Connection<CbIdType>;
 using CbConnRef = ConnectionRef<CbIdType>;
-using CbConnGuard = ConnectionGuard<CbIdType>;
+
+///\ingroup function
+///Like Connection representing some kind of connection but does not own (i.e. destroy) the
+///hold connection and is specially used as first possible nytl::Callback function
+///parameter.
+///Sometimes it may be useful to unregister a Callback function while it is called
+///(e.g. if the Callback function should be called only once) and there is no possibility to
+///capture a Connection object inside the Callback (like e.g. with lambdas) then a ConnectionRef
+///parameter can be added to the beggining of the Callbacks function signature with which the
+///function can be unregistered from inside itself. A new class is needed for this since
+///if Connection is used in a function signature, the Callback object can not know if this
+///Connection object is part of the signature or only there to get a Connection to itself.
+///So there is no need for generally using this class outside a Callback function, Connection
+///should be used instead since it proved the same functionality.
+template<typename ID>
+class ConnectionRef
+{
+public:
+	ConnectionRef() = default;
+	ConnectionRef(Connectable<ID>& conn, ID id) noexcept : conn_(&conn), id_(id) {}
+	~ConnectionRef() = default;
+
+	ConnectionRef(ConnectionRef&& lhs) noexcept : conn_(lhs.conn_), id_(std::move(lhs.id_))
+	{
+		lhs.id_ = {};
+		lhs.conn_ = {};
+	}
+
+	ConnectionRef& operator=(ConnectionRef&& lhs) noexcept
+	{
+		conn_ = lhs.conn_;
+		id_ = std::move(lhs.id_);
+		lhs.obj_ = {};
+		lhs.id_ = {};
+		return *this;
+	}
+
+	void destroy() { if(conn_) conn_->removeConnection(id_); conn_ = {}; id_ = {}; }
+	void valid() const { return (conn_); }
+
+	Connectable<ID>& connectable() const { return *conn_; }
+	ID id() const { return id_; }
+
+protected:
+	Connectable<ID>* conn_ {};
+	ID id_ {};
+};
+
 
 ///\brief Represents a Callback for which listener functions can be registered.
 ///\ingroup function
@@ -41,39 +88,42 @@ using CbConnGuard = ConnectionGuard<CbIdType>;
 ///The temaplte parameter Signature indicated the return types registered fucntions should have
 ///and the possible parameter they can get.
 ///
-///Registering a Callback function returns a Connection object which can then be used to unregister
-///it an to check whether it is still connected which means that the function is still
-///registered (Connection objects can be copied so it may have been unregistered by a copied
-///Connection) and the Callback object is still alive. Any object that can be represented
-///by a std::function can be registered at a Callback object, so it is impossible to
-///unregister a function only by its functions (std::function cannot be compared for equality),
-///that is why Connections are used to unregister/check the registered functions.
+///Registering a Callback function returns a unique connection id which can either
+///totally ignored, dealt with manually or wrapped into a nytl::Connection guard.
+///The returned id can be used to unregister the function.
+///Any object that can be represented by a std::function can be registered at a Callback object,
+///so it is impossible to unregister a function only by its functions
+///(std::function cannot be compared for equality), that is why unique ids are used to
+///unregister/check the registered functions.
 ///
 ///Registered functions that should be called if the Callback is activated must have a signature
-///compatible (-> see \c CompatibleFunction for more inforMation on the compatible functions
-///conecpt) to Ret(const ConnectionRef&, Arg...).
-///The nytl::ConnectionRef object can optionally be used to unregister the Callback function from
-///inside itself when it gets triggered.
-///At the moment Callback is not fully threadsafe, if one thread calls e.g. call() while another
+///compatible (-> see \c CompatibleFunction for more information on the compatible functions
+///conecpt) to Ret(CbConnRef&&, Arg...).
+///The nytl::CbConnRef object can optionally be used to unregister the Callback function from
+///inside itself when it gets triggered. This (as well as adding a new callback
+///function from inside a callback function) can be done safely.
+///The class is not designed threadsafe, if one thread calls e.g. call() while another
 ///one calls add() it may cause undefined behaviour.
 template <class Ret, class ... Args>
 class Callback<Ret(Args...)> : public Connectable<CbIdType>
 {
 public:
-	using FuncArg = CompFunc<Ret(const CbConnRef&, Args...)>;
+	using FuncArg = CompFunc<Ret(CbConnRef&&, Args...)>;
 
 public:
 	///Destroys the Callback object and removes all registered functions.
 	virtual ~Callback(){ clear(); }
 
 	///Registers a function without returning a Connection object.
-	CbConn operator+=(FuncArg func)
+	///\sa add
+	CbIdType operator+=(FuncArg func)
 	{
 		return add(func);
 	};
 
 	///Resets all registered function and sets the given one as only Callback function.
-	CbConn operator=(FuncArg func)
+	///\sa add
+	CbIdType operator=(FuncArg func)
 	{
 		clear();
 		return add(func);
@@ -83,30 +133,29 @@ public:
 	///\details The function must have a compatible signature to the Callbacks one but
 	///may additionally have a ConnectionRef parameter as first one which can then
 	///be used to unregister the function from within itself.
-	///\return A Connection object for the registered function which can be used to
+	///\return A unique connection id for the registered function which can be used to
 	///unregister it and check if it is registered.
 	///\sa Connection
-	CbConn add(FuncArg func)
+	CbIdType add(FuncArg func)
 	{
 		slots_.emplace_back();
 
-		auto ptr = std::make_shared<CbIdType>(++highestID_);
-		slots_.back().data = ptr;
+		slots_.back().id = ++highestID_;
 		slots_.back().func = func.function();
 
-		return {*this, ptr};
+		return slots_.back().id;
 	};
 
 	///Calls all registered functions and returns a Vector with the returned objects.
 	std::vector<Ret> call(Args... a)
 	{
-		auto Vec = slots_; //if called functions manipulate Callback
+		auto cpy = slots_; //if called functions manipulate Callback
 
 		std::vector<Ret> ret;
-		ret.reserve(slots_.size());
+		ret.reserve(cpy.size());
 
-		for(auto& slot : Vec)
-			ret.push_back(slot.func({*this, slot.data}, std::forward<Args>(a)...));
+		for(auto& slot : cpy)
+			ret.push_back(slot.func({*this, slot.id}, std::forward<Args>(a)...));
 
 		return ret;
 	};
@@ -114,7 +163,6 @@ public:
 	///Clears all registered functions.
 	void clear()
 	{
-		for(auto& s : slots_) *s.data = 0;
 		slots_.clear();
 	}
 
@@ -124,33 +172,34 @@ public:
 		return call(std::forward<Args>(a)...);
 	}
 
+	///Removes the callback function registered with the given id.
+	///Returns whether the function could be found. If the id is invalid or the
+	///associated function was already removed, returns false.
+	bool removeConnection(CbIdType id) override
+	{
+		if(id == 0) return false;
+		for(auto it = slots_.begin(); it != slots_.end(); ++it)
+		{
+			if(it->id == id)
+			{
+				it->id = 0;
+				slots_.erase(it);
+				return true;
+			}
+		}
+
+		return false;
+	};
+
 protected:
 	struct CallbackSlot
 	{
-		ConnectionDataPtr<CbIdType> data;
-		std::function<Ret(const CbConnRef&, Args...)> func;
+		CbIdType id;
+		std::function<Ret(CbConnRef&&, Args...)> func;
 	};
 
-protected:
 	CbIdType highestID_ {0};
 	std::vector<CallbackSlot> slots_;
-
-protected:
-	virtual void removeConnection(CbIdType id) override
-	{
-		if(id == 0) return;
-		for(auto it = slots_.cbegin(); it != slots_.cend(); ++it)
-		{
-			if(*it->data == id)
-			{
-				*it->data = 0;
-				slots_.erase(it);
-				return;
-			}
-
-		}
-	};
-
 };
 
 
@@ -160,42 +209,40 @@ template <typename... Args>
 class Callback<void(Args...)> : public Connectable<CbIdType>
 {
 public:
-	using FuncArg = CompFunc<void(const CbConnRef&, Args...)>;
+	using FuncArg = CompFunc<void(CbConnRef&&, Args...)>;
 
 public:
 	virtual ~Callback() { clear(); }
 
-	CbConn operator+=(FuncArg func)
+	CbIdType operator+=(FuncArg func)
 	{
 		return add(func);
 	};
 
-	CbConn operator=(FuncArg func)
+	CbIdType operator=(FuncArg func)
 	{
 		clear();
 		return add(func);
 	};
 
-	CbConn add(FuncArg func)
+	CbIdType add(FuncArg func)
 	{
 		slots_.emplace_back();
 
-		auto ptr = std::make_shared<CbIdType>(++highestID);
-		slots_.back().data = ptr;
+		slots_.back().id = ++highestID_;
 		slots_.back().func = func.function();
 
-		return {*this, ptr};
+		return slots_.back().id;
 	};
 
 	void call(Args... a)
 	{
-		auto Vec = slots_;
-		for(auto& slot : Vec) slot.func({*this, slot.data}, std::forward<Args>(a)...);
+		auto cpy = slots_;
+		for(auto& slot : cpy) slot.func({*this, slot.id}, std::forward<Args>(a)...);
 	};
 
 	void clear()
 	{
-		for(auto& s : slots_) *s.data = 0;
 		slots_.clear();
 	}
 
@@ -204,41 +251,41 @@ public:
 		call(std::forward<Args>(a)...);
 	}
 
+	bool removeConnection(CbIdType id) override
+	{
+		if(id == 0) return false;
+		for(auto it = slots_.begin(); it != slots_.end(); ++it)
+		{
+			if(it->id == id)
+			{
+				it->id = 0;
+				slots_.erase(it);
+				return false;
+			}
+		}
+
+		return true;
+	};
+
 protected:
 	struct CallbackSlot
 	{
-		ConnectionDataPtr<CbIdType> data;
-		std::function<void(const CbConnRef&, Args...)> func;
+		CbIdType id;
+		std::function<void(CbConnRef&&, Args...)> func;
 	};
 
-protected:
-	CbIdType highestID {0};
+	CbIdType highestID_ {0};
 	std::vector<CallbackSlot> slots_;
-
-	virtual void removeConnection(CbIdType id) override
-	{
-		if(id == 0) return;
-		for(auto it = slots_.cbegin(); it != slots_.cend(); ++it)
-		{
-			if(*it->data == id)
-			{
-				*it->data = 0;
-				slots_.erase(it);
-				return;
-			}
-		}
-	};
-
 };
 
 
-///Makes implicit conversion of a nytl::ConnectionRef to e.g. a std::any object that
-///is used as first signature parameter impossible.
+//Makes implicit conversion of a nytl::ConnectionRef to e.g. a std::any object that
+//is used as first signature parameter impossible.
 template<typename ID, typename B>
 struct ConvertException<nytl::ConnectionRef<ID>, B> : public std::false_type {};
 
-template<typename ID> 
-struct ConvertException<nytl::ConnectionRef<ID>, nytl::ConnectionRef<ID>> 
+template<typename ID>
+struct ConvertException<nytl::ConnectionRef<ID>, nytl::ConnectionRef<ID>>
 	: public std::true_type {};
 
 }

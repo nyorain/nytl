@@ -32,9 +32,9 @@ int main()
 	//Vec operations test
 	{
 		//respect epsilon since we compare float/double
-		constexpr static auto epsilon = 0.000001;
+		constexpr auto eps = 0.000001;
 		auto eq = [&](const auto& a, const auto& b){
-			return allOf((a - b) < epsilon);
+			return allOf((a - b) < eps);
 		};
 
 		Vec3d a(5, 10, 20);
@@ -44,7 +44,7 @@ int main()
 		assert(eq(-a - b, -b - a));
 		assert(eq(a * b, b * a));
 		assert(eq((1 / a) * b, b / a));
-		
+
 		assert(eq(a + b, Vec<6, float>(6, 12, 23, 4, 5, 6)));
 		assert(eq(b * a, Vec<6, float>(5, 20, 60, 4, 5, 6)));
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2016 nyorain 
+// Copyright (c) 2016 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
@@ -26,9 +26,9 @@ class Observer
 {
 	friend class Observable;
 
-	///Virtual Callback function that will be called when the object observed by this
+	///Virtual function that will be called when the object observed by this
 	///observer will be desctructed.
-	virtual void destructionCallback(Observable&) = 0;
+	virtual void observeDestruction(Observable&) = 0;
 };
 
 ///\ingroup utility
@@ -47,9 +47,10 @@ protected:
 public:
 	~Observable()
 	{
-		//no lock guard needed. Undefined behavior if destructor and accesing run at the same time
-		for(auto& obs : observer_)
-			obs->destructionCallback(*this);
+		//if some (weird) Observer implementations remove themself during the callback.
+		auto cpy = std::move(observer_);
+		for(auto& obs : cpy)
+			obs->observeDestruction(*this);
 	}
 
 	void addObserver(Observer& obs)
@@ -76,6 +77,13 @@ public:
 		*it = &newone;
 		return true;
 	}
+};
+
+///Wrapper to make already defined classes observable.
+template<typename T>
+struct ObservableWrapper : public T, public Observable
+{
+	using T::T;
 };
 
 ///\ingroup utility
