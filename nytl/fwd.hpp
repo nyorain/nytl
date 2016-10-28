@@ -26,20 +26,18 @@ class SizedStringParam;
 class Observable;
 class Observer;
 
-template<typename ID> class Connectable;
-template<typename ID> class Connection;
-template<typename ID> class ConnectionRef;
-template<typename ID> class ConnectionGuard;
+template<typename ID> class BasicConnectable;
+template<typename ID> class BasicConnection;
+template<typename ID> class BasicConnectionRef;
+
+using ConnectionID = struct ConnectionIDType*;
+using Connectable = BasicConnectable<ConnectionID>;
+using Connection = BasicConnection<ConnectionID>;
 
 template<typename Signature> class Callback;
-
-using CallbackID = struct CallbackIDType_T*;
-using CbConn = Connection<CallbackID>;
-using CbConnRef = ConnectionRef<CallbackID>;
-
-template<typename T> class Range;
 template<typename Signature> class CompatibleFunction;
 
+template<typename T> class Range;
 template<typename T> class IntrusivePtr;
 template<typename T> class ObservingPtr;
 

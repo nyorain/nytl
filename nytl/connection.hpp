@@ -19,16 +19,13 @@
 namespace nytl
 {
 
-template<typename ID> class Connection;
-template<typename ID> class ConnectionRef;
-
 ///Interface for classes that can be connected to in some way.
 ///An example (and implemented by nytl) is Callback.
 template<typename ID>
-class Connectable
+class BasicConnectable
 {
 public:
-	virtual ~Connectable() = default;
+	virtual ~BasicConnectable() = default;
 	virtual bool removeConnection(ID id) = 0;
 };
 
@@ -38,20 +35,20 @@ public:
 ///of the Connection object without then explicitly releasing the Connection id results
 ///in undefined behaviour.
 template <typename ID>
-class Connection
+class BasicConnection
 {
 public:
-	Connection() noexcept = default;
-	Connection(Connectable<ID>& conn, ID id) : conn_(&conn), id_(id) {}
-	virtual ~Connection() { destroy(); }
+	BasicConnection() noexcept = default;
+	BasicConnection(BasicConnectable<ID>& conn, ID id) : conn_(&conn), id_(id) {}
+	virtual ~BasicConnection() { destroy(); }
 
-	Connection(Connection&& lhs) noexcept : conn_(lhs.conn_), id_(std::move(lhs.id_))
+	BasicConnection(BasicConnection&& lhs) noexcept : conn_(lhs.conn_), id_(std::move(lhs.id_))
 	{
 		lhs.id_ = {};
 		lhs.conn_ = {};
 	}
 
-	Connection& operator=(Connection&& lhs) noexcept
+	BasicConnection& operator=(BasicConnection&& lhs) noexcept
 	{
 		destroy();
 		conn_ = lhs.conn_;
@@ -65,16 +62,20 @@ public:
 	void valid() const { return (conn_); }
 	ID release() { auto cpy = id_; id_ = {}; return cpy; }
 
-	Connectable<ID>& connectable() const { return *conn_; }
+	BasicConnectable<ID>& connectable() const { return *conn_; }
 	ID id() const { return id_; }
 
 protected:
-	Connectable<ID>* conn_ {};
+	BasicConnectable<ID>* conn_ {};
 	ID id_ {};
 };
 
 template<typename ID>
-auto makeConnection(Connectable<ID>& conn, ID id) { return Connection<ID>(conn, id); }
+auto makeConnection(BasicConnectable<ID>& conn, ID id) { return BasicConnection<ID>(conn, id); }
+
+using ConnectionID = struct ConnectionIDType*;
+using Connectable = BasicConnectable<ConnectionID>;
+using Connection = BasicConnection<ConnectionID>;
 
 }
 

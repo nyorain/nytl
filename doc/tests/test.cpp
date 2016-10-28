@@ -11,6 +11,8 @@ void func(const std::any& a)
 
 int main()
 {
+	static_assert(!nytl::IsConvertible<nytl::ConnectionRef&, const std::any&>::value, "hmm");
+	
 	T t;
 	auto& tref = t;
 	auto moved = nytl::cloneMove(tref);
@@ -18,6 +20,7 @@ int main()
 	std::any a(std::string("pter"));
 	auto f = nytl::Callback<void(int b, const std::any& a, int)>();
 	f.add(func);
+
 	int c = 345;
 	f(std::move(c), a, 65);
 }

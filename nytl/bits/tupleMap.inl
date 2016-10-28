@@ -1,4 +1,4 @@
-// Copyright (c) 2016 nyorain 
+// Copyright (c) 2016 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
@@ -22,32 +22,12 @@ struct ConvertException : public std::true_type {};
 template<typename A, typename B>
 struct IsConvertible
 {
-	static constexpr auto value = std::is_convertible<A, B>::value & ConvertException<A, B>::value;
+	using RawA = std::remove_reference_t<std::remove_cv_t<A>>;
+	using RawB = std::remove_reference_t<std::remove_cv_t<B>>;
+
+	static constexpr auto value = std::is_convertible<A, B>::value &&
+		ConvertException<RawA, RawB>::value;
 };
-
-template<typename A, typename B> 
-struct ConvertException<A&, B> : public ConvertException<A, B> {};
-
-template<typename A, typename B> 
-struct ConvertException<const A, B> : public ConvertException<A, B> {};
-
-template<typename A, typename B> 
-struct ConvertException<volatile A, B> : public ConvertException<A, B> {};
-
-template<typename A, typename B> 
-struct ConvertException<A, B&> : public ConvertException<A, B> {};
-
-template<typename A, typename B> 
-struct ConvertException<A, const B> : public ConvertException<A, B> {};
-
-template<typename A, typename B> 
-struct ConvertException<A, volatile B> : public ConvertException<A, B> {};
-
-template<typename A, typename B> 
-struct ConvertException<const A, const B> : public ConvertException<A, B> {};
-
-template<typename A, typename B> 
-struct ConvertException<A&, B&> : public ConvertException<A, B> {};
 
 namespace detail
 {
@@ -104,13 +84,13 @@ struct TupleMapImpl<std::tuple<>, std::tuple<NewLeft...>, idx>
 
 
 //TupleMap
-template<typename OrgTup, typename NewTup, typename R, 
+template<typename OrgTup, typename NewTup, typename R,
 	typename Seq = typename detail::TupleMapImpl<OrgTup, NewTup>::type,
 	typename Seq2 = std::make_index_sequence<Seq::size()>>
 struct TupleMap; //unspecified
 
 template<typename... OA, typename... NA, std::size_t... I, std::size_t... N, typename R>
-struct TupleMap<std::tuple<OA...>, std::tuple<NA...>, R, 
+struct TupleMap<std::tuple<OA...>, std::tuple<NA...>, R,
 	std::index_sequence<I...>, std::index_sequence<N...>>
 {
 	using NewTup = typename std::tuple<NA...>;
@@ -123,7 +103,7 @@ struct TupleMap<std::tuple<OA...>, std::tuple<NA...>, R,
 		unused(args...); //gcc bug, warns they are not used
 		OrgTup orgTup(std::forward<OA>(args)...);
 
-		return apply(f, NewTup( 
+		return apply(f, NewTup(
 			static_cast<std::tuple_element_t<N, NewTup>>(
 			std::forward<std::tuple_element_t<I, OrgTup>>(
 			std::get<I>(orgTup)))...));
@@ -132,7 +112,7 @@ struct TupleMap<std::tuple<OA...>, std::tuple<NA...>, R,
 
 //void specialization
 template<typename... OA, typename... NA, std::size_t... I, std::size_t... N>
-struct TupleMap<std::tuple<OA...>, std::tuple<NA...>, void, 
+struct TupleMap<std::tuple<OA...>, std::tuple<NA...>, void,
 	std::index_sequence<I...>, std::index_sequence<N...>>
 {
 	using NewTup = typename std::tuple<NA...>;

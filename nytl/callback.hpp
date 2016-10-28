@@ -26,10 +26,6 @@ namespace nytl
 //Signature must have the format ReturnType(Args...)
 template <class Signature> class Callback;
 
-using CallbackID = struct CallbackIDType_T*; //Callback unique ID type
-using CbConn = Connection<CallbackID>; //CallbackConnection
-using CbConnRef = ConnectionRef<CallbackID>; //CallbackConnectionReference
-
 ///\ingroup function
 ///Like Connection representing some kind of connection but does not own (i.e. destroy) the
 ///hold connection and is specially used as first possible nytl::Callback function
@@ -44,20 +40,20 @@ using CbConnRef = ConnectionRef<CallbackID>; //CallbackConnectionReference
 ///So there is no need for generally using this class outside a Callback function, Connection
 ///should be used instead since it proved the same functionality.
 template<typename ID>
-class ConnectionRef
+class BasicConnectionRef
 {
 public:
-	ConnectionRef() = default;
-	ConnectionRef(Connectable<ID>& conn, ID id) noexcept : conn_(&conn), id_(id) {}
-	~ConnectionRef() = default;
+	BasicConnectionRef() = default;
+	BasicConnectionRef(BasicConnectable<ID>& conn, ID id) noexcept : conn_(&conn), id_(id) {}
+	~BasicConnectionRef() = default;
 
-	ConnectionRef(ConnectionRef&& lhs) noexcept : conn_(lhs.conn_), id_(std::move(lhs.id_))
+	BasicConnectionRef(BasicConnectionRef&& lhs) noexcept : conn_(lhs.conn_), id_(std::move(lhs.id_))
 	{
 		lhs.id_ = {};
 		lhs.conn_ = {};
 	}
 
-	ConnectionRef& operator=(ConnectionRef&& lhs) noexcept
+	BasicConnectionRef& operator=(BasicConnectionRef&& lhs) noexcept
 	{
 		conn_ = lhs.conn_;
 		id_ = std::move(lhs.id_);
@@ -69,13 +65,15 @@ public:
 	void destroy() { if(conn_) conn_->removeConnection(id_); conn_ = {}; id_ = {}; }
 	void valid() const { return (conn_); }
 
-	Connectable<ID>& connectable() const { return *conn_; }
+	BasicConnectable<ID>& connectable() const { return *conn_; }
 	ID id() const { return id_; }
 
 protected:
-	Connectable<ID>* conn_ {};
+	BasicConnectable<ID>* conn_ {};
 	ID id_ {};
 };
+
+using ConnectionRef = BasicConnectionRef<ConnectionID>;
 
 
 ///\brief Represents a Callback for which listener functions can be registered.
@@ -104,11 +102,11 @@ protected:
 ///The class is not designed threadsafe, if one thread calls e.g. call() while another
 ///one calls add() it may cause undefined behaviour.
 template <class Ret, class ... Args>
-class Callback<Ret(Args...)> : public Connectable<CallbackID>
+class Callback<Ret(Args...)> : public Connectable
 {
 public:
-	using FuncArg = CompFunc<Ret(CbConnRef&&, Args...)>;
-	using ID = CallbackID;
+	using FuncArg = CompFunc<Ret(ConnectionRef&&, Args...)>;
+	using ID = ConnectionID;
 
 public:
 	///Destroys the Callback object and removes all registered functions.
@@ -195,11 +193,11 @@ public:
 protected:
 	struct CallbackSlot
 	{
-		CallbackID id;
-		std::function<Ret(CbConnRef&&, Args...)> func;
+		ConnectionID id;
+		std::function<Ret(ConnectionRef&&, Args...)> func;
 	};
 
-	CallbackID highestID_ {};
+	ConnectionID highestID_ {};
 	std::vector<CallbackSlot> slots_;
 };
 
@@ -207,11 +205,11 @@ protected:
 //The Callback specialization for a void return type.
 //\details There has to be a specialization since call cannot return a std::vector of void.
 template <typename... Args>
-class Callback<void(Args...)> : public Connectable<CallbackID>
+class Callback<void(Args...)> : public Connectable
 {
 public:
-	using FuncArg = CompFunc<void(CbConnRef&&, Args...)>;
-	using ID = CallbackID;
+	using FuncArg = CompFunc<void(ConnectionRef&&, Args...)>;
+	using ID = ConnectionID;
 
 public:
 	virtual ~Callback() { clear(); }
@@ -273,11 +271,11 @@ public:
 protected:
 	struct CallbackSlot
 	{
-		CallbackID id;
-		std::function<void(CbConnRef&&, Args...)> func;
+		ConnectionID id;
+		std::function<void(ConnectionRef&&, Args...)> func;
 	};
 
-	CallbackID highestID_ {0};
+	ConnectionID highestID_ {0};
 	std::vector<CallbackSlot> slots_;
 };
 
@@ -285,10 +283,10 @@ protected:
 //Makes implicit conversion of a nytl::ConnectionRef to e.g. a std::any object that
 //is used as first signature parameter impossible.
 template<typename ID, typename B>
-struct ConvertException<nytl::ConnectionRef<ID>, B> : public std::false_type {};
+struct ConvertException<nytl::BasicConnectionRef<ID>, B> : public std::false_type {};
 
 template<typename ID>
-struct ConvertException<nytl::ConnectionRef<ID>, nytl::ConnectionRef<ID>>
+struct ConvertException<nytl::BasicConnectionRef<ID>, nytl::BasicConnectionRef<ID>>
 	: public std::true_type {};
 
 }
