@@ -26,31 +26,33 @@ class BasicConnectable
 {
 public:
 	virtual ~BasicConnectable() = default;
-	virtual bool removeConnection(ID id) = 0;
+	virtual bool disconnect(ID id) = 0;
 };
 
 ///RAII wrapper around a connection id.
 ///Note that this does not observe the lifetime of the object the connection id
 ///was received from. Destroying the associated Connectable object during the lifetime
 ///of the Connection object without then explicitly releasing the Connection id results
-///in undefined behaviour.
+///in undefined behaviour. Same as BasicConnection, but owns the connection
+///it holds, i.e. disconnects it on destruction.
 template <typename ID>
-class BasicConnection
+class BasicConnectionGuard
 {
 public:
-	BasicConnection() noexcept = default;
-	BasicConnection(BasicConnectable<ID>& conn, ID id) : conn_(&conn), id_(id) {}
-	virtual ~BasicConnection() { destroy(); }
+	BasicConnectionGuard() noexcept = default;
+	BasicConnectionGuard(BasicConnectable<ID>& conn, ID id) : conn_(&conn), id_(id) {}
+	virtual ~BasicConnectionGuard() { disconnect(); }
 
-	BasicConnection(BasicConnection&& lhs) noexcept : conn_(lhs.conn_), id_(std::move(lhs.id_))
+	BasicConnectionGuard(BasicConnectionGuard&& lhs) noexcept 
+		: conn_(lhs.conn_), id_(std::move(lhs.id_))
 	{
 		lhs.id_ = {};
 		lhs.conn_ = {};
 	}
 
-	BasicConnection& operator=(BasicConnection&& lhs) noexcept
+	BasicConnectionGuard& operator=(BasicConnectionGuard&& lhs) noexcept
 	{
-		destroy();
+		disconnect();
 		conn_ = lhs.conn_;
 		id_ = std::move(lhs.id_);
 		lhs.conn_ = {};
@@ -58,9 +60,38 @@ public:
 		return *this;
 	}
 
-	void destroy() { if(conn_) conn_->removeConnection(id_); conn_ = nullptr; id_ = {}; }
-	void valid() const { return (conn_); }
-	ID release() { auto cpy = id_; id_ = {}; return cpy; }
+	void disconnect() { if(conn_) conn_->disconnect(id_); conn_ = {}; id_ = {}; }
+	void connected() const { return (conn_); }
+	ID release() { auto cpy = id_; id_ = {}; conn_ = {}; return cpy; }
+
+	BasicConnectable<ID>& connectable() const { return *conn_; }
+	ID id() const { return id_; }
+
+protected:
+	BasicConnectable<ID>* conn_ {};
+	ID id_ {};
+};
+
+///Associates a BasicConnectable implementation with one of its connection ids.
+///Note that this does not automatically destroy the connection, nor does is 
+///track the lifetime of the BasicConnectable implementation object.
+///Destroying the associated Connectable object during the lifetime
+///of the Connection object without then explicitly releasing the Connection id results
+///in undefined behaviour.
+///Same as BasicConnectionRef, but does not destroy the connection it holds on destruction.
+template <typename ID>
+class BasicConnection
+{
+public:
+	BasicConnection() noexcept = default;
+	BasicConnection(BasicConnectable<ID>& conn, ID id) : conn_(&conn), id_(id) {}
+	~BasicConnection() = default;
+
+	BasicConnection(const BasicConnection& lhs) noexcept = default;
+	BasicConnection& operator=(const BasicConnection& lhs) noexcept = default;
+
+	void disconnect() { if(conn_) conn_->disconnect(id_); conn_ = {}; id_ = {}; }
+	void connected() const { return (conn_); }
 
 	BasicConnectable<ID>& connectable() const { return *conn_; }
 	ID id() const { return id_; }
@@ -76,6 +107,7 @@ auto makeConnection(BasicConnectable<ID>& conn, ID id) { return BasicConnection<
 using ConnectionID = struct ConnectionIDType*;
 using Connectable = BasicConnectable<ConnectionID>;
 using Connection = BasicConnection<ConnectionID>;
+using ConnectionGuard = BasicConnectionGuard<ConnectionID>;
 
 }
 

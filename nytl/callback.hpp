@@ -47,23 +47,11 @@ public:
 	BasicConnectionRef(BasicConnectable<ID>& conn, ID id) noexcept : conn_(&conn), id_(id) {}
 	~BasicConnectionRef() = default;
 
-	BasicConnectionRef(BasicConnectionRef&& lhs) noexcept : conn_(lhs.conn_), id_(std::move(lhs.id_))
-	{
-		lhs.id_ = {};
-		lhs.conn_ = {};
-	}
+	BasicConnectionRef(const BasicConnectionRef& lhs) noexcept = default;
+	BasicConnectionRef& operator=(const BasicConnectionRef& lhs) noexcept = default;
 
-	BasicConnectionRef& operator=(BasicConnectionRef&& lhs) noexcept
-	{
-		conn_ = lhs.conn_;
-		id_ = std::move(lhs.id_);
-		lhs.obj_ = {};
-		lhs.id_ = {};
-		return *this;
-	}
-
-	void destroy() { if(conn_) conn_->removeConnection(id_); conn_ = {}; id_ = {}; }
-	void valid() const { return (conn_); }
+	void disconnect() { if(conn_) conn_->disconnect(id_); conn_ = {}; id_ = {}; }
+	void connected() const { return (conn_); }
 
 	BasicConnectable<ID>& connectable() const { return *conn_; }
 	ID id() const { return id_; }
@@ -114,14 +102,14 @@ public:
 
 	///Registers a function without returning a Connection object.
 	///\sa add
-	ID operator+=(FuncArg func)
+	Connection operator+=(FuncArg func)
 	{
 		return add(func);
 	};
 
 	///Resets all registered function and sets the given one as only Callback function.
 	///\sa add
-	ID operator=(FuncArg func)
+	Connection operator=(FuncArg func)
 	{
 		clear();
 		return add(func);
@@ -134,7 +122,7 @@ public:
 	///\return A unique connection id for the registered function which can be used to
 	///unregister it and check if it is registered.
 	///\sa Connection
-	ID add(FuncArg func)
+	Connection add(FuncArg func)
 	{
 		slots_.emplace_back();
 		auto id = ++reinterpret_cast<std::uintptr_t&>(highestID_);
@@ -142,7 +130,7 @@ public:
 		slots_.back().id = reinterpret_cast<ID>(id);
 		slots_.back().func = func.function();
 
-		return slots_.back().id;
+		return {*this, slots_.back().id};
 	};
 
 	///Calls all registered functions and returns a Vector with the returned objects.
@@ -174,7 +162,7 @@ public:
 	///Removes the callback function registered with the given id.
 	///Returns whether the function could be found. If the id is invalid or the
 	///associated function was already removed, returns false.
-	bool removeConnection(ID id) override
+	bool disconnect(ID id) override
 	{
 		if(id == nullptr) return false;
 		for(auto it = slots_.begin(); it != slots_.end(); ++it)
@@ -214,18 +202,18 @@ public:
 public:
 	virtual ~Callback() { clear(); }
 
-	ID operator+=(FuncArg func)
+	Connection operator+=(FuncArg func)
 	{
 		return add(func);
 	};
 
-	ID operator=(FuncArg func)
+	Connection operator=(FuncArg func)
 	{
 		clear();
 		return add(func);
 	};
 
-	ID add(FuncArg func)
+	Connection add(FuncArg func)
 	{
 		slots_.emplace_back();
 		auto id = ++reinterpret_cast<std::uintptr_t&>(highestID_);
@@ -233,7 +221,7 @@ public:
 		slots_.back().id = reinterpret_cast<ID>(id);
 		slots_.back().func = func.function();
 
-		return slots_.back().id;
+		return {*this, slots_.back().id};
 	};
 
 	void call(Args... a)
@@ -252,7 +240,7 @@ public:
 		call(std::forward<Args>(a)...);
 	}
 
-	bool removeConnection(ID id) override
+	bool disconnect(ID id) override
 	{
 		if(id == nullptr) return false;
 		for(auto it = slots_.begin(); it != slots_.end(); ++it)

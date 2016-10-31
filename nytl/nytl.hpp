@@ -22,7 +22,6 @@
 #include <nytl/flags.hpp>
 #include <nytl/functionTraits.hpp>
 #include <nytl/line.hpp>
-#include <nytl/log.hpp>
 #include <nytl/mat.hpp>
 #include <nytl/misc.hpp>
 #include <nytl/nonCopyable.hpp>

@@ -1,6 +1,9 @@
+#include <cstdio>
+#include <stdio.h>
 #include <nytl/nytl.hpp>
 #include <any>
 #include <iostream>
+#include <sstream>
 
 struct T : public nytl::CloneMovable<T> {};
 
@@ -12,12 +15,12 @@ void func(const std::any& a)
 int main()
 {
 	static_assert(!nytl::IsConvertible<nytl::ConnectionRef&, const std::any&>::value, "hmm");
-	
+
 	T t;
 	auto& tref = t;
 	auto moved = nytl::cloneMove(tref);
 
-	std::any a(std::string("pter"));
+	std::any a(std::string("test"));
 	auto f = nytl::Callback<void(int b, const std::any& a, int)>();
 	f.add(func);
 

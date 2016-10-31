@@ -85,13 +85,13 @@ int main()
 		Callback<void(float)> cb1;
 
 		{
-			auto conn1 = nytl::makeConnection(cb1, cb1.add(&testFunc2));
+			auto conn1 = cb1.add(&testFunc2);
 		} //at the end of this scope, testFunc2 is no longer registered as callback function
 
 		cb1.add(testFunc2);
 		cb1 = testFunc3;
 		cb1.add([](ConnectionRef ref) {
-			ref.destroy();
+			ref.disconnect();
 		});
 
 		cb1.add(testFunc3);
