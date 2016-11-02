@@ -53,7 +53,7 @@ public:
 	void disconnect() { if(conn_) conn_->disconnect(id_); conn_ = {}; id_ = {}; }
 	bool connected() const { return (conn_); }
 
-	Base& connectable() const { return *conn_; }
+	Base* connectable() const { return *conn_; }
 	ID id() const { return id_; }
 
 protected:
