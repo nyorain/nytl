@@ -69,7 +69,7 @@ public:
 	bool connected() const { return (conn_); }
 	ID release() { auto cpy = id_; id_ = {}; conn_ = {}; return cpy; }
 
-	Base* connectable() const { return *conn_; }
+	Base* connectable() const { return conn_; }
 	ID id() const { return id_; }
 
 protected:
@@ -98,7 +98,7 @@ public:
 	void disconnect() { if(conn_) conn_->disconnect(id_); conn_ = {}; id_ = {}; }
 	bool connected() const { return (conn_); }
 
-	Base* connectable() const { return *conn_; }
+	Base* connectable() const { return conn_; }
 	ID id() const { return id_; }
 
 protected:
