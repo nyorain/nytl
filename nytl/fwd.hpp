@@ -27,12 +27,16 @@ class Observable;
 class Observer;
 
 template<typename ID> class BasicConnectable;
-template<typename ID> class BasicConnection;
-template<typename ID> class BasicConnectionRef;
+template<typename Base, typename ID> class BasicConnection;
+template<typename Base, typename ID> class BasicConnectionGuard;
+template<typename Base, typename ID> class BasicConnectionRef;
 
 using ConnectionID = struct ConnectionIDType*;
 using Connectable = BasicConnectable<ConnectionID>;
-using Connection = BasicConnection<ConnectionID>;
+
+using Connection = BasicConnection<Connectable, ConnectionID>;
+using ConnectionRef = BasicConnectionRef<Connectable, ConnectionID>;
+using ConnectionGuard = BasicConnectionGuard<Connectable, ConnectionID>;
 
 template<typename Signature> class Callback;
 template<typename Signature> class CompatibleFunction;

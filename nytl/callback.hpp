@@ -270,11 +270,11 @@ protected:
 
 //Makes implicit conversion of a nytl::ConnectionRef to e.g. a std::any object that
 //is used as first signature parameter impossible.
-template<typename ID, typename B>
-struct ConvertException<nytl::BasicConnectionRef<ID>, B> : public std::false_type {};
+template<typename Base, typename ID, typename B>
+struct ConvertException<nytl::BasicConnectionRef<Base, ID>, B> : public std::false_type {};
 
-template<typename ID>
-struct ConvertException<nytl::BasicConnectionRef<ID>, nytl::BasicConnectionRef<ID>>
+template<typename Base, typename ID>
+struct ConvertException<nytl::BasicConnectionRef<Base, ID>, nytl::BasicConnectionRef<Base, ID>>
 	: public std::true_type {};
 
 }
