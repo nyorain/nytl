@@ -20,8 +20,12 @@ namespace nytl
 {
 
 ///Interface for classes that can be connected to in some way.
-///An example (and implemented by nytl) is Callback.
-template<typename ID>
+///An example (in nytl) is nytl::Callback.
+///The way for obtaining such a connection if implementation-defined, this interface defines
+///only a common way to disconnect again. 
+///Using this abstraction makes e.g. the Connection and Connection class possible for the
+///cost of making the class virtual.
+template <typename ID>
 class BasicConnectable
 {
 public:
@@ -35,12 +39,12 @@ public:
 ///of the Connection object without then explicitly releasing the Connection id results
 ///in undefined behaviour. Same as BasicConnection, but owns the connection
 ///it holds, i.e. disconnects it on destruction.
-template <typename ID>
+template <typename Base, typename ID>
 class BasicConnectionGuard
 {
 public:
 	BasicConnectionGuard() noexcept = default;
-	BasicConnectionGuard(BasicConnectable<ID>& conn, ID id) : conn_(&conn), id_(id) {}
+	BasicConnectionGuard(Base& conn, ID id) : conn_(&conn), id_(id) {}
 	virtual ~BasicConnectionGuard() { disconnect(); }
 
 	BasicConnectionGuard(BasicConnectionGuard&& lhs) noexcept 
@@ -64,11 +68,11 @@ public:
 	void connected() const { return (conn_); }
 	ID release() { auto cpy = id_; id_ = {}; conn_ = {}; return cpy; }
 
-	BasicConnectable<ID>& connectable() const { return *conn_; }
+	Base& connectable() const { return *conn_; }
 	ID id() const { return id_; }
 
 protected:
-	BasicConnectable<ID>* conn_ {};
+	Base* conn_ {};
 	ID id_ {};
 };
 
@@ -78,13 +82,13 @@ protected:
 ///Destroying the associated Connectable object during the lifetime
 ///of the Connection object without then explicitly releasing the Connection id results
 ///in undefined behaviour.
-///Same as BasicConnectionRef, but does not destroy the connection it holds on destruction.
-template <typename ID>
+///Same as BasicConnectionGuard, but does not destroy the connection it holds on destruction.
+template <typename Base, typename ID>
 class BasicConnection
 {
 public:
 	BasicConnection() noexcept = default;
-	BasicConnection(BasicConnectable<ID>& conn, ID id) : conn_(&conn), id_(id) {}
+	BasicConnection(Base& conn, ID id) : conn_(&conn), id_(id) {}
 	~BasicConnection() = default;
 
 	BasicConnection(const BasicConnection& lhs) noexcept = default;
@@ -93,21 +97,27 @@ public:
 	void disconnect() { if(conn_) conn_->disconnect(id_); conn_ = {}; id_ = {}; }
 	void connected() const { return (conn_); }
 
-	BasicConnectable<ID>& connectable() const { return *conn_; }
+	Base& connectable() const { return *conn_; }
 	ID id() const { return id_; }
 
 protected:
-	BasicConnectable<ID>* conn_ {};
+	Base* conn_ {};
 	ID id_ {};
 };
 
-template<typename ID>
-auto makeConnection(BasicConnectable<ID>& conn, ID id) { return BasicConnection<ID>(conn, id); }
+///Helper function to create connections
+template <typename ID, typename Base>
+auto makeConnection(Base& base, ID id) 
+	{ return BasicConnection<ID, Base>(base, id); }
+
+template <typename ID, typename Base>
+auto makeConnectionGuard(Base& base, ID id) 
+	{ return BasicConnectionGuard<ID, Base>(base, id); }
 
 using ConnectionID = struct ConnectionIDType*;
 using Connectable = BasicConnectable<ConnectionID>;
-using Connection = BasicConnection<ConnectionID>;
-using ConnectionGuard = BasicConnectionGuard<ConnectionID>;
+using Connection = BasicConnection<Connectable, ConnectionID>;
+using ConnectionGuard = BasicConnectionGuard<Connectable, ConnectionID>;
 
 }
 

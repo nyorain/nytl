@@ -39,12 +39,12 @@ template <class Signature> class Callback;
 ///Connection object is part of the signature or only there to get a Connection to itself.
 ///So there is no need for generally using this class outside a Callback function, Connection
 ///should be used instead since it proved the same functionality.
-template<typename ID>
+template<typename Base, typename ID>
 class BasicConnectionRef
 {
 public:
 	BasicConnectionRef() = default;
-	BasicConnectionRef(BasicConnectable<ID>& conn, ID id) noexcept : conn_(&conn), id_(id) {}
+	BasicConnectionRef(Base& conn, ID id) noexcept : conn_(&conn), id_(id) {}
 	~BasicConnectionRef() = default;
 
 	BasicConnectionRef(const BasicConnectionRef& lhs) noexcept = default;
@@ -53,15 +53,15 @@ public:
 	void disconnect() { if(conn_) conn_->disconnect(id_); conn_ = {}; id_ = {}; }
 	void connected() const { return (conn_); }
 
-	BasicConnectable<ID>& connectable() const { return *conn_; }
+	Base& connectable() const { return *conn_; }
 	ID id() const { return id_; }
 
 protected:
-	BasicConnectable<ID>* conn_ {};
+	Base* conn_ {};
 	ID id_ {};
 };
 
-using ConnectionRef = BasicConnectionRef<ConnectionID>;
+using ConnectionRef = BasicConnectionRef<Connectable, ConnectionID>;
 
 
 ///\brief Represents a Callback for which listener functions can be registered.
