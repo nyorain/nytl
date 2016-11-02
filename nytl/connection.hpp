@@ -45,7 +45,8 @@ class BasicConnectionGuard
 public:
 	BasicConnectionGuard() noexcept = default;
 	BasicConnectionGuard(Base& conn, ID id) : conn_(&conn), id_(id) {}
-	virtual ~BasicConnectionGuard() { disconnect(); }
+	BasicConnectionGuard(BasicConnection<Base, ID> lhs) : conn_(lhs.connectable()), id_(lhs.id()) {}
+	~BasicConnectionGuard() { disconnect(); }
 
 	BasicConnectionGuard(BasicConnectionGuard&& lhs) noexcept 
 		: conn_(lhs.conn_), id_(std::move(lhs.id_))
