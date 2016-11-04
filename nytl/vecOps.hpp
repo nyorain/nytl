@@ -324,6 +324,10 @@ constexpr Vec<N, T> subVec(const Vec<D, T>& va, std::size_t pos = 0)
 	return va.template subVec<N>(pos);
 }
 
+//XXX: nytl::join can maybe be done constexpr with c++17 (hard, only for static size Vecs)
+//Since the code already uses c++17 it is disabled for now
+
+/*
 namespace detail
 {
 
@@ -333,7 +337,6 @@ H firstArgType(const H& h, const Args&... args);
 
 }
 
-//XXX: this can maybe be done constexpr with c++17 (hard, only for static size Vecs)
 //alternative name: combine, merge
 ///\relates nytl::Vec
 ///Helper that combines multiple nytl::Vec objects to a larger one.
@@ -356,6 +359,7 @@ auto join(const Args&... args)
 	(set(args), ...);
 	return ret;
 }
+*/
 
 //component-wise
 ///\relates nytl::Vec

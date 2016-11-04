@@ -10,9 +10,9 @@ option(Test "Build and execute the nytl tests" OFF)
 
 include_directories(${CMAKE_SOURCE_DIR})
 
-# set(CMAKE_CXX_STANDARD 14)
-# set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++17 -Wall -Wextra") # C++ 17
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++17 -Wall -Wextra") # C++ 17
 
 if(Test)
 	add_subdirectory(doc/tests)

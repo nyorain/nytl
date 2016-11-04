@@ -50,15 +50,15 @@ int main()
 
 	}
 
-	{
-		constexpr auto v1 = Vec3i(1, 2, 3);
-		constexpr auto v2 = Vec4i(4, 5, 6, 7);
-
-		auto joined = join(v1, v2);
-
-		assert(joined.size() == 7);
-		assert(allEqual(joined, Vec<7, int>(1, 2, 3, 4, 5, 6, 7)));
-	}
+	// {
+	// 	constexpr auto v1 = Vec3i(1, 2, 3);
+	// 	constexpr auto v2 = Vec4i(4, 5, 6, 7);
+	//
+	// 	auto joined = join(v1, v2);
+	//
+	// 	assert(joined.size() == 7);
+	// 	assert(allEqual(joined, Vec<7, int>(1, 2, 3, 4, 5, 6, 7)));
+	// }
 
 	return EXIT_SUCCESS;
 }

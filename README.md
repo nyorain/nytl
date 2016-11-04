@@ -1,6 +1,6 @@
 #nytl
 
-A generic header-only template library for C++17. It provides math classes like
+A generic header-only template library for C++14/C++17. It provides math classes like
 nytl::Vec, nytl::Mat or nytl::Rect, utility classes like nytl:::NonCopyable, nytl::Observeable,
 nytl::Referenced and functional classes like nytl::Callback, nytl::CompatibleFunction or
 nytl::FunctionTraits.

@@ -1,4 +1,4 @@
-// Copyright (c) 2016 nyorain 
+// Copyright (c) 2016 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
@@ -24,8 +24,9 @@ template <class F, class Tuple, std::size_t... I>
 constexpr auto apply_impl(F&& f, Tuple&& t, std::index_sequence<I...> )
 	-> decltype(std::forward<F>(f)(std::get<I>(std::forward<Tuple>(t))...))
 {
-	return std::invoke(std::forward<F>(f), std::get<I>(std::forward<Tuple>(t))...);
-	// return std::forward<F>(f)(std::get<I>(std::forward<Tuple>(t))...);
+	//C++17:
+	// return std::invoke(std::forward<F>(f), std::get<I>(std::forward<Tuple>(t))...);
+	return std::forward<F>(f)(std::get<I>(std::forward<Tuple>(t))...);
 }
 
 }
