@@ -1,4 +1,4 @@
-// Copyright (c) 2016 nyorain 
+// Copyright (c) 2016 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
@@ -59,10 +59,9 @@ public:
 	constexpr Range(std::nullptr_t, std::size_t = 0) noexcept : data_(nullptr), size_(0) {}
 	constexpr Range(const T& value, std::size_t size) noexcept : data_(&value), size_(size) {}
 	constexpr Range(const T* value, std::size_t size) noexcept : data_(value), size_(size) {}
-	template<std::size_t N> constexpr Range(const T (&arr)[N]) noexcept : data_(arr), size_(N) {}
+	constexpr Range(std::initializer_list<T> l) noexcept : data_(l.begin()), size_(l.size()) {}
 
-	constexpr Range(const std::initializer_list<T>& list) noexcept
-		: data_(list.begin()), size_(list.size()) {}
+	template<std::size_t N> constexpr Range(const T (&arr)[N]) noexcept : data_(arr), size_(N) {}
 
 	template<typename C, typename = typename detail::ValidContainer<T, C>::type>
 	Range(const C& con) noexcept : data_(con.size()), size_(con.size()) {}
@@ -91,34 +90,20 @@ public:
 	constexpr ConstReference front() const noexcept { return *data_; }
 	constexpr ConstReference back() const noexcept { return *(data_ + size_); }
 
-	constexpr Range<T> slice(Size pos, Size size) const noexcept { return{data_ + pos, size}; }
+	constexpr Range<T> slice(Size pos, Size size) const noexcept { return {data_ + pos, size}; }
 
 	///\{
 	///Those function can be used to copy the range to an owned container.
 	///range.as<std::vector>() will convert into an vector of the range type (T).
 	///range.as<std::vector<float>>() will convert into an float-vector (if possible).
 	template<typename C> C as() const { return C(data_, data_ + size_); }
-	template<template<class...> typename C> C<T> as() const { return C<T>(data_, data_ + size_); }
+	template<template<class...> class C> C<T> as() const { return C<T>(data_, data_ + size_); }
 	///\}
 
 protected:
 	ConstPointer data_ = nullptr;
 	Size size_ = 0;
 };
-
-///\{
-///Utility functions for easily constructing a range object.
-///Only needed until c++17.
-template<typename T>
-Range<T> constexpr makeRange(const T& value, std::size_t size){ return {value, size}; }
-
-template<typename C> constexpr Range<decltype(*std::declval<C>().data())>
-makeRange(const C& container){ return {container}; }
-
-template<typename T, std::size_t N> Range<T>
-makeRange(const T (&array)[N]) { return Range<T>(array); }
-///\}
-
 
 namespace detail
 {

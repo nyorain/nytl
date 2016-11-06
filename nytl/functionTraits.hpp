@@ -1,4 +1,4 @@
-// Copyright (c) 2016 nyorain 
+// Copyright (c) 2016 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
@@ -28,48 +28,35 @@ template<typename T>
 struct IsCallableImpl<T, typename std::enable_if<std::is_class<T>::value>::type>
 {
 private:
-	typedef char(&yes)[1];
-	typedef char(&no)[2];
-
-	struct Fallback
-	{
-		void operator()();
-	};
-	struct Derived : T, Fallback { };
-
-	template<typename U, U> struct Check;
-	template<typename> static yes test(...);
-	template<typename C> static no test(Check<void (Fallback::*)(), &C::operator()>*);
+	template <typename U> static decltype(&U::operator(), void(), std::true_type()) test(int);
+	template <typename> static std::false_type test(...);
 
 public:
-	static constexpr bool value = sizeof(test<Derived>(0)) == sizeof(yes);
+	typedef decltype(test<T>(0)) type;
+	enum { value = type::value };
 };
 
 template<typename R, typename S, typename... Args>
 struct IsCallableImpl<R(S::*)(Args...)>
 {
-public:
 	static constexpr bool value = 1;
 };
 
 template<typename R, typename... Args>
 struct IsCallableImpl<R(*)(Args...)>
 {
-public:
 	static constexpr bool value = 1;
 };
 
 template<typename R, typename... Args>
 struct IsCallableImpl<R(&)(Args...)>
 {
-public:
 	static constexpr bool value = 1;
 };
 
 template<typename R, typename... Args>
 struct IsCallableImpl<R(Args...)>
 {
-public:
 	static constexpr bool value = 1;
 };
 
@@ -77,7 +64,7 @@ public:
 
 ///\ingroup function
 ///Meta-Template to check if a type can be called like a function.
-template<typename T> static constexpr bool IsCallable = detail::IsCallableImpl<T>::value;
+template<typename T> constexpr bool isCallable = detail::IsCallableImpl<T>::value;
 
 
 ///\ingroup function
@@ -112,7 +99,7 @@ class FunctionTraits<Ret(*)(Args...)> : public FunctionTraits<Ret(Args...)> {};
 
 //member function pointer
 template<typename C, typename Ret, typename... Args>
-class FunctionTraits<Ret(C::*)(Args...)> : public FunctionTraits<Ret(Args...)> 
+class FunctionTraits<Ret(C::*)(Args...)> : public FunctionTraits<Ret(Args...)>
 {
 public:
 	using Class = C;

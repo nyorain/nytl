@@ -49,10 +49,10 @@ public:
 	~CompatibleFunction() = default;
 
 	//constructor
-	template<typename F, typename = std::enable_if_t<IsCallable<F>>>
+	template<typename F, typename = std::enable_if_t<isCallable<F>>>
 	CompatibleFunction(F func) noexcept { set(func); }
 
-	template<typename F, typename O, typename = std::enable_if_t<IsCallable<F>>>
+	template<typename F, typename O, typename = std::enable_if_t<isCallable<F>>>
 	CompatibleFunction(F func, O& object) noexcept { set(memberCallback(func, object)); }
 
 	CompatibleFunction(const CompFuncType& other) noexcept
@@ -61,7 +61,7 @@ public:
 		{ set(other.function()); }
 
 	//assignement
-	template<typename F, typename = typename std::enable_if_t<IsCallable<F>>>
+	template<typename F, typename = typename std::enable_if_t<isCallable<F>>>
 	CompFuncType& operator=(F func) noexcept { set(func); return *this; }
 
 	CompFuncType& operator=(const CompFuncType& other) noexcept
@@ -118,10 +118,10 @@ public:
 	~CompatibleFunction() = default;
 
 	//constructor
-	template<typename F, typename = typename std::enable_if_t<IsCallable<F>>>
+	template<typename F, typename = typename std::enable_if_t<isCallable<F>>>
 	CompatibleFunction(F func) noexcept { set(func); }
 
-	template<typename F, typename O, typename = typename std::enable_if_t<IsCallable<F>>>
+	template<typename F, typename O, typename = typename std::enable_if_t<isCallable<F>>>
 	CompatibleFunction(F func, O object) noexcept { set(memberCallback(func, object)); }
 
 	CompatibleFunction(const CompFuncType& other) noexcept
@@ -130,7 +130,7 @@ public:
 		{ set(other.function()); }
 
 	//assignement
-	template<typename F, typename = typename std::enable_if_t<IsCallable<F>>>
+	template<typename F, typename = typename std::enable_if_t<isCallable<F>>>
 	CompFuncType& operator=(F func) noexcept { set(func); return *this; }
 
 	CompFuncType& operator=(const CompFuncType& other) noexcept

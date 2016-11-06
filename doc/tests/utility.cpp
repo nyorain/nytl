@@ -58,4 +58,17 @@ int main()
 		nytl::unused(i, f, arr1, arr2);
 	}
 
+	{
+		int arr1[] = {1, 2, 3};
+		int arr2[] = {4, 5, 6};
+
+		int* values[] = {arr1, arr2};
+		int** valuesDecayed = values;
+
+		auto range1 = nytl::Range<int*>(values);
+		auto range2 = nytl::Range<int*>(*valuesDecayed, 2);
+
+		nytl::unused(range1, range2);
+	}
+
 }

@@ -1,9 +1,6 @@
 build/
-buildwin/
-.git/
 obj/
-github-pages/
 bin/
-old/
 *.gch
 *.swp
+.clang-complete

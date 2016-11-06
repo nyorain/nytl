@@ -151,7 +151,7 @@ public:
 
 private:
 	T* object_ {nullptr};
-	virtual void destructionCallback(Observable&) override { object_ = nullptr; }
+	virtual void observeDestruction(Observable&) override { object_ = nullptr; }
 };
 
 }

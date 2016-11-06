@@ -15,7 +15,7 @@ public:
 };
 
 //check callable
-template<typename T, typename = typename std::enable_if<IsCallable<T>>::type>
+template<typename T, typename = typename std::enable_if<isCallable<T>>::type>
 void checkCallable(T&&) {}
 
 //main
@@ -54,8 +54,11 @@ int main()
 		checkCallable(testFunc1);
 		checkCallable(&testClass1::func1);
 
-		static_assert(IsCallable<decltype(testFunc1)>, "");
-		static_assert(IsCallable<decltype(&testFunc1)>, "");
+		static_assert(!isCallable<int>, "");
+		static_assert(!isCallable<decltype(obj)>, "");
+
+		static_assert(isCallable<decltype(testFunc1)>, "");
+		static_assert(isCallable<decltype(&testFunc1)>, "");
 	}
 
 	//memberCallback
@@ -85,7 +88,7 @@ int main()
 		Callback<void(float)> cb1;
 
 		{
-			auto conn1 = cb1.add(&testFunc2);
+			nytl::ConnectionGuard conn1 = cb1.add(&testFunc2);
 		} //at the end of this scope, testFunc2 is no longer registered as callback function
 
 		cb1.add(testFunc2);

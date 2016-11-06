@@ -1,4 +1,4 @@
-// Copyright (c) 2016 nyorain 
+// Copyright (c) 2016 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
@@ -10,6 +10,7 @@
 #ifndef NYTL_INCLUDE_CONVERT_HPP
 #define NYTL_INCLUDE_CONVERT_HPP
 
+#include <nytl/bits/tmpUtil.inl>
 #include <type_traits>
 
 namespace nytl
@@ -23,7 +24,7 @@ template<typename T, typename O, typename = void>
 struct Converter;
 
 template<typename T, typename O>
-struct Converter<T, O, std::void_t<decltype(static_cast<T>(std::declval<O>()))>>
+struct Converter<T, O, void_t<decltype(static_cast<T>(std::declval<O>()))>>
 {
 	static O call(const T& other) { return static_cast<O>(other); }
 };
