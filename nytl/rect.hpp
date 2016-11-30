@@ -11,6 +11,7 @@
 #define NYTL_INCLUDE_RECT_HPP
 
 #include <nytl/vec.hpp>
+#include <nytl/vecOps.hpp>
 #include <nytl/line.hpp>
 #include <nytl/fwd/rect.hpp>
 

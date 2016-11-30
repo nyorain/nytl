@@ -1,4 +1,4 @@
-// Copyright (c) 2016 nyorain 
+// Copyright (c) 2016 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
@@ -11,7 +11,7 @@
 template<std::size_t D, typename P> bool
 intersects(const Rect<D, P>& r1, const Rect<D, P>& r2)
 {
-	return all(r2.position < r1.position + r1.size) && all(r1.position < r2.position + r2.size);
+	return allOf(r2.position < r1.position + r1.size) && allOf(r1.position < r2.position + r2.size);
 }
 
 ///\relates nytl::Rect
@@ -64,7 +64,7 @@ contains(const Rect<D, P>& r1, const Line<D, P>& l2)
 template<std::size_t D, typename P> bool
 contains(const Rect<D, P>& r1, const Vec<D, P>& v2)
 {
-	return all(r1.position <= v2) && all(v2 <= r1.position + r1.size);
+	return allOf(r1.position <= v2) && allOf(v2 <= r1.position + r1.size);
 }
 
 
