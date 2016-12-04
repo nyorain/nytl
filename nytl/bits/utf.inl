@@ -125,18 +125,5 @@ std::u32string toUtf32(const std::wstring& wide)
 {
 	return toUtf32(toUtf8(wide));
 }
-std::wstring toWide(const std::string& utf8)
-{
-	std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-	return converter.from_bytes(utf8);
-}
-std::wstring toWide(const std::u16string& utf16)
-{
-	return toWide(toUtf8(utf16));
-}
-std::wstring toWide(const std::u32string& utf32)
-{
-	return toWide(toUtf8(utf32));
-}
 
 #endif //header guard

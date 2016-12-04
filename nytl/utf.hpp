@@ -51,9 +51,6 @@ inline std::u16string toUtf16(const std::wstring& wide);
 inline std::u32string toUtf32(const std::string& utf8);
 inline std::u32string toUtf32(const std::u16string& utf16);
 inline std::u32string toUtf32(const std::wstring& wide);
-inline std::wstring toWide(const std::string& utf8);
-inline std::wstring toWide(const std::u16string& utf16);
-inline std::wstring toWide(const std::u32string& utf32);
 ///\}
 
 #include <nytl/bits/utf.inl>
