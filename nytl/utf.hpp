@@ -44,13 +44,10 @@ inline char& nth(std::string& utf8, std::size_t n, std::uint8_t& size);
 ///Various conversion functions between different utf unicode encodings.
 inline std::string toUtf8(const std::u16string& utf16);
 inline std::string toUtf8(const std::u32string& utf32);
-inline std::string toUtf8(const std::wstring& wide);
 inline std::u16string toUtf16(const std::string& utf8);
 inline std::u16string toUtf16(const std::u32string& utf32);
-inline std::u16string toUtf16(const std::wstring& wide);
 inline std::u32string toUtf32(const std::string& utf8);
 inline std::u32string toUtf32(const std::u16string& utf16);
-inline std::u32string toUtf32(const std::wstring& wide);
 ///\}
 
 #include <nytl/bits/utf.inl>
