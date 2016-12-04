@@ -64,7 +64,7 @@ public:
 	template<std::size_t N> constexpr Range(const T (&arr)[N]) noexcept : data_(arr), size_(N) {}
 
 	template<typename C, typename = typename detail::ValidContainer<T, C>::type>
-	Range(const C& con) noexcept : data_(con.size()), size_(con.size()) {}
+	Range(const C& con) noexcept : data_(con.data()), size_(con.size()) {}
 
 	constexpr ConstPointer data() const noexcept { return data_; }
 	constexpr std::size_t size() const noexcept { return size_; }
