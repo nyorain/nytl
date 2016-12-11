@@ -1,4 +1,4 @@
-// Copyright (c) 2016 nyorain 
+// Copyright (c) 2016 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
@@ -15,7 +15,8 @@
 #include <nytl/misc.hpp>
 #include <nytl/fwd/vec.hpp>
 
-#include <iostream>
+#include <ostream>
+#include <istream>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
