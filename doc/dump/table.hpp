@@ -12,7 +12,7 @@
 using namespace nytl;
 
 //The goal:
-//abstract vec and mat to a common base class
+//abstract vec and mat (and other classes) to a common base class
 //abstract the semantics of a type away from its memory representation and general functions
 // -> meaning: implemenent all differnt operation for a table, without defining which one is
 // 	the "right" one (e.g. for multiplication) since that might differ.
@@ -24,13 +24,13 @@ template<typename... Args> constexpr std::size_t mult(Args&&... args)
 	return (args * ...);
 }
 
-template<typename T, std::size_t... Sizes>
+template<typename T, typename Storage, std::size_t... Sizes>
 struct DimArray;
 
-template<typename T, std::size_t Head, std::size_t... Tail>
-struct DimArray<T, Head, Tail...>
+template<typename T, typename Storage, std::size_t Head, std::size_t... Tail>
+struct DimArray<T, Storage, Head, Tail...>
 {
-	DimArray<T, Tail...> data_[Head];
+	Storage<Head, T> data_ {};
 
 	// template<typename It, std::size_t... I>
 	// DimArray(It it, std::index_sequence<I...>) : data_(it, ) {}
@@ -50,8 +50,8 @@ struct DimArray<T, Head, Tail...>
 	constexpr const T* end() const { return data_[Head - 1].end(); }
 };
 
-template<typename T, std::size_t Head>
-struct DimArray<T, Head>
+template<typename T, typename Storage, std::size_t Head>
+struct DimArray<T, Storage, Head >
 {
 	T data_[Head] {};
 
