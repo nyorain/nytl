@@ -1,6 +1,7 @@
 build/
 obj/
 bin/
+*.o
 *.gch
 *.swp
 .clang-complete

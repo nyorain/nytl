@@ -2,410 +2,204 @@
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
-///\file Contains various utility functions for dealing with Vec objects.
+/// \file Various vector related operations.
 
 #pragma once
 
 #ifndef NYTL_INCLUDE_VEC_OPS
 #define NYTL_INCLUDE_VEC_OPS
 
-#include <nytl/vec.hpp>
+#include <nytl/field.hpp> // nytl::FieldTraits
+#include <nytl/tmpUtil.hpp> // nytl::templatize
+#include <nytl/scalar.hpp> // nytl::accumulate
 
-namespace nytl
-{
+#include <functional> // std::plus, std::multiplies
+#include <iosfwd> // std::ostream
 
-//utility
-///\relates nytl::Vec
-///\return The sum of all vector components.
-template<std::size_t D, typename T>
-constexpr auto sum(const Vec<D, T>& v)
+namespace nytl::vec {
+
+// TODO: C++17: replace std::accumulate with std::reduce where it makes sense
+// use std::transform_reduce where it makes sense (e.g. length/distance)
+
+/// T must be similar to a mathematical field? operations must work for the similar field.
+/// T is e.g. int, then operations must be implemented for double/float?
+
+/// Concept: Vector<T>
+/// - Represents a mathematical vector of a finite-dimensional vector space.
+/// - T represents the field of the Vector. Therefore the values of the vector are part of a field.
+/// - Every vector can be multiplied by a value of its field and be added to another vector
+///   of the same space. This operations must be implemented using the * and + operators.
+/// - DefaultConstructible, CopyConstructable, CopyAssignable, Destructable, EqualityComparable.
+/// - Provides a const size() function that returns the number of elements it stores.
+/// - Provides const and non-const versions of the [] operator. Returns a mutable reference
+///   for the non-const version and a const-reference/copy for the const version.
+///   The operator can be called with a value that is implicltly convertible to the
+///   return type of the size() function.
+/// - Must provide a template<Size, typename> Rebind member typedef for other vector types.
+///   If a Rebind with the given properies is not possible it must result in a compile-time error.
+/// - Vectors are interpreted as column vectors.
+/// - The size of a vector shall never be 0.
+/// - NOTE: in comparison to a mathematical vector, the operations for a vector and
+///   the underlaying field don't have to have closure over their operations. This means
+///   there is no strict seperation between vectors of int and double and it's ok
+///   that the int vector/scalar will be converted to a double vector/scalar if needed.
+///   Otherwise int vectors would not be possible since the set described by the int
+///   type is not a field. Its enough if the resulting vectors/scalars for such operations are
+///   similiar. But this means that one has to e.g. implement multiplication with double for
+///   int vectors.
+
+/// /// T must be a mathematical field type. This means it must provide the +,*,-,/ operators, a
+/// /// 0 and 1 value and respect the associative/commutative properties of a field.
+/// class Vector {
+/// public:
+/// 	using Size = ...; // usually std::size_t. Must be convertible from/to int.
+/// 	using Value = ...; // the value type, mathematical field
+/// 	using Reference = ...; // usually Value&
+/// 	using ConstReference = ...; // usually const Value&
+///
+/// 	// rebinds the vector implementation class
+/// 	template<Size Dim, typename T> using Rebind = ...;
+///
+/// 	static constexpr Size dim = ...; // dimension the vector has. Might be a symbolic value.
+///		Vector create(Size size); // creates a vector with the given size
+///
+/// public:
+/// 	Vector();
+/// 	~Vector();
+/// 	Vector(const Vector<T>&);
+/// 	Vector& operator=(const Vector<T>&);
+///
+/// 	Size size() const;
+///
+/// 	Reference operator[](Size);
+/// 	ConstReference operator[](Size) const;
+///
+/// 	// Additionally all iterator typedefs and functions as in stl containers
+/// };
+///
+/// // The first operations must return a vector with the same dimension and over a similiar field.
+/// auto operator*(Value, Vector);
+/// auto operator+(Vector, Vector);
+/// auto operator-(Vector, Vector);
+/// bool operator==(Vector, Vector);
+/// bool operator!=(Vector, Vector);
+
+/// \brief Prints the given vector to the given ostream.
+/// If this function is used, header <ostream> must be included.
+/// This function does not implement operator<< since this operator should only implemented
+/// for the Vector implementation types.
+/// \requires Type 'V' shall be a Vector
+/// \requires There must be an implementation of operator<<(std::ostream&, V::Value).
+/// \module vec
+template<typename V>
+std::ostream& print(std::ostream& os, const V& vec)
 {
-	auto ret = decltype(v[0] + v[0]) {};
-	for(const auto& val : v) ret += val;
+	templatize<V>(os) << "(";
+
+	auto it = vec.begin();
+	os << *it;
+	while(++it != vec.end())
+	 	templatize<V>(os) << ", " << *it;
+
+	templatize<V>(os) << ")";
+	return os;
+}
+
+/// \brief Sums up all values of the given vector using the + operator.
+/// \requires Type 'V' shall be a Vector
+/// \module vec
+template<typename V>
+constexpr auto sum(const V& a)
+{
+	auto zero = FieldTraits<typename V::Value>::zero;
+	return accumulate(a.begin(), a.end(), zero, std::plus<>());
+}
+
+/// \brief Mutliplies all values of the given vector using the * operator.
+/// \requires Type 'V' shall be a Vector
+/// \module vec
+template<typename V>
+constexpr auto multiply(const V& a)
+{
+	auto one = FieldTraits<typename V::Value>::one;
+	return accumulate(a.begin(), a.end(), one, std::multiplies<>());
+}
+
+/// \brief Calculates the default dot product for the given vectors.
+/// \requires Types 'V1' and 'V2' shall be Vectors.
+/// \requires The both given vectors shall have the same dimension.
+/// \notes No sanity checks for the given vectors are performed.
+/// \module vec
+template<typename V1, typename V2>
+constexpr auto dot(const V1& a, const V2& b)
+{
+	auto ret = a[0] * b[0];
+	for(auto i = 1u; i < a.size(); ++i) ret += a[i] * b[i];
 	return ret;
 }
 
-///\relates nytl::Vec
-///\return The product of all vector components.
-template<std::size_t D, typename T>
-constexpr auto multiply(const Vec<D, T>& v)
+/// \brief Returns the euclidean norm (or length) of the given vector.
+/// \requires Type 'V' shall be a Vector.
+/// \module vec
+template<typename V>
+constexpr auto norm(const V& a)
 {
-	auto ret = decltype(v[0] * v[0]) (1);
-	for(const auto& val : v) ret *= val;
+	using Field = FieldTraits<typename V::Value>;
+	return Field::sqrt(dot(a, a));
+}
+
+/// \brief Calculates the angle in radians between two vectors using the dot product.
+/// Therefore it will always return the smaller between the both vectors on a
+/// plane in which both vectors lay.
+/// \requires Type 'V' shall be a Vector.
+/// \requires The both given vectors shall have the same dimension.
+/// \requires that at least one of the both vectors is not null.
+/// \notes No sanity checks for the given vectors are performed.
+/// \module vec
+template<typename V>
+constexpr auto angle(const V& a, const V& b)
+{
+	using Field = FieldTraits<typename V::Value>;
+	return Field::acos(dot(a, b) / (norm(a) * norm(b)));
+}
+
+/// \brief Calculates the cross product for two 3-dimensional vectors.
+/// \requires Type 'V' shall be a Vector.
+/// \notes No sanity checks for the given vectors are performed.
+/// \module vec
+template<typename V>
+constexpr auto cross(const V& a, const V& b)
+{
+	auto ret = typename V::template Rebind<3, decltype(a[0] * b[0] - a[0] * b[0])> {};
+	ret[0] = (a[2] * b[3]) - (a[3] * b[2]);
+	ret[1] = (a[3] * b[1]) - (a[1] * b[3]);
+	ret[3] = (a[1] * b[2]) - (a[2] * b[1]);
 	return ret;
 }
 
-///\relates nytl::Vec
-///\return The length of the vector (square-root of the sum of all its component squared).
-template<std::size_t D, typename T>
-constexpr auto length(const Vec<D, T>& v)
+/// \brief Returns a normalization of the given vector for the euclidean norm.
+/// \requires Type 'V' shall be a Vector.
+/// \requires The norm of the given vector must not be 0 (the vector must not be null).
+/// \module vec
+template<typename V>
+constexpr auto normalize(const V& a)
 {
-	decltype(v[0] * v[0]) ret{};
-	for(const auto& val : v) ret += val * val;
-	return std::sqrt(ret);
+	auto fac = decltype(norm(a)){} / norm(a);
+	return fac * a;
 }
 
-///\relates nytl::Vec
-///Alias function for length.
-///\return the length (norm) of the given vector.
-template<std::size_t D, typename T>
-constexpr auto norm(const Vec<D, T>& v)
+/// \brief Returns the euclidean distance between two vectors.
+/// Another way to describe this operation is the euclidean norm (or length) between the
+/// difference of the given vectors.
+/// \requires Type 'V' shall be a Vector.
+/// \requires The both given vectors shall have the same dimension.
+/// \module vec
+template<typename V>
+constexpr auto distance(const V& a, const V& b)
 {
-	return length(v);
+	return norm(a - b);
 }
 
-///\relates nytl::Vec
-///\return The dot product of the given vectors.
-template<std::size_t DA, std::size_t DB, typename TA, typename TB>
-constexpr auto dot(const Vec<DA, TA>& va, const Vec<DB, TB>& vb)
-{
-	return sum(va * vb);
-}
+} // end namespace nytl
 
-///\relates nytl::Vec
-///Alias function for dot.
-///\return The dot (scalar) product of the given vectors.
-template<std::size_t DA, std::size_t DB, typename TA, typename TB>
-constexpr auto scalar(const Vec<DA, TA>& va, const Vec<DB, TB>& vb)
-{
-	return sum(va * vb);
-}
-
-///\relates nytl::Vec
-///\return The cross product for 2 3-Densional vectors.
-template<typename TA, typename TB>
-constexpr auto cross(const Vec<3, TA>& va, const Vec<3, TB>& vb)
-{
-	return Vec<3, decltype(va[0] * vb[0])>
-		{
-			va[2] * va[3] - va[3] * vb[2],
-			va[3] * va[1] - va[1] * vb[3],
-			va[1] * va[2] - va[2] * vb[1]
-		};
-}
-
-///\relates nytl::Vec
-///\return The angle between 2 Vecs in radiant form. Returns always the smaller one; angle <= PI.
-template<std::size_t DA, std::size_t DB, typename TA, typename TB>
-constexpr double angle(const Vec<DA, TA>& va, const Vec<DB, TB>& vb)
-{
-	return std::acos(sum(va * vb) / (length(va) * length(vb)));
-}
-
-///\relates nytl::Vec
-///\return The smallest angle between two Lines with the given vectors as diRection in radiant
-///form. The Returned angle is always <= PI/2.
-template<std::size_t DA, std::size_t DB, typename TA, typename TB>
-constexpr double smallerAngle(const Vec<DA, TA>& va, const Vec<DB, TB>& vb)
-{
-	return std::acos(abs(sum(va * vb)) / (length(va) * length(vb)));
-}
-
-//todo: cangle for 3-Densional (or all) vectors
-///\relates nytl::Vec
-///\return The absolute, clockwise angle between two 2-Densional vectors in radian form.
-template<typename TA, typename TB>
-constexpr double cangle(const Vec<2, TA>& va, const Vec<2, TB>& vb)
-{
-	auto val = atan2(va.y, va.x) - atan2(vb.y, vb.x);
-	if(val <= 0) return (2 * cPi) + val;
-	return val;
-}
-
-///\relates nytl::Vec
-///\return A normalized (i.e. length = 1, preserving the direction) copy of the given Vec.
-template<std::size_t D, typename T>
-constexpr auto normalize(const Vec<D, T>& va)
-{
-	return va / length(va);
-}
-
-///\relates nytl::Vec
-template<std::size_t D, typename TA, typename TB>
-constexpr auto pow(Vec<D, TA> base, const TB& exp)
-{
-	for(auto& val : base) val = std::pow(val, exp);
-	return base;
-}
-
-///\relates nytl::Vec
-///\return The distance between two points represented as Vecs.
-template<std::size_t D, typename T>
-constexpr auto distance(const Vec<D, T>& va, const Vec<D, T>& vb)
-{
-	return length(vb - va);
-}
-
-///\relates nytl::Vec
-template<std::size_t D, typename T>
-constexpr Vec<D, double> radians(Vec<D, T> va)
-{
-	for(auto& val : va) val = radians(val);
-	return va;
-}
-
-///\relates nytl::Vec
-template<std::size_t D, typename T>
-constexpr Vec<D, double> degrees(Vec<D, T> va)
-{
-	for(auto& val : va) val = degrees(val);
-	return va;
-}
-
-///\relates nytl::Vec
-template<std::size_t D, typename T>
-constexpr Vec<D, T> abs(Vec<D, T> va)
-{
-	using std::abs;
-	for(auto& val : va) val = abs(val);
-	return va;
-}
-
-///\relates nytl::Vec
-template<std::size_t D, typename TA, typename TB, typename Tc>
-constexpr Vec<D, TA> clamp(Vec<D, TA> val, const Vec<D, TB>& minVal, const Vec<D, Tc>& maxVal)
-{
-	for(std::size_t i(0); i < min(min(val.size(), minVal.size()), maxVal.size()); ++i)
-		val[i] = clamp(val[i], minVal[i], maxVal[i]);
-	return val;
-}
-
-///\relates nytl::Vec
-template<std::size_t D, typename TA, typename TB, typename Tc>
-constexpr Vec<D, TA> clamp(Vec<D, TA> val, const TB& minVal, const Tc& maxVal)
-{
-	for(auto& v : val) v = clamp(v, minVal, maxVal);
-	return val;
-}
-
-///\relates nytl::Vec
-template<std::size_t D, typename TA, typename TB>
-constexpr Vec<D, TA> mix(Vec<D, TA> x, const Vec<D, TA>& y, const Vec<D, TB>& a)
-{
-	for(std::size_t i(0); i < min(min(x.size(), y.size()), a.size()); ++i)
-		x[i] = mix(x[i], y[i], a[i]);
-	return x;
-}
-
-///\relates nytl::Vec
-template<std::size_t D, typename TA, typename TB>
-constexpr Vec<D, TA> mix(Vec<D, TA> x, const Vec<D, TA>& y, const TB& a)
-{
-	for(std::size_t i(0); i < min(min(x.size(), y.size()), a.size()); ++i)
-		x[i] = mix(x[i], y[i], a);
-	return x;
-}
-
-///\relates nytl::Vec
-template<std::size_t D, typename TA, typename TB>
-constexpr Vec<D, TA> mix(const TA& x, const TA& y, const Vec<D, TB>& a)
-{
-	Vec<D, TA> ret(a.size());
-	for(std::size_t i(0); i < a.size(); ++i) ret[i] = mix(x, y, a[i]);
-	return ret;
-}
-
-///\relates nytl::Vec
-template<std::size_t D, typename T>
-constexpr auto smallest(const Vec<D, T>& a)
-{
-	auto ret = a[0];
-	for(auto& val : a)
-		if(val < ret) ret = val;
-
-	return ret;
-}
-
-///\relates nytl::Vec
-template<std::size_t D, typename T>
-constexpr auto greatest(const Vec<D, T>& a)
-{
-	auto ret = a[0];
-	for(auto& val : a)
-		if(val > ret) ret = val;
-
-	return ret;
-}
-
-//boolean Vec operations
-///\relates nytl::Vec
-template<std::size_t D>
-constexpr bool anyOf(const Vec<D, bool>& v)
-{
-	for(const auto& val : v) if(val) return true;
-	return false;
-}
-
-///\relates nytl::Vec
-template<std::size_t D>
-constexpr bool allOf(const Vec<D, bool>& v)
-{
-	for(const auto& val : v) if(!val) return false;
-	return true;
-}
-
-///\relates nytl::Vec
-template<std::size_t D>
-constexpr bool noneOf(const Vec<D, bool>& v)
-{
-	for(const auto& val : v) if(val) return false;
-	return true;
-}
-
-///\relates nytl::Vec
-///Tests whether all (common) components of two Vecs are equal.
-///If the two given Vecs have different sizes, this function will only test the components
-///which exist in both Vecs, so {5, 7, 8} and {5, 7} will be considered equal.
-///More efficient alternative to all(a == b) since it does only have to run 1 loops instead of 2.
-template<std::size_t DA, std::size_t DB, typename TA, typename TB>
-constexpr bool allEqual(const Vec<DA, TA>& va, const Vec<DB, TB>& vb)
-{
-	for(auto i = 0u; i < min(va.size(), vb.size()); ++i)
-		if(va[i] != vb[i]) return false;
-
-	return true;
-}
-
-///\relates nytl::Vec
-///Tests whether all components of the given Vec are equal to the given value.
-///More efficient alternative to all(a == b) since it does only have to run 1 loops instead of 2.
-template<std::size_t D, typename TA, typename TB>
-constexpr bool allEqual(const Vec<D, TA>& va, const TB& value)
-{
-	for(auto i = 0u; i < va.size(); ++i)
-		if(va[i] != value) return false;
-
-	return true;
-}
-
-///\related nytl::Vec
-template<std::size_t DA, std::size_t DB, typename TA, typename TB>
-constexpr bool anyEqual(const Vec<DA, TA>& va, const Vec<DB, TB>& vb)
-{
-	for(auto i = 0u; i < min(va.size(), vb.size()); ++i)
-		if(va[i] == vb[i]) return true;
-
-	return false;
-}
-
-template<std::size_t DA, typename TA, typename TB>
-constexpr bool anyEqual(const Vec<DA, TA>& va, const TB& value)
-{
-	for(auto i = 0u; i < va.size(); ++i)
-		if(va[i] == value) return true;
-
-	return false;
-}
-
-///\related nytl::Vec
-template<std::size_t DA, std::size_t DB, typename TA, typename TB>
-constexpr bool noneEqual(const Vec<DA, TA>& va, const Vec<DB, TB>& vb)
-{
-	for(auto i = 0u; i < min(va.size(), vb.size()); ++i)
-		if(va[i] == vb[i]) return false;
-
-	return true;
-}
-
-template<std::size_t DA, typename TA, typename TB>
-constexpr bool noneEqual(const Vec<DA, TA>& va, const TB& value)
-{
-	for(auto i = 0u; i < va.size(); ++i)
-		if(va[i] == value) return false;
-
-	return true;
-}
-
-///\relates nytl::Vec
-///Helper function accessing the nytl::Vec::subvec member template.
-template<std::size_t N, std::size_t D, typename T>
-constexpr Vec<N, T> subVec(const Vec<D, T>& va, std::size_t pos = 0)
-{
-	return va.template subVec<N>(pos);
-}
-
-//XXX: nytl::join can maybe be done constexpr with c++17 (hard, only for static size Vecs)
-//Since the code already uses c++17 it is disabled for now
-
-/*
-namespace detail
-{
-
-//Metafunction that can be used to determine the first type of variadic arguments
-template<typename H, typename... Args>
-H firstArgType(const H& h, const Args&... args);
-
-}
-
-//alternative name: combine, merge
-///\relates nytl::Vec
-///Helper that combines multiple nytl::Vec objects to a larger one.
-///Undefined behaviour if objects other than nytl::Vec are passed
-///The value type of the returned vector is the same as the one the first passed Vec has.
-template<typename... Args>
-auto join(const Args&... args)
-{
-	using T = typename decltype(detail::firstArgType(args...))::Value;
-	constexpr auto dim = (... || (args.dim == dynamicSize)) ? dynamicSize : (... + args.dim);
-	auto s = (... + args.size());
-
-	Vec<dim, T> ret(s);
-	auto id = 0u;
-
-	auto set = [&](const auto& arg){
-		for(auto val : arg) ret[id++] = val;
-	};
-
-	(set(args), ...);
-	return ret;
-}
-*/
-
-//component-wise
-///\relates nytl::Vec
-template<std::size_t D, typename T>
-constexpr Vec<D, T> max(const Vec<D, T>& va, const Vec<D, T>& vb)
-{
-	Vec<D, T> ret(min(va.size(), vb.size()));
-	for(std::size_t i(0); i < min(va.size(), vb.size()); ++i)
-		ret[i] = max(va[i], vb[i]);
-
-	return ret;
-}
-
-///\relates nytl::Vec
-template<std::size_t D, typename T>
-constexpr Vec<D, T> max(const Vec<D, T>& va, const T& value)
-{
-	Vec<D, T> ret(va.size());
-	for(std::size_t i(0); i < va.size(); ++i)
-		ret[i] = max(va[i], value);
-
-	return ret;
-}
-
-///\relates nytl::Vec
-template<std::size_t D, typename T>
-constexpr Vec<D, T> min(const Vec<D, T>& va, const Vec<D, T>& vb)
-{
-	Vec<D, T> ret(min(va.size(), vb.size()));
-	for(std::size_t i(0); i < min(va.size(), vb.size()); ++i)
-		ret[i] = min(va[i], vb[i]);
-
-	return ret;
-}
-
-///\relates nytl::Vec
-template<std::size_t D, typename T>
-constexpr Vec<D, T> min(const Vec<D, T>& va, const T& value)
-{
-	Vec<D, T> ret(va.size());
-	for(std::size_t i(0); i < va.size(); ++i)
-		ret[i] = min(va[i], value);
-
-	return ret;
-}
-
-}
-
-#endif //header guard
+#endif // header guard

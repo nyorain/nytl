@@ -1,63 +1,57 @@
-// Copyright (c) 2016 nyorain 
+// Copyright (c) 2016 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
-///\file
-///\brief Defines several useful constants and conversion/utility functions for scalar numbers.
+/// \file Various simple scalar related utility helpers.
 
 #pragma once
 
 #ifndef NYTL_INCLUDE_SCALAR_HPP
 #define NYTL_INCLUDE_SCALAR_HPP
 
-#include <functional>
-#include <algorithm>
+namespace nytl {
 
-namespace nytl
+namespace constants {
+	constexpr const auto pi = 3.14159265359;
+	constexpr const auto degree = pi / 180.0; // one degree as radian
+	constexpr const auto e = 2.71828182845;
+} // namespace constants
+
+
+/// \brief simply constexpr implementation of std::accumulate.
+/// \requires Type 'InputIt' must be a InputIterator
+/// \requiers T must be CopyAssignable and CopyConstructible
+/// \module vec
+template<typename InputIt, typename T, typename BinaryOp>
+constexpr auto accumulate(InputIt begin, InputIt last, T init, BinaryOp op)
 {
+	while(begin != last) init = op(init, *(begin++));
+	return init;
+}
 
-constexpr const double cPi = 3.14159265359;
-constexpr const double cDeg = cPi / 180.0;
-constexpr const double cE = 2.71828182845;
-
-//degrees/radians
+/// \brief Converts the given angle in radians to degrees.
+/// \requires P must be a mathematical field.
 template<typename P>
-constexpr auto degrees(const P& rad) -> decltype(rad / cDeg)
+constexpr auto degrees(const P& rad)
 {
-	return rad / cDeg;
+	return rad / constants::degree;
 }
 
+/// \brief Converts the given angle in degrees to radians.
+/// \requires P must be a mathematical field.
 template<typename P>
-constexpr auto radians(const P& deg) -> decltype(deg * cDeg)
+constexpr auto radians(const P& deg)
 {
-	return deg * cDeg;
+	return deg * constants::degree;
 }
 
-//clamp
-///TODO: use std version instead
-constexpr double clamp(double val, double minVal, double maxVal)
+/// \brief Constexpr factorial implementation
+/// \returns The factorial of 'n'
+constexpr unsigned long factorial(unsigned int n)
 {
-	return
-		val <= minVal ? minVal :
-		val >= maxVal ? maxVal:
-		val;
+	return (n <= 1ul) ? 1ul : n * factorial(n - 1);
 }
 
-//mix
-constexpr double mix(double x, double y, double a)
-{
-	return (x * (1 - a)) + (y * a);
-}
+} // namespace nytl
 
-//TODO: fix that. change everywhere to std::min/max
-using std::min;
-using std::max;
-
-constexpr unsigned long fac(unsigned long n)
-{
-	return (n <= 1ul) ? 1ul : n * fac(n - 1);
-}
-
-}
-
-#endif //header guard
+#endif // header guard

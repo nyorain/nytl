@@ -1,7 +1,0 @@
-prefix=@CMAKE_INSTALL_PREFIX@
-includedir=${prefix}/include
-
-Name: nytl
-Description: header-only c++17 utility template functions and classes
-Version: @vmajor@.@vminor@.@vpatch@
-Cflags: -I${includedir}
