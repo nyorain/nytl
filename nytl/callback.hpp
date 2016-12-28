@@ -6,8 +6,8 @@
 
 #pragma once
 
-#ifndef NYTL_INCLUDE_CALLBACK_HPP
-#define NYTL_INCLUDE_CALLBACK_HPP
+#ifndef NYTL_INCLUDE_CALLBACK
+#define NYTL_INCLUDE_CALLBACK
 
 #include <nytl/connection.hpp> // nytl::BasicConnection
 

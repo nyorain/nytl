@@ -64,7 +64,8 @@ namespace nytl::mat {
 /// \brief Prints the given matrix with numerical values to the given ostream.
 /// If this function is used, header <ostream> must be included.
 /// This function does not implement operator<< since this operator should only implemented
-/// for the Vector implementation types.
+/// for the Vector implementation types. Can be used to implement such an operator (as
+/// [nytl::Mat]() does).
 /// \param valueWidth The number of characters per matrix value. Can be 0 to not care for it.
 /// \param rowSpacing The spacing in the beginning of each row.
 /// \param breakAfter Whether to insert a newline after printing the matrix.
@@ -91,6 +92,7 @@ std::ostream& print(std::ostream& ostream, const M& mat, unsigned int valueWidth
 		for(auto c = 0u; c < mat.cols(); c++) {
 			if(valueWidth) os.width(valueWidth);
 			if(valueWidth) os.precision(valueWidth - numberOfDigits(mat[r][c]) - 1);
+
 			os << mat[r][c];
 			if(c != mat.cols() - 1)
 				os << ", ";
@@ -105,7 +107,8 @@ std::ostream& print(std::ostream& ostream, const M& mat, unsigned int valueWidth
 	return os;
 }
 
-/// \brief Returns the nth row of the given matrix.
+/// \brief Returns the row with index n of the given matrix.
+/// For example: `nytl::mat::row(mat44, 0);` returns the first (index 0) row of a matrix.
 /// \returns A M::RowVec holding the elements from the nth row.
 /// \requires Type 'M' shall be a Matrix.
 /// \module mat
@@ -119,7 +122,8 @@ constexpr auto row(const M& mat, typename M::Size n)
 	return ret;
 }
 
-/// \brief Returns the nth column of the given matrix.
+/// \brief Returns the column with index n of the given matrix.
+/// For example: `nytl::mat::row(mat44, 1);` returns the second (index 1) column of a matrix.
 /// \returns A M::ColVec holding the elements from the nth column.
 /// \requires Type 'M' shall be a Matrix.
 /// \module mat
@@ -134,6 +138,7 @@ constexpr auto col(const M& mat, typename M::Size n)
 }
 
 /// \brief Sets the nth row of the given Matrix.
+/// For example: `nytl::mat::row(mat44, 0, vec4);` sets the first row of a matrix.
 /// \requires Type 'M' shall be a mutable Matrix.
 /// \requires Type 'R' shall be a Container that can be accessed using operator[] and
 /// that holds at least as much values as mat has columns which can be converted to M::Value.
@@ -145,7 +150,8 @@ constexpr void row(M& mat, typename M::Size n, const R& row)
 		mat[n][i] = row[i];
 }
 
-/// \brief Sets the nth column of the given matrix.
+/// \brief Sets the column with index n to the given column.
+/// For example: `nytl::mat::col(mat44, 2, vec4);` sets the 3rd column of a matrix.
 /// \requires Type 'M' shall be a mutable Matrix.
 /// \requires Type 'R' shall be a Container that can be accessed using operator[] and
 /// that holds at least as much values as mat has rows which can be converted to M::Value.
@@ -157,7 +163,8 @@ constexpr void col(M& mat, typename M::Size n, const C& col)
 		mat[i][n] = col[i];
 }
 
-/// \brief Swaps the nth with the ith row of the given matrix.
+/// \brief Swaps the row with index n with the row with index i.
+/// For example: `nytl::mat::swapRow(mat44, 2, 3);` swaps the 3rd and 4th row
 /// \requires Type 'M' shall be a mutable Matrix.
 /// \module mat
 template<typename M>
@@ -168,7 +175,8 @@ constexpr void swapRow(M& mat, typename M::Size n, typename M::Size i)
 		swap(mat[n][c], mat[i][c]);
 }
 
-/// \brief Swaps the nth with the ith column of the given matrix.
+/// \brief Swaps the column with index n with the column with index i.
+/// For example: `nytl::mat::swapCol(mat44, 2, 3);` swaps the 3rd and 4th column
 /// \requires Type 'M' shall be a mutable Matrix.
 /// \module mat
 template<typename M>
@@ -182,6 +190,7 @@ constexpr void swapCol(M& mat, typename M::Size n, typename M::Size i)
 /// \brief Copies the second matrix into the first one.
 /// Both matrices should have the same size, otherwise calling this functions
 /// results in undefined behaviour.
+/// For example: `nytl::mat::copy(mat44f, mat44d);` copies the double matrix into the float one.
 /// \requires Types 'M', 'N' shall be matrix types. 'M' shall be mutable.
 /// \requires The value type of 'N' must be convertible to the value type of 'M'.
 /// \module mat
@@ -271,12 +280,12 @@ constexpr auto transpose(const M& mat)
 
 /// \brief Performs partical pivoting for the given matrix for given position.
 /// Finds the largest value in the given column and swaps its row with the given row.
+/// Complexity Lies within O(n^2).
 /// \param row The row of the matrix entry to maximize.
 /// \param column The column of the matrix entry to maximize.
 /// \param after If this is true, only rows after the given one are considered for swapping.
 /// \returns The new value at the given position.
 /// \requires Type 'M' shall be a mutable Matrix.
-/// \complexity Lies within O(n^2).
 /// \module mat
 template<typename M>
 constexpr auto pivot(M& mat, typename M::Size row, typename M::Size column, bool after = false)
@@ -299,8 +308,11 @@ constexpr auto pivot(M& mat, typename M::Size row, typename M::Size column, bool
 /// The given matrix does not have to fulfill any requirements.
 /// Does directly modify the matrix. For a version that operates on a copy, see
 /// rowEcholonFormCopy.
+/// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
+/// \note This operation divides by values from the matrix so it must have a type does
+/// correctly implement division over the desired field (e.g. integer matrices will result
+/// in errors here).
 /// \requires Type 'M' shall be a Matrix.
-/// \complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
 /// \module mat
 template<typename M>
 constexpr void rowEcholon(M& mat)
@@ -332,11 +344,29 @@ constexpr void rowEcholon(M& mat)
 	}
 }
 
+/// \brief Same as [nytl::mat::rowEcholon](), but operates on a copy.
+/// Assures that the given matrix is converted to a matrix will full precision.
+/// \module mat
+template<typename M>
+constexpr auto rowEcholonCopy(const M& mat)
+{
+	using RetValue = typename FieldTraits<typename M::Value>::FullPrecision;
+	using RetMat = typename M::template Rebind<M::maxRows, M::maxCols, RetValue>;
+
+	auto ret = RetMat::create(mat.rows(), mat.cols());
+	copy(ret, mat);
+	rowEcholon(ret);
+	return ret;
+}
+
 /// \brief Brings the given matrix into the reduced row echolon form (ref).
 /// Implements the full gaussian elimination for a given matrix.
 /// The given matrix can be in any form.
+/// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
+/// \note This operation divides by values from the matrix so it must have a type does
+/// correctly implement division over the desired field (e.g. integer matrices will result
+/// in errors here).
 /// \requires Type 'M' shall be a Matrix.
-/// \complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
 /// \module mat
 template<typename M>
 constexpr void reducedRowEcholon(M& mat)
@@ -365,6 +395,21 @@ constexpr void reducedRowEcholon(M& mat)
 	}
 }
 
+/// \brief Same as [nytl::mat::reducedRowEcholon](), but operates on a copy.
+/// Assures that the given matrix is converted to a matrix will full precision.
+/// \module mat
+template<typename M>
+constexpr auto reducedRowEcholonCopy(const M& mat)
+{
+	using RetValue = typename FieldTraits<typename M::Value>::FullPrecision;
+	using RetMat = typename M::template Rebind<M::maxRows, M::maxCols, RetValue>;
+
+	auto ret = RetMat::create(mat.rows(), mat.cols());
+	copy(ret, mat);
+	reducedRowEcholon(ret);
+	return ret;
+}
+
 /// \brief Computes a LU decomposition of a given matrix.
 /// \returns std::tuple with the lower (0) and upper (1) matrix of the decomposition, as
 /// well as the used permutation matrix (2) and the sign of the permutation (3).
@@ -375,9 +420,10 @@ constexpr void reducedRowEcholon(M& mat)
 /// The returned matrices always fullfill the equtation: PA = LU, where P is the permutation
 /// matrix, A the given matrix, L the lower and U the upper matrix.
 /// Read more about lu decomposition at [https://en.wikipedia.org/wiki/LU_decomposition]().
+/// The returned matrices have the full field precision type, since this operation divides values.
 /// This function cannot fail in any way.
+/// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
 /// \requires Type 'M' shall be a square Matrix.
-/// \complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
 /// \moduloe mat
 template<typename M>
 constexpr auto luDecomp(const M& mat)
@@ -397,33 +443,13 @@ constexpr auto luDecomp(const M& mat)
 	identity(perm);
 	copy(upper, mat);
 
-	// first pivot the matrix in a way that assures that the pivot we divide with is never 0
-	// for(auto c = 0u; c < mat.cols(); ++c) {
-	//
-	// 	auto val = fieldZero;
-	// 	for(auto i = 0u; i < c; ++i)
-	// 		if(upper[i][i] != fieldZero)
-	// 			val += (mat[c][i] / mat[i][i]) * mat[i][c];
-	//
-	// 	// try to swap a row so that mat[c][c] is not value
-	// 	// if it would be it will be zero as pivot which is only acceptable if all
-	// 	// values in the column are 0 (in which case we never swap the row and simply
-	// 	// skip the column later on)
-	// 	if(mat[c][c] != val) continue;
-	// 	for(auto r = c + 1; r < mat.rows(); ++r) {
-	// 		if(mat[r][c] != val) {
-	// 			swapRow(upper, r, c);
-	// 			swapRow(perm, r, c);
-	// 			sign *= -1;
-	// 			break;
-	// 		}
-	// 	}
-	// }
-
 	for(auto n = 0u; n < mat.cols(); ++n) {
-
 		lower[n][n] = fieldOne;
 
+		// since we divide by upper[n][n] later on we should try to make it non-zero by
+		// swapping the current row with another row. If we do so, we have to pretend we
+		// swapped the matrix in the beginning and therefore also change the lower matrix and
+		// remember the swap in the permutation matrix
 		if(upper[n][n] == fieldZero) {
 			for(auto r = n + 1; r < mat.rows(); ++r) {
 				if(upper[r][n] != fieldZero) {
@@ -435,6 +461,8 @@ constexpr auto luDecomp(const M& mat)
 				}
 			}
 
+			// If all coefficients in the column are zero (e.g. a zero matrix), its ok since
+			// we don't have any more coefficients to eliminate.
 			if(upper[n][n] == fieldZero) continue;
 		}
 
@@ -442,42 +470,20 @@ constexpr auto luDecomp(const M& mat)
 		// pivoting already assured that mat[n][n] is not zero
 		auto rown = row(upper, n);
 		for(auto i = n + 1; i < mat.rows(); ++i) {
-			// std::cout << "    " << "[" << i << "]" << "[" << n << "] = " << upper[i][n] << "\n";
-			// std::cout << "    " << "[" << n << "]" << "[" << n << "] = " << upper[n][n] << "\n";
-
 			auto fac = static_cast<RetValue>(upper[i][n]) / upper[n][n];
-			// std::cout << "    fac = " << fac << "\n";
-
 			auto rowi = row(upper, i);
 			auto rowin = rowi - fac * rown;
 			row(upper, i, rowin);
 			lower[i][n] = fac;
-
-			// std::cout << "    " << i << ", " << fac << ", " << upper[i][n] << ", " << upper[n][n] << ": " << rowin << "\n";
-			// std::cout << "\n";
 		}
-
-		// std::cout << n << ": " << rown << "\n";
-		// std::cout << upper << "\n";
 	}
 
 	return ret;
 }
 
-/// \brief Returns the vector x so that LUx = b.
-/// Can be used to more efficiently solve multiple linear equotation systems for the
-/// same matrix by first decomposing it and then use this function instead of the default
-/// gaussian elimination implementation.
-/// Note that if the lu composition was done with a permutation matrix (PA = LU), the returned
-/// vector must be multiplied with the permutation matrixs inverse (tranpose) to get the vector
-/// that solves Ax = b.
-/// \note Does not check if the given equotation is solvable, i.e. results in undefined behaviour
-/// if it is not. The caller should check or assure this somehow. Could be done by
-/// checking whether the given lower or upper matrix is singular, i.e. whether one of its
-/// diagonal elements is zero.
-/// \requires Type 'M' shall be a square Matrix.
-/// \requires Type 'V' shall be a vector that has as many elements as l and u have rows/columns.
-/// \complexity Lies within O(n^2) where n is the number of rows/cols of the given matrix.
+namespace nocheck {
+
+/// \brief Same as [nytl::mat::luEvaluate]() but does not perform any matrix checks.
 /// \module mat
 template<typename M, typename V>
 constexpr auto luEvaluate(const M& l, const M& u, const V& b)
@@ -507,14 +513,45 @@ constexpr auto luEvaluate(const M& l, const M& u, const V& b)
 		x[i] /= u[i][i];
 	}
 
-
 	return x;
 }
 
+} // namespace nocheck
+
+/// \brief Returns the vector x so that LUx = b.
+/// Can be used to more efficiently solve multiple linear equotation systems for the
+/// same matrix by first decomposing it and then use this function instead of the default
+/// gaussian elimination implementation.
+/// Note that if the lu composition was done with a permutation matrix (PA = LU), the returned
+/// vector must be multiplied with the permutation matrixs inverse (tranpose) to get the vector
+/// that solves Ax = b.
+/// \note Does not check if the given equotation is solvable, i.e. results in undefined behaviour
+/// if it is not. The caller should check or assure this somehow. Could be done by
+/// checking whether the given lower or upper matrix is singular, i.e. whether one of its
+/// diagonal elements is zero.
+/// The returned vector has a full field precision type, since this operation divides values.
+/// Complexity Lies within O(n^2) where n is the number of rows/cols of the given matrix.
+/// \requires Type 'M' shall be a square Matrix.
+/// \requires Type 'V' shall be a vector that has as many elements as l and u have rows/columns.
+/// \module mat
+template<typename M, typename V>
+constexpr auto luEvaluate(const M& l, const M& u, const V& b)
+{
+	if(l.rows() != l.cols() || u.rows() != u.cols() || l.rows() != u.rows())
+		throw std::logic_error("nytl::mat::luEvaluate: invalid lu matrices");
+
+	auto zero = FieldTraits<typename M::Value>::zero;
+	for(auto n = 0u; n < l.rows(); ++n)
+		if(l[n][n] == zero || u[n][n] == zero)
+			throw std::logic_error("nytl::mat::luEvaluate: singular lower or upper matrix");
+
+	return nocheck::luEvaluate(l, u, b);
+}
+
 /// \brief Returns the determinant of the given square matrix.
+/// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
 /// \requires Type 'M' shall be a Matrix.
 /// \requires The given matrix shall be a square matrix.
-/// \complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
 /// \module mat
 template<typename M>
 constexpr auto determinant(const M& mat)
@@ -525,7 +562,7 @@ constexpr auto determinant(const M& mat)
 	auto& u = std::get<1>(lups);
 	auto& s = std::get<3>(lups);
 
-	return s * multiplyDiagonal(u);
+	return s * static_cast<typename M::Value>(multiplyDiagonal(u));
 }
 
 /// \brief Returns the determinant for the lu decomposition of a matrix.
@@ -541,9 +578,9 @@ constexpr auto determinant(const M& l, const M& u, int sign = 1)
 }
 
 /// \brief Returns whether the given matrix can be inversed.
-/// Returns false for non-square matrices.
+/// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
+/// \returns false for non-square matrices.
 /// \requires Type 'M' shall be a Matrix.
-/// \complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
 /// \module mat
 template<typename M>
 constexpr bool invertible(const M& mat)
@@ -552,102 +589,121 @@ constexpr bool invertible(const M& mat)
 	return (determinant(mat) != 0);
 }
 
+namespace nocheck {
+
+/// \brief Same as [nytl::mat::inverse(const M& l, const M& u)]() but does not check for errors.
+/// \requires Type 'M' shall be an invertible square Matrix.
+/// \module mat
+template<typename M>
+constexpr auto inverse(const M& l, const M& u)
+{
+	using RetValue = typename FieldTraits<typename M::Value>::FullPrecision;
+	using RetMat = typename M::template Rebind<RetValue, M::maxRows, M::maxCols>;
+	auto ret = RetMat::create(l.rows(), l.cols());
+
+	auto idmat = M::create(l.rows(), l.cols());
+	identity(idmat);
+
+	// row(idmat, i) same as col(idmat, i) but might be more efficient
+	for(auto i = 0u; i < ret.cols(); ++i)
+		col(ret, i, nocheck::luEvaluate(l, u, row(idmat, i)));
+
+	return ret;
+}
+
+/// \brief Same as [nytl::mat::inverse(const M& mat)]() but does not check for errors.
+/// \requires Type 'M' shall be an invertible square Matrix.
+/// \module mat
+template<typename M>
+constexpr auto inverse(const M& mat)
+{
+	// auto [l, u, p, s] = luDecomp(mat); //TODO C++17
+
+	auto lups = luDecomp(mat);
+	const auto& l = std::get<0>(lups);
+	const auto& u = std::get<1>(lups);
+	const auto& p = std::get<2>(lups);
+
+	return inverse(l, u) * p;
+}
+
+} // namespace nocheck
+
+/// \brief Inverses the matrix that has the given lu decomposition.
+/// If the lu decompostion also had a permutatoin matrix, so that PA = LU, one has
+/// to multiply the inverse with it, i.e. nytl::inverse(l, u) * permutation if the
+/// actual inverse if mat == l * u.
+/// \throws std::logic_error for non-square on singular lower or upper matrix.
+/// \requires Type 'M' shall be a Matrix.
+/// \module mat
+template<typename M>
+constexpr auto inverse(const M& l, const M& u)
+{
+	if(l.rows() != l.cols() || u.rows() != u.cols() || l.rows() != u.rows())
+		throw std::logic_error("nytl::mat::luEvaluate: invalid lower or upper matrix");
+
+	auto zero = FieldTraits<typename M::Value>::zero;
+	for(auto n = 0u; n < l.rows(); ++n)
+		if(u[n][n] == zero)
+			throw std::logic_error("nytl::mat::luEvaluate: singular lower or upper matrix");
+
+	return nocheck::inverse(l, u);
+}
+
 /// \brief Returns the inverse of the given square matrix.
 /// \throws std::invalid_argument for non-square or singular matrices.
 /// Either catch the exception or check if the invertible matrix using
-/// [nytl::invertible](). One can also use [nytl::inverse<M, N>(const M&, N& inverse)]()
+/// [nytl::mat::invertible](). One can also use [nytl::mat::invert(const M&)]()
 /// to check if a matrix is invertible and calculate the inverse if so. This will
 /// be way more efficient then first checking and then calculating it.
-/// \complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
+/// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
 /// \requires Type 'M' shall be a Matrix type.
 /// \module mat
 template<typename M>
 constexpr auto inverse(const M& mat)
 {
-	if(mat.rows() != mat.cols()) throw std::invalid_argument("nytl::inverse: non-square matrix");
-
-	using RetValue = typename FieldTraits<typename M::Value>::FullPrecision;
-	using RetMat = typename M::template Rebind<RetValue, M::maxRows, M::maxCols>;
-	auto ret = RetMat::create(mat.rows(), mat.cols());
+	if(mat.rows() != mat.cols())
+		throw std::invalid_argument("nytl::mat::inverse: non-square matrix");
 
 	// auto [l, u, p, s] = luDecomp(mat); //TODO C++17
-
 	auto lups = luDecomp(mat);
 	const auto& l = std::get<0>(lups);
 	const auto& u = std::get<1>(lups);
+	const auto& p = std::get<1>(lups);
 
-	std::cout << l << "\n" << u << "\n";
-
-	// check for singular matrix
 	for(auto n = 0u; n < l.rows(); ++n)
 		if(u[n][n] == FieldTraits<typename M::Value>::zero)
-			throw std::invalid_argument("nytl::inverse: singular matrix");
+			throw std::invalid_argument("nytl::mat::inverse: singular matrix");
 
-	auto inversePerm = transpose(std::get<2>(lups));
-	auto idmat = M::create(mat.rows(), mat.cols());
-	identity(idmat);
-
-	for(auto i = 0u; i < ret.cols(); ++i) {
-		auto column = luEvaluate(l, u, row(idmat, i)); // row in this case same as col
-		col(ret, i, inversePerm * column); // set the ith column
-	}
-
-	return ret;
+	return nocheck::inverse(l, u) * p;
 }
 
-/// \brief Checks if the given matrix is invertibe and inverts it if so
+/// \brief Checks if the given matrix is invertibe and inverts it if so.
 /// \returns Whether the given matrix could be inverted, i.e. if the matrix
-/// is singular or non-square.
-/// \param inverse The matrix in which the inverse will be stored. Will not be changed
-/// if the matrix cannot be inverted.
-/// \complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
-/// \requires Type 'M' shall be a mutable matrix.
+/// is an invertible square matrix.
+/// If the matrix could not be inverted, false is returned and the matrix is left unchanged.
+/// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
+/// \requires Type 'M' shall be a mutable Matrix.
 /// \module mat
 template<typename M>
-constexpr bool inverse(const M& mat, M& inverse)
+constexpr bool invert(M& mat)
 {
 	if(mat.rows() != mat.cols()) return false;
 
-	using ValueType = decltype(mat[0][0] / mat[0][0] - mat[0][0]);
-	using RetType = typename M::template Rebind<ValueType, M::maxRows, M::maxCols>;
-	auto ret = RetType::create(mat.rows(), mat.cols());
-
 	// auto [l, u, p, s] = luDecomp(mat); //TODO C++17
 
 	auto lups = luDecomp(mat);
 	const auto& l = std::get<0>(lups);
 	const auto& u = std::get<1>(lups);
+	const auto& p = std::get<1>(lups);
 
 	// check for singular matrix
 	for(auto n = 0u; n < l.rows(); ++n)
 		if(u[n][n] == FieldTraits<typename M::Value>::zero)
 			return false;
 
-	auto inversePerm = transpose(std::get<2>(lups));
-	auto idmat = M::create(mat.rows(), mat.cols());
-	identity(idmat);
-
-	for(auto i = 0u; i < ret.cols(); ++i) {
-		auto column = luEvaluate(l, u, row(idmat, i)); // row in this case same as col
-		col(ret, i, inversePerm * column); // set the ith column
-	}
-
-	return ret;
+	return nocheck::inverse(l, u) * p;
 }
-
-// TODO:
-//  - other lu algorithms, rework current one (with parameters), e.g. crout decomp
-//  - throw if not solvable? divide by 0 (luEvaluate)?
-// 		- general error handling concept
-
-/// \module vec mat
-/// \brief Returns whether the given vectors are linearly independent.
-/// \tparam Args The given vectors. Must all be of the same type.
-// template<typename... Args>
-// constexpr auto linearlyIndependent(const Args&... args)
-// {
-// 	// Try to find a non-trivial combination of the nullvector from the given vectors
-// }
 
 }
 
