@@ -84,17 +84,17 @@ protected:
 /// Can be used like this (for the already defined class 'SomeClass'):
 /// '''cpp
 /// struct MyObserver : public nytl::Observer<SomeClass> {
-/// 	void observeDestruction(SomeCloss& obj) override
+/// 	void observeDestruction(SomeClass& obj) override
 /// 		{ std::cout << &obj << " was destructed!\n"; }
 /// };
 ///
-/// using ObsClass = nytl::ObervableWrapper<SomeClass>;
+/// using ObsClass = nytl::ObservableWrapper<SomeClass>;
 ///
 /// int main()
 /// {
 /// 	auto observer = MyObserver {};
 /// 	auto object = new ObsClass {};
-/// 	object->addObserver(&observer);
+/// 	object->addObserver(observer);
 /// 	delete object; // will trigger observer.observeDestruction(*object)
 /// }
 /// '''

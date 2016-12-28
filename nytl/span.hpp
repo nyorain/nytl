@@ -44,11 +44,11 @@ template<typename T, std::size_t N> struct SpanStorage;
 ///		std::array<std::string, 3> namesArray {"foo", "bar", "baz"};
 ///		foo(namesArray); // works
 /// 	bar(namesArray); // works
-///		// baz(namesArray); // compile time error, since it requires 5 names
+///		baz(namesArray); // will throw std::logic_error since baz requires exactly 5 strings
 ///
-///		std::vector<std::string> namesVector {"foo", "bar", "baz", "abz, "bla"};
+///		std::vector<std::string> namesVector {"foo", "bar", "baz", "abz", "bla"};
 ///		foo(namesVector); // works
-///		bar(namesVector); // will throw std::logic_error since it requires exactly 3 strings
+///		bar(namesVector); // will throw std::logic_error since bar requires exactly 3 strings
 ///		baz(namesVector); // works
 ///
 /// 	// If we only want the first 3 elements from namesVector as range we can do it like this
@@ -107,7 +107,10 @@ public:
 	constexpr Span(std::nullptr_t) : Span(nullptr, 0) {}
 
 	template<typename C, typename = detail::ValidContainer<T, C>>
-	constexpr Span(const C& c) : Span(c.data(), c.size()) {}
+	constexpr Span(C& c) : Span(c.data(), c.size()) {}
+
+	template<typename C, typename = detail::ValidContainer<T, C>, std::size_t S = C::size()>
+	constexpr Span(C& c) : Span(c.data()) {}
 
 	constexpr Pointer data() const noexcept { return this->data_; }
 	constexpr Difference size() const noexcept { return this->size_; }
@@ -123,7 +126,7 @@ public:
 	constexpr Reference at(Size i) const { checkThrow(i); return data()[i]; }
 
 	constexpr Reference front() const noexcept { return *data(); }
-	constexpr Reference back() const noexcept { return *(data() + size()); }
+	constexpr Reference back() const noexcept { return *(data() + size() - 1); }
 
 	constexpr Span<T> slice(Size pos, Size size) const { return {data() + pos, size}; }
 	template<Size S> constexpr Span<T, S> slice(Size pos) const { return {data() + pos}; }
@@ -136,14 +139,13 @@ protected:
 template<typename T, std::size_t N>
 struct SpanStorage {
 	constexpr SpanStorage() noexcept = default;
-	constexpr SpanStorage(T& ref, std::size_t size = N) : SpanStorage(&ref, size) {}
-	constexpr SpanStorage(T (&arr)[N]) : SpanStorage(arr, N) {}
-	constexpr SpanStorage(std::array<T, N>& arr) : SpanStorage(arr.data(), N) {}
 	constexpr SpanStorage(T* pointer, std::size_t size = N) : data_(pointer)
 	{
 		if(size != N) throw std::logic_error("nytl::Span:: invalid size");
 		if(!pointer && size != 0) throw std::logic_error("nytl::Span:: invalid data");
 	}
+	constexpr SpanStorage(T& ref, std::size_t size = N) : SpanStorage(&ref, size) {}
+	constexpr SpanStorage(T (&arr)[N]) : SpanStorage(arr, N) {}
 
 	T* data_;
 	constexpr static auto size_ = N;
@@ -153,15 +155,13 @@ struct SpanStorage {
 template<typename T>
 struct SpanStorage<T, constants::dynamicSize> {
 	constexpr SpanStorage() noexcept = default;
-	constexpr SpanStorage(T& ref, std::size_t size) : SpanStorage(&ref, size) {}
-	template<std::size_t S> constexpr SpanStorage(T (&arr)[S]) : SpanStorage(arr, S) {}
-	template<std::size_t S> constexpr SpanStorage(std::array<T, S>& arr) : SpanStorage(arr, S) {}
 	constexpr SpanStorage(T* pointer, std::size_t size) : data_(pointer), size_(size)
 	{
 		if(!pointer && size != 0) throw std::logic_error("nytl::Span:: invalid data");
 		if(size < 0) throw std::logic_error("nytl::Span:: invalid size");
 	}
-
+	constexpr SpanStorage(T& ref, std::size_t size) : SpanStorage(&ref, size) {}
+	template<std::size_t S> constexpr SpanStorage(T (&arr)[S]) : SpanStorage(arr, S) {}
 
 	T* data_;
 	std::size_t size_;
