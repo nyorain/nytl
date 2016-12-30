@@ -2,7 +2,7 @@
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
-///\file Utilities to implement easier conversions and casts.
+/// \file Utilities to easier implement conversions and casts.
 
 #pragma once
 
@@ -116,6 +116,6 @@ struct Converter<From, To, void_t<decltype(containerCast<To>(std::declval<From>(
 	static To call(const From& other) { return containerCast<To>(other); }
 };
 
-}
+} // namespace nytl
 
 #endif // header guard

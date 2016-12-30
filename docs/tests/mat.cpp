@@ -99,8 +99,8 @@ void inverse()
 		CHECK_EXPECT(nytl::mat::invertible(a), true);
 
 		auto inv = nytl::mat::inverse(a);
-		auto inv1 = nytl::mat::inverse(l, u);
-		CHECK_EXPECT(inv, inv1 * p);
+		auto inv1 = nytl::mat::inverse(l, u, p);
+		CHECK_EXPECT(inv, inv1);
 
 		nytl::Mat<5, 5, double> identity;
 		nytl::mat::identity(identity);

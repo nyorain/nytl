@@ -2,7 +2,7 @@
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
-///\file Helpers for making types observable or observe the lifetime of objects.
+/// \file Helpers for making types observable or observe the lifetime of objects.
 
 #pragma once
 
@@ -174,6 +174,6 @@ private:
 	void observeDestruction(typename T::ObservableDerived&) override { object_ = nullptr; }
 };
 
-}
+} // namespace nytl
 
-#endif //header guard
+#endif // header guard

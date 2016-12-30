@@ -2,13 +2,14 @@
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
-///\file Contains the Span template class.
+///  file Contains the Span template class for not-owned contigous ranges.
 
 #pragma once
 
 #ifndef NYTL_INCLUDE_RANGE
 #define NYTL_INCLUDE_RANGE
 
+#include <nytl/fwd/span.hpp> // nytl::Span default template parameter
 #include <nytl/scalar.hpp> // nytl::constants::dynamicSize
 
 #include <cstdlib> // std::size_t
@@ -30,7 +31,7 @@ template<typename T, std::size_t N> struct SpanStorage;
 /// any memory or copy any elements but instead just reference them.
 /// \tparam T The type the range is defined over. Use const types for non-mutable ranges.
 /// \tparam N The size of the range. If not known at compile
-/// time, use nytl::constants::dynamicSize (also defaulted to dyanmicSize).
+/// time, use nytl::constants::dynamicSize (also defaulted to dynamicSize).
 ///
 /// Some examples below. Note that Spans must be used carefully outside of temporary
 /// expressions since they are only valid as long the object they reference is valid.
@@ -91,7 +92,7 @@ template<typename T, std::size_t N> struct SpanStorage;
 ///			std::cout << name << "\n";
 /// }
 /// '''
-template<typename T, std::size_t N = constants::dynamicSize>
+template<typename T, std::size_t N>
 class Span : public SpanStorage<T, N> {
 public:
 	using Value = T;

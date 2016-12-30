@@ -66,6 +66,6 @@ template<typename A, typename> using Variadic = A;
 template<typename V, typename T>
 decltype(auto) templatize(T& value) { return value; }
 
-}
+} // namespace nytl
 
 #endif //header guard

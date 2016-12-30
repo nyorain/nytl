@@ -20,8 +20,7 @@ namespace nytl {
 /// Using this abstraction makes e.g. the Connection and Connection class possible as generic
 /// connections, seperated from the type of the class they have a connection for.
 template <typename ID>
-class BasicConnectable
-{
+class BasicConnectable {
 public:
 	virtual ~BasicConnectable() = default;
 	virtual bool disconnect(ID id) = 0;
@@ -32,8 +31,7 @@ public:
 /// track the lifetime of the BasicConnectable implementation object.
 /// Same as BasicConnectionGuard, but does not destroy the connection it holds on destruction.
 template <typename C, typename ID>
-class BasicConnection
-{
+class BasicConnection {
 public:
 	BasicConnection() noexcept = default;
 	BasicConnection(C& conn, ID id) : conn_(&conn), id_(id) {}
@@ -63,8 +61,7 @@ protected:
 /// for a connection this connection should not be disconnected in any other way than
 /// the destruction of the guard (except the guard is explicitly released).
 template <typename C, typename ID>
-class BasicConnectionGuard
-{
+class BasicConnectionGuard {
 public:
 	BasicConnectionGuard() noexcept = default;
 	BasicConnectionGuard(C& conn, ID id) : conn_(&conn), id_(id) {}
@@ -101,6 +98,7 @@ protected:
 };
 
 // - helper functions to create connection objects -
+// only needed until C++!7
 template<typename C, typename ID>
 auto makeConnection(C& connectable, ID id)
 	{ return BasicConnection<ID, C>(connectable, id); }

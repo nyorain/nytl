@@ -13,7 +13,7 @@
 
 #include <list>
 
-// TODO: test connection, tuple (operations)
+// TODO: to test: nonCopyable, connection, tuple (operations)
 
 // - callback -
 void callback()

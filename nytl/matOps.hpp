@@ -531,9 +531,9 @@ constexpr auto luEvaluate(const M& l, const M& u, const V& b)
 /// Can be used to more efficiently solve multiple linear equotation systems for the
 /// same matrix by first decomposing it and then use this function instead of the default
 /// gaussian elimination implementation.
-/// Note that if the lu composition was done with a permutation matrix (PA = LU), the returned
-/// vector must be multiplied with the permutation matrixs inverse (tranpose) to get the vector
-/// that solves Ax = b.
+/// \note If the lu composition was done with a permutation matrix (PA = LU), the given
+/// vector must be premultiplied with the permutations inverse (tranpose) to get the vector
+/// that solves Ax = b. If PA = LU and Ax = b, so LUx = P * b
 /// \note Does not check if the given equotation is solvable, i.e. results in undefined behaviour
 /// if it is not. The caller should check or assure this somehow. Could be done by
 /// checking whether the given lower or upper matrix is singular, i.e. whether one of its
@@ -600,27 +600,37 @@ constexpr bool invertible(const M& mat)
 
 namespace nocheck {
 
-/// \brief Same as [nytl::mat::inverse(const M& l, const M& u)]() but does not check for errors.
+/// \brief Returns the inverse of the matirx A with PA = LU.
+/// \notes Does not perform any sanity checks of the given matrix.
 /// \requires Type 'M' shall be an invertible square Matrix.
 /// \module mat
 template<typename M>
-constexpr auto inverse(const M& l, const M& u)
+constexpr auto inverse(const M& l, const M& u, const M& p)
 {
 	using RetValue = typename FieldTraits<typename M::Value>::FullPrecision;
 	using RetMat = typename M::template Rebind<M::rowDim, M::colDim, RetValue>;
 	auto ret = RetMat::create(l.rows(), l.cols());
 
-	auto idmat = M::create(l.rows(), l.cols());
-	identity(idmat);
-
-	// row(idmat, i) same as col(idmat, i) but might be more efficient
 	for(auto i = 0u; i < ret.cols(); ++i)
-		col(ret, i, nocheck::luEvaluate(l, u, row(idmat, i)));
+		col(ret, i, nocheck::luEvaluate(l, u, col(p, i)));
 
 	return ret;
 }
 
+/// \brief Returns the inverse of the matirx A with A = LU.
+/// \notes Does not perform any sanity checks of the given matrix.
+/// \requires Type 'M' shall be an invertible square Matrix.
+/// \module mat
+template<typename M>
+constexpr auto inverse(const M& l, const M& u)
+{
+	auto p = M::create(l.rows(), l.cols());
+	identity(p);
+	return inverse(l, u, p);
+}
+
 /// \brief Same as [nytl::mat::inverse(const M& mat)]() but does not check for errors.
+/// \notes Does not perform any sanity checks of the given matrix.
 /// \requires Type 'M' shall be an invertible square Matrix.
 /// \module mat
 template<typename M>
@@ -632,30 +642,43 @@ constexpr auto inverse(const M& mat)
 	const auto& u = std::get<1>(lups);
 	const auto& p = std::get<2>(lups);
 
-	return inverse(l, u) * p;
+	return inverse(l, u, p);
 }
 
 } // namespace nocheck
 
-/// \brief Inverses the matrix that has the given lu decomposition.
-/// If the lu decompostion also had a permutatoin matrix, so that PA = LU, one has
-/// to multiply the inverse with it, i.e. nytl::inverse(l, u) * permutation if the
-/// actual inverse if mat == l * u.
-/// \throws std::logic_error for non-square on singular lower or upper matrix.
-/// \requires Type 'M' shall be a Matrix.
+/// \brief Returns the inverse of the matrix A with A = LU.
+/// \thrown std::invalid_argument For a non-square or singular matrix
 /// \module mat
 template<typename M>
 constexpr auto inverse(const M& l, const M& u)
 {
 	if(l.rows() != l.cols() || u.rows() != u.cols() || l.rows() != u.rows())
-		throw std::invalid_argument("nytl::mat::inverse: invalid lower or upper matrix");
+		throw std::invalid_argument("nytl::mat::inverse: non-square matrix");
 
 	auto zero = FieldTraits<typename M::Value>::zero;
 	for(auto n = 0u; n < l.rows(); ++n)
-		if(u[n][n] == zero)
-			throw std::invalid_argument("nytl::mat::inverse: singular lower or upper matrix");
+		if(u[n][n] == zero || l[n][n] == zero)
+			throw std::invalid_argument("nytl::mat::inverse: singular matrix");
 
 	return nocheck::inverse(l, u);
+}
+
+/// \brief Returns the inverse of the matrix A with PA = LU.
+/// \thrown std::invalid_argument For a non-square or singular matrix
+/// \module mat
+template<typename M>
+constexpr auto inverse(const M& l, const M& u, const M& p)
+{
+	if(l.rows() != l.cols() || u.rows() != u.cols() || l.rows() != u.rows())
+		throw std::invalid_argument("nytl::mat::inverse: non-square matrix");
+
+	auto zero = FieldTraits<typename M::Value>::zero;
+	for(auto n = 0u; n < l.rows(); ++n)
+		if(u[n][n] == zero || l[n][n] == zero)
+			throw std::invalid_argument("nytl::mat::inverse: singular matrix");
+
+	return nocheck::inverse(l, u, p);
 }
 
 /// \brief Returns the inverse of the given square matrix.
@@ -679,11 +702,13 @@ constexpr auto inverse(const M& mat)
 	const auto& u = std::get<1>(lups);
 	const auto& p = std::get<2>(lups);
 
+	return inverse(l, u, p);
+
 	for(auto n = 0u; n < l.rows(); ++n)
 		if(u[n][n] == FieldTraits<typename M::Value>::zero)
 			throw std::invalid_argument("nytl::mat::inverse: singular matrix");
 
-	return nocheck::inverse(l, u) * p;
+	return nocheck::inverse(l, u, p);
 }
 
 /// \brief Checks if the given matrix is invertibe and inverts it if so.
@@ -709,9 +734,10 @@ constexpr bool invert(M& mat)
 		if(u[n][n] == FieldTraits<typename M::Value>::zero)
 			return false;
 
-	return nocheck::inverse(l, u) * p;
+	mat = nocheck::inverse(l, u, p);
+	return true;
 }
 
-}
+} // namespace nytl
 
 #endif // header guard

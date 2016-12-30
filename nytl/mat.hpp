@@ -2,7 +2,7 @@
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
-///\file Defines the nytl::Mat Matrix template class.
+/// \file Defines the nytl::Mat Matrix template class.
 
 #pragma once
 
@@ -25,8 +25,8 @@ template<std::size_t R, std::size_t C, typename T>
 struct Mat : public Vec<R, Vec<C, T>> {
 	using Value = T;
 	using Size = std::size_t;
-	using RowVec = Vec<R, T>;
-	using ColVec = Vec<C, T>;
+	using RowVec = Vec<C, T>;
+	using ColVec = Vec<R, T>;
 
 	constexpr static auto rowDim = R;
 	constexpr static auto colDim = C;

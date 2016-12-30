@@ -2,7 +2,7 @@
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
-///\file Includes the unspecialized nytl::Simplex template class.
+/// \file Includes the unspecialized nytl::Simplex template class.
 
 #pragma once
 
@@ -55,13 +55,13 @@ public:
 	/// References A + 1 points.
 	/// Can be used to acces (read/change/manipulate) the points.
 	/// Should be implemented by specializations.
-	constexpr Point* points() noexcept { return points_; }
+	constexpr Point* points() noexcept { return points_.data(); }
 
 	/// Returns the array of points this simplex is defined by.
 	/// References A + 1 points.
 	/// Can be used to const_iterate/read the points.
 	/// Should be implemented by specializations.
-	constexpr const Point* points() const noexcept { return points_; }
+	constexpr const Point* points() const noexcept { return points_.data(); }
 
 	/// Converts the object to a Simplex with a different dimension or precision.
 	/// Note that the area dimension A cannot be changed, only the space dimension D.
@@ -78,6 +78,6 @@ public:
 // To get various functions/operators/utility for dealing with simplices:
 // #include <nytl/simplexOps.hpp>
 
-}
+} // namespace nytl
 
 #endif //header guard

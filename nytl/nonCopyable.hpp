@@ -2,7 +2,7 @@
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
-///\file Defines the helper base classes NonCopyable and NonMovable.
+/// \file Defines the helper base classes NonCopyable and NonMovable.
 
 #pragma once
 
@@ -37,4 +37,4 @@ protected:
 
 } // namespace nytl
 
-#endif //header guard
+#endif // header guard

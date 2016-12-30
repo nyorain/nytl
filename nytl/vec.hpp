@@ -9,6 +9,7 @@
 #ifndef NYTL_INCLUDE_VEC
 #define NYTL_INCLUDE_VEC
 
+#include <nytl/fwd/vec.hpp> // nytl::Vec typedefs
 #include <nytl/vecOps.hpp> // nytl::vec::print
 
 #include <cstdint> // std::size_t

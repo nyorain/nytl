@@ -2,7 +2,7 @@
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
-///\file Defines binary operators for enums as well as the nytl::Flags class.
+/// \file Defines binary operators for enums as well as the nytl::Flags class.
 
 #pragma once
 
@@ -91,4 +91,4 @@ Flags<T> operator^(T bit, const Flags<T>& flags) noexcept
 	constexpr nytl::Flags<T> operator^(T a, T b) noexcept { return nytl::Flags<T>(a) ^ b; } \
 	constexpr nytl::Flags<T> operator~(T bit) noexcept { return {nytl::inverseFlags, bit}; }
 
-#endif //header guard
+#endif // header guard

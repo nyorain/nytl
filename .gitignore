@@ -4,5 +4,5 @@ bin/
 *.o
 *.gch
 *.swp
-.clang-complete
+.clang_complete
 *.exe

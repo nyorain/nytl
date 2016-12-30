@@ -2,7 +2,7 @@
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
-///\file Provides a base class for reference-counted types as well as a intrusive smart pointer.
+/// \file Provides a base class for reference-counted types as well as a intrusive smart pointer.
 
 #pragma once
 
@@ -144,6 +144,6 @@ protected:
 template<typename T, typename... Args>
 IntrusivePtr<T> makeIntrusive(Args&&... args) { return {new T(std::forward<Args>(args)...)}; }
 
-}
+} // namespace nytl
 
-#endif //header guard
+#endif // header guard

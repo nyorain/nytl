@@ -221,6 +221,6 @@ namespace detail {
 	};
 }
 
-}
+} // namespace nytl
 
-#endif //header guard
+#endif // header guard

@@ -98,6 +98,6 @@ protected:
 	std::size_t length_ = 0;
 };
 
-}
+} // namespace nytl
 
 #endif //header guard

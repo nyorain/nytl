@@ -10,13 +10,12 @@
 #define NYTL_INCLUDE_SCALAR_HPP
 
 namespace nytl {
-
 namespace constants {
 	constexpr const auto pi = 3.14159265359;
 	constexpr const auto degree = pi / 180.0; // one degree as radian
 	constexpr const auto e = 2.71828182845;
 
-	constexpr const auto dynamicSize = 0u; // make vec/span dyanmic sized
+	constexpr const auto dynamicSize = 0u; // make vec/span dynamic sized
 } // namespace constants
 
 
