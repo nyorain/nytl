@@ -19,7 +19,7 @@ dependency is a compiler supporting full C++17 and its stl.
 All files are licensed under the __Boost License__ (similiar to the MIT license).
 
 Currently in an __alpha__ state, the newest nytl release is
-__[version 0.4-alpha](https://github.com/nyorain/releases)__.
+__[version 0.4-alpha](https://github.com/nyorain/nytl/releases)__.
 
 ## Contributing
 
