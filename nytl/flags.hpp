@@ -9,7 +9,7 @@
 #ifndef NYTL_INCLUDE_FLAGS
 #define NYTL_INCLUDE_FLAGS
 
-#include <nytl/fwd/flags.hpp> // nytl::Flags template default declaration
+#include <nytl/fwd/flags.hpp> // nytl::Flags default template parameter
 #include <type_traits> // std::underlaying_type
 
 namespace nytl {

@@ -36,8 +36,11 @@ public:
 /// undefined behaviour.
 /// \tparam T The class deriving from this class using the CRTP idiom.
 /// \module utility
-template<typename T, bool Threadsafe = false>
+template<typename T>
 class Observable {
+public:
+	using ObservableDerived = T;
+
 public:
 	~Observable()
 	{
@@ -107,9 +110,10 @@ struct ObservableWrapper : public T, public Observable<T> {
 /// \details Basically a smart pointer that does always know whether the object it points to is
 /// alive or not. Does only work with objects of classes that are derived from nytl::Observeable.
 /// Semantics are related to std::unique_ptr/std::shared_ptr.
+/// \requires Type 'T' must be derived from [nytl::Obervable]() or fulfill its syntax.
 /// \module utility
-template <typename T>
-class ObservingPtr : public Observer<T> {
+template<typename T>
+class ObservingPtr : public Observer<typename T::ObservableDerived> {
 public:
 	ObservingPtr() = default;
 	ObservingPtr(T* obj) : object_(obj) { if(object_) object_->addObserver(*this); }
@@ -167,7 +171,7 @@ public:
 
 private:
 	T* object_ {nullptr};
-	void observeDestruction(T&) override { object_ = nullptr; }
+	void observeDestruction(typename T::ObservableDerived&) override { object_ = nullptr; }
 };
 
 }

@@ -444,7 +444,6 @@ constexpr auto luDecomp(const M& mat)
 	copy(upper, mat);
 
 	for(auto n = 0u; n < mat.cols(); ++n) {
-		lower[n][n] = fieldOne;
 
 		// since we divide by upper[n][n] later on we should try to make it non-zero by
 		// swapping the current row with another row. If we do so, we have to pretend we
@@ -463,8 +462,13 @@ constexpr auto luDecomp(const M& mat)
 
 			// If all coefficients in the column are zero (e.g. a zero matrix), its ok since
 			// we don't have any more coefficients to eliminate.
-			if(upper[n][n] == fieldZero) continue;
+			if(upper[n][n] == fieldZero) {
+				lower[n][n] = fieldOne;
+				continue;
+			}
 		}
+
+		lower[n][n] = fieldOne;
 
 		// erase all coefficients in the nth column below the nth row.
 		// pivoting already assured that mat[n][n] is not zero
@@ -476,6 +480,9 @@ constexpr auto luDecomp(const M& mat)
 			row(upper, i, rowin);
 			lower[i][n] = fac;
 		}
+
+		// std::cout << upper << "\n";
+		// std::cout << lower << "\n";
 	}
 
 	return ret;
@@ -538,12 +545,12 @@ template<typename M, typename V>
 constexpr auto luEvaluate(const M& l, const M& u, const V& b)
 {
 	if(l.rows() != l.cols() || u.rows() != u.cols() || l.rows() != u.rows())
-		throw std::logic_error("nytl::mat::luEvaluate: invalid lu matrices");
+		throw std::invalid_argument("nytl::mat::luEvaluate: invalid lu matrices");
 
 	auto zero = FieldTraits<typename M::Value>::zero;
 	for(auto n = 0u; n < l.rows(); ++n)
 		if(l[n][n] == zero || u[n][n] == zero)
-			throw std::logic_error("nytl::mat::luEvaluate: singular lower or upper matrix");
+			throw std::invalid_argument("nytl::mat::luEvaluate: singular lower or upper matrix");
 
 	return nocheck::luEvaluate(l, u, b);
 }
@@ -640,12 +647,12 @@ template<typename M>
 constexpr auto inverse(const M& l, const M& u)
 {
 	if(l.rows() != l.cols() || u.rows() != u.cols() || l.rows() != u.rows())
-		throw std::logic_error("nytl::mat::luEvaluate: invalid lower or upper matrix");
+		throw std::invalid_argument("nytl::mat::inverse: invalid lower or upper matrix");
 
 	auto zero = FieldTraits<typename M::Value>::zero;
 	for(auto n = 0u; n < l.rows(); ++n)
 		if(u[n][n] == zero)
-			throw std::logic_error("nytl::mat::luEvaluate: singular lower or upper matrix");
+			throw std::invalid_argument("nytl::mat::inverse: singular lower or upper matrix");
 
 	return nocheck::inverse(l, u);
 }
@@ -669,7 +676,7 @@ constexpr auto inverse(const M& mat)
 	auto lups = luDecomp(mat);
 	const auto& l = std::get<0>(lups);
 	const auto& u = std::get<1>(lups);
-	const auto& p = std::get<1>(lups);
+	const auto& p = std::get<2>(lups);
 
 	for(auto n = 0u; n < l.rows(); ++n)
 		if(u[n][n] == FieldTraits<typename M::Value>::zero)
@@ -695,7 +702,7 @@ constexpr bool invert(M& mat)
 	auto lups = luDecomp(mat);
 	const auto& l = std::get<0>(lups);
 	const auto& u = std::get<1>(lups);
-	const auto& p = std::get<1>(lups);
+	const auto& p = std::get<2>(lups);
 
 	// check for singular matrix
 	for(auto n = 0u; n < l.rows(); ++n)

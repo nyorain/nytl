@@ -4,13 +4,13 @@
 
 #pragma once
 
-#ifndef NYTL_INCLUDE_FWD_FLAGS
-#define NYTL_INCLUDE_FWD_FLAGS
+#ifndef NYTL_INCLUDE_FWD_TYPEMAP
+#define NYTL_INCLUDE_FWD_TYPEMAP
 
-#include <type_traits> // std::underlaying_type_t
+#include <any> // std::any
 
 namespace nytl {
-	template<typename T, typename U = std::underlying_type_t<T>> class Flags;
+	template<typename I, typename B = std::any, typename... CArgs> class Typemap;
 }
 
 #endif //header guard

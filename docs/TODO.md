@@ -3,19 +3,18 @@ TODO for nytl
 
 - fwd
 - integration
+- tests
+- rework (?)
 	- line/triangle/tetrahedron (with ops)
 	- misc (printVars, real memberCallback)
 	- system
 	- tmp
-	- transform (rework if taken)
+	- transform (rework!)
 - typemap (overhaul)
 - rect
 	- include rectRegion? not really needed...
 	- rectOps
-- referenced
-- observe
-- scope (for C++17!)
-- refVec
+- refVec (?)
 - simplexOps
 	- barycentric <-> world space
 - more/better vecOps/matrixOps
@@ -29,4 +28,6 @@ TODO for nytl
 
 - C++17
 	- matOps/vecOps: structured bindings
+	- scope: remove make* Wrapper functions
 	- tmpUtil: remove void_t (also remove nytl::Expand?)
+		- look for further duplicates

@@ -9,6 +9,7 @@
 #ifndef NYTL_INCLUDE_SIMPLEX
 #define NYTL_INCLUDE_SIMPLEX
 
+#include <nytl/fwd/simplex.hpp> // nytl::Simplex default template parameter
 #include <nytl/vec.hpp> // nytl::Vec
 #include <nytl/convert.hpp> // nytl::arrayCast
 
@@ -31,7 +32,7 @@ namespace nytl {
 /// \requires 'P' must be a mathematical field over which the space is defined.
 /// \requires 'D' must be greater or equal than 'A'.
 /// \module simplex
-template<std::size_t D, typename P, std::size_t A, typename = std::enable_if_t<D >= A>>
+template<std::size_t D, typename P, std::size_t A, typename>
 class Simplex {
 public:
 	static constexpr auto spaceDim = D; // dimensions of the space the simplex is in

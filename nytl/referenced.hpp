@@ -23,13 +23,18 @@ namespace nytl {
 /// \tparam Deleter The deleter type for objects of this type. Makes it possible
 /// to derive from this class without having to make the class virtual.
 /// The References constructor takes an object of type Deleter which will be called
-/// with the this pointer (casted to a T* pointer) as soon as the reference count is
+/// with the this pointer (casted to a const T* pointer) as soon as the reference count is
 /// decreased to zero and the object should be deleted. By default, std::default_delete<T>
 /// will be used that will just call delete on the object.
+/// \requires Deleter must implement operator() for a const T* parameter. Implementating it for
+/// a non-const T* parameter results in undefined behaviour.
 /// \module utility
 template<typename T, typename Deleter = std::default_delete<T>>
 class Referenced {
 public:
+	Referenced(const Deleter& deleter = {}, unsigned int count = 0) : members_(count, deleter) {}
+	~Referenced() = default;
+
 	/// Increases the reference count.
 	/// Can be called from multiple threads at the same time.
 	/// \returns The reference count after the call.
@@ -42,8 +47,9 @@ public:
 	auto unref() const
 	{
 		// atomic decrement. It is assured that this will never be called when count is already 0
+		// the const_cast is done because std::default_delete takes a non-const pointer
 		auto cpy = --std::get<0>(members_);
-		if(cpy == 0) std::get<1>(members_)(static_cast<T*>(this));
+		if(cpy == 0) std::get<1>(members_)(const_cast<T*>(static_cast<const T*>(this)));
 		return cpy;
 	}
 
@@ -64,10 +70,6 @@ public:
 protected:
 	// tuple for empty class optimization, since Deleter might be stateless
 	mutable std::tuple<std::atomic<unsigned int>, Deleter> members_ {};
-
-protected:
-	Referenced(const Deleter& deleter = {}) : members_(0, deleter) {}
-	~Referenced() = default;
 };
 
 /// \brief Wrapper around [nytl::Referenced]() that applies it to already existent classes.
@@ -85,102 +87,66 @@ template<typename T, typename = decltype(std::declval<T>().ref(), std::declval<T
 class IntrusivePtr {
 public:
 	IntrusivePtr() = default;
-	IntrusivePtr(T* obj) noexcept;
-	IntrusivePtr(T& obj) noexcept;
-	~IntrusivePtr() noexcept;
+	IntrusivePtr(T* obj) noexcept : object_(obj) { if(object_) object_->ref(); }
+	IntrusivePtr(T& obj) noexcept : object_(&obj) { object_->ref(); }
+	~IntrusivePtr() noexcept { if(object_) object_->unref(); }
 
-	IntrusivePtr(const IntrusivePtr& other) noexcept;
-	IntrusivePtr& operator=(const IntrusivePtr& other) noexcept;
+	IntrusivePtr(const IntrusivePtr& other) noexcept : object_(other.object_)
+	{
+		object_->ref();
+	}
 
-	IntrusivePtr(IntrusivePtr&& other) noexcept;
-	IntrusivePtr& operator=(IntrusivePtr&& lhs) noexcept;
+	IntrusivePtr& operator=(const IntrusivePtr& other) noexcept
+	{
+		reset(other.object_);
+		return *this;
+	}
 
-	void reset(T* obj = nullptr);
-	void reset(T& obj);
+	IntrusivePtr(IntrusivePtr&& other) noexcept : object_(other.object_)
+	{
+		other.object_ = {};
+	}
 
-	T* get() { return object_; }
+	IntrusivePtr& operator=(IntrusivePtr&& other) noexcept
+	{
+		if(object_) object_->unref();
+		object_ = other.object_;
+		other.object_ = nullptr;
+		return *this;
+	}
 
-	T& operator*(){ return *object_; }
-	const T& operator*() const { return *object_; }
+	void reset(T* obj = nullptr)
+	{
+		if(obj) obj->ref();
+		if(object_) object_->unref();
+		object_ = obj;
+	}
 
-	T* operator->(){ return object_; }
-	const T* operator->() const { return object_; }
+	void reset(T& obj)
+	{
+		obj->ref();
+		if(object_) object_->unref();
+		object_ = obj;
+	}
 
-	operator bool() const { return (object_ != nullptr); }
-	template<typename O> friend void swap(IntrusivePtr<O>& a, IntrusivePtr<O>& b) noexcept;
+	T* get() const noexcept { return object_; }
+	T* operator->() const noexcept { return object_; }
+	T& operator*() const noexcept { return *object_; }
+
+	operator bool() const noexcept { return (object_ != nullptr); }
+	friend void swap(IntrusivePtr& a, IntrusivePtr& b) noexcept
+	{
+		std::swap(a.object_, b.object_);
+	}
 
 protected:
 	T* object_ {nullptr};
 };
 
-// - IntrusivePtr implementation -
-template<typename T, typename V>
-IntrusivePtr<T, V>::IntrusivePtr(T* obj) noexcept : object_(obj)
-{
-	if(object_) object_->ref();
-}
-
-template<typename T, typename V>
-IntrusivePtr<T, V>::IntrusivePtr(T& obj) noexcept : object_(&obj)
-{
-	object_->ref();
-}
-
-template<typename T, typename V>
-IntrusivePtr<T, V>::~IntrusivePtr() noexcept
-{
-	if(object_) object_->unref();
-}
-
-template<typename T, typename V>
-IntrusivePtr<T, V>::IntrusivePtr(const IntrusivePtr& other) noexcept : object_(other.object_)
-{
-	object_->ref();
-}
-
-template<typename T, typename V>
-IntrusivePtr<T, V>& IntrusivePtr<T, V>::operator=(const IntrusivePtr& other) noexcept
-{
-	reset(other.object_);
-	return *this;
-}
-
-template<typename T, typename V>
-IntrusivePtr<T, V>::IntrusivePtr(IntrusivePtr&& other) noexcept : object_(other.object_)
-{
-	other.object_ = nullptr;
-}
-
-template<typename T, typename V>
-IntrusivePtr<T, V>& IntrusivePtr<T, V>::operator=(IntrusivePtr<T, V>&& lhs) noexcept
-{
-	reset();
-	object_ = lhs.object_;
-	lhs.object_ = nullptr;
-	return *this;
-}
-
-template<typename T, typename V>
-void IntrusivePtr<T, V>::reset(T* obj)
-{
-	if(obj) obj->ref();
-	if(object_) object_->unref();
-	object_ = obj;
-}
-
-template<typename T, typename V>
-void IntrusivePtr<T, V>::reset(T& obj)
-{
-	obj->ref();
-	if(object_) object_->unref();
-	object_ = obj;
-}
-
-template<typename T, typename V>
-void swap(IntrusivePtr<T, V>& a, IntrusivePtr<T, V>& b) noexcept
-{
-	std::swap(a.object_, b.object_);
-}
+/// \brief Can be used to allocate a new object of referenced type 'T' into an IntrusivePtr.
+/// \module utility
+template<typename T, typename... Args>
+IntrusivePtr<T> makeIntrusive(Args&&... args) { return {new T(std::forward<Args>(args)...)}; }
 
 }
 

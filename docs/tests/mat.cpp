@@ -12,8 +12,6 @@
 #include <iostream>
 #include <stack>
 
-static_assert(sizeof(std::vector<int>) <= 24);
-
 // tests the echolon form operations
 void echolon()
 {
@@ -51,6 +49,12 @@ void lu()
 		const auto& p = std::get<2>(lups);
 
 		CHECK_EXPECT(l * u, p * a);
+
+		auto lups2 = nytl::mat::luDecomp(p * a);
+		const auto& l2 = std::get<0>(lups2);
+		const auto& u2 = std::get<1>(lups2);
+
+		CHECK_EXPECT(l2 * u2, p * a);
 	}
 
 	{
@@ -85,44 +89,53 @@ void inverse()
 			{1, 3, 0, 4, -1}
 		};
 
-		// std::cout << a << "\n";
 		auto lups = nytl::mat::luDecomp(a);
 		const auto& l = std::get<0>(lups);
 		const auto& u = std::get<1>(lups);
+		const auto& p = std::get<2>(lups);
+		CHECK_EXPECT(l * u, p * a);
+
+		CHECK_EXPECT(nytl::mat::determinant(a), -135.0);
+		CHECK_EXPECT(nytl::mat::invertible(a), true);
+
 		auto inv = nytl::mat::inverse(a);
-
-		// std::cout << l * u << "\n";
-		// std::cout << nytl::mat::determinant(a) << "\n";
-		// std::cout << inv << "\n";
-		// std::cout << a * inv << "\n";
-		// std::cout << nytl::vec::dot(nytl::mat::row(a, 0), nytl::mat::col(inv, 4)) << "\n";
-		// std::cout << 5 * inv[0][4] + 3 * inv[0][4] + 8 * inv[1][4] << "\n";
-		// std::cout.precision(100);
-		// std::cout << testEqual(inv[0][4], -inv[1][4]) << "\n";
-		// std::cout << 8 * inv[0][4] << "\n";
-		// std::cout << 8 * inv[1][4] << "\n";
-		std::cout << inv[0][4] + inv[1][4] << "\n";
-		// std::cout << l << "\n" << u << "\n";
-
-		// CHECK_EXPECT(nytl::mat::determinant(a), -135.0);
-		//
-		auto inverse = nytl::mat::inverse(a);
-		// std::cout << a * inverse << "\n";
-
+		auto inv1 = nytl::mat::inverse(l, u);
+		CHECK_EXPECT(inv, inv1 * p);
 
 		nytl::Mat<double, 5, 5> identity;
 		nytl::mat::identity(identity);
 
-		CHECK_EXPECT(a * inverse, identity);
-		// CHECK_EXPECT(inverse * a, identity);
-		// std::cout << DBL_MIN << "\n";
+		CHECK_EXPECT(a * inv, identity);
+		CHECK_EXPECT(inv * a, identity);
+	}
+
+	{
+		nytl::Mat<double, 5, 5> a {
+			{1, -2, 3, 5, 8},
+			{0, -1, -1, 0, 3},
+			{2, 4, -1, 10, 1},
+			{0, 0, 5, 0, 0},
+			{1, 3, 0, 5, -1}
+		};
+
+		auto lups = nytl::mat::luDecomp(a);
+		const auto& l = std::get<0>(lups);
+		const auto& u = std::get<1>(lups);
+		const auto& p = std::get<2>(lups);
+		CHECK_EXPECT(l * u, p * a);
+
+		CHECK_EXPECT(nytl::mat::determinant(a), 0.0);
+		CHECK_EXPECT(nytl::mat::invertible(a), false);
+
+		CHECK_ERROR(nytl::mat::inverse(a), std::invalid_argument);
+		CHECK_ERROR(nytl::mat::inverse(l, u), std::invalid_argument);
 	}
 }
 
 int main()
 {
-	// echolon();
-	// lu();
+	echolon();
+	lu();
 	inverse();
 
 	std::cout << (failed ? std::to_string(failed) : "no") << " tests failed!\n";

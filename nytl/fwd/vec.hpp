@@ -1,16 +1,16 @@
-// Copyright (c) 2016 nyorain 
+// Copyright (c) 2016 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
 #pragma once
 
-#ifndef NYTL_INCLUDE_FWD_VEC_HPP
-#define NYTL_INCLUDE_FWD_VEC_HPP
+#ifndef NYTL_INCLUDE_FWD_VEC
+#define NYTL_INCLUDE_FWD_VEC
 
-#include <cstdint>
+#include <cstdlib> // std::size_t
+#include <cstdint> // std::uint8_t
 
-namespace nytl
-{
+namespace nytl {
 
 template<std::size_t I, typename T> class Vec;
 

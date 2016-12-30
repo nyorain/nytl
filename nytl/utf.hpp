@@ -15,6 +15,9 @@
 #include <codecvt> // std::codecvt_utf8
 #include <stdexcept> // std::out_of_range
 
+// all operations assume correct utf8 string and don't perform any sanity checks.
+// for implementation details see https://en.wikipedia.org/wiki/UTF-8
+
 namespace nytl {
 
 /// \brief Returns the number of characters in a utf8-encoded unicode string.
@@ -24,93 +27,137 @@ namespace nytl {
 std::size_t charCount(const std::string& utf8)
 {
 	std::size_t count = 0u;
-	for(auto& byte : utf8)
-		if((byte & 0xc0) != 0x80) ++count;
+	auto it = utf8.begin();
+
+	while(it != utf8.end()) {
+		auto length = 1u;
+		if((*it) & (1 << 7)) {
+			++length;
+			if((*it) & (1 << 5)) {
+				++length;
+				if((*it) & (1 << 4))
+					++length;
+			}
+		}
+
+		++count;
+		it += length;
+	}
 
 	return count;
 }
 
-/// \brief Returns the nth chracter from a utf8-encoded unicode string.
-/// In difference to the builtin std::string access function this does not return
+/// \brief Returns the character at position n (started at 0) from the given utf8 string.
+/// \details In difference to the builtin std::string access function this does not return
 /// the nth byte, but the nth utf8 character.
 /// Since every (unicode) utf8 character can take up to 4 bytes, an array holding
 /// 4 chars is returned.
+/// Example: `nytl::nth(u8"äüß", 1)` returns the char "ü" as utf8 array,
+/// i.e. {0xc3, 0xbc ,0, 0} since u8"ü"[0] == 0xc3 and u8"ü"[1] == 0xbc.
+/// \note Indexing starts at zero! `nth(utf8, 1)` returns actually the second char.
 /// \throws std::out_of_range if n > charCount(utf8)
 /// \module utf
 std::array<char, 4> nth(const std::string& utf8, std::size_t n)
 {
-	std::array<char, 4> ret {};
-
 	std::size_t count = 0u;
-	std::size_t charNum = 0u;
-	for(auto& byte : utf8)
-	{
-		if(count == n)
-		{
-			ret[charNum] = byte;
-			++charNum;
+	auto it = utf8.begin();
+
+	while(it != utf8.end()) {
+		auto length = 1u;
+		if((*it) & (1 << 7)) {
+			++length;
+			if((*it) & (1 << 5)) {
+				++length;
+				if((*it) & (1 << 4))
+					++length;
+			}
 		}
 
-		  if((byte & 0xc0) != 0x80) ++count;
-		if(count > n) break;
+		if(count == n) {
+			std::array<char, 4> ret {};
+			for(auto i = 0u; i < length; ++i) ret[i] = *(it + i);
+			return ret;
+		}
+
+		++count;
+		it += length;
 	}
 
-	if(!charNum) throw std::out_of_range("ny::nth(utf8)");
-	return ret;
+	throw std::out_of_range("ny::nth(utf8, n)");
 }
 
-/// Returns a reference to the nth character from a utf8-encoded unicode stirng.
-/// \param size [out] Will hold the number of bytes of the returned character.
-/// Will be not greater than 4.
+/// \brief Retrieves the character at position n (started at 0) of the given utf8 string.
+/// \returns A reference to the character at position n which can together with the
+/// retrieved byte size of the requested character be used to read it.
+/// \param size [out] Will hold the number of bytes of the requested character.
+/// Will be not greater than 4 for a valid utf8 string.
+/// \note Indexing starts at zero! `nth(utf8, 1)` returns actually the second char.
 /// \throws std::out_of_range if n > charCount(utf8)
 /// \module utf
 const char& nth(const std::string& utf8, std::size_t n, std::uint8_t& size)
 {
-	const char* ret = nullptr;
-	size = 0;
+	auto count = 0u;
+	auto it = utf8.begin();
 
-	std::size_t count = 0u;
-	for(auto& byte : utf8)
-	{
-		if(count == n)
-		{
-			if(size == 0) ret = &byte;
-			++size;
+	while(it != utf8.end()) {
+		auto length = 1u;
+		if((*it) & (1 << 7)) {
+			++length;
+			if((*it) & (1 << 5)) {
+				++length;
+				if((*it) & (1 << 4))
+					++length;
+			}
 		}
 
-		  if((byte & 0xc0) != 0x80) ++count;
-		if(count > n) break;
+		if(count == n) {
+			size = length;
+			return *it;
+		}
+
+		it += length;
+		++count;
 	}
 
-	if(!ret) throw std::out_of_range("ny::nth(utf8)");
-	return *ret;
+	size = 0u;
+	throw std::out_of_range("ny::nth(const utf8, n, size)");
 }
 
-/// Returns a reference to the nth character from a utf8-encoded unicode stirng.
-/// \param size [out] Will hold the number of bytes of the returned character.
+/// \brief Retrieves the character at position n (started at 0) of the given utf8 string.
+/// \returns A reference to the character at position n which can together with the
+/// retrieved byte size of the requested character be used to read it.
+/// \param size [out] Will hold the number of bytes of the requested character.
 /// Will be not greater than 4.
+/// \note Indexing starts at zero! `nth(utf8, 1)` returns actually the second char.
 /// \throws std::out_of_range if n > charCount(utf8)
 /// \module utf
 char& nth(std::string& utf8, std::size_t n, std::uint8_t& size)
 {
-	char* ret = nullptr;
-	size = 0;
+	auto count = 0u;
+	auto it = utf8.begin();
 
-	std::size_t count = 0u;
-	for(auto& byte : utf8)
-	{
-		if(count == n)
-		{
-			if(size == 0) ret = &byte;
-			++size;
+	while(it != utf8.end()) {
+		auto length = 1u;
+		if((*it) & (1 << 7)) {
+			++length;
+			if((*it) & (1 << 5)) {
+				++length;
+				if((*it) & (1 << 4))
+					++length;
+			}
 		}
 
-		  if((byte & 0xc0) != 0x80) ++count;
-		if(count > n) break;
+		if(count == n) {
+			size = length;
+			return *it;
+		}
+
+		it += length;
+		++count;
 	}
 
-	if(!ret) throw std::out_of_range("ny::nth(utf8)");
-	return *ret;
+	size = 0u;
+	throw std::out_of_range("nytl::nth(utf8, n, size)");
 }
 
 /// \brief Converts the given utf16 string to a utf8 string.
