@@ -66,6 +66,9 @@ public:
 	/// moment of (potentially already ended) lifetime of this object, the reference count
 	/// had the returned value.
 	auto referenceCount() const { return std::get<0>(members_).load(); }
+	
+	/// Returns a reference to the stored deleter.
+	Deleter& deleter() const { return std::get<1>(members_); }
 
 protected:
 	// tuple for empty class optimization, since Deleter might be stateless
@@ -74,8 +77,8 @@ protected:
 
 /// \brief Wrapper around [nytl::Referenced]() that applies it to already existent classes.
 /// \module utility
-template<typename T>
-struct ReferencedWrapper : public T, public Referenced<ReferencedWrapper<T>> {
+template<typename T, typename Deleter = std::default_delete<ReferencedWrapper<T>>>
+struct ReferencedWrapper : public T, public Referenced<ReferencedWrapper<T>, Deleter> {
 	using T::T;
 };
 
