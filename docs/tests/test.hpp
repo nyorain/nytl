@@ -111,4 +111,4 @@ struct Equal<nytl::Vec<D, T>> {
 };
 
 template<typename T, std::size_t R, std::size_t C>
-struct Equal<nytl::Mat<T, R, C>> : public Equal<nytl::Vec<R, nytl::Vec<C, T>>> {};
+struct Equal<nytl::Mat<R, C, T>> : public Equal<nytl::Vec<R, nytl::Vec<C, T>>> {};

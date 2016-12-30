@@ -9,6 +9,7 @@
 #ifndef NYTL_INCLUDE_MAT_HPP
 #define NYTL_INCLUDE_MAT_HPP
 
+#include <nytl/fwd/mat.hpp> // nytl::Mat forward declaration
 #include <nytl/vec.hpp> // nytl::Vec
 #include <nytl/vecOps.hpp> // nytl::vec::dot
 #include <nytl/matOps.hpp> // nytl::mat::row
@@ -20,17 +21,17 @@ namespace nytl {
 /// \tparam T The value type of the matrix.
 /// \tparam R The rows of the matrix.
 /// \tparam C The columns of the matrix.
-template<typename T, std::size_t R, std::size_t C>
+template<std::size_t R, std::size_t C, typename T>
 struct Mat : public Vec<R, Vec<C, T>> {
 	using Value = T;
 	using Size = std::size_t;
 	using RowVec = Vec<R, T>;
 	using ColVec = Vec<C, T>;
 
-	constexpr static auto maxRows = R;
-	constexpr static auto maxCols = C;
+	constexpr static auto rowDim = R;
+	constexpr static auto colDim = C;
 
-	template<typename OT, Size OR, Size OC> using Rebind = Mat<OT, OR, OC>;
+	template<Size OR, Size OC, typename OT> using Rebind = Mat<OR, OC, OT>;
 	constexpr static Mat create(Size, Size) { return {}; }
 
 	constexpr static auto rows() { return R; }
@@ -43,10 +44,10 @@ struct Mat : public Vec<R, Vec<C, T>> {
 // The plus and minus as well as multiply with factor operators are defined by nytl::Vec.
 // Equality operators are defined by nytl::Vec as well.
 template<typename T1, typename T2, std::size_t R, std::size_t M, std::size_t C>
-constexpr auto operator*(const Mat<T1, R, M>& a, const Mat<T2, M, C>& b)
+constexpr auto operator*(const Mat<R, M, T1>& a, const Mat<M, C, T2>& b)
 {
 	using RetType = decltype(a[0][0] * b[0][0] + a[0][0] * b[0][0]);
-	auto ret = Mat<RetType, R, C>::create(R, C);
+	auto ret = Mat<R, C, RetType>::create(R, C);
 
 	for(auto r = 0u; r < R; ++r) {
 		for(auto c = 0u; c < C; ++c) {
@@ -58,7 +59,7 @@ constexpr auto operator*(const Mat<T1, R, M>& a, const Mat<T2, M, C>& b)
 }
 
 template<typename T1, typename T2, std::size_t R, std::size_t C>
-constexpr auto operator*(const Mat<T1, R, C>& a, const Vec<C, T2>& b)
+constexpr auto operator*(const Mat<R, C, T1>& a, const Vec<C, T2>& b)
 {
 	using RetType = decltype(a[0][0] * b[0] + a[0][0] * b[0]);
 	auto ret = Vec<C, RetType> {};
@@ -70,7 +71,7 @@ constexpr auto operator*(const Mat<T1, R, C>& a, const Vec<C, T2>& b)
 }
 
 template<typename T, std::size_t R, std::size_t C>
-std::ostream& operator<<(std::ostream& os, const Mat<T, R, C>& a)
+std::ostream& operator<<(std::ostream& os, const Mat<R, C, T>& a)
 {
 	return mat::print(os, a);
 }

@@ -11,10 +11,9 @@
 
 #include <tuple> // std::tuple
 #include <type_traits> // std::enable_if
-#include <cstdint> // std::size_t
+#include <cstdlib> // std::size_t
 
 namespace nytl {
-
 namespace detail {
 
 template<typename Tuple> struct TupleEraseFirstT;
@@ -48,24 +47,29 @@ struct TypeTupleT<T, 1> {
 
 /// Erases the first type from std::tuple type 'T'.
 /// \module utility
-template<typename T> using TupleEraseFirst = typename detail::TupleEraseFirstT<T>::type;
+template<typename T>
+using TupleEraseFirst = typename detail::TupleEraseFirstT<T>::type;
 
 /// Appends type 'A' to std::tuple type 'T'.
 /// \module utility
-template<typename T, typename A> using TupleAppend = typename detail::TupleAppendT<T, A>::type;
+template<typename T, typename A>
+using TupleAppend = typename detail::TupleAppendT<T, A>::type;
 
 /// Prepends type 'P' to std::tuple type 'T'.
 /// \module utility
-template<typename T, typename P> using TuplePrepend = typename detail::TuplePrependT<T, P>::type;
+template<typename T, typename P>
+using TuplePrepend = typename detail::TuplePrependT<T, P>::type;
 
 /// A std::tuple that contains 'C' entries of type 'T'.
 /// \module utility
-template<typename T, std::size_t C> using TypeTuple = typename detail::TypeTupleT<T, C>::type;
+template<typename T, std::size_t C>
+using TypeTuple = typename detail::TypeTupleT<T, C>::type;
 
 /// \ingroup utility
 /// Can be used to assure the variadic parameter pack 'Args' has size 'C' and each parameter
 /// can be converted to type 'T'.
-template<typename T, std::size_t C, typename... Args> using EnableIfVariadicType =
+template<typename T, std::size_t C, typename... Args>
+using EnableIfVariadicType =
 	typename std::enable_if_t<std::is_convertible<std::tuple<Args...>, TypeTuple<T, C>>::value>;
 
 } // namespace nytl

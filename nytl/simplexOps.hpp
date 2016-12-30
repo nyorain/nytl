@@ -45,12 +45,14 @@ auto center(const Simplex<D, P, A>& a)
 	return (1 / a.pointSize) * sum;
 }
 
+/// \brief Returns the total size/volume of the given simplex.
+/// \module simplex
 template<std::size_t D, typename P, std::size_t A>
 auto size(const Simplex<D, P, A>& a)
 {
-	Mat<D, P> m;
-	for(auto i = 0u; i < A + 1; ++i) mat::col(m, i) = points()[i] - points()[0];
-	return std::abs(det(m)) / fac(D);
+	SquareMat<D, P> m;
+	for(auto i = 0u; i < A + 1; ++i) mat::col(m, i) = a.points()[i] - a.points()[0];
+	return std::abs(det(m)) / factorial(D);
 }
 
 /// \brief Checks two given simplices for inequality.

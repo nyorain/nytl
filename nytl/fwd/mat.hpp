@@ -11,21 +11,21 @@
 
 namespace nytl {
 
-template<std::size_t R, std::size_t C, typename P> class Mat;
-template<std::size_t D, class P> using SquareMat = Mat<D, D, P>;
+template<std::size_t R, std::size_t C, typename T> struct Mat;
+template<std::size_t D, typename T> using SquareMat = Mat<D, D, T>;
 
-template<class P> using Mat2 = SquareMat<2,P>;
-template<class P> using Mat3 = SquareMat<3,P>;
-template<class P> using Mat4 = SquareMat<4,P>;
+template<class T> using Mat2 = SquareMat<2,T>;
+template<class T> using Mat3 = SquareMat<3,T>;
+template<class T> using Mat4 = SquareMat<4,T>;
 
-template<class P> using Mat23 = Mat<2,3,P>;
-template<class P> using Mat24 = Mat<2,4,P>;
+template<class T> using Mat23 = Mat<2,3,T>;
+template<class T> using Mat24 = Mat<2,4,T>;
 
-template<class P> using Mat32 = Mat<3,2,P>;
-template<class P> using Mat34 = Mat<3,4,P>;
+template<class T> using Mat32 = Mat<3,2,T>;
+template<class T> using Mat34 = Mat<3,4,T>;
 
-template<class P> using Mat42 = Mat<4,2,P>;
-template<class P> using Mat43 = Mat<4,3,P>;
+template<class T> using Mat42 = Mat<4,2,T>;
+template<class T> using Mat43 = Mat<4,3,T>;
 
 }
 

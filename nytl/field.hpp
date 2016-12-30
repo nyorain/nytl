@@ -9,8 +9,8 @@
 #ifndef NYTL_INCLUDE_FIELD
 #define NYTL_INCLUDE_FIELD
 
-#include <cmath>
-#include <complex>
+#include <cmath> // std::abs
+#include <complex> // std::complex
 
 namespace nytl {
 

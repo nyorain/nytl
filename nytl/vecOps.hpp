@@ -18,12 +18,6 @@
 
 namespace nytl::vec {
 
-// TODO: C++17: replace std::accumulate with std::reduce where it makes sense
-// use std::transform_reduce where it makes sense (e.g. length/distance)
-
-/// T must be similar to a mathematical field? operations must work for the similar field.
-/// T is e.g. int, then operations must be implemented for double/float?
-
 /// Concept: Vector<T>
 /// - Represents a mathematical vector of a finite-dimensional vector space.
 /// - T represents the field of the Vector. Therefore the values of the vector are part of a field.
@@ -83,6 +77,8 @@ namespace nytl::vec {
 /// auto operator-(Vector, Vector);
 /// bool operator==(Vector, Vector);
 /// bool operator!=(Vector, Vector);
+///
+/// For an example Vector implementation: nytl/vec.hpp [nytl::Vec]().
 
 /// \brief Prints the given vector to the given ostream.
 /// If this function is used, header <ostream> must be included.

@@ -16,13 +16,13 @@
 void echolon()
 {
 	{
-		nytl::Mat<double, 3, 5> a {
+		nytl::Mat<3, 5, double> a {
 			{2.0, 1.0, -1.0, 8.0, 80.0},
 		 	{-3.0, -1.0, 2.0, -11.0, -110.0},
 		 	{-2.0, 1.0, 2.0, -3.0, -30.0}
 		};
 
-		nytl::Mat<double, 3, 5> reduced {
+		nytl::Mat<3, 5, double> reduced {
 			{1.0, 0.0, 0.0, 2.0, 20.0},
 		 	{0.0, 1.0, 0.0, 3.0, 30.0},
 		 	{0.0, 0.0, 1.0, -1.0, -10.0}
@@ -37,7 +37,7 @@ void echolon()
 void lu()
 {
 	{
-		nytl::Mat<double, 3, 3> a {
+		nytl::Mat<3, 3, double> a {
 			{2.0, 2.0, 3.0},
 			{1.0, 1.0, -1.0},
 			{1.0, 0.0, 2.0},
@@ -58,7 +58,7 @@ void lu()
 	}
 
 	{
-		nytl::Mat<double, 3, 3> a {
+		nytl::Mat<3, 3, double> a {
 			{3.0, -.1, -.2},
 			{0.1, 7, -.3},
 			{.3, -.2, 10}
@@ -81,7 +81,7 @@ void lu()
 void inverse()
 {
 	{
-		nytl::Mat<double, 5, 5> a {
+		nytl::Mat<5, 5, double> a {
 			{1, -2, 3, 5, 8},
 			{0, -1, -1, 2, 3},
 			{2, 4, -1, 3, 1},
@@ -102,7 +102,7 @@ void inverse()
 		auto inv1 = nytl::mat::inverse(l, u);
 		CHECK_EXPECT(inv, inv1 * p);
 
-		nytl::Mat<double, 5, 5> identity;
+		nytl::Mat<5, 5, double> identity;
 		nytl::mat::identity(identity);
 
 		CHECK_EXPECT(a * inv, identity);
@@ -110,7 +110,7 @@ void inverse()
 	}
 
 	{
-		nytl::Mat<double, 5, 5> a {
+		nytl::Mat<5, 5, double> a {
 			{1, -2, 3, 5, 8},
 			{0, -1, -1, 0, 3},
 			{2, 4, -1, 10, 1},

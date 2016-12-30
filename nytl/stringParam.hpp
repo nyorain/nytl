@@ -58,9 +58,8 @@ inline bool operator!=(const StringParam& param, const std::string& other)
 /// Does basically the same as std::strlen but can do it at compile time.
 constexpr std::size_t strlen(const char* str)
 {
-	if(*str == 0) return 0;
 	std::size_t ret = 0u;
-	while(*(str + ++ret));
+	while(*(str + ret) != '\0') ++ret;
 	return ret;
 }
 

@@ -6,8 +6,14 @@
 #include <nytl/typemap.hpp>
 #include <nytl/utf.hpp>
 #include <nytl/referenced.hpp>
+#include <nytl/flags.hpp>
+#include <nytl/convert.hpp>
+#include <nytl/stringParam.hpp>
+#include <nytl/clone.hpp>
 
-// TODO: clone, connection, convert, flags, stringParam, tuple (operations)
+#include <list>
+
+// TODO: test connection, tuple (operations)
 
 // - callback -
 void callback()
@@ -179,13 +185,13 @@ void utf()
 void referenced()
 {
 	bool deleted {};
-	auto deleter = [&](const auto*){ deleted = true; };
+	auto del = [&](const auto*){ deleted = true; };
 
-	struct MyReferenced : public nytl::Referenced<MyReferenced, decltype(deleter)> {
-		using nytl::Referenced<MyReferenced, decltype(deleter)>::Referenced;
+	struct MyReferenced : public nytl::Referenced<MyReferenced, decltype(del)> {
+		using nytl::Referenced<MyReferenced, decltype(del)>::Referenced;
 	};
 
-	MyReferenced obj(deleter);
+	MyReferenced obj(del);
 	auto ref = nytl::IntrusivePtr<MyReferenced>(obj);
 	CHECK_EXPECT(ref->referenceCount(), 1);
 
@@ -213,6 +219,91 @@ void referenced()
 	CHECK_EXPECT(deleted, true);
 }
 
+// - flags -
+enum class Enum {
+	entry0 = 0,
+	entry1 = 1,
+	entry2 = 2,
+	entry3 = 4
+};
+
+NYTL_FLAG_OPS(Enum)
+
+void flags()
+{
+	constexpr auto entry23 = Enum::entry2 | Enum::entry3;
+	static_assert(entry23.value() == 6, "flags test #1");
+
+	constexpr auto entry3 = entry23 & Enum::entry3;
+	static_assert(entry3.value() == 4, "flags test #2");
+
+	constexpr auto entryNot3 = ~Enum::entry3;
+	static_assert((entryNot3 & Enum::entry0) == Enum::entry0, "flags test #3");
+	static_assert((entryNot3 & Enum::entry1) == Enum::entry1, "flags test #4");
+	static_assert((entryNot3 & Enum::entry2) == Enum::entry2, "flags test #5");
+	static_assert((entryNot3) == true, "flags test #6");
+}
+
+// - convert -
+void convert()
+{
+	auto convertedFloat = nytl::convert<float>(7);
+	CHECK_EXPECT(convertedFloat, 7.f);
+
+	int convertedInt = nytl::convert(23.0);
+	CHECK_EXPECT(convertedInt, 23);
+
+	auto floatArray = std::array<float, 5>{1.f, 2.f, 3.f, 4.f, 5.f};
+
+	std::array<int, 5> convertedIntArray = nytl::convert(floatArray);
+	CHECK_EXPECT(convertedIntArray[2], 3);
+
+	auto convertedCharArray = nytl::convert<std::array<char, 5>>(floatArray);
+	CHECK_EXPECT(convertedCharArray[3], 4);
+
+	auto convertedDoubleArray = nytl::arrayCast<double>(floatArray);
+	CHECK_EXPECT(convertedDoubleArray[0], 1.0);
+
+	auto intVector = nytl::containerCast<std::vector<int>>(floatArray);
+	auto doubleList = nytl::containerCast<std::list<double>>(intVector);
+	CHECK_EXPECT(doubleList.back(), 5.0);
+}
+
+// - stringParam -
+constexpr void stringParamA(nytl::StringParam) {}
+constexpr int stringParamB(nytl::SizedStringParam param) { return param.size(); }
+
+void stringParam()
+{
+	stringParamA("test");
+	static_assert(stringParamB("lengthIs9") == 9, "stringParam test #1");
+	CHECK_EXPECT(stringParamB(std::string("length7")), 7);
+}
+
+// - clone -
+struct CloneBase : public nytl::AbstractCloneable<CloneBase> {
+	virtual int value() const = 0;
+};
+
+struct CloneDerived : public nytl::DeriveCloneable<CloneBase, CloneDerived> {
+	int value_;
+	int value() const override { return value_; }
+};
+
+void clone()
+{
+	auto derived = CloneDerived {};
+	derived.value_ = 42;
+
+	auto ptr = static_cast<CloneBase*>(&derived);
+
+	auto copy = nytl::clone(*ptr);
+	auto moved = nytl::cloneMove(*ptr);
+
+	CHECK_EXPECT(copy->value(), 42);
+	CHECK_EXPECT(moved->value(), 42);
+}
+
 int main()
 {
 	callback();
@@ -221,6 +312,10 @@ int main()
 	typemap();
 	utf();
 	referenced();
+	flags();
+	convert();
+	stringParam();
+	clone();
 
 	std::cout << (failed ? std::to_string(failed) : "no") << " tests failed!\n";
 }

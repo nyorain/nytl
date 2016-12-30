@@ -10,7 +10,6 @@
 #define NYTL_INCLUDE_FLAGS
 
 #include <nytl/fwd/flags.hpp> // nytl::Flags default template parameter
-#include <type_traits> // std::underlaying_type
 
 namespace nytl {
 
@@ -18,10 +17,10 @@ namespace nytl {
 /// Can be used like this: `nytl::Flags<Enum>(nytl::invserseFlags, Enum::value)`.
 /// \module utility
 struct InverseFlags {};
-InverseFlags inverseFlags {};
+constexpr InverseFlags inverseFlags {};
 
 /// \brief Can be used to combine multiple values from the same enumeration.
-/// \details Use the NYTL_FLAG_OPS macro to define binary operations on the
+/// \details Use the [NYTL_FLAG_OPS]() macro to define binary operations on the
 /// enumeration that result in a nytl::Flags object for it.
 /// \requires Each value in the enumerations should have exactly one bit set and
 /// all values should have different bits set to make them combineable.
@@ -41,9 +40,11 @@ public:
 	constexpr Flags& operator|=(const Flags& r) noexcept { value_ |= r.value(); return *this; }
 	constexpr Flags& operator&=(const Flags& r) noexcept { value_ &= r.value_; return *this; }
 	constexpr Flags& operator^=(const Flags& r) noexcept { value_ ^= r.value(); return *this; }
+
 	constexpr Flags operator|(const Flags& r) const noexcept { return Flags(r) |= *this; }
 	constexpr Flags operator&(const Flags& r) const noexcept { return Flags(r) &= *this; }
 	constexpr Flags operator^(const Flags& r) const noexcept { return Flags(r) ^= *this; }
+
 	constexpr operator bool() const noexcept { return (value()); }
 	constexpr bool operator!() const noexcept { return !(value()); }
 	constexpr bool operator==(const Flags& rhs) const noexcept { return value_ == rhs.value(); }
@@ -75,11 +76,19 @@ Flags<T> operator^(T bit, const Flags<T>& flags) noexcept
 /// Can be used like this: `enum class Enum {}; NYTL_FLAG_OPS(Enum)` which will
 /// make results like `Enum::value1 | Enum::value2` automatically result in a
 /// `nytl::Flags<Enum>` object holding the union of the given values.
+/// \note Inversion of flags or enum values will actually inverse the underlaying value.
+/// Therefore equal comparisions with flags can be error prone and one should prefer to
+/// just check whether flags contain a specific value. The follwing static_assertion will fail:
+/// '''cpp
+/// enum class Enum { value1 = 1, value2 = 2 };
+/// NYTL_FLAG_OPS(Enum)
+/// static_assert(~Enum::value1 == Enum::value2, "will fail due to nytl::Flags");
+/// '''
 /// \module utility
 #define NYTL_FLAG_OPS(T) \
 	constexpr nytl::Flags<T> operator|(T a, T b) noexcept { return nytl::Flags<T>(a) | b; } \
 	constexpr nytl::Flags<T> operator&(T a, T b) noexcept { return nytl::Flags<T>(a) & b; } \
 	constexpr nytl::Flags<T> operator^(T a, T b) noexcept { return nytl::Flags<T>(a) ^ b; } \
-	constexpr nytl::Flags<T> operator~(T bit) noexcept { return nytl::Flags<T>(false, bit); }
+	constexpr nytl::Flags<T> operator~(T bit) noexcept { return {nytl::inverseFlags, bit}; }
 
 #endif //header guard

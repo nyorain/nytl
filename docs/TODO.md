@@ -19,6 +19,7 @@ TODO for nytl
 	- barycentric <-> world space
 - more/better vecOps/matrixOps
 	- more lu decomp algorithms (like e.g. crout)
+	- various matrix checks: symmetric? (positive/negative/in-) definite?
 - try simd/sse
 
 - ? (to be potentially reintroduced (with rework) later on)

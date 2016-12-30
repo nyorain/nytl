@@ -12,7 +12,7 @@
 #include <nytl/tmpUtil.hpp> // nytl::void_t
 
 #include <array> // std::array
-#include <cstdint> // std::size_t
+#include <cstdlib> // std::size_t
 
 namespace nytl {
 
@@ -30,9 +30,9 @@ struct Converter;
 /// cast provided by nytl, specialize [nytl::Converter]().
 /// \module utility
 template<typename T, typename O>
-auto convert(const O& other)
+auto convert(const O& other) -> decltype(Converter<O, T>::call(other))
 {
-	return Converter<T, O>::call(other);
+	return Converter<O, T>::call(other);
 }
 
 /// \brief Will automatically try to convert the referenced object into whatever type is requested.
@@ -43,7 +43,7 @@ auto convert(const O& other)
 /// \module utility
 template<typename T>
 struct AutoCastable {
-	template<typename O> operator O() const { return convert<O>(*object_); }
+	template<typename O> operator O() const { return convert<O, T>(*object_); }
 	const T* object_;
 };
 
@@ -66,27 +66,32 @@ auto convert(const O& other)
 /// \requires Values of type 'U' must be convertible to type 'T' using
 /// nytl::convert (i.e. static_cast).
 /// \module utility
-template<typename T, typename U, std::size_t I,
-	typename = decltype(convert<T>(std::declval<std::array<U, I>>()[0]))>
+template<typename T, typename U, std::size_t I, typename = decltype(
+	std::declval<std::array<T, I>>()[0] = convert<T>(std::declval<std::array<U, I>>()[0]))>
 constexpr auto arrayCast(const std::array<U, I>& array)
 {
 	std::array<T, I> ret {};
-	for(auto i = 0u; i < I; ++i) ret[i] = convert<T>(array[i]);
+	for(auto i = 0u; i < I; ++i)
+		ret[i] = convert<T>(array[i]);
 	return ret;
 }
 
 /// \brief Converts container object of type 'U' to container of type 'T'.
 /// Can be used to convert between different containers and different container value types.
 /// \module utility
-template<typename T, typename U, std::size_t I>
+template<typename T, typename U,
+	typename = decltype(
+		T {},
+		std::declval<T>().resize(std::declval<U>().size()),
+		std::declval<T>().end(),
+		std::declval<U>().end(),
+		*std::declval<T>().begin() = convert(*std::declval<U>().begin()))>
 constexpr auto containerCast(const U& con)
 {
-	T ret;
+	T ret {};
 	ret.resize(con.size());
-
-	for(auto f = con.cbegin(), t = ret.begin(); f != con.cend(); ++f, ++t)
-		*t = nytl::convert<*f>();
-
+	for(auto f = con.begin(), t = ret.begin(); f != con.end(); ++f, ++t)
+		*t = convert(*f);
 	return ret;
 }
 
@@ -102,7 +107,7 @@ template<typename From, typename To, std::size_t I> using ValidArrayCast =
 // - arrayCast Converter -
 template<typename From, typename To, std::size_t I>
 struct Converter<std::array<From, I>, std::array<To, I>, ValidArrayCast<From, To, I>> {
-	static To call(const From& other) { return arrayCast<To>(other); }
+	static std::array<To, I> call(const std::array<From, I>& other) { return arrayCast<To>(other); }
 };
 
 // - containerCast Converter -

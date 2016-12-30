@@ -17,10 +17,9 @@
 #include <tuple> // std::tuple
 #include <iosfwd> // std::ostream
 
-#include <iostream> // TODO
-
 namespace nytl::mat {
 
+/// The concept matrix types have to fulfill:
 /// struct Matrix {
 /// public:
 /// 	using Size = ...; // usually std::size_t. Must be convertible from/to int.
@@ -29,11 +28,11 @@ namespace nytl::mat {
 /// 	using ColType = ...; // Vector type able to hold one column of this matrix
 ///
 /// 	// Rebinds the Matrix implementation
-/// 	template<typename T, Size MaxR, Size MaxC> using Rebind = ...;
+/// 	template<Size MaxR, Size MaxC, typename T> using Rebind = ...;
 ///
 /// 	// dimensions of the matrix. Might be symbolic constants
-/// 	static constexpr Size maxRows = ..;
-/// 	static constexpr Size maxCols = ..;
+/// 	static constexpr Size rowDim = ..;
+/// 	static constexpr Size colDim = ..;
 ///
 /// 	// creates a matrix for the given rows and cols.
 /// 	static Matrix create(Size rows, Size cols);
@@ -60,6 +59,8 @@ namespace nytl::mat {
 /// auto operator-(Matrix, Matrix);
 /// bool operator==(Matrix, Matrix);
 /// bool operator!=(Matrix, Matrix);
+///
+/// For an example Matrix implementation: nytl/mat.hpp: [nytl::Mat]().
 
 /// \brief Prints the given matrix with numerical values to the given ostream.
 /// If this function is used, header <ostream> must be included.
@@ -269,7 +270,7 @@ constexpr void identity(M& mat)
 template<typename M>
 constexpr auto transpose(const M& mat)
 {
-	auto ret = typename M::template Rebind<typename M::Value, M::maxCols, M::maxRows> {};
+	auto ret = typename M::template Rebind<M::colDim, M::rowDim, typename M::Value> {};
 
 	for(auto r = 0u; r < mat.rows(); ++r)
 		for(auto c = 0u; c < mat.cols(); ++c)
@@ -351,7 +352,7 @@ template<typename M>
 constexpr auto rowEcholonCopy(const M& mat)
 {
 	using RetValue = typename FieldTraits<typename M::Value>::FullPrecision;
-	using RetMat = typename M::template Rebind<M::maxRows, M::maxCols, RetValue>;
+	using RetMat = typename M::template Rebind<M::rowDim, M::colDim, RetValue>;
 
 	auto ret = RetMat::create(mat.rows(), mat.cols());
 	copy(ret, mat);
@@ -402,7 +403,7 @@ template<typename M>
 constexpr auto reducedRowEcholonCopy(const M& mat)
 {
 	using RetValue = typename FieldTraits<typename M::Value>::FullPrecision;
-	using RetMat = typename M::template Rebind<M::maxRows, M::maxCols, RetValue>;
+	using RetMat = typename M::template Rebind<M::rowDim, M::colDim, RetValue>;
 
 	auto ret = RetMat::create(mat.rows(), mat.cols());
 	copy(ret, mat);
@@ -429,7 +430,7 @@ template<typename M>
 constexpr auto luDecomp(const M& mat)
 {
 	using RetValue = typename FieldTraits<typename M::Value>::FullPrecision;
-	using RetMat = typename M::template Rebind<RetValue, mat.maxRows, mat.maxCols>;
+	using RetMat = typename M::template Rebind<mat.rowDim, mat.colDim, RetValue>;
 
 	auto fieldZero = FieldTraits<typename M::Value>::zero;
 	auto fieldOne = FieldTraits<typename M::Value>::one;
@@ -481,6 +482,7 @@ constexpr auto luDecomp(const M& mat)
 			lower[i][n] = fac;
 		}
 
+		// TODO: remove this debug stuff...?
 		// std::cout << upper << "\n";
 		// std::cout << lower << "\n";
 	}
@@ -605,7 +607,7 @@ template<typename M>
 constexpr auto inverse(const M& l, const M& u)
 {
 	using RetValue = typename FieldTraits<typename M::Value>::FullPrecision;
-	using RetMat = typename M::template Rebind<RetValue, M::maxRows, M::maxCols>;
+	using RetMat = typename M::template Rebind<M::rowDim, M::colDim, RetValue>;
 	auto ret = RetMat::create(l.rows(), l.cols());
 
 	auto idmat = M::create(l.rows(), l.cols());
@@ -625,7 +627,6 @@ template<typename M>
 constexpr auto inverse(const M& mat)
 {
 	// auto [l, u, p, s] = luDecomp(mat); //TODO C++17
-
 	auto lups = luDecomp(mat);
 	const auto& l = std::get<0>(lups);
 	const auto& u = std::get<1>(lups);
@@ -698,7 +699,6 @@ constexpr bool invert(M& mat)
 	if(mat.rows() != mat.cols()) return false;
 
 	// auto [l, u, p, s] = luDecomp(mat); //TODO C++17
-
 	auto lups = luDecomp(mat);
 	const auto& l = std::get<0>(lups);
 	const auto& u = std::get<1>(lups);

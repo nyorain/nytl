@@ -14,6 +14,7 @@
 #include <functional> // std::function
 #include <vector> // std::vector
 #include <utility> // std::move
+#include <cstdint> // std::uintptr_t
 
 namespace nytl {
 
