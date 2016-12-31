@@ -12,7 +12,7 @@
 
 namespace nytl {
 
-template<std::size_t I, typename T> class Vec;
+template<std::size_t D, typename T> class Vec;
 
 template<typename T> using Vec2 = Vec<2, T>;
 template<typename T> using Vec3 = Vec<3, T>;
