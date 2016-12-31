@@ -106,8 +106,8 @@ public:
 	constexpr explicit operator Vec<OS, OT>() const
 	{
 		auto ret = Vec<OS, OT>::create(vSelf().size());
-		for(auto i = 0u; i < min(ret.size(), vSelf().size()); ++i) ret[i] = (*this)[i];
-		for(auto i = min(ret.size(), vSelf().size()); i < ret.size(); ++i) ret[i] = {};
+		for(auto i = 0u; i < std::min(ret.size(), vSelf().size()); ++i) ret[i] = (*this)[i];
+		for(auto i = std::min(ret.size(), vSelf().size()); i < ret.size(); ++i) ret[i] = {};
 		return ret;
 	}
 

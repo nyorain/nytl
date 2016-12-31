@@ -1,6 +1,7 @@
 #include "test.hpp"
 #include <nytl/vecOps.hpp>
 #include <nytl/vec.hpp>
+#include <nytl/rect.hpp>
 
 #include <array>
 #include <type_traits>
@@ -56,6 +57,6 @@ int main()
 {
 	test1();
 	test2();
-	
+
 	std::cout << (failed ? std::to_string(failed) : "no") << " tests failed!\n";
 }
