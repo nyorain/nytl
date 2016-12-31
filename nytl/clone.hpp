@@ -97,13 +97,24 @@ protected:
 };
 
 
-/// \brief Can be used to add the clone interface to a class as well as already implement it.
-/// \module utility
-template<typename T> using Cloneable = DeriveCloneable<AbstractCloneable<T>, T>;
-
 /// \brief Can be used to add the cloneMove interface to a class as well as already implement it.
 /// \module utility
-template<typename T> using CloneMovable = DeriveCloneMovable<AbstractCloneMovable<T>, T>;
+template<typename T>
+struct CloneMovable : public AbstractCloneMovable<T> {
+	T* doCloneMove() override { return new T(std::move(static_cast<T&>(*this))); }
+	template<typename O> friend std::unique_ptr<O> cloneMove(O&);
+};
+
+/// \brief Can be used to add the clone interface to a class as well as already implement it.
+/// \module utility
+template<typename T>
+class Cloneable : public AbstractCloneable<T> {
+	T* doCloneMove() override { return new T(std::move(static_cast<T&>(*this))); }
+	T* doClone() const override { return new T(static_cast<const T&>(*this)); }
+
+	template<typename O> friend std::unique_ptr<O> clone(const O&);
+	template<typename O> friend std::unique_ptr<O> cloneMove(const O&);
+};
 
 // - derive class implementation -
 template<typename Base, typename Derived>

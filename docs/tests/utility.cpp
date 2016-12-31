@@ -290,6 +290,10 @@ struct CloneDerived : public nytl::DeriveCloneable<CloneBase, CloneDerived> {
 	int value() const override { return value_; }
 };
 
+struct CloneBase2 : public nytl::Cloneable<CloneBase2> {};
+struct CloneDerived2 : public nytl::DeriveCloneable<CloneBase2, CloneDerived2> {};
+struct CloneDerived3 : public nytl::DeriveCloneable<CloneDerived2, CloneDerived3> {};
+
 void clone()
 {
 	auto derived = CloneDerived {};
