@@ -114,7 +114,7 @@ public:
 	constexpr Span(C& c) : Span(c.data()) {}
 
 	constexpr Pointer data() const noexcept { return this->data_; }
-	constexpr Difference size() const noexcept { return this->size_; }
+	constexpr Size size() const noexcept { return this->size_; }
 	constexpr bool empty() const noexcept { return size() == 0; }
 
 	constexpr Iterator begin() const noexcept { return data(); }
