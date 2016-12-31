@@ -102,6 +102,15 @@ public:
 	constexpr Reference back() noexcept { return (*this)[dim - 1]; }
 	constexpr ConstReference back() const noexcept { return (*this)[dim - 1]; }
 
+	template<Size OS, typename OT>
+	constexpr explicit operator Vec<OS, OT>() const
+	{
+		auto ret = Vec<OS, OT>::create(vSelf().size());
+		for(auto i = 0u; i < min(ret.size(), vSelf().size()); ++i) ret[i] = (*this)[i];
+		for(auto i = min(ret.size(), vSelf().size()); i < ret.size(); ++i) ret[i] = {};
+		return ret;
+	}
+
 private:
 	constexpr auto& vSelf() { return static_cast<VecType&>(*this); }
 	constexpr const auto& vSelf() const { return static_cast<const VecType&>(*this); }

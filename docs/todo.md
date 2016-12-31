@@ -6,7 +6,7 @@ TODO for nytl
 	- line/triangle/tetrahedron (with ops)
 	- misc (printVars, real memberCallback)
 	- transform (rework!)
-- rect
+- rect!
 	- include rectRegion? not really needed...
 	- rectOps
 - refVec (?)
