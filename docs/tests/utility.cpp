@@ -97,6 +97,7 @@ void span()
 
 	count = 0;
 	foo({*namesVector.data(), 4}, count);
+	foo({namesVector.data(), namesVector.size()}, count);
 }
 
 // - observe -
