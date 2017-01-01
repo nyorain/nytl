@@ -217,7 +217,7 @@ public:
 
 // - operators -
 template<std::size_t D1, std::size_t D2, typename T1, typename T2>
-auto operator+(const Vec<D1, T1>& a, const Vec<D2, T2>& b)
+constexpr auto operator+(const Vec<D1, T1>& a, const Vec<D2, T2>& b)
 {
 	auto ret = Vec<std::min(D1, D2), decltype(a[0] + b[0])>::create(std::min(a.size(), b.size()));
 	for(auto i = 0u; i < ret.size(); ++i)
@@ -226,7 +226,7 @@ auto operator+(const Vec<D1, T1>& a, const Vec<D2, T2>& b)
 }
 
 template<std::size_t D1, std::size_t D2, typename T1, typename T2>
-auto operator-(const Vec<D1, T1>& a, const Vec<D2, T2>& b)
+constexpr auto operator-(const Vec<D1, T1>& a, const Vec<D2, T2>& b)
 {
 	auto ret = Vec<std::min(D1, D2), decltype(a[0] - b[0])>::create(std::min(a.size(), b.size()));
 	for(auto i = 0u; i < ret.size(); ++i)
@@ -235,7 +235,7 @@ auto operator-(const Vec<D1, T1>& a, const Vec<D2, T2>& b)
 }
 
 template<std::size_t D, typename T>
-auto operator-(const Vec<D, T>& a)
+constexpr auto operator-(const Vec<D, T>& a)
 {
 	auto ret = Vec<D, decltype(-a[0])>::create(a.size());
 	for(auto i = 0u; i < ret.size(); ++i)
@@ -244,7 +244,7 @@ auto operator-(const Vec<D, T>& a)
 }
 
 template<std::size_t D, typename F, typename T>
-auto operator*(const F& f, const Vec<D, T>& a)
+constexpr auto operator*(const F& f, const Vec<D, T>& a)
 {
 	auto ret = Vec<D, decltype(f * a[0])>::create(a.size());
 	for(auto i = 0u; i < ret.size(); ++i)
@@ -253,7 +253,7 @@ auto operator*(const F& f, const Vec<D, T>& a)
 }
 
 template<std::size_t D, typename T1, typename T2>
-auto operator==(const Vec<D, T1>& a, const Vec<D, T2>& b)
+constexpr auto operator==(const Vec<D, T1>& a, const Vec<D, T2>& b)
 {
 	for(auto i = 0u; i < a.size(); ++i)
 		if(a[i] != b[i]) return false;
@@ -261,7 +261,7 @@ auto operator==(const Vec<D, T1>& a, const Vec<D, T2>& b)
 }
 
 template<std::size_t D, typename T1, typename T2>
-auto operator!=(const Vec<D, T1>& a, const Vec<D, T2>& b)
+constexpr auto operator!=(const Vec<D, T1>& a, const Vec<D, T2>& b)
 {
 	return !(a == b);
 }

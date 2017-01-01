@@ -22,7 +22,11 @@ namespace nytl {
 /// \tparam R The rows of the matrix.
 /// \tparam C The columns of the matrix.
 template<std::size_t R, std::size_t C, typename T>
-struct Mat : public Vec<R, Vec<C, T>> {
+struct Mat {
+public:
+	Vec<R, Vec<C, T>> data_;
+
+public:
 	using Value = T;
 	using Size = std::size_t;
 	using RowVec = Vec<C, T>;
@@ -37,23 +41,28 @@ struct Mat : public Vec<R, Vec<C, T>> {
 	constexpr static auto rows() { return R; }
 	constexpr static auto cols() { return C; }
 
-	using Vec<R, Vec<C, T>>::Vec;
+	constexpr RowVec& operator[](Size i){ return data_[i]; }
+	constexpr const RowVec& operator[](Size i) const { return data_[i]; }
+
+	constexpr RowVec& at(Size r)
+		{ if(r >= rows()) throw std::out_of_range("nytl::Mat::at"); return data_[r]; }
+	constexpr const RowVec& at(Size r) const
+		{ if(r >= rows()) throw std::out_of_range("nytl::Mat::at"); return data_[r]; }
+
+	constexpr T& at(Size r, Size c) { return at(r).at(c); }
+	constexpr const T& at(Size r, Size c) const { return at(r).at(c); }
 };
 
 // - operators -
-// The plus and minus as well as multiply with factor operators are defined by nytl::Vec.
-// Equality operators are defined by nytl::Vec as well.
 template<typename T1, typename T2, std::size_t R, std::size_t M, std::size_t C>
 constexpr auto operator*(const Mat<R, M, T1>& a, const Mat<M, C, T2>& b)
 {
 	using RetType = decltype(a[0][0] * b[0][0] + a[0][0] * b[0][0]);
 	auto ret = Mat<R, C, RetType>::create(R, C);
 
-	for(auto r = 0u; r < R; ++r) {
-		for(auto c = 0u; c < C; ++c) {
+	for(auto r = 0u; r < R; ++r)
+		for(auto c = 0u; c < C; ++c)
 			ret[r][c] = vec::dot(mat::row(a, r), mat::col(b, c));
-		}
-	}
 
 	return ret;
 }
@@ -68,6 +77,75 @@ constexpr auto operator*(const Mat<R, C, T1>& a, const Vec<C, T2>& b)
 		ret[r] = vec::dot(mat::row(a, r), b);
 
 	return ret;
+}
+
+template<typename F, typename T, std::size_t R, std::size_t C>
+constexpr auto operator*(const F& f, const Mat<R, C, T>& a)
+{
+	using RetType = decltype(f * a[0][0]);
+	auto ret = Mat<R, C, RetType>::create(R, C);
+
+	for(auto r = 0u; r < R; ++r)
+		for(auto c = 0u; c < C; ++c)
+			ret[r][c] = f * a[r][c];
+
+	return ret;
+}
+
+template<typename T1, typename T2, std::size_t R, std::size_t C>
+constexpr auto operator+(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b)
+{
+	using RetType = decltype(a[0][0] + b[0][0]);
+	auto ret = Mat<R, C, RetType>::create(R, C);
+
+	for(auto r = 0u; r < R; ++r)
+		for(auto c = 0u; c < C; ++c)
+			ret[r][c] = a[r][c] + b[r][c];
+
+	return ret;
+}
+
+template<typename T1, typename T2, std::size_t R, std::size_t C>
+constexpr auto operator-(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b)
+{
+	using RetType = decltype(a[0][0] + b[0][0]);
+	auto ret = Mat<R, C, RetType>::create(R, C);
+
+	for(auto r = 0u; r < R; ++r)
+		for(auto c = 0u; c < C; ++c)
+			ret[r][c] = a[r][c] - b[r][c];
+
+	return ret;
+}
+
+template<typename T, std::size_t R, std::size_t C>
+constexpr auto operator-(const Mat<R, C, T>& a)
+{
+	using RetType = decltype(-a[0][0]);
+	auto ret = Mat<R, C, RetType>::create(R, C);
+
+	for(auto r = 0u; r < R; ++r)
+		for(auto c = 0u; c < C; ++c)
+			ret[r][c] = -a[r][c];
+
+	return ret;
+}
+
+template<typename T1, typename T2, std::size_t R, std::size_t C>
+constexpr auto operator==(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b)
+{
+	for(auto r = 0u; r < R; ++r)
+		for(auto c = 0u; c < C; ++c)
+			if(a[r][c] != b[r][c])
+				return false;
+
+	return true;
+}
+
+template<typename T1, typename T2, std::size_t R, std::size_t C>
+constexpr auto operator!=(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b)
+{
+	return !(a == b);
 }
 
 template<typename T, std::size_t R, std::size_t C>

@@ -111,4 +111,11 @@ struct Equal<nytl::Vec<D, T>> {
 };
 
 template<typename T, std::size_t R, std::size_t C>
-struct Equal<nytl::Mat<R, C, T>> : public Equal<nytl::Vec<R, nytl::Vec<C, T>>> {};
+struct Equal<nytl::Mat<R, C, T>> {
+	static constexpr bool call(const nytl::Mat<R, C, T>& a, const nytl::Mat<R, C, T>& b)
+	{
+		for(auto i = 0u; i < a.rows(); ++i)
+			if(!testEqual(a[i], b[i])) return false;
+		return true;
+	}
+};
