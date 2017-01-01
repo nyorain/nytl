@@ -159,7 +159,6 @@ struct SpanStorage<T, constants::dynamicSize> {
 	constexpr SpanStorage(T* pointer, std::size_t size) : data_(pointer), size_(size)
 	{
 		if(!pointer && size != 0) throw std::logic_error("nytl::Span:: invalid data");
-		if(size < 0) throw std::logic_error("nytl::Span:: invalid size");
 	}
 	constexpr SpanStorage(T& ref, std::size_t size) : SpanStorage(&ref, size) {}
 	template<std::size_t S> constexpr SpanStorage(T (&arr)[S]) : SpanStorage(arr, S) {}

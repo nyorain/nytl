@@ -10,10 +10,11 @@
 #include <nytl/convert.hpp>
 #include <nytl/stringParam.hpp>
 #include <nytl/clone.hpp>
+#include <nytl/functionTraits.hpp>
 
 #include <list>
 
-// TODO: to test: nonCopyable, connection, tuple (operations)
+// TODO: to test: functionTraits, nonCopyable, connection, tuple (operations)
 
 // - callback -
 void callback()
@@ -72,7 +73,7 @@ void span()
 {
 	int count {};
 
-	std::array<std::string, 3> namesArray {"foo", "bar", "baz"};
+	std::array<std::string, 3> namesArray {{"foo", "bar", "baz"}};
 	foo(namesArray, count);
 
 	CHECK_EXPECT(namesArray.front(), "first name");
@@ -254,7 +255,7 @@ void convert()
 	int convertedInt = nytl::convert(23.0);
 	CHECK_EXPECT(convertedInt, 23);
 
-	auto floatArray = std::array<float, 5>{1.f, 2.f, 3.f, 4.f, 5.f};
+	auto floatArray = std::array<float, 5> {{1.f, 2.f, 3.f, 4.f, 5.f}};
 
 	std::array<int, 5> convertedIntArray = nytl::convert(floatArray);
 	CHECK_EXPECT(convertedIntArray[2], 3);

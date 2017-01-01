@@ -430,7 +430,7 @@ template<typename M>
 constexpr auto luDecomp(const M& mat)
 {
 	using RetValue = typename FieldTraits<typename M::Value>::FullPrecision;
-	using RetMat = typename M::template Rebind<mat.rowDim, mat.colDim, RetValue>;
+	using RetMat = typename M::template Rebind<M::rowDim, M::colDim, RetValue>;
 
 	auto fieldZero = FieldTraits<typename M::Value>::zero;
 	auto fieldOne = FieldTraits<typename M::Value>::one;

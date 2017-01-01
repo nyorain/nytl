@@ -61,7 +61,7 @@ protected:
 	Base* doClone() const override; // Base return type since CRTP
 	template<typename O> friend std::unique_ptr<O> clone(const O&);
 
-	using Base::Base;
+	using DeriveCloneMovable<Base, Derived>::DeriveCloneMovable;
 };
 
 /// \brief Can be derived from to make cloneMoving for interfaces possible.

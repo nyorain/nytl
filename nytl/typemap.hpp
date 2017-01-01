@@ -19,7 +19,7 @@
 
 namespace nytl {
 namespace detail {
-	template<typename B, typename T> class TypemapFactory;
+	template<typename B, typename T> struct TypemapFactory;
 }
 
 /// \brief Can be thought of as map (like std::map) that assoicates types to identifiers.

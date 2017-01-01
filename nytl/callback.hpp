@@ -50,6 +50,7 @@ template<class Signature> class Callback;
 ///
 /// The class is not designed threadsafe, if one thread calls e.g. call() while another
 /// one calls add() it may cause undefined behaviour.
+/// \module function
 template<class Ret, class ... Args>
 class Callback<Ret(Args...)> : public Connectable {
 public:

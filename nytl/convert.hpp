@@ -90,31 +90,59 @@ constexpr auto containerCast(const U& con)
 {
 	T ret {};
 	ret.resize(con.size());
-	for(auto f = con.begin(), t = ret.begin(); f != con.end(); ++f, ++t)
-		*t = convert(*f);
+	auto f = con.begin();
+	auto t = ret.begin();
+	while(f != con.end())
+		*(t++) = convert(*(f++));
 	return ret;
 }
 
+template<template<class...> typename E, typename C, typename... T>
+struct ExpressionValidT : std::false_type {};
+
+template<template<class...> typename E, typename... T>
+struct ExpressionValidT<E, void_t<E<T...>>, T...> : std::true_type {};
+
+template<template<class...> typename E, typename... T>
+constexpr auto expressionValid = ExpressionValidT<E, void, T...>::value;
+
+template<typename To, typename From>
+using ValidStaticCast = decltype(static_cast<To>(std::declval<From>()));
+
+template<typename To, typename From>
+using ValidContainerCast = decltype(containerCast<To>(std::declval<From>()));
+
 // - general static_cast Converter -
 template<typename From, typename To>
-struct Converter<From, To, void_t<decltype(static_cast<To>(std::declval<From>()))>> {
-	static To call(const From& other) { return static_cast<To>(other); }
+struct Converter<From, To> {
+	// template<typename T = decltype(static_cast<To>(std::declval<From>()))>
+	static To call(const From& other)
+	{
+		if constexpr(expressionValid<ValidStaticCast, From, To>)
+			return static_cast<To>(other);
+		else if constexpr(expressionValid<ValidContainerCast, From, To>)
+			return containerCast<To>(other);
+		else static_assert(std::is_same<void_t<From>, void>::value, "Invalid conversion!");
+	}
+
+	// template<typename T = decltype(containerCast<To>(std::declval<From>()))>
+	// static To call(const From& other) { return containerCast<To>(other); }
 };
 
+// - arrayCast Converter -
 template<typename From, typename To, std::size_t I> using ValidArrayCast =
 	void_t<decltype(arrayCast<To>(std::declval<std::array<From, I>>()))>;
 
-// - arrayCast Converter -
 template<typename From, typename To, std::size_t I>
 struct Converter<std::array<From, I>, std::array<To, I>, ValidArrayCast<From, To, I>> {
 	static std::array<To, I> call(const std::array<From, I>& other) { return arrayCast<To>(other); }
 };
 
 // - containerCast Converter -
-template<typename From, typename To>
-struct Converter<From, To, void_t<decltype(containerCast<To>(std::declval<From>()))>> {
-	static To call(const From& other) { return containerCast<To>(other); }
-};
+// template<typename From, typename To>
+// struct Converter<From, To, void_t<decltype(containerCast<To>(std::declval<From>()))>> {
+// 	static To call(const From& other) { return containerCast<To>(other); }
+// };
 
 } // namespace nytl
 

@@ -6,3 +6,4 @@ bin/
 *.swp
 .clang_complete
 *.exe
+*.out
