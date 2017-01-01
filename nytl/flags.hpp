@@ -79,11 +79,11 @@ Flags<T> operator^(T bit, const Flags<T>& flags) noexcept
 /// \note Inversion of flags or enum values will actually inverse the underlaying value.
 /// Therefore equal comparisions with flags can be error prone and one should prefer to
 /// just check whether flags contain a specific value. The follwing static_assertion will fail:
-/// '''cpp
+/// ```cpp
 /// enum class Enum { value1 = 1, value2 = 2 };
 /// NYTL_FLAG_OPS(Enum)
 /// static_assert(~Enum::value1 == Enum::value2, "will fail due to nytl::Flags");
-/// '''
+/// ```
 /// \module utility
 #define NYTL_FLAG_OPS(T) \
 	constexpr nytl::Flags<T> operator|(T a, T b) noexcept { return nytl::Flags<T>(a) | b; } \

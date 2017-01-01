@@ -17,7 +17,7 @@ namespace nytl {
 /// Example for how this could be useful for e.g. file descriptors. Note that no matter
 /// which way we take out of the shown scope (exception, early return or just coming to the
 /// scopes end) the given scope guard will be executed and the fd closed.
-/// '''cpp
+/// ```cpp
 /// {
 /// 	auto fd = ::open("test.txt");
 /// 	auto fdGuard = nytl::makeScopeGuard([=]{ ::close(fd); });
@@ -25,7 +25,7 @@ namespace nytl {
 ///		if(condition()) return;
 ///		functionThatMightThrow();
 /// }
-/// '''
+/// ```
 /// Alternatively, nytl defines the [NYTL_SCOPE_EXIT]() macro that can be used to easier
 /// define scope guards.
 /// \module utility
@@ -103,7 +103,7 @@ template<typename F> ExceptionGuard<F> makeExceptionGuard(const F& f) { return {
 
 /// \file Utilities for handling scope lifetimes, i.e. executing a function at the end of scope.
 /// Examples for the different scope guards:
-/// '''cpp
+/// ```cpp
 /// auto fdGuard = nytl::makeScopeGuard([=]{ ::close(fd); });
 /// auto successGuard = nytl::makeSuccessGuard([=]{ std::cout << "success!\n"; });
 /// auto exceptionGuard = nytl::makeExceptionGuard([=]{ std::cout << "exception!\n"; });
@@ -112,4 +112,4 @@ template<typename F> ExceptionGuard<F> makeExceptionGuard(const F& f) { return {
 /// NYTL_SCOPE_EXIT([=]{ ::close(fd); });
 /// NYTL_SCOPE_SUCCESS([=]{ std::cout << "scope exited succesful!\n"; });
 /// NYTL_SCOPE_EXCEPTION([=]{ std::cout << "scope exited due to an exception!\n"; });
-/// '''
+/// ```

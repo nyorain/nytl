@@ -85,7 +85,7 @@ protected:
 /// Useful for e.g. stl classes or other not-changeable classes whoes objects
 /// should be observable in a certain context.
 /// Can be used like this (for the already defined class 'SomeClass'):
-/// '''cpp
+/// ```cpp
 /// struct MyObserver : public nytl::Observer<SomeClass> {
 /// 	void observeDestruction(SomeClass& obj) override
 /// 		{ std::cout << &obj << " was destructed!\n"; }
@@ -100,7 +100,7 @@ protected:
 /// 	object->addObserver(observer);
 /// 	delete object; // will trigger observer.observeDestruction(*object)
 /// }
-/// '''
+/// ```
 template<typename T>
 struct ObservableWrapper : public T, public Observable<T> {
 	using T::T;

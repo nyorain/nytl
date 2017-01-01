@@ -97,25 +97,15 @@ constexpr auto containerCast(const U& con)
 	return ret;
 }
 
-template<template<class...> typename E, typename C, typename... T>
-struct ExpressionValidT : std::false_type {};
-
-template<template<class...> typename E, typename... T>
-struct ExpressionValidT<E, void_t<E<T...>>, T...> : std::true_type {};
-
-template<template<class...> typename E, typename... T>
-constexpr auto expressionValid = ExpressionValidT<E, void, T...>::value;
-
-template<typename To, typename From>
-using ValidStaticCast = decltype(static_cast<To>(std::declval<From>()));
-
-template<typename To, typename From>
-using ValidContainerCast = decltype(containerCast<To>(std::declval<From>()));
-
-// - general static_cast Converter -
+// - general Converter using constexpr if dispatching -
 template<typename From, typename To>
 struct Converter<From, To> {
-	// template<typename T = decltype(static_cast<To>(std::declval<From>()))>
+	template<typename A, typename B>
+	using ValidStaticCast = decltype(static_cast<B>(std::declval<A>()));
+
+	template<typename A, typename B>
+	using ValidContainerCast = decltype(containerCast<B>(std::declval<A>()));
+
 	static To call(const From& other)
 	{
 		if constexpr(expressionValid<ValidStaticCast, From, To>)
@@ -124,9 +114,6 @@ struct Converter<From, To> {
 			return containerCast<To>(other);
 		else static_assert(std::is_same<void_t<From>, void>::value, "Invalid conversion!");
 	}
-
-	// template<typename T = decltype(containerCast<To>(std::declval<From>()))>
-	// static To call(const From& other) { return containerCast<To>(other); }
 };
 
 // - arrayCast Converter -
@@ -137,12 +124,6 @@ template<typename From, typename To, std::size_t I>
 struct Converter<std::array<From, I>, std::array<To, I>, ValidArrayCast<From, To, I>> {
 	static std::array<To, I> call(const std::array<From, I>& other) { return arrayCast<To>(other); }
 };
-
-// - containerCast Converter -
-// template<typename From, typename To>
-// struct Converter<From, To, void_t<decltype(containerCast<To>(std::declval<From>()))>> {
-// 	static To call(const From& other) { return containerCast<To>(other); }
-// };
 
 } // namespace nytl
 

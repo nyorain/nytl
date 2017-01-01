@@ -35,7 +35,7 @@ template<typename T, std::size_t N> struct SpanStorage;
 ///
 /// Some examples below. Note that Spans must be used carefully outside of temporary
 /// expressions since they are only valid as long the object they reference is valid.
-/// '''cpp
+/// ```cpp
 /// void foo(nytl::Span<std::string> names); // takes dyanmic amount of strings, might modify it
 /// void bar(nytl::Span<const std::string, 3> names); // takes exactly 3 const strings
 /// void baz(nytl::Span<const std::string, 5> names); // takes exactly 5 const strings
@@ -91,7 +91,7 @@ template<typename T, std::size_t N> struct SpanStorage;
 ///		for(auto& name : names.slice<2>(0)) // output only the first two names
 ///			std::cout << name << "\n";
 /// }
-/// '''
+/// ```
 template<typename T, std::size_t N>
 class Span : public SpanStorage<T, N> {
 public:

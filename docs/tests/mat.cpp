@@ -1,3 +1,6 @@
+// clang -std=c++1z docs/tests/mat.cpp -lstdc++ -I. && ./a.out && rm a.out
+// g++ -std=c++1z docs/tests/mat.cpp -I. && ./a.out && rm a.out
+
 #include "test.hpp"
 
 #include <nytl/matOps.hpp>

@@ -134,7 +134,7 @@ Base* DeriveCloneable<Base, Derived>::doClone() const
 /// \brief Small utilities for defining/using Cloneable clases.
 /// \details Small (full copyable) example for using this header:
 ///
-/// '''cpp
+/// ```cpp
 /// struct Base : public nytl::AbstractCloneable<Base> {
 /// 	virtual int value() const = 0;
 /// };
@@ -160,6 +160,6 @@ Base* DeriveCloneable<Base, Derived>::doClone() const
 ///		std::cout << copy->value() << "\n"; // will output 42
 ///		std::cout << moved->value() << "\n"; // will output 42
 /// }
-/// '''
+/// ```
 /// \note The rather complex doClone/doCloneMove virtual implementation is needed since
 /// one cannot return covariant return types from virtual functions when using CRTP.
