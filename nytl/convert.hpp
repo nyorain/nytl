@@ -108,11 +108,11 @@ struct Converter<From, To> {
 
 	static To call(const From& other)
 	{
-		if constexpr(expressionValid<ValidStaticCast, From, To>)
+		if constexpr(validExpression<ValidStaticCast, From, To>)
 			return static_cast<To>(other);
-		else if constexpr(expressionValid<ValidContainerCast, From, To>)
+		else if constexpr(validExpression<ValidContainerCast, From, To>)
 			return containerCast<To>(other);
-		else static_assert(std::is_same<void_t<From>, void>::value, "Invalid conversion!");
+		else static_assert(templatize<From>(false), "Invalid conversion!");
 	}
 };
 

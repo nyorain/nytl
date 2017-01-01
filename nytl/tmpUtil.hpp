@@ -68,7 +68,7 @@ decltype(auto) templatize(T& value) { return value; }
 
 namespace detail {
 	template<template<class...> typename E, typename C, typename... T>
-	struct ExpressionValidT;
+	struct ValidExpressionT;
 } // namespace detail
 
 /// \brief Can be used to determine whether a given expression (a templated type) is valid.
@@ -94,15 +94,16 @@ namespace detail {
 /// }
 /// ```
 template<template<class...> typename E, typename... T>
-constexpr auto expressionValid = detail::ExpressionValidT<E, void, T...>::value;
+constexpr auto validExpression = detail::ValidExpressionT<E, void, T...>::value;
 
+// ValidExpression impl
 namespace detail {
-template<template<class...> typename E, typename C, typename... T> struct ExpressionValidT {
+template<template<class...> typename E, typename C, typename... T> struct ValidExpressionT {
 	static constexpr auto value = false;
 };
 
 template<template<class...> typename E, typename... T>
-struct ExpressionValidT<E, void_t<E<T...>>, T...> {
+struct ValidExpressionT<E, void_t<E<T...>>, T...> {
 	static constexpr auto value = true;
 };
 

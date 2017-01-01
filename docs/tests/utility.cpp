@@ -313,6 +313,19 @@ void clone()
 	CHECK_EXPECT(moved->value(), 42);
 }
 
+
+// - template meta programming -
+template<typename T> using Expression1 = decltype(foooo(std::declval<T>()));
+template<typename T> using Expression2 = decltype(foo(std::declval<T>()));
+template<typename T> using Expression3 = decltype(std::round(std::declval<T>()));
+
+void tmp()
+{
+	static_assert(nytl::validExpression<Expression1, int> == false, "tmp:0");
+	static_assert(nytl::validExpression<Expression2, int> == false, "tmp:1");
+	static_assert(nytl::validExpression<Expression3, int> == true, "tmp:2");
+}
+
 int main()
 {
 	callback();
@@ -325,6 +338,7 @@ int main()
 	convert();
 	stringParam();
 	clone();
+	tmp();
 
 	std::cout << (failed ? std::to_string(failed) : "no") << " tests failed!\n";
 }
