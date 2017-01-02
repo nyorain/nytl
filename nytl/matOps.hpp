@@ -16,6 +16,7 @@
 #include <stdexcept> // std::invalid_argument
 #include <tuple> // std::tuple
 #include <iosfwd> // std::ostream
+#include <cmath> // std::fma
 
 namespace nytl::mat {
 
@@ -310,7 +311,7 @@ constexpr auto pivot(M& mat, typename M::Size row, typename M::Size column, bool
 /// Does directly modify the matrix. For a version that operates on a copy, see
 /// rowEcholonFormCopy.
 /// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
-/// \note This operation divides by values from the matrix so it must have a type does
+/// \notes This operation divides by values from the matrix so it must have a type does
 /// correctly implement division over the desired field (e.g. integer matrices will result
 /// in errors here).
 /// \requires Type 'M' shall be a Matrix.
@@ -364,7 +365,7 @@ constexpr auto rowEcholonCopy(const M& mat)
 /// Implements the full gaussian elimination for a given matrix.
 /// The given matrix can be in any form.
 /// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
-/// \note This operation divides by values from the matrix so it must have a type does
+/// \notes This operation divides by values from the matrix so it must have a type does
 /// correctly implement division over the desired field (e.g. integer matrices will result
 /// in errors here).
 /// \requires Type 'M' shall be a Matrix.
@@ -425,7 +426,7 @@ constexpr auto reducedRowEcholonCopy(const M& mat)
 /// This function cannot fail in any way.
 /// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
 /// \requires Type 'M' shall be a square Matrix.
-/// \moduloe mat
+/// \module mat
 template<typename M>
 constexpr auto luDecomp(const M& mat)
 {
@@ -508,7 +509,7 @@ constexpr auto luEvaluate(const M& l, const M& u, const V& b)
 	for(auto i = 0u; i < d.size(); ++i) {
 		d[i] = b[i];
 		for(auto j = 0u; j < i; ++j)
-			d[i] -= l[i][j] * d[j];
+			d[i] = std::fma(-l[i][j], d[j], d[i]);
 
 		d[i] /= l[i][i];
 	}
@@ -517,7 +518,7 @@ constexpr auto luEvaluate(const M& l, const M& u, const V& b)
 	for(auto i = x.size(); i-- > 0; ) {
 		x[i] = d[i];
 		for(auto j = i + 1; j < x.size(); ++j)
-			x[i] -= u[i][j] * x[j];
+			x[i] = std::fma(-u[i][j], x[j], x[i]);
 
 		x[i] /= u[i][i];
 	}
@@ -531,10 +532,10 @@ constexpr auto luEvaluate(const M& l, const M& u, const V& b)
 /// Can be used to more efficiently solve multiple linear equotation systems for the
 /// same matrix by first decomposing it and then use this function instead of the default
 /// gaussian elimination implementation.
-/// \note If the lu composition was done with a permutation matrix (PA = LU), the given
+/// \notes If the lu composition was done with a permutation matrix (PA = LU), the given
 /// vector must be premultiplied with the permutations inverse (tranpose) to get the vector
 /// that solves Ax = b. If PA = LU and Ax = b, so LUx = P * b
-/// \note Does not check if the given equotation is solvable, i.e. results in undefined behaviour
+/// \notes Does not check if the given equotation is solvable, i.e. results in undefined behaviour
 /// if it is not. The caller should check or assure this somehow. Could be done by
 /// checking whether the given lower or upper matrix is singular, i.e. whether one of its
 /// diagonal elements is zero.
@@ -578,7 +579,7 @@ constexpr auto determinant(const M& mat)
 /// \param l The lower matrix of the lu decomposition.
 /// \param lu The upper matrix of the lu decomposition.
 /// \param sign The sign of the permutation matrix used on the original matrix.
-/// \required Type 'M' shall be a Matrix.
+/// \requires Type 'M' shall be a Matrix.
 /// \module mat
 template<typename M>
 constexpr auto determinant(const M& l, const M& u, int sign = 1)
@@ -648,7 +649,7 @@ constexpr auto inverse(const M& mat)
 } // namespace nocheck
 
 /// \brief Returns the inverse of the matrix A with A = LU.
-/// \thrown std::invalid_argument For a non-square or singular matrix
+/// \throws std::invalid_argument For a non-square or singular matrix
 /// \module mat
 template<typename M>
 constexpr auto inverse(const M& l, const M& u)
@@ -665,7 +666,7 @@ constexpr auto inverse(const M& l, const M& u)
 }
 
 /// \brief Returns the inverse of the matrix A with PA = LU.
-/// \thrown std::invalid_argument For a non-square or singular matrix
+/// \throws std::invalid_argument For a non-square or singular matrix
 /// \module mat
 template<typename M>
 constexpr auto inverse(const M& l, const M& u, const M& p)

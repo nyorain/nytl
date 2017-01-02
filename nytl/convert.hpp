@@ -112,7 +112,8 @@ struct Converter<From, To> {
 			return static_cast<To>(other);
 		else if constexpr(validExpression<ValidContainerCast, From, To>)
 			return containerCast<To>(other);
-		else static_assert(templatize<From>(false), "Invalid conversion!");
+		else
+			static_assert(templatize<From>(false), "Invalid conversion!");
 	}
 };
 

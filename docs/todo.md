@@ -6,8 +6,7 @@ TODO for nytl
 	- line/triangle/tetrahedron (with ops)
 	- misc (printVars, real memberCallback)
 	- transform (rework!)
-- rect!
-	- include rectRegion? not really needed...
+- rect improvements (specializations?)
 	- rectOps
 - refVec (?)
 - more tests
@@ -22,9 +21,8 @@ TODO for nytl
 
 - ? (to be potentially reintroduced (with rework) later on)
 	- system
-	- tmp
+	- tmp (more tuple ops, integer sequence ops)
 	- cache
-	- functionTraits
 	- compFunc (more descriptive name would be good if possible)
 
 - make StringParam template for char type (like std::string is? make e.g. utf32 possible)

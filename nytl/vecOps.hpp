@@ -14,6 +14,7 @@
 #include <nytl/scalar.hpp> // nytl::accumulate
 
 #include <functional> // std::plus, std::multiplies
+#include <cmath> // std::fma
 #include <iosfwd> // std::ostream
 
 namespace nytl::vec {
@@ -129,8 +130,9 @@ constexpr auto multiply(const V& a)
 template<typename V1, typename V2>
 constexpr auto dot(const V1& a, const V2& b)
 {
-	auto ret = a[0] * b[0];
-	for(auto i = 1u; i < a.size(); ++i) ret += a[i] * b[i];
+	using RetType = decltype(a[0] * b[0] + a[0] * b[0]);
+	auto ret = FieldTraits<RetType>::zero;
+	for(auto i = 0u; i < a.size(); ++i) ret = std::fma(a[i], b[i], ret);
 	return ret;
 }
 

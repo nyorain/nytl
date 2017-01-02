@@ -303,4 +303,4 @@ protected:
 
 } // namespace nytl
 
-#endif //header guard
+#endif // header guard
