@@ -96,7 +96,7 @@ std::ostream& print(std::ostream& os, const V& vec)
 	auto it = vec.begin();
 	os << *it;
 	while(++it != vec.end())
-	 	templatize<V>(os) << ", " << *it;
+	templatize<V>(os) << ", " << *it;
 
 	templatize<V>(os) << ")";
 	return os;

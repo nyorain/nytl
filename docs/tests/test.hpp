@@ -49,9 +49,9 @@ void checkExpectFailed(const char* file, int line, const char* expression,
 	const char* expect, const A& a, const B& b)
 {
 	std::cout << "check expect failed in " << file << ":" << line << ":\n    <"
-			  << expression << "> = <" << printable(a) << "> instead of\n    <"
-			  << expect << "> = <" << printable(b) << ">\n"
-			  << "===================================================================\n";
+		<< expression << "> = <" << printable(a) << "> instead of\n    <"
+		<< expect << "> = <" << printable(b) << ">\n"
+		<< "===================================================================\n";
 	++failed;
 }
 
@@ -59,7 +59,7 @@ void checkErrorFailed(const char* file, int line, const char* expression, const 
 	bool otherError)
 {
 	std::cout << "check error failed in " << file << ":" << line << ":\n    <"
-			  << expression << "> did not throw error <" << error << ">\n";
+		<< expression << "> did not throw error <" << error << ">\n";
 	if(otherError) std::cout << "    Other error was thrown instead!\n";
 	std::cout << "===================================================================\n";
 

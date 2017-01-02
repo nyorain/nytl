@@ -186,7 +186,7 @@ protected:
 		return types_.end();
 	}
 
-   std::unordered_map<Identifier, std::unique_ptr<const TypeBase>> types_; // stored types
+std::unordered_map<Identifier, std::unique_ptr<const TypeBase>> types_; // stored types
 };
 
 /// \brief Convinience function for registering types in a Typemap.
