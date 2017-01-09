@@ -105,8 +105,7 @@ auto stringTypeInfo = typemap.typeInfo("std::string");
 
 ### Metaprogramming
 
-nytl also implements some useful metaprogramming helpers. See [nytl/tmpUtil.hpp](nytl/tmpUtil.hpp)
-,[nytl/functionTraits.hpp](nytl/functionTraits.hpp) or [nytl/tuple.hpp](nytl/tuple.hpp).
+nytl also implements some useful metaprogramming helpers. See [nytl/tmpUtil.hpp](nytl/tmpUtil.hpp), [nytl/functionTraits.hpp](nytl/functionTraits.hpp) or [nytl/tuple.hpp](nytl/tuple.hpp).
 
 ```cpp
 // constexpr SFINAE-based branches without template specialization
