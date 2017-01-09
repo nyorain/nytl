@@ -64,7 +64,8 @@ template<typename A, typename> using Variadic = A;
 /// have to be included by a template functions if a function is not used.
 /// \module utility
 template<typename V, typename T>
-decltype(auto) templatize(T& value) { return value; }
+decltype(auto) templatize(T&& value) { return value; }
+
 
 namespace detail {
 	template<template<class...> typename E, typename C, typename... T>
@@ -88,8 +89,8 @@ namespace detail {
 ///
 /// template<typename T> auto dispatch(const T& obj)
 /// {
-/// 	if constexpr(nytl::expressionValid<FooCallable<T>>) return foo(obj);
-///		else if constexpr(nytl::expressionValid<BarCallable<T>>) return bar(obj);
+/// 	if constexpr(nytl::validExpression<FooCallable<T>>) return foo(obj);
+///		else if constexpr(nytl::validExpression<BarCallable<T>>) return bar(obj);
 ///		else return fallback(obj); // otherwise templated static_assert to generate error
 /// }
 /// ```

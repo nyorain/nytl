@@ -103,9 +103,32 @@ auto integer = typemap.create("int");
 auto stringTypeInfo = typemap.typeInfo("std::string");
 ```
 
+### Metaprogramming
+
+nytl also implements some useful metaprogramming helpers. See [nytl/tmpUtil.hpp](nytl/tmpUtil.hpp)
+,[nytl/functionTraits.hpp](nytl/functionTraits.hpp) or [nytl/tuple.hpp](nytl/tuple.hpp).
+
+```cpp
+// constexpr SFINAE-based branches without template specialization
+// Some declarations for callables (e.g. functions) foo and bar here
+
+template<typename T> using FooCallbable = decltype(foo(std::declval<T>()));
+template<typename T> using BarCallbable = decltype(bar(std::declval<T>()));
+
+template<typename T> auto dispatch(const T& obj)
+{
+	if constexpr(nytl::validExpression<FooCallable<T>>) return foo(obj);
+	else if constexpr(nytl::validExpression<BarCallable<T>>) return bar(obj);
+	else return fallback(obj); // otherwise templated static_assert to generate error
+}
+```
+
 ### Mathematical operations
 
-There are also multiple headers for generic maths in nytl.
+There are also multiple headers for generic maths in nytl. For common structurs, such as
+vectors as matrices, nytl strictly seperates structural implementation from operations which
+makes the operations generic and usable for custom structurs (i.e. you can use your own
+vector class as long as it fulfills nytls Vector concept).
 Some interesting ones are [nytl/matOps.hpp](nytl/matOps.hpp) or
 [nytl/simplex.hpp](nytl/simplex.hpp).
 
