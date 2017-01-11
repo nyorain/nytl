@@ -44,6 +44,8 @@ Callbacks mirror the signal/slot principle in modern c++ with many useful featur
 For the full documentation, see [nytl/callback.hpp](nytl/callback.hpp).
 
 ```cpp
+auto onEvent = nytl::Callback<void()> {}; // Example callback
+
 auto connection = onEvent.add([]{ std::cout << "called\n"; }); // Adds a callback listener
 connection.disconnect(); // unregisters the listener
 
