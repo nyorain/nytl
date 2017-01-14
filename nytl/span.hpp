@@ -14,6 +14,7 @@
 
 #include <cstdlib> // std::size_t
 #include <stdexcept> // std::out_of_range
+#include <initializer_list> // std::initializer_list
 #include <array> // std::array
 
 namespace nytl {
