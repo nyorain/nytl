@@ -184,8 +184,7 @@ struct ValidContainerT<T, C,
 	>::type
 > { using type = void; };
 
-} // namespace nytl::detail
-
+} // namespace detail
 } // namespace nytl
 
 #endif // header guard
