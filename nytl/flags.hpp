@@ -13,11 +13,11 @@
 
 namespace nytl {
 
-/// \brief Can be used to inverse the given value on Flags construction
+/// \brief Can be used to invert the given value on Flags construction
 /// Can be used like this: `nytl::Flags<Enum>(nytl::invserseFlags, Enum::value)`.
 /// \module utility
-struct InverseFlags {};
-constexpr InverseFlags inverseFlags {};
+struct InvertFlags {};
+constexpr InvertFlags invertFlags {};
 
 /// \brief Can be used to combine multiple values from the same enumeration.
 /// \details Use the [NYTL_FLAG_OPS]() macro to define binary operations on the
@@ -33,7 +33,7 @@ class Flags {
 public:
 	constexpr Flags() noexcept = default;
 	constexpr Flags(T bit) noexcept : value_(static_cast<U>(bit)) {}
-	constexpr Flags(InverseFlags, T bit) noexcept : value_(~static_cast<U>(bit)) {}
+	constexpr Flags(InvertFlags, T bit) noexcept : value_(~static_cast<U>(bit)) {}
 	~Flags() noexcept = default;
 
 	constexpr Flags& operator=(const Flags& r) noexcept { value_ = r.value(); return *this; }
@@ -76,7 +76,7 @@ Flags<T> operator^(T bit, const Flags<T>& flags) noexcept
 /// Can be used like this: `enum class Enum {}; NYTL_FLAG_OPS(Enum)` which will
 /// make results like `Enum::value1 | Enum::value2` automatically result in a
 /// `nytl::Flags<Enum>` object holding the union of the given values.
-/// \note Inversion of flags or enum values will actually inverse the underlaying value.
+/// \note Inversion of flags or enum values will actually the underlaying value.
 /// Therefore equal comparisions with flags can be error prone and one should prefer to
 /// just check whether flags contain a specific value. The follwing static_assertion will fail:
 /// ```cpp
@@ -89,6 +89,6 @@ Flags<T> operator^(T bit, const Flags<T>& flags) noexcept
 	constexpr nytl::Flags<T> operator|(T a, T b) noexcept { return nytl::Flags<T>(a) | b; } \
 	constexpr nytl::Flags<T> operator&(T a, T b) noexcept { return nytl::Flags<T>(a) & b; } \
 	constexpr nytl::Flags<T> operator^(T a, T b) noexcept { return nytl::Flags<T>(a) ^ b; } \
-	constexpr nytl::Flags<T> operator~(T bit) noexcept { return {nytl::inverseFlags, bit}; }
+	constexpr nytl::Flags<T> operator~(T bit) noexcept { return {nytl::invertFlags, bit}; }
 
 #endif // header guard
