@@ -105,7 +105,8 @@ public:
 
 public:
 	using SpanStorage<T, N>::SpanStorage;
-	constexpr Span(std::nullptr_t) : Span(nullptr, 0) {}
+	constexpr Span() noexcept = default;
+	constexpr Span(std::nullptr_t) noexcept : Span(nullptr, 0) {}
 
 	template<typename C, typename = detail::ValidContainer<T, C>>
 	constexpr Span(C& c) : Span(c.data(), c.size()) {}
