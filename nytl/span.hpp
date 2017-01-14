@@ -157,11 +157,11 @@ struct SpanStorage {
 template<typename T>
 struct SpanStorage<T, constants::dynamicSize> {
 	constexpr SpanStorage() noexcept = default;
-	constexpr SpanStorage(T* pointer, std::size_t size) : data_(pointer), size_(size)
+	constexpr SpanStorage(T* pointer, std::size_t size = 1) : data_(pointer), size_(size)
 	{
 		if(!pointer && size != 0) throw std::logic_error("nytl::Span:: invalid data");
 	}
-	constexpr SpanStorage(T& ref, std::size_t size) : SpanStorage(&ref, size) {}
+	constexpr SpanStorage(T& ref, std::size_t size = 1) : SpanStorage(&ref, size) {}
 	template<std::size_t S> constexpr SpanStorage(T (&arr)[S]) : SpanStorage(arr, S) {}
 
 	T* data_;
