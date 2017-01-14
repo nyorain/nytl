@@ -6,8 +6,8 @@
 
 #pragma once
 
-#ifndef NYTL_INCLUDE_RANGE
-#define NYTL_INCLUDE_RANGE
+#ifndef NYTL_INCLUDE_SPAN
+#define NYTL_INCLUDE_SPAN
 
 #include <nytl/fwd/span.hpp> // nytl::Span default template parameter
 #include <nytl/scalar.hpp> // nytl::constants::dynamicSize
