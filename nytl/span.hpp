@@ -172,7 +172,7 @@ struct SpanStorage<T, constants::dynamicSize> {
 // SpanStorage specialization for runtime size with const parameter.
 // Allows constrsuction from initializer list.
 template<typename T>
-struct SpanStorage<const T, 0> {
+struct SpanStorage<const T, constants::dynamicSize> {
 	constexpr SpanStorage() noexcept = default;
 	constexpr SpanStorage(const T* pointer, std::size_t size = 1) : data_(pointer), size_(size)
 	{
