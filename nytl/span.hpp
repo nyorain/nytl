@@ -180,8 +180,7 @@ struct SpanStorage<const T, 0> {
 	}
 	constexpr SpanStorage(const T& ref, std::size_t size = 1) : SpanStorage(&ref, size) {}
 	template<std::size_t S> constexpr SpanStorage(T (&arr)[S]) : SpanStorage(arr, S) {}
-	constexpr SpanStorage(const std::initializer_list<T>& l)
-		: SpanStorage(l.begin(), l.size()) {}
+	constexpr SpanStorage(const std::initializer_list<T>& l) : SpanStorage(l.begin(), l.size()) {}
 
 	const T* data_ {};
 	std::size_t size_ {};
