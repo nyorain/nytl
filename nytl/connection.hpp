@@ -9,8 +9,6 @@
 #ifndef NYTL_INCLUDE_CONNECTION_HPP
 #define NYTL_INCLUDE_CONNECTION_HPP
 
-#include <utility> // std::move
-
 namespace nytl {
 
 /// \brief Interface for classes that can be connected to in some way.
@@ -60,16 +58,23 @@ protected:
 /// BasicConnectionGuards for the same connection ids. If there exists a connection guard
 /// for a connection this connection should not be disconnected in any other way than
 /// the destruction of the guard (except the guard is explicitly released).
-template <typename C, typename ID>
+/// \reqruies Type 'C' shall be disconnectable, i.e. implement disconnect() member function.
+/// \reqruies Type 'ID' shall be default and copy constructable/assignable.
+template<typename C, typename ID>
 class BasicConnectionGuard {
 public:
 	BasicConnectionGuard() noexcept = default;
 	BasicConnectionGuard(C& conn, ID id) : conn_(&conn), id_(id) {}
 	BasicConnectionGuard(BasicConnection<C, ID> lhs) : conn_(lhs.connectable()), id_(lhs.id()) {}
-	~BasicConnectionGuard() { disconnect(); }
+	~BasicConnectionGuard()
+	{
+		try {
+			disconnect();
+		} catch(...) TODO
+	}
 
 	BasicConnectionGuard(BasicConnectionGuard&& lhs) noexcept
-		: conn_(lhs.conn_), id_(std::move(lhs.id_))
+		: conn_(lhs.conn_), id_(lhs.id_)
 	{
 		lhs.id_ = {};
 		lhs.conn_ = {};
@@ -79,14 +84,14 @@ public:
 	{
 		disconnect();
 		conn_ = lhs.conn_;
-		id_ = std::move(lhs.id_);
+		id_ = lhs.id_;
 		lhs.conn_ = {};
 		lhs.id_ = {};
 		return *this;
 	}
 
 	void disconnect() { if(conn_) conn_->disconnect(id_); conn_ = {}; id_ = {}; }
-	bool connected() const { return (conn_); }
+	bool connected() const noexcept { return (conn_); }
 	ID release() { auto cpy = id_; id_ = {}; conn_ = {}; return cpy; }
 
 	C* connectable() const { return conn_; }

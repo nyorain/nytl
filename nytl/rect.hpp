@@ -11,7 +11,7 @@
 
 #include <nytl/fwd/rect.hpp> // nytl::Rect typedefs
 #include <nytl/vec.hpp> // nytl::Vec
-#include <cstdlib> // std::size_t
+#include <cstddef> // std::size_t
 
 namespace nytl {
 

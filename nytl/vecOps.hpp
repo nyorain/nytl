@@ -113,13 +113,13 @@ constexpr auto sum(const V& a)
 }
 
 /// \brief Mutliplies all values of the given vector using the * operator.
-/// \requires Type 'V' shall be a Vector
+/// \requires Type 'V' shall be a non-empty Vector
 /// \module vec
 template<typename V>
 constexpr auto multiply(const V& a)
 {
-	auto one = FieldTraits<typename V::Value>::one;
-	return accumulate(a.begin(), a.end(), one, std::multiplies<>());
+	auto one = a[0];
+	return accumulate(a.begin() + 1, a.end(), one, std::multiplies<>());
 }
 
 /// \brief Calculates the default dot product for the given vectors.

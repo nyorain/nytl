@@ -26,6 +26,8 @@ TODO for nytl
 	- compFunc (more descriptive name would be good if possible)
 
 - make StringParam template for char type (like std::string is? make e.g. utf32 possible)
+- noexcept fixes
+- seperation interface/implemetation where neeeded (callback/connection/typemap)
 
 - C++17
 	- matOps/vecOps: structured bindings
@@ -33,3 +35,4 @@ TODO for nytl
 	- connection: remove make* wrapper functions
 	- tmpUtil: remove void_t (also remove nytl::Expand?)
 		- look for further duplicates
+	- easier isCallable (using FunctionTraits & constexpr if)

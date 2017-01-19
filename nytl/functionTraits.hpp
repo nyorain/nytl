@@ -10,7 +10,7 @@
 #define NYTL_INCLUDE_FUNCTION_TRAITS
 
 #include <tuple> // std::tuple
-#include <type_traits> // std::fales_type
+#include <type_traits> // std::false_type
 
 namespace nytl {
 namespace detail {
