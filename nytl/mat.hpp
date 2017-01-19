@@ -36,11 +36,18 @@ public:
 	constexpr static auto colDim = C;
 
 	template<Size OR, Size OC, typename OT> using Rebind = Mat<OR, OC, OT>;
-	constexpr static Mat create(Size, Size) { return {}; }
+	constexpr static Mat create(Size r, Size c)
+	{
+		Mat ret;
+		ret.data_ = Vec<R, Vec<C, T>>::create(r);
+		for(auto& row : ret.data_) row = Vec<C, T>::create(c);
+		return ret;
+	}
 
-	constexpr static auto rows() { return R; }
-	constexpr static auto cols() { return C; }
+	constexpr auto rows() { return data_.size(); }
+	constexpr auto cols() { return data_[0].size(); }
 
+public:
 	constexpr RowVec& operator[](Size i){ return data_[i]; }
 	constexpr const RowVec& operator[](Size i) const { return data_[i]; }
 
