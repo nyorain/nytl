@@ -157,8 +157,6 @@ void inverse()
 
 		CHECK_EXPECT(a * inv, identity);
 		CHECK_EXPECT(inv * a, identity);
-
-		std::cout << a * inv << "\n";
 	}
 
 	{
