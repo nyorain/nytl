@@ -22,7 +22,7 @@ namespace constants {
 /// \brief simply constexpr implementation of std::accumulate.
 /// \requires Type 'InputIt' must be a InputIterator
 /// \requiers T must be CopyAssignable and CopyConstructible
-/// \module vec
+/// \module scalar
 template<typename InputIt, typename T, typename BinaryOp>
 constexpr auto accumulate(InputIt begin, InputIt last, T init, BinaryOp op)
 {
@@ -32,6 +32,7 @@ constexpr auto accumulate(InputIt begin, InputIt last, T init, BinaryOp op)
 
 /// \brief Converts the given angle in radians to degrees.
 /// \requires P must be a mathematical field.
+/// \module scalar
 template<typename P>
 constexpr auto degrees(const P& rad)
 {
@@ -40,6 +41,7 @@ constexpr auto degrees(const P& rad)
 
 /// \brief Converts the given angle in degrees to radians.
 /// \requires P must be a mathematical field.
+/// \module scalar
 template<typename P>
 constexpr auto radians(const P& deg)
 {
@@ -48,6 +50,7 @@ constexpr auto radians(const P& deg)
 
 /// \brief Constexpr factorial implementation
 /// \returns The factorial of 'n'
+/// \module scalar
 constexpr unsigned long factorial(unsigned int n)
 {
 	return (n <= 1ul) ? 1ul : n * factorial(n - 1);

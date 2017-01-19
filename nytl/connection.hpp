@@ -27,7 +27,6 @@ public:
 /// \brief Associates a BasicConnectable implementation with one of its connection ids.
 /// Note that this does not automatically destroy the connection, nor does is
 /// track the lifetime of the BasicConnectable implementation object.
-/// Same as BasicConnectionGuard, but does not destroy the connection it holds on destruction.
 template <typename C, typename ID>
 class BasicConnection {
 public:
@@ -63,15 +62,10 @@ protected:
 template<typename C, typename ID>
 class BasicConnectionGuard {
 public:
-	BasicConnectionGuard() noexcept = default;
+	BasicConnectionGuard() = default;
 	BasicConnectionGuard(C& conn, ID id) : conn_(&conn), id_(id) {}
 	BasicConnectionGuard(BasicConnection<C, ID> lhs) : conn_(lhs.connectable()), id_(lhs.id()) {}
-	~BasicConnectionGuard()
-	{
-		try {
-			disconnect();
-		} catch(...) TODO
-	}
+	~BasicConnectionGuard() { try { disconnect(); } catch(...) {} }
 
 	BasicConnectionGuard(BasicConnectionGuard&& lhs) noexcept
 		: conn_(lhs.conn_), id_(lhs.id_)
@@ -82,7 +76,7 @@ public:
 
 	BasicConnectionGuard& operator=(BasicConnectionGuard&& lhs) noexcept
 	{
-		disconnect();
+		try { disconnect(); } catch(...) {}
 		conn_ = lhs.conn_;
 		id_ = lhs.id_;
 		lhs.conn_ = {};

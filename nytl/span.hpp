@@ -126,7 +126,7 @@ public:
 	constexpr ReverseIterator rend() const noexcept { return {begin()}; }
 
 	constexpr Reference operator[](Size i) const noexcept { return *(data() + i); }
-	constexpr Reference at(Size i) const { checkThrow(i); return data()[i]; }
+	constexpr Reference at(Size i) const { check(i); return data()[i]; }
 
 	constexpr Reference front() const noexcept { return *data(); }
 	constexpr Reference back() const noexcept { return *(data() + size() - 1); }
@@ -135,7 +135,7 @@ public:
 	template<Size S> constexpr Span<T, S> slice(Size pos) const { return {data() + pos}; }
 
 protected:
-	void checkThrow(Size i) const { if(i >= size()) throw std::out_of_range("nytl::Span::at"); }
+	constexpr void check(Size i) const { if(i >= size()) throw std::out_of_range("nytl::Span"); }
 };
 
 // Default SpanStorage implementation for compile-time size
@@ -168,7 +168,7 @@ struct SpanStorage<T, constants::dynamicSize> {
 	T* data_ {};
 	std::size_t size_ {};
 };
-	
+
 // SpanStorage specialization for runtime size with const parameter.
 // Allows constrsuction from initializer list.
 template<typename T>

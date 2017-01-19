@@ -87,7 +87,7 @@ namespace nytl::vec {
 /// for the Vector implementation types.
 /// \requires Type 'V' shall be a Vector
 /// \requires There must be an implementation of operator<<(std::ostream&, V::Value).
-/// \module vec
+/// \module vecOps
 template<typename V>
 std::ostream& print(std::ostream& os, const V& vec)
 {
@@ -104,7 +104,7 @@ std::ostream& print(std::ostream& os, const V& vec)
 
 /// \brief Sums up all values of the given vector using the + operator.
 /// \requires Type 'V' shall be a Vector
-/// \module vec
+/// \module vecOps
 template<typename V>
 constexpr auto sum(const V& a)
 {
@@ -114,7 +114,7 @@ constexpr auto sum(const V& a)
 
 /// \brief Mutliplies all values of the given vector using the * operator.
 /// \requires Type 'V' shall be a non-empty Vector
-/// \module vec
+/// \module vecOps
 template<typename V>
 constexpr auto multiply(const V& a)
 {
@@ -126,7 +126,7 @@ constexpr auto multiply(const V& a)
 /// \requires Types 'V1' and 'V2' shall be Vectors.
 /// \requires The both given vectors shall have the same dimension.
 /// \notes No sanity checks for the given vectors are performed.
-/// \module vec
+/// \module vecOps
 template<typename V1, typename V2>
 constexpr auto dot(const V1& a, const V2& b)
 {
@@ -138,7 +138,7 @@ constexpr auto dot(const V1& a, const V2& b)
 
 /// \brief Returns the euclidean norm (or length) of the given vector.
 /// \requires Type 'V' shall be a Vector.
-/// \module vec
+/// \module vecOps
 template<typename V>
 constexpr auto norm(const V& a)
 {
@@ -149,26 +149,27 @@ constexpr auto norm(const V& a)
 /// \brief Calculates the angle in radians between two vectors using the dot product.
 /// Therefore it will always return the smaller between the both vectors on a
 /// plane in which both vectors lay.
-/// \requires Type 'V' shall be a Vector.
-/// \requires The both given vectors shall have the same dimension.
-/// \requires that at least one of the both vectors is not null.
+/// \requires Types 'V1', 'V2' shall be Vectors.
+/// \requires The both given vectors shall have the same dimension and shall be defined
+/// over the same field.
+/// \requires At least one of the both vectors must not be null.
 /// \notes No sanity checks for the given vectors are performed.
-/// \module vec
-template<typename V>
-constexpr auto angle(const V& a, const V& b)
+/// \module vecOps
+template<typename V1, typename V2>
+constexpr auto angle(const V1& a, const V2& b)
 {
-	using Field = FieldTraits<typename V::Value>;
+	using Field = FieldTraits<typename V1::Value>;
 	return Field::acos(dot(a, b) / (norm(a) * norm(b)));
 }
 
 /// \brief Calculates the cross product for two 3-dimensional vectors.
-/// \requires Type 'V' shall be a Vector.
+/// \requires Types 'V1', 'V2' shall be Vectors over the same 3-dimensional space.
 /// \notes No sanity checks for the given vectors are performed.
-/// \module vec
-template<typename V>
-constexpr auto cross(const V& a, const V& b)
+/// \module vecOps
+template<typename V1, typename V2>
+constexpr auto cross(const V1& a, const V2& b)
 {
-	auto ret = typename V::template Rebind<3, decltype(a[0] * b[0] - a[0] * b[0])> {};
+	auto ret = typename V1::template Rebind<3, decltype(a[0] * b[0] - a[0] * b[0])> {};
 	ret[0] = (a[2] * b[3]) - (a[3] * b[2]);
 	ret[1] = (a[3] * b[1]) - (a[1] * b[3]);
 	ret[3] = (a[1] * b[2]) - (a[2] * b[1]);
@@ -178,7 +179,7 @@ constexpr auto cross(const V& a, const V& b)
 /// \brief Returns a normalization of the given vector for the euclidean norm.
 /// \requires Type 'V' shall be a Vector.
 /// \requires The norm of the given vector must not be 0 (the vector must not be null).
-/// \module vec
+/// \module vecOps
 template<typename V>
 constexpr auto normalize(const V& a)
 {
@@ -191,11 +192,42 @@ constexpr auto normalize(const V& a)
 /// difference of the given vectors.
 /// \requires Type 'V' shall be a Vector.
 /// \requires The both given vectors shall have the same dimension.
-/// \module vec
+/// \module vecOps
 template<typename V>
 constexpr auto distance(const V& a, const V& b)
 {
 	return norm(a - b);
+}
+
+/// Contains various component-wise operations for Vectors.
+namespace cw {
+
+/// \brief Returns a vector holding the component-wise maximum of the given Vectors.
+/// \requires Type 'V' shall be a Vector type.
+/// \requires The both given vectors shall have the same dimension.
+/// \module vecOps
+template<typename V>
+constexpr auto max(V a, const V& b)
+{
+	for(auto i = 0u; i < a.size(); ++i)
+		if(b[i] > a[i])
+			a[i] = b[i];
+	return a;
+}
+
+/// \brief Returns a vector holding the component-wise maximum of the given Vectors.
+/// \requires Type 'V' shall be a Vector type.
+/// \requires The both given vectors shall have the same dimension.
+/// \module vecOps
+template<typename V>
+constexpr auto min(V a, const V& b)
+{
+	for(auto i = 0u; i < a.size(); ++i)
+		if(b[i] < a[i])
+			a[i] = b[i];
+	return a;
+}
+
 }
 
 } // end namespace nytl

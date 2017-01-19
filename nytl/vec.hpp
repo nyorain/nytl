@@ -91,10 +91,8 @@ public:
 	constexpr Reference operator[](Size i){ return (vSelf().data())[i]; }
 	constexpr ConstReference operator[](Size i) const { return (vSelf().data())[i]; }
 
-	constexpr Reference at(Size i)
-		{ if(i >= vSelf().size()) throw std::out_of_range("nytl::Vec::at"); return (*this)[i]; }
-	constexpr ConstReference at(Size i) const
-		{ if(i >= vSelf().size()) throw std::out_of_range("nytl::Vec::at"); return (*this)[i]; }
+	constexpr Reference at(Size i) { check(i); return (*this)[i]; }
+	constexpr ConstReference at(Size i) const { check(i); return (*this)[i]; }
 
 	constexpr Reference front() noexcept { return (*this)[0]; }
 	constexpr ConstReference front() const noexcept { return (*this)[0]; }
@@ -105,15 +103,17 @@ public:
 	template<Size OS, typename OT>
 	constexpr explicit operator Vec<OS, OT>() const
 	{
-		auto ret = Vec<OS, OT>::create(vSelf().size());
-		for(auto i = 0u; i < std::min(ret.size(), vSelf().size()); ++i) ret[i] = (*this)[i];
-		for(auto i = std::min(ret.size(), vSelf().size()); i < ret.size(); ++i) ret[i] = {};
+		auto ret = Vec<OS, OT>::create(vSize());
+		for(auto i = 0u; i < std::min(ret.size(), vSize()); ++i) ret[i] = (*this)[i];
+		for(auto i = std::min(ret.size(), vSize()); i < ret.size(); ++i) ret[i] = {};
 		return ret;
 	}
 
 private:
+	constexpr void check(Size i) const { if(i >= vSize()) throw std::out_of_range("nytl::Vec"); }
 	constexpr auto& vSelf() { return static_cast<VecType&>(*this); }
 	constexpr const auto& vSelf() const { return static_cast<const VecType&>(*this); }
+	constexpr auto vSize() const { return vSelf().size(); }
 };
 
 /// \brief A static-sized Vector template on the stack.

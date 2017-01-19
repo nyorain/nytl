@@ -1,23 +1,25 @@
 TODO for nytl
 =============
 
-- integration
+- integration (glm, eigen)
 - rework (?)
 	- line/triangle/tetrahedron (with ops)
 	- misc (printVars, real memberCallback)
 	- transform (rework!)
-- rect improvements (specializations?)
-	- rectOps
+- rect improvements
+	- further rectOps
+	- rectOps tests!
 - refVec (?)
 - more tests
 - simplexOps
 	- barycentric <-> world space
 	- some more work... specializations?
 - more/better vecOps/matrixOps
-	- submatrix and subvector functions
+	- submatrix and subvector functions (possible as generic? otherwise only for Vec/Mat)
 	- more lu decomp algorithms (like e.g. crout)
-	- various matrix checks: symmetric? (positive/negative/in-) definite?
+	- various matrix checks: (positive/negative/in-) definite?
 - try simd/sse
+- ovservable connection
 
 - ? (to be potentially reintroduced (with rework) later on)
 	- system
