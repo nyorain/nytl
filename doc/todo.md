@@ -1,6 +1,9 @@
 TODO for nytl
 =============
 
+- testing !important
+- vec rework (see associated branch)
+
 - integration (glm, eigen)
 - rework (?)
 	- line/triangle/tetrahedron (with ops)
@@ -10,6 +13,9 @@ TODO for nytl
 	- further rectOps
 	- rectOps tests!
 - refVec (?)
+	- would be hard [in the sense of non-trivial] to implement
+		- custom iterators, could not provide data() function
+	- would be very convenient to e.g. access a column of a matrix
 - more tests
 - simplexOps
 	- barycentric <-> world space
@@ -32,9 +38,11 @@ TODO for nytl
 - seperation interface/implemetation where neeeded (callback/connection/typemap)
 
 - C++17
-	- matOps/vecOps: structured bindings
+	- matOps/vecOps: use structured bindings
+		- especially lu[p] mess
 	- scope: remove make* wrapper functions
 	- connection: remove make* wrapper functions
 	- tmpUtil: remove void_t (also remove nytl::Expand?)
 		- look for further duplicates
 	- easier isCallable (using FunctionTraits & constexpr if)
+		- possible?

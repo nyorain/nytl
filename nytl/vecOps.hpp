@@ -140,7 +140,7 @@ constexpr auto dot(const V1& a, const V2& b)
 /// \requires Type 'V' shall be a Vector.
 /// \module vecOps
 template<typename V>
-constexpr auto norm(const V& a)
+constexpr auto length(const V& a)
 {
 	using Field = FieldTraits<typename V::Value>;
 	return Field::sqrt(dot(a, a));
@@ -159,7 +159,7 @@ template<typename V1, typename V2>
 constexpr auto angle(const V1& a, const V2& b)
 {
 	using Field = FieldTraits<typename V1::Value>;
-	return Field::acos(dot(a, b) / (norm(a) * norm(b)));
+	return Field::acos(dot(a, b) / (length(a) * length(b)));
 }
 
 /// \brief Calculates the cross product for two 3-dimensional vectors.
@@ -183,12 +183,12 @@ constexpr auto cross(const V1& a, const V2& b)
 template<typename V>
 constexpr auto normalize(const V& a)
 {
-	auto fac = decltype(norm(a)){} / norm(a);
-	return fac * a;
+	using Field = FieldTraits<typename V::Value>;
+	return (Field::one / length(a)) * a;
 }
 
 /// \brief Returns the euclidean distance between two vectors.
-/// Another way to describe this operation is the euclidean norm (or length) between the
+/// Another way to describe this operation is the length between the
 /// difference of the given vectors.
 /// \requires Type 'V' shall be a Vector.
 /// \requires The both given vectors shall have the same dimension.
@@ -196,7 +196,7 @@ constexpr auto normalize(const V& a)
 template<typename V>
 constexpr auto distance(const V& a, const V& b)
 {
-	return norm(a - b);
+	return length(a - b);
 }
 
 /// Contains various component-wise operations for Vectors.
@@ -228,8 +228,32 @@ constexpr auto min(V a, const V& b)
 	return a;
 }
 
+/// \brief Multiplies the two vectors component wise
+/// \requires Types 'V1', 'V2' shall be Vector types over the same space.
+/// \module vecOps
+template<typename V1, typename V2>
+constexpr auto multiply(const V1& a, const V2& b)
+{
+	auto ret = typename V1::template Rebind<V1::dim, decltype(a[0] * b[0])> {};
+	for(auto i = 0u; i < a.size(); ++i)
+		ret[i] = a[i] * b[i];
+	return ret;
 }
 
-} // end namespace nytl
+/// \brief Component-wise divides the first vector by the second one.
+/// Will not perform any zero checks.
+/// \requires Types 'V1', 'V2' shall be Vector types over the same space.
+/// \module vecOps
+template<typename V1, typename V2>
+constexpr auto divide(const V1& a, const V2& b)
+{
+	auto ret = typename V1::template Rebind<V1::dim, decltype(a[0] / b[0])> {};
+	for(auto i = 0u; i < a.size(); ++i)
+		ret[i] = a[i] / b[i];
+	return ret;
+}
+
+} // namespace cw
+} // namespace nytl::vec
 
 #endif // header guard

@@ -9,6 +9,9 @@
 #ifndef NYTL_INCLUDE_CONNECTION_HPP
 #define NYTL_INCLUDE_CONNECTION_HPP
 
+#include <iostream>
+#include <exception>
+
 namespace nytl {
 
 /// \brief Interface for classes that can be connected to in some way.
@@ -65,7 +68,14 @@ public:
 	BasicConnectionGuard() = default;
 	BasicConnectionGuard(C& conn, ID id) : conn_(&conn), id_(id) {}
 	BasicConnectionGuard(BasicConnection<C, ID> lhs) : conn_(lhs.connectable()), id_(lhs.id()) {}
-	~BasicConnectionGuard() { try { disconnect(); } catch(...) {} }
+	~BasicConnectionGuard()
+	{
+		try {
+			disconnect();
+		} catch(const std::exception& error) {
+			std::cerr << "nytl::~BasicConnectionGuard: " << error.what() << "\n";
+		}
+	}
 
 	BasicConnectionGuard(BasicConnectionGuard&& lhs) noexcept
 		: conn_(lhs.conn_), id_(lhs.id_)
@@ -76,7 +86,12 @@ public:
 
 	BasicConnectionGuard& operator=(BasicConnectionGuard&& lhs) noexcept
 	{
-		try { disconnect(); } catch(...) {}
+		try {
+			disconnect();
+		} catch(const std::exception& error) {
+			std::cerr << "nytl::~BasicConnectionGuard: " << error.what() << "\n";
+		}
+
 		conn_ = lhs.conn_;
 		id_ = lhs.id_;
 		lhs.conn_ = {};

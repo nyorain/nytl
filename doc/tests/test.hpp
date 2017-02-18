@@ -1,121 +1,87 @@
-#pragma once
-
-#include <nytl/tmpUtil.hpp>
 #include <nytl/vec.hpp>
 #include <nytl/mat.hpp>
 
-#include <type_traits>
-#include <limits>
-#include <cmath>
-#include <iostream>
+#define CATCH_CONFIG_MAIN
+#include "catch.hpp"
 
-int failed;
+namespace test {
 
-#define CHECK_EXPECT(expression, expect) { \
-		auto&& ce_a = expression; \
-		auto&& ce_b = expect; \
-		if(!testEqual(ce_a, ce_b)) \
-			checkExpectFailed(__FILE__, __LINE__, #expression, #expect, ce_a, ce_b); \
-	}
+constexpr auto defaultEpsilon = 0.000000001;
 
-#define CHECK_ERROR(expression, error) { \
-		bool thrown {}; \
-		bool sthelse {}; \
-		try{ expression; } \
-		catch(const error&) { thrown = true; } \
-		catch(...) { sthelse = true; } \
-		if(!thrown) checkErrorFailed(__FILE__, __LINE__, #expression, #error, sthelse); \
-	}
+template<typename T>
+class Approx;
 
-template<typename T, typename = void>
-struct Printable {
-	static const char* call(const T&)
+// TODO: remove in C++17
+/// Creates an Approx object for the given value.
+template<typename T>
+Approx<T> approx(const T& value, double epsilon = defaultEpsilon, double scale = 1.0);
+
+/// Approx specialization for floating point types.
+template<>
+class Approx<double> {
+public:
+	friend bool operator==(double lhs, const Approx& rhs)
 	{
-		static auto txt = std::string("<not printable : ") + typeid(T).name() + std::string(">");
-		return txt.c_str();
+		auto max = std::max(std::abs(lhs), std::abs(rhs.value));
+		return std::abs(lhs - rhs.value) < rhs.epsilon * (rhs.scale + max);
 	}
+
+	friend bool operator==(const Approx& lhs, double rhs) { return operator==(rhs, lhs); }
+	friend bool operator!=(double lhs, const Approx& rhs) { return !operator==(lhs, rhs); }
+	friend bool operator!=(const Approx& lhs, double rhs) { return !operator==(lhs, rhs); }
+
+public:
+	double value {};
+	double epsilon {defaultEpsilon};
+	double scale {1.0};
 };
 
-template<typename T>
-struct Printable<T, nytl::void_t<decltype(std::declval<std::ostream&>() << std::declval<T>())>> {
-	static const auto& call(const T& obj) { return obj; }
-};
-
-template<typename T>
-decltype(auto) printable(const T& obj) { return Printable<T>::call(obj); }
-
-template<typename A, typename B>
-void checkExpectFailed(const char* file, int line, const char* expression,
-	const char* expect, const A& a, const B& b)
-{
-	std::cout << "check expect failed in " << file << ":" << line << ":\n    <"
-		<< expression << "> = <" << printable(a) << "> instead of\n    <"
-		<< expect << "> = <" << printable(b) << ">\n"
-		<< "===================================================================\n";
-	++failed;
-}
-
-void checkErrorFailed(const char* file, int line, const char* expression, const char* error,
-	bool otherError)
-{
-	std::cout << "check error failed in " << file << ":" << line << ":\n    <"
-		<< expression << "> did not throw error <" << error << ">\n";
-	if(otherError) std::cout << "    Other error was thrown instead!\n";
-	std::cout << "===================================================================\n";
-
-	++failed;
-}
-
-template<typename T, typename = void>
-struct Equal {
-	constexpr static bool call(const T& a, const T& b) { return a == b; }
-};
-
-template<typename T>
-constexpr bool almostEqual(T a, T b, T epsilon = 0.0000001)
-{
-	return std::abs(a - b) < epsilon;
-
-	// alternatively, for smaller errors using ulp:
-	// return std::abs(a - b) < std::abs(a + b) * std::numeric_limits<T>::epsilon() * ulp
-	// 	|| std::abs(a - b) < std::numeric_limits<T>::min();
-}
-
-template<typename T>
-using EnableIfFloatingPoint = nytl::void_t<std::enable_if_t<!std::numeric_limits<T>::is_integer>,
-	decltype(std::abs(std::declval<T>()))>;
-
-template<> struct Equal<float> {
-	constexpr static bool call(float a, float b) { return almostEqual(a, b); }
-};
-
-template<> struct Equal<double> {
-	static bool call(double a, double b) { return almostEqual(a, b); }
-};
-
-template<typename A, typename B> constexpr
-bool testEqual(const A& a, const B& b)
-{
-	return Equal<std::common_type_t<A, B>>::call(a, b);
-}
-
-// better equal function for floating point vecs and mats
-template<typename T, std::size_t D>
-struct Equal<nytl::Vec<D, T>> {
-	static constexpr bool call(const nytl::Vec<D, T>& a, const nytl::Vec<D, T>& b)
+/// Approx specialization for nytl::Vec
+template<std::size_t I, typename T>
+class Approx<nytl::Vec<I, T>> {
+public:
+	friend bool operator==(const nytl::Vec<I, T>& lhs, const Approx& rhs)
 	{
-		for(auto i = 0u; i < a.size(); ++i)
-			if(!testEqual(a[i], b[i])) return false;
+		if(lhs.size() != rhs.value.size())
+			return false;
+
+		for(auto i = 0u; i < lhs.size(); ++i)
+			if(lhs[i] != approx(rhs.value[i], rhs.epsilon, rhs.scale))
+				return false;
+
 		return true;
 	}
+
+	friend bool operator==(const Approx& lhs, const nytl::Vec<I, T>& rhs)
+	{
+		return operator==(rhs, lhs);
+	}
+	friend bool operator!=(const nytl::Vec<I, T>& lhs, const Approx& rhs)
+	{
+		return !operator==(lhs, rhs);
+	}
+	friend bool operator!=(const Approx& lhs, const nytl::Vec<I, T>& rhs)
+	{
+		return !operator==(lhs, rhs);
+	}
+
+public:
+	nytl::Vec<I, T> value {};
+	double epsilon {defaultEpsilon};
+	double scale {1.0};
 };
 
-template<typename T, std::size_t R, std::size_t C>
-struct Equal<nytl::Mat<R, C, T>> {
-	static constexpr bool call(const nytl::Mat<R, C, T>& a, const nytl::Mat<R, C, T>& b)
-	{
-		for(auto i = 0u; i < a.rows(); ++i)
-			if(!testEqual(a[i], b[i])) return false;
-		return true;
-	}
-};
+template<typename T>
+Approx<T> approx(const T& value, double epsilon, double scale)
+{
+	return {value, epsilon, scale};
+}
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const Approx<T>& approx)
+{
+	os << "Approx(" << approx.value << ")";
+	return os;
+}
+
+} // namespace test
