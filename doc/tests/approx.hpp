@@ -20,7 +20,7 @@ public:
 	friend bool operator==(double lhs, const Approx& rhs)
 	{
 		auto max = std::max(std::abs(lhs), std::abs(rhs.value));
-		return std::abs(lhs - rhs.value) < rhs.epsilon * max;
+		return std::abs(lhs - rhs.value) < rhs.epsilon * (1 + max);
 	}
 
 	friend bool operator==(const Approx& lhs, double rhs) { return operator==(rhs, lhs); }

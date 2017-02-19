@@ -145,17 +145,14 @@ public:
 template<typename T>
 class Vec<2, T> : public VecBase<Vec, 2, T> {
 public:
-	[[deprecated("Use operator[]. Will be removed in next version")]]
 	T x;
-
-	[[deprecated("Use operator[]. Will be removed in next version")]]
 	T y;
 
 	constexpr Vec() = default;
 	constexpr Vec(T xx, T yy) : x(xx), y(yy) {}
 
-	constexpr T* data() { return &(*this[0]); }
-	constexpr const T* data() const { return &(*this[0]); }
+	constexpr T* data() { return &x; }
+	constexpr const T* data() const { return &x; }
 
 	static constexpr std::size_t size() { return 2; }
 };
@@ -165,20 +162,15 @@ public:
 template<typename T>
 class Vec<3, T> : public VecBase<Vec, 3, T> {
 public:
-	[[deprecated("Use operator[]. Will be removed in next version")]]
 	T x;
-
-	[[deprecated("Use operator[]. Will be removed in next version")]]
 	T y;
-
-	[[deprecated("Use operator[]. Will be removed in next version")]]
 	T z;
 
 	constexpr Vec() = default;
 	constexpr Vec(T xx, T yy, T zz) : x(xx), y(yy), z(zz) {}
 
-	constexpr T* data() { return &(*this[0]); }
-	constexpr const T* data() const { return &(*this[0]); }
+	constexpr T* data() { return &x; }
+	constexpr const T* data() const { return &x; }
 
 	static constexpr std::size_t size() { return 3; }
 };
@@ -188,23 +180,16 @@ public:
 template<typename T>
 class Vec<4, T> : public VecBase<Vec, 4, T> {
 public:
-	[[deprecated("Use operator[]. Will be removed in next version")]]
 	T x;
-
-	[[deprecated("Use operator[]. Will be removed in next version")]]
 	T y;
-
-	[[deprecated("Use operator[]. Will be removed in next version")]]
 	T z;
-
-	[[deprecated("Use operator[]. Will be removed in next version")]]
 	T w;
 
 	constexpr Vec() = default;
 	constexpr Vec(T xx, T yy, T zz, T ww) : x(xx), y(yy), z(zz), w(ww) {}
 
-	constexpr T* data() { return &(*this[0]); }
-	constexpr const T* data() const { return &(*this[0]); }
+	constexpr T* data() { return &x; }
+	constexpr const T* data() const { return &x; }
 
 	static constexpr std::size_t size() { return 4; }
 };
