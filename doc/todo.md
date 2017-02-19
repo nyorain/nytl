@@ -3,6 +3,7 @@ TODO for nytl
 
 - testing !important
 - vec rework (see associated branch)
+	- make operators even more explicit, dont allow vec2 + vec3!
 
 - integration (glm, eigen)
 - rework (?)

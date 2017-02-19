@@ -1,84 +1,158 @@
-#include <nytl/vec.hpp>
-#include <nytl/mat.hpp>
+#pragma once
+
+#include <type_traits>
+#include <limits>
+#include <cmath>
+#include <iostream>
+#include <cstring>
+#include <vector>
+#include <functional>
 
 namespace test {
 
-constexpr auto defaultEpsilon = 0.000000001;
+template<typename... T> constexpr void unused(T&&...) {}
+template<typename... T> using void_t = void;
 
-template<typename T>
-class Approx;
+auto width = 50u;
+int failed; // number of tests failed
+std::vector<std::pair<std::function<void(const char*)>, const char*>> tests;
 
-// TODO: remove in C++17
-/// Creates an Approx object for the given value.
-template<typename T>
-Approx<T> approx(const T& value, double epsilon = defaultEpsilon, double scale = 1.0);
-
-/// Approx specialization for floating point types.
-template<>
-class Approx<double> {
-public:
-	friend bool operator==(double lhs, const Approx& rhs)
-	{
-		auto max = std::max(std::abs(lhs), std::abs(rhs.value));
-		return std::abs(lhs - rhs.value) < rhs.epsilon * (rhs.scale + max);
-	}
-
-	friend bool operator==(const Approx& lhs, double rhs) { return operator==(rhs, lhs); }
-	friend bool operator!=(double lhs, const Approx& rhs) { return !operator==(lhs, rhs); }
-	friend bool operator!=(const Approx& lhs, double rhs) { return !operator==(lhs, rhs); }
-
-public:
-	double value {};
-	double epsilon {defaultEpsilon};
-	double scale {1.0};
-};
-
-/// Approx specialization for nytl::Vec
-template<std::size_t I, typename T>
-class Approx<nytl::Vec<I, T>> {
-public:
-	friend bool operator==(const nytl::Vec<I, T>& lhs, const Approx& rhs)
-	{
-		if(lhs.size() != rhs.value.size())
-			return false;
-
-		for(auto i = 0u; i < lhs.size(); ++i)
-			if(lhs[i] != approx(rhs.value[i], rhs.epsilon, rhs.scale))
-				return false;
-
-		return true;
-	}
-
-	friend bool operator==(const Approx& lhs, const nytl::Vec<I, T>& rhs)
-	{
-		return operator==(rhs, lhs);
-	}
-	friend bool operator!=(const nytl::Vec<I, T>& lhs, const Approx& rhs)
-	{
-		return !operator==(lhs, rhs);
-	}
-	friend bool operator!=(const Approx& lhs, const nytl::Vec<I, T>& rhs)
-	{
-		return !operator==(lhs, rhs);
-	}
-
-public:
-	nytl::Vec<I, T> value {};
-	double epsilon {defaultEpsilon};
-	double scale {1.0};
-};
-
-template<typename T>
-Approx<T> approx(const T& value, double epsilon, double scale)
+int add(std::function<void(const char*)> f, const char* name)
 {
-	return {value, epsilon, scale};
+	tests.push_back({std::move(f), name});
+	return 0;
 }
 
+#define CAT_IMPL(A, B) A ## B
+#define CAT(A, B) CAT_IMPL(A, B)
+
+#define TEST_METHOD_IMPL(name, testname) \
+	static void testname(const char* test_testName_); \
+	namespace { const auto CAT(testname, reg) = ::test::add(testname, name); } \
+	static void testname(const char* test_testName_)
+
+#define TEST_METHOD(name) TEST_METHOD_IMPL(name, CAT(test, __LINE__))
+
+#define EXPECT(expr, expect) { \
+		auto&& test_ce_a = expr; \
+		auto&& test_ce_b = expect; \
+		if(test_ce_a != test_ce_b) \
+			test::checkExpectFailed(test_testName_, __FILE__, __LINE__,  \
+				#expr, #expect, test_ce_a, test_ce_b); \
+	}
+
+#define EXPECT_ERROR(expr, error) { \
+		bool test_thrown {}; \
+		bool test_sthelse {}; \
+		try{ expr; } \
+		catch(const error&) { test_thrown = true; } \
+		catch(...) { test_sthelse = true; } \
+		if(!test_thrown) \
+			test::checkErrorFailed(test_testName_, __FILE__, __LINE__, #expr, \
+				#error, test_sthelse); \
+	}
+
+template<typename T, typename = void>
+struct Printable {
+	static const char* call(const T&)
+	{
+		static auto txt = std::string("<not printable : ") + typeid(T).name() + std::string(">");
+		return txt.c_str();
+	}
+};
+
 template<typename T>
-std::ostream& operator<<(std::ostream& os, const Approx<T>& approx)
+struct Printable<T, void_t<decltype(std::declval<std::ostream&>() << std::declval<T>())>> {
+	static const auto& call(const T& obj) { return obj; }
+};
+
+template<typename T>
+decltype(auto) print(const T& obj) { return Printable<T>::call(obj); }
+
+template<typename A, typename B>
+void checkExpectFailed(const char* test, const char* file, int line, const char* expression,
+	const char* expect, const A& a, const B& b)
 {
-	os << "Approx(" << approx.value << ")";
-	return os;
+	unused(expression, expect);
+
+	std::cout << "\t";
+	for(auto i = 0u; i < width; ++i) std::cout << "<";
+	std::cout << "\n";
+
+	std::cout << "\tCheck Expect failed in test " << test << "\n\t";
+	std::cout << file << ":" << line << "\n";
+	std::cout << "\tExpected " << print(b) << ", got " << print(a) << "\n";
+
+	std::cout << "\t";
+	for(auto i = 0u; i < width; ++i) std::cout << ">";
+	std::cout << "\n\n";
+
+	++failed;
+}
+
+void checkErrorFailed(const char* test, const char* file, int line, const char* expression,
+	const char* error, bool otherError)
+{
+	unused(expression);
+
+	std::cout << "\t\n";
+	for(auto i = 0u; i < width; ++i) std::cout << "<";
+	std::cout << "\n";
+
+	std::cout << "\tCheck Error failed in test " << test << "\n\t";
+	std::cout << file << ":" << line << "\n";
+	std::cout << "\tExpected Error " << error;
+	if(otherError) std::cout << ", other error was thrown instead!\n";
+ 	else std::cout << ", no error was thrown\n";
+
+	std::cout << "\t";
+	for(auto i = 0u; i < width; ++i) std::cout << ">";
+	std::cout << "\n\n";
+
+	++failed;
+}
+
+std::string failString(int count)
+{
+	if(count == 0) {
+		return "All tests succeeded!\n";
+	} else if(count == 1) {
+		return "1 test failed!\n";
+	} else {
+		return std::to_string(count) + " tests failed!\n";
+	}
 }
 
 } // namespace test
+
+int main()
+{
+	using namespace test;
+	for(auto t : test::tests) {
+		auto prev = failed;
+
+		auto length = std::strlen(t.second);
+		for(auto i = 0u; i < std::floor((width + 10 - length) / 2.0) - 1; ++i) std::cout << "=";
+		std::cout << " ";
+		std::cout << t.second;
+		std::cout << " ";
+
+		for(auto i = 0u; i < std::ceil((width + 10 - length) / 2.0) - 1; ++i) std::cout << "=";
+		std::cout << "\n\n";
+
+		t.first(t.second);
+		std::cout << "\t" << failString(failed - prev) << "\n";
+	}
+
+	auto str = "[Total]";
+
+	auto length = std::strlen(str);
+	for(auto i = 0u; i < std::floor((width + 10 - length) / 2.0) - 1; ++i) std::cout << "=";
+	std::cout << " ";
+	std::cout << str;
+	std::cout << " ";
+	for(auto i = 0u; i < std::ceil((width + 10 - length) / 2.0) - 1; ++i) std::cout << "=";
+
+	std::cout << "\n" << failString(failed);
+	return failed;
+}

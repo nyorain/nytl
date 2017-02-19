@@ -1,4 +1,5 @@
 #include "test.hpp"
+#include "approx.hpp"
 #include <cmath>
 
 // testing both, vec and vecOps
@@ -7,118 +8,143 @@
 #include <nytl/scalar.hpp>
 
 // TODO: test component-wise (nytl::vec::cw) operations
+// TODO: more testvectors, use other sizes and types
 
-using Vec3 = nytl::Vec<3, double>;
 using Vec2 = nytl::Vec<2, double>;
+using Vec3 = nytl::Vec<3, double>;
+using Vec4 = nytl::Vec<4, double>;
 
-constexpr Vec3 a(1.0, 2.0, 3.0);
-constexpr Vec3 b(0.0, 0.0, 0.0);
-constexpr Vec3 c(1.0, 0.0, 0.0);
-constexpr Vec3 d(-1.0, 1.0, 1.0);
-constexpr Vec3 e(0.0001, 1.0, -1.0);
-constexpr Vec3 f(100.0, 500.0, -4.0);
+constexpr Vec3 a{1.0, 2.0, 3.0};
+constexpr Vec3 b{0.0, 0.0, 0.0};
+constexpr Vec3 c{1.0, 0.0, 0.0};
+constexpr Vec3 d{-1.0, 1.0, 1.0};
+constexpr Vec3 e{0.0001, 1.0, -1.0};
+constexpr Vec3 f{100.0, 500.0, -4.0};
 
-constexpr Vec3 x(2.0, 3.0, 5.0);
-constexpr Vec3 y(4.0, -3.0, 2.0);
-constexpr Vec3 z(0.0, 10.0, 1.0);
+constexpr Vec3 x{2.0, 3.0, 5.0};
+constexpr Vec3 y{4.0, -3.0, 2.0};
+constexpr Vec3 z{0.0, 10.0, 1.0};
 
-TEST_CASE("Inter-Sums are computed", "[addition]") {
-	REQUIRE((a + b) == test::approx(a));
-	REQUIRE((a - b) == test::approx(a));
-	REQUIRE((a + a) == test::approx(Vec3{2.0, 4.0, 6.0}));
-	REQUIRE((x + z) == test::approx(Vec3{2.0, 13.0, 6.0}));
-	REQUIRE((b - x + x - x + b) == test::approx(-x));
-	REQUIRE((f - f) == test::approx(b));
-	REQUIRE(b == test::approx(-b));
-	REQUIRE((Vec3{1.0, 1.0, 1.0} + Vec3{-1.0, 2.0, 0.0}) == test::approx(Vec3{0.0, 3.0, 1.0}));
+TEST_METHOD("[vec-addition]") {
+	EXPECT(a + b, test::approx(a));
+	EXPECT(a - b, test::approx(a));
+	EXPECT(a + a, test::approx(Vec3{2.0, 4.0, 6.0}));
+	EXPECT(x + z, test::approx(Vec3{2.0, 13.0, 6.0}));
+	EXPECT(b - x + x - x + b, test::approx(-x));
+	EXPECT(f - f, test::approx(b));
+	EXPECT(b, test::approx(-b));
+	EXPECT((Vec3{1.0, 1.0, 1.0} + Vec3{-1.0, 2.0, 0.0}), (test::approx(Vec3{0.0, 3.0, 1.0})));
+
+	// - should not compile - TODO
 }
 
-TEST_CASE("Scalar multiplies are computed", "[scalar multiplication]") {
-	REQUIRE((2 * a) == test::approx(a + a));
-	REQUIRE((5 * b) == test::approx(b));
-	REQUIRE((-1 * f) == test::approx(-f));
-	REQUIRE((0 * e) == test::approx(b));
-	REQUIRE((0.5 * y) == test::approx(Vec3{2.0, -1.5, 1.0}));
-	REQUIRE((0.2 * z) == test::approx(z - 0.8 * z));
-	REQUIRE((2 * x + y) == test::approx(Vec3{8.0, 3.0, 12.0}));
+TEST_METHOD("[scalar multiplication]") {
+	EXPECT((2 * a), test::approx(a + a));
+	EXPECT((5 * b), test::approx(b));
+	EXPECT((-1 * f), test::approx(-f));
+	EXPECT((0 * e), test::approx(b));
+	EXPECT((0.5 * y), test::approx(Vec3{2.0, -1.5, 1.0}));
+	EXPECT((0.2 * z), test::approx(z - 0.8 * z));
+	EXPECT((2 * x + y), test::approx(Vec3{8.0, 3.0, 12.0}));
 }
 
-TEST_CASE("Multiplies are computed", "[multiplies]") {
-	REQUIRE(nytl::vec::multiply(a) == test::approx(6.0));
-	REQUIRE(nytl::vec::multiply(b) == test::approx(0.0));
-	REQUIRE(nytl::vec::multiply(c) == test::approx(0.0));
-	REQUIRE(nytl::vec::multiply(d) == test::approx(-1.0));
-	REQUIRE(nytl::vec::multiply(e) == test::approx(-0.0001));
-	REQUIRE(nytl::vec::multiply(f) == test::approx(-200000.0));
+TEST_METHOD("[multiplies]") {
+	EXPECT(nytl::vec::multiply(a), test::approx(6.0));
+	EXPECT(nytl::vec::multiply(b), test::approx(0.0));
+	EXPECT(nytl::vec::multiply(c), test::approx(0.0));
+	EXPECT(nytl::vec::multiply(d), test::approx(-1.0));
+	EXPECT(nytl::vec::multiply(e), test::approx(-0.0001));
+	EXPECT(nytl::vec::multiply(f), test::approx(-200000.0));
 }
 
-TEST_CASE("Intra-Sums are computed", "[sums]") {
-	REQUIRE(nytl::vec::sum(a) == test::approx(6.0));
-	REQUIRE(nytl::vec::sum(b) == test::approx(0.0));
-	REQUIRE(nytl::vec::sum(c) == test::approx(1.0));
-	REQUIRE(nytl::vec::sum(d) == test::approx(1.0));
-	REQUIRE(nytl::vec::sum(e) == test::approx(0.0001));
-	REQUIRE(nytl::vec::sum(f) == test::approx(596.0));
+TEST_METHOD("[sums]") {
+	EXPECT(nytl::vec::sum(a), test::approx(6.0));
+	EXPECT(nytl::vec::sum(b), test::approx(0.0));
+	EXPECT(nytl::vec::sum(c), test::approx(1.0));
+	EXPECT(nytl::vec::sum(d), test::approx(1.0));
+	EXPECT(nytl::vec::sum(e), test::approx(0.0001));
+	EXPECT(nytl::vec::sum(f), test::approx(596.0));
 }
 
-TEST_CASE("Dot products are computed", "[dot]") {
-	REQUIRE(nytl::vec::dot(a, b) == Approx(0.0));
-	REQUIRE(nytl::vec::dot(a, c) == Approx(1.0));
-	REQUIRE(nytl::vec::dot(a, d) == Approx(4.0));
-	REQUIRE(nytl::vec::dot(d, a) == Approx(4.0));
-	REQUIRE(nytl::vec::dot(x, a) == Approx(23.0));
-	REQUIRE(nytl::vec::dot(x, y) == Approx(9.0));
-	REQUIRE(nytl::vec::dot(z, x) == Approx(35.0));
-	REQUIRE(nytl::vec::dot(x, f) == Approx(1680.0));
-	REQUIRE(nytl::vec::dot(y, d) == Approx(-5.0));
+TEST_METHOD("[dot]") {
+	EXPECT(nytl::vec::dot(a, b), test::approx(0.0));
+	EXPECT(nytl::vec::dot(a, c), test::approx(1.0));
+	EXPECT(nytl::vec::dot(a, d), test::approx(4.0));
+	EXPECT(nytl::vec::dot(d, a), test::approx(4.0));
+	EXPECT(nytl::vec::dot(x, a), test::approx(23.0));
+	EXPECT(nytl::vec::dot(x, y), test::approx(9.0));
+	EXPECT(nytl::vec::dot(z, x), test::approx(35.0));
+	EXPECT(nytl::vec::dot(x, f), test::approx(1680.0));
+	EXPECT(nytl::vec::dot(y, d), test::approx(-5.0));
+
+	// - should not compile -
+	// nytl::vec::dot(a, Vec2{1.0, 2.0});
 }
 
-TEST_CASE("Lengths are computed", "[length]") {
-	REQUIRE(nytl::vec::length(b) == test::approx(0.0));
-	REQUIRE(nytl::vec::length(a) == test::approx(std::sqrt(14.0)));
-	REQUIRE(nytl::vec::length(f) == test::approx(nytl::vec::length(-f)));
-	REQUIRE(nytl::vec::length(2 * a) == test::approx(2 * nytl::vec::length(a)));
-	REQUIRE(nytl::vec::length(1232 * a) == test::approx(1232 * nytl::vec::length(a)));
-	REQUIRE(nytl::vec::length(-5 * a) == test::approx(5.0 * nytl::vec::length(a)));
-	REQUIRE(nytl::vec::length(b) == test::approx(0.0));
-	REQUIRE(nytl::vec::length(c) == test::approx(1.0));
-	REQUIRE(nytl::vec::length(x) == test::approx(std::sqrt(38.0)));
-	REQUIRE(nytl::vec::length(y) == test::approx(std::sqrt(29.0)));
-	REQUIRE(nytl::vec::length(x - a) == test::approx(std::sqrt(6.0)));
-	REQUIRE(nytl::vec::length(1.5 * (a + b + c)) == test::approx(1.5 * std::sqrt(17.0)));
+TEST_METHOD("[length]") {
+	EXPECT(nytl::vec::length(b), test::approx(0.0));
+	EXPECT(nytl::vec::length(a), test::approx(std::sqrt(14.0)));
+	EXPECT(nytl::vec::length(f), test::approx(nytl::vec::length(-f)));
+	EXPECT(nytl::vec::length(2 * a), test::approx(2 * nytl::vec::length(a)));
+	EXPECT(nytl::vec::length(1232 * a), test::approx(1232 * nytl::vec::length(a)));
+	EXPECT(nytl::vec::length(-5 * a), test::approx(5.0 * nytl::vec::length(a)));
+	EXPECT(nytl::vec::length(b), test::approx(0.0));
+	EXPECT(nytl::vec::length(c), test::approx(1.0));
+	EXPECT(nytl::vec::length(x), test::approx(std::sqrt(38.0)));
+	EXPECT(nytl::vec::length(y), test::approx(std::sqrt(29.0)));
+	EXPECT(nytl::vec::length(z), test::approx(std::sqrt(nytl::vec::dot(z, z))));
+	EXPECT(nytl::vec::length(x - a), test::approx(std::sqrt(6.0)));
+	EXPECT(nytl::vec::length(1.5 * (a + b + c)), test::approx(1.5 * std::sqrt(17.0)));
 }
 
-TEST_CASE("Angles are computed", "[angles]") {
-	constexpr Vec2 a2(1.0, 0.0);
-	constexpr Vec2 b2(0.0, 1.0);
-	constexpr Vec2 c2(1.0, 1.0);
+TEST_METHOD("[angles]") {
+	constexpr Vec2 a2{1.0, 0.0};
+	constexpr Vec2 b2{0.0, 1.0};
+	constexpr Vec2 c2{1.0, 1.0};
 
-	constexpr Vec3 a3(1.0, 0.0, -1.0);
-	constexpr Vec3 b3(1.0, 0.0, 0.0);
-	constexpr Vec3 c3(0.0, 1.0, 0.0);
+	constexpr Vec3 a3{1.0, 0.0, -1.0};
+	constexpr Vec3 b3{1.0, 0.0, 0.0};
+	constexpr Vec3 c3{0.0, 1.0, 0.0};
 
-	REQUIRE(nytl::vec::angle(a2, b2) == test::approx(nytl::radians(90.0)));
-	REQUIRE(nytl::vec::angle(b2, a2) == test::approx(nytl::constants::pi / 2));
-	REQUIRE(nytl::vec::angle(a2, c2) == test::approx(nytl::radians(45.0)));
-	REQUIRE(nytl::vec::angle(c2, b2) == test::approx(nytl::constants::pi / 4));
+	EXPECT(nytl::vec::angle(x, x), test::approx(0.0));
+	EXPECT(nytl::vec::angle(a2, b2), test::approx(nytl::radians(90.0)));
+	EXPECT(nytl::vec::angle(b2, a2), test::approx(nytl::constants::pi / 2));
+	EXPECT(nytl::vec::angle(a2, c2), test::approx(nytl::radians(45.0)));
+	EXPECT(nytl::vec::angle(c2, b2), test::approx(nytl::constants::pi / 4));
 
-	REQUIRE(nytl::vec::angle(a3, b3) == test::approx(nytl::constants::pi / 4));
-	REQUIRE(nytl::vec::angle(c3, b3) == test::approx(nytl::radians(90.0)));
-	REQUIRE(nytl::vec::angle(b3, c3) == test::approx(nytl::constants::pi / 2));
+	EXPECT(nytl::vec::angle(a3, b3), test::approx(nytl::constants::pi / 4));
+	EXPECT(nytl::vec::angle(c3, b3), test::approx(nytl::radians(90.0)));
+	EXPECT(nytl::vec::angle(b3, c3), test::approx(nytl::constants::pi / 2));
+
+	EXPECT_ERROR(nytl::vec::angle(a, b), std::domain_error);
+	EXPECT_ERROR(nytl::vec::angle(b, b), std::domain_error);
+
+	// - should not compile -
+	// nytl::vec::angle(a3, a2);
+	// nytl::vec::angle(b2, c3);
 }
 
-TEST_CASE("Distances are computed", "[distances]") {
-	REQUIRE(nytl::vec::distance(a, b) == test::approx(nytl::vec::length(a)));
-	REQUIRE(nytl::vec::distance(f, f) == test::approx(0.0));
-	REQUIRE(nytl::vec::distance(x, y) == test::approx(nytl::vec::length(x - y)));
-	REQUIRE(nytl::vec::distance(y, x) == test::approx(nytl::vec::length(x - y)));
+TEST_METHOD("[distances]") {
+	EXPECT(nytl::vec::distance(a, b), test::approx(nytl::vec::length(a)));
+	EXPECT(nytl::vec::distance(f, f), test::approx(0.0));
+	EXPECT(nytl::vec::distance(x, y), test::approx(nytl::vec::length(x - y)));
+	EXPECT(nytl::vec::distance(y, x), test::approx(nytl::vec::length(x - y)));
+
+	// - should not compile - TODO
+	// nytl::vec::distance(Vec2{2.0, 3.0}, a);
+	// nytl::vec::distance(Vec4{2.0, 3.0. 0.0, 1.0}, x);
 }
 
-TEST_CASE("Cross products are computed", "[cross-product]") {
-	REQUIRE(nytl::vec::cross(a, b) == test::approx(Vec3{0.0, 0.0, 0.0}));
-	REQUIRE(nytl::vec::cross(a, c) == test::approx(Vec3{0.0, 3.0, -2.0}));
-	REQUIRE(nytl::vec::cross(c, a) == test::approx(Vec3{0.0, -3.0, 2.0}));
-	REQUIRE(nytl::vec::cross(x, x) == test::approx(Vec3{0.0, 0.0, 0.0}));
-	REQUIRE(nytl::vec::cross(f, y) == test::approx(-nytl::vec::cross(y, f)));
-	REQUIRE(nytl::vec::cross(x, y) == test::approx(Vec3{21.0, 16.0, -18.0}));
+TEST_METHOD("[cross-product]") {
+	EXPECT(nytl::vec::cross(a, b), test::approx(Vec3{0.0, 0.0, 0.0}));
+	EXPECT(nytl::vec::cross(a, c), test::approx(Vec3{0.0, 3.0, -2.0}));
+	EXPECT(nytl::vec::cross(c, a), test::approx(Vec3{0.0, -3.0, 2.0}));
+	EXPECT(nytl::vec::cross(x, x), test::approx(Vec3{0.0, 0.0, 0.0}));
+	EXPECT(nytl::vec::cross(f, y), test::approx(-nytl::vec::cross(y, f)));
+	EXPECT(nytl::vec::cross(x, y), test::approx(Vec3{21.0, 16.0, -18.0}));
+
+	// - should not compile -
+	// nytl::vec::cross(x, Vec2{1.0, 2.0});
+	// nytl::vec::cross(Vec2{2.0, 3.0}, Vec2{1.0, 2.0});
+	// nytl::vec::cross(nytl::Vec4{1.0, 2.0, 3.0, 4.0}, f);
 }

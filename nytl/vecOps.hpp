@@ -26,26 +26,31 @@ namespace nytl::vec {
 /// - Every vector can be multiplied by a value of its field and be added to another vector
 ///   of the same space. This operations must be implemented using the * and + operators.
 /// - DefaultConstructible, CopyConstructable, CopyAssignable, Destructable, EqualityComparable.
-/// - Provides a const size() function that returns the number of elements it stores.
+/// - Provides a const size() function that returns the number of elements it stores aka
+///   the dimension this vector has.
 /// - Provides const and non-const versions of the [] operator. Returns a mutable reference
 ///   for the non-const version and a const-reference/copy for the const version.
-///   The operator can be called with a value that is implicltly convertible to the
-///   return type of the size() function.
+///   The operator can be called with an integer value that can hold the size of the vector.
 /// - Must provide a template<Size, typename> Rebind member typedef for other vector types.
 ///   If a Rebind with the given properies is not possible it must result in a compile-time error.
-/// - Vectors are interpreted as column vectors.
-/// - The size of a vector shall never be 0.
-/// - NOTE: in comparison to a mathematical vector, the operations for a vector and
-///   the underlaying field don't have to have closure over their operations. This means
-///   there is no strict seperation between vectors of int and double and it's ok
-///   that the int vector/scalar will be converted to a double vector/scalar if needed.
-///   Otherwise int vectors would not be possible since the set described by the int
-///   type is not a field. Its enough if the resulting vectors/scalars for such operations are
-///   similiar. But this means that one has to e.g. implement multiplication with double for
-///   int vectors.
+/// - Vectors are interpreted as column vectors regarding matrix operations.
+/// - The size (or dimension) of a vector shall never be 0.
+/// - There must be a valid nytl::FieldTraits specialization for the field over which
+///   the vector is defined.
 
-/// /// T must be a mathematical field type. This means it must provide the +,*,-,/ operators, a
-/// /// 0 and 1 value and respect the associative/commutative properties of a field.
+///   NOTE: in comparison to a mathematical vector, the operations for a vector and
+///     the underlaying field don't have to have closure over their operations. This means
+///     there is no strict seperation between vectors of int and double and it's ok
+///     that the int vector/scalar will be converted to a double vector/scalar if needed.
+///     Otherwise int vectors would not be possible since the set described by the int
+///     type is not a field. Its enough if the resulting vectors/scalars for such operations are
+///     similiar. But this means that one has to e.g. implement multiplication with double for
+///     int vectors.
+
+/// T must be a mathematical field type. This means it must provide the +,*,-,/ operators, a
+/// 0 and 1 value and respect the associative/commutative properties of a field.
+
+/// template<...>
 /// class Vector {
 /// public:
 /// 	using Size = ...; // usually std::size_t. Must be convertible from/to int.
@@ -107,6 +112,57 @@ std::ostream& print(std::ostream& os, const V& vec)
 	return os;
 }
 
+namespace detail {
+
+template<typename V>
+constexpr auto constexprDim = V::size();
+
+template<typename... V>
+using ConstexprDimsValid = void_t<decltype(constexprDim<V>)...>;
+
+/// \brief Helper that asserts that the given vectors have the same dimension.
+/// \requires Types 'V1','V2' shall be Vector types.
+template<typename V1, typename V2>
+struct AssertSameDimensions {
+	static constexpr void call(const V1& a, const V2& b)
+	{
+		if constexpr(validExpression<ConstexprDimsValid, V1, V2>) {
+			static_assert(V1::size() == V2::size(), "nytl::vec: vectors must have same dimension");
+		} else {
+			if(a.size() != b.size())
+				throw std::invalid_argument("nytl::vec: vectors must have same dimension");
+		}
+	}
+};
+
+template<typename V1, unsigned int Dim>
+struct AssertDimension {
+	static constexpr void call(const V1& a)
+	{
+		if constexpr(validExpression<ConstexprDimsValid, V1>) {
+			static_assert(V1::size() == Dim, "nytl::vec: vector must have specified dimension");
+		} else {
+			if(a.size() != Dim)
+				throw std::invalid_argument("nytl::vec: vector must have specified dimension");
+		}
+	}
+};
+
+/// \brief Asserts that the both given vectors have the same dimension.
+template<typename V1, typename V2>
+constexpr void assertSameDimensions(const V1& a, const V2& b)
+{
+	AssertSameDimensions<V1, V2>::call(a, b);
+}
+
+template<unsigned int Dim, typename V>
+constexpr void assertDimension(const V& a)
+{
+	AssertDimension<V, Dim>::call(a);
+}
+
+} // namespace detail
+
 /// \brief Sums up all values of the given vector using the + operator.
 /// \requires Type 'V' shall be a Vector
 /// \module vecOps
@@ -130,11 +186,12 @@ constexpr auto multiply(const V& a)
 /// \brief Returns the euclidean distance between two vectors.
 /// Another way to describe this operation is the length between the
 /// difference of the given vectors.
-/// \requires Type 'V' shall be a Vector.
+/// \requires Types 'V1','V2' shall be Vector types.
 /// \requires The both given vectors shall have the same dimension.
+/// Will not check for this but subtract them from each other.
 /// \module vecOps
-template<typename V>
-constexpr auto distance(const V& a, const V& b)
+template<typename V1, typename V2>
+constexpr auto distance(const V1& a, const V2& b)
 {
 	return length(a - b);
 }
@@ -153,6 +210,7 @@ constexpr auto dot(const V1& a, const V2& b)
 }
 
 /// Like angle, but no sanity checks are performed.
+/// This will also not handle the special case that both vectors are equal.
 template<typename V1, typename V2>
 constexpr auto angle(const V1& a, const V2& b)
 {
@@ -188,15 +246,14 @@ constexpr auto normalize(const V& a)
 template<typename V1, typename V2>
 constexpr auto dot(const V1& a, const V2& b)
 {
-	if(a.size() != b.size())
-		throw std::invalid_argument("nytl::vec::dot: vectors have different size");
-
+	detail::assertSameDimensions(a, b);
 	return nocheck::dot(a, b);
 }
 
 /// \brief Calculates the angle in radians between two vectors using the dot product.
 /// Therefore it will always return the smaller between the both vectors on a
 /// plane in which both vectors lay.
+/// For two equal vectors, it will return 0.0.
 /// \requires Types 'V1', 'V2' shall be Vectors.
 /// \throws std::invalid_argument if the size of the input vectors differs.
 /// \throws std::domain_error if at lesat one of the given vectors has a length of 0.
@@ -204,11 +261,14 @@ constexpr auto dot(const V1& a, const V2& b)
 template<typename V1, typename V2>
 constexpr auto angle(const V1& a, const V2& b)
 {
-	if(a.size() != b.size())
-		throw std::invalid_argument("nytl::vec::angle: vectors have different size");
+	using Field = FieldTraits<typename V1::Value>;
+	detail::assertSameDimensions(a, b);
 
-	if(length(a) == 0 && length(b) == 0)
+	if(length(a) == 0 || length(b) == 0)
 		throw std::domain_error("nytl::vec::angle: both vectors are null");
+
+	if(a == b)
+		return Field::acos(Field::one);
 
 	return nocheck::angle(a, b);
 }
@@ -220,8 +280,8 @@ constexpr auto angle(const V1& a, const V2& b)
 template<typename V1, typename V2>
 constexpr auto cross(const V1& a, const V2& b)
 {
-	if(a.size() != 3 || b.size() != 3)
-		throw std::domain_error("nytl::vec::cross: input vector has size other than 3");
+	detail::assertDimension<3>(a);
+	detail::assertDimension<3>(b);
 
 	return nocheck::cross(a, b);
 }
@@ -284,6 +344,8 @@ constexpr auto min(V a, const V& b)
 template<typename V1, typename V2>
 constexpr auto multiply(const V1& a, const V2& b)
 {
+	detail::assertSameDimensions(a, b);
+
 	auto ret = typename V1::template Rebind<V1::dim, decltype(a[0] * b[0])> {};
 	for(auto i = 0u; i < a.size(); ++i)
 		ret[i] = a[i] * b[i];
@@ -297,6 +359,8 @@ constexpr auto multiply(const V1& a, const V2& b)
 template<typename V1, typename V2>
 constexpr auto divide(const V1& a, const V2& b)
 {
+	detail::assertSameDimensions(a, b);
+
 	auto ret = typename V1::template Rebind<V1::dim, decltype(a[0] / b[0])> {};
 	for(auto i = 0u; i < a.size(); ++i)
 		ret[i] = a[i] / b[i];
