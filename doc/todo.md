@@ -17,9 +17,6 @@ TODO for nytl
 		- custom iterators, could not provide data() function
 	- would be very convenient to e.g. access a column of a matrix
 - more tests
-- simplexOps
-	- barycentric <-> world space
-	- some more work... specializations?
 - more/better vecOps/matrixOps
 	- submatrix and subvector functions (possible as generic? otherwise only for Vec/Mat)
 	- more lu decomp algorithms (like e.g. crout)
@@ -32,6 +29,10 @@ TODO for nytl
 	- tmp (more tuple ops, integer sequence ops)
 	- cache
 	- compFunc (more descriptive name would be good if possible)
+	- simplexOps (see commit afd548957748a6218f1d4c4ae77abba533c34809)
+		- pretty bad (ops only working for square matrices!)
+		- barycentric <-> world space
+		- some more work... specializations?
 
 - make StringParam template for char type (like std::string is? make e.g. utf32 possible)
 - noexcept fixes

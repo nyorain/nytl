@@ -1,30 +1,55 @@
 #pragma once
 
-#include <nytl/tmpUtil.hpp>
-#include <nytl/vec.hpp>
-#include <nytl/mat.hpp>
-
 #include <type_traits>
 #include <limits>
 #include <cmath>
 #include <iostream>
+#include <cstring>
+#include <vector>
+#include <functional>
 
-int failed;
+namespace test {
 
-#define CHECK_EXPECT(expression, expect) { \
-		auto&& ce_a = expression; \
-		auto&& ce_b = expect; \
-		if(!testEqual(ce_a, ce_b)) \
-			checkExpectFailed(__FILE__, __LINE__, #expression, #expect, ce_a, ce_b); \
+template<typename... T> constexpr void unused(T&&...) {}
+template<typename... T> using void_t = void;
+
+auto width = 50u;
+int failed; // number of tests failed
+std::vector<std::pair<std::function<void(const char*)>, const char*>> tests;
+
+int add(std::function<void(const char*)> f, const char* name)
+{
+	tests.push_back({std::move(f), name});
+	return 0;
+}
+
+#define CAT_IMPL(A, B) A ## B
+#define CAT(A, B) CAT_IMPL(A, B)
+
+#define TEST_METHOD_IMPL(name, testname) \
+	static void testname(const char* test_testName_); \
+	namespace { const auto CAT(testname, reg) = ::test::add(testname, name); } \
+	static void testname(const char* test_testName_)
+
+#define TEST_METHOD(name) TEST_METHOD_IMPL(name, CAT(test, __LINE__))
+
+#define EXPECT(expr, expect) { \
+		auto&& test_ce_a = expr; \
+		auto&& test_ce_b = expect; \
+		if(test_ce_a != test_ce_b) \
+			test::checkExpectFailed(test_testName_, __FILE__, __LINE__,  \
+				#expr, #expect, test_ce_a, test_ce_b); \
 	}
 
-#define CHECK_ERROR(expression, error) { \
-		bool thrown {}; \
-		bool sthelse {}; \
-		try{ expression; } \
-		catch(const error&) { thrown = true; } \
-		catch(...) { sthelse = true; } \
-		if(!thrown) checkErrorFailed(__FILE__, __LINE__, #expression, #error, sthelse); \
+#define EXPECT_ERROR(expr, error) { \
+		bool test_thrown {}; \
+		bool test_sthelse {}; \
+		try{ expr; } \
+		catch(const error&) { test_thrown = true; } \
+		catch(...) { test_sthelse = true; } \
+		if(!test_thrown) \
+			test::checkErrorFailed(test_testName_, __FILE__, __LINE__, #expr, \
+				#error, test_sthelse); \
 	}
 
 template<typename T, typename = void>
@@ -37,85 +62,95 @@ struct Printable {
 };
 
 template<typename T>
-struct Printable<T, nytl::void_t<decltype(std::declval<std::ostream&>() << std::declval<T>())>> {
+struct Printable<T, void_t<decltype(std::declval<std::ostream&>() << std::declval<T>())>> {
 	static const auto& call(const T& obj) { return obj; }
 };
 
 template<typename T>
-decltype(auto) printable(const T& obj) { return Printable<T>::call(obj); }
+decltype(auto) print(const T& obj) { return Printable<T>::call(obj); }
 
 template<typename A, typename B>
-void checkExpectFailed(const char* file, int line, const char* expression,
+void checkExpectFailed(const char* test, const char* file, int line, const char* expression,
 	const char* expect, const A& a, const B& b)
 {
-	std::cout << "check expect failed in " << file << ":" << line << ":\n    <"
-		<< expression << "> = <" << printable(a) << "> instead of\n    <"
-		<< expect << "> = <" << printable(b) << ">\n"
-		<< "===================================================================\n";
+	unused(expression, expect);
+
+	std::cout << "\t";
+	for(auto i = 0u; i < width; ++i) std::cout << "<";
+	std::cout << "\n";
+
+	std::cout << "\tCheck Expect failed in test " << test << "\n\t";
+	std::cout << file << ":" << line << "\n";
+	std::cout << "\tExpected " << print(b) << ", got " << print(a) << "\n";
+
+	std::cout << "\t";
+	for(auto i = 0u; i < width; ++i) std::cout << ">";
+	std::cout << "\n\n";
+
 	++failed;
 }
 
-void checkErrorFailed(const char* file, int line, const char* expression, const char* error,
-	bool otherError)
+void checkErrorFailed(const char* test, const char* file, int line, const char* expression,
+	const char* error, bool otherError)
 {
-	std::cout << "check error failed in " << file << ":" << line << ":\n    <"
-		<< expression << "> did not throw error <" << error << ">\n";
-	if(otherError) std::cout << "    Other error was thrown instead!\n";
-	std::cout << "===================================================================\n";
+	unused(expression);
+
+	for(auto i = 0u; i < width; ++i) std::cout << "<";
+	std::cout << "\n";
+
+	std::cout << "Check Error failed in test " << test << "\n";
+	std::cout << file << ":" << line << "\n";
+	std::cout << "Expected Error " << error;
+	if(otherError) std::cout << ", other error was thrown instead!\n";
+ 	else std::cout << ", no error was thrown\n";
+
+	for(auto i = 0u; i < width; ++i) std::cout << ">";
+	std::cout << "\n";
 
 	++failed;
 }
 
-template<typename T, typename = void>
-struct Equal {
-	constexpr static bool call(const T& a, const T& b) { return a == b; }
-};
-
-template<typename T>
-constexpr bool almostEqual(T a, T b, T epsilon = 0.0000001)
+std::string failString(int count)
 {
-	return std::abs(a - b) < epsilon;
-
-	// alternatively, for smaller errors using ulp:
-	// return std::abs(a - b) < std::abs(a + b) * std::numeric_limits<T>::epsilon() * ulp
-	// 	|| std::abs(a - b) < std::numeric_limits<T>::min();
+	if(count == 0) {
+		return "All tests succeeded!\n";
+	} else if(count == 1) {
+		return "1 test failed!\n";
+	} else {
+		return std::to_string(count) + " tests failed!\n";
+	}
 }
 
-template<typename T>
-using EnableIfFloatingPoint = nytl::void_t<std::enable_if_t<!std::numeric_limits<T>::is_integer>,
-	decltype(std::abs(std::declval<T>()))>;
+} // namespace test
 
-template<> struct Equal<float> {
-	constexpr static bool call(float a, float b) { return almostEqual(a, b); }
-};
-
-template<> struct Equal<double> {
-	static bool call(double a, double b) { return almostEqual(a, b); }
-};
-
-template<typename A, typename B> constexpr
-bool testEqual(const A& a, const B& b)
+int main()
 {
-	return Equal<std::common_type_t<A, B>>::call(a, b);
+	using namespace test;
+	for(auto t : test::tests) {
+		auto prev = failed;
+
+		auto length = std::strlen(t.second);
+		for(auto i = 0u; i < std::floor((width + 10 - length) / 2.0) - 1; ++i) std::cout << "=";
+		std::cout << " ";
+		std::cout << t.second;
+		std::cout << " ";
+
+		for(auto i = 0u; i < std::ceil((width + 10 - length) / 2.0) - 1; ++i) std::cout << "=";
+		std::cout << "\n\n";
+
+		t.first(t.second);
+		std::cout << "\t" << failString(failed - prev) << "\n";
+	}
+
+	auto str = "[Total]";
+
+	auto length = std::strlen(str);
+	for(auto i = 0u; i < std::floor((width + 10 - length) / 2.0) - 1; ++i) std::cout << "=";
+	std::cout << " ";
+	std::cout << str;
+	std::cout << " ";
+	for(auto i = 0u; i < std::ceil((width + 10 - length) / 2.0) - 1; ++i) std::cout << "=";
+
+	std::cout << "\n" << failString(failed);
+	return failed;
 }
-
-// better equal function for floating point vecs and mats
-template<typename T, std::size_t D>
-struct Equal<nytl::Vec<D, T>> {
-	static constexpr bool call(const nytl::Vec<D, T>& a, const nytl::Vec<D, T>& b)
-	{
-		for(auto i = 0u; i < a.size(); ++i)
-			if(!testEqual(a[i], b[i])) return false;
-		return true;
-	}
-};
-
-template<typename T, std::size_t R, std::size_t C>
-struct Equal<nytl::Mat<R, C, T>> {
-	static constexpr bool call(const nytl::Mat<R, C, T>& a, const nytl::Mat<R, C, T>& b)
-	{
-		for(auto i = 0u; i < a.rows(); ++i)
-			if(!testEqual(a[i], b[i])) return false;
-		return true;
-	}
-};

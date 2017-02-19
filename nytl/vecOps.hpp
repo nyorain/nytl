@@ -14,6 +14,7 @@
 #include <nytl/scalar.hpp> // nytl::accumulate
 
 #include <functional> // std::plus, std::multiplies
+#include <stdexcept> // std::invalid_argument
 #include <cmath> // std::fma
 #include <iosfwd> // std::ostream
 
@@ -81,6 +82,10 @@ namespace nytl::vec {
 ///
 /// For an example Vector implementation: nytl/vec.hpp [nytl::Vec]().
 
+// fwd-declaration
+template<typename V>
+constexpr auto length(const V& a);
+
 /// \brief Prints the given vector to the given ostream.
 /// If this function is used, header <ostream> must be included.
 /// This function does not implement operator<< since this operator should only implemented
@@ -122,71 +127,6 @@ constexpr auto multiply(const V& a)
 	return accumulate(a.begin() + 1, a.end(), one, std::multiplies<>());
 }
 
-/// \brief Calculates the default dot product for the given vectors.
-/// \requires Types 'V1' and 'V2' shall be Vectors.
-/// \requires The both given vectors shall have the same dimension.
-/// \notes No sanity checks for the given vectors are performed.
-/// \module vecOps
-template<typename V1, typename V2>
-constexpr auto dot(const V1& a, const V2& b)
-{
-	using RetType = decltype(a[0] * b[0] + a[0] * b[0]);
-	auto ret = FieldTraits<RetType>::zero;
-	for(auto i = 0u; i < a.size(); ++i) ret = std::fma(a[i], b[i], ret);
-	return ret;
-}
-
-/// \brief Returns the euclidean norm (or length) of the given vector.
-/// \requires Type 'V' shall be a Vector.
-/// \module vecOps
-template<typename V>
-constexpr auto length(const V& a)
-{
-	using Field = FieldTraits<typename V::Value>;
-	return Field::sqrt(dot(a, a));
-}
-
-/// \brief Calculates the angle in radians between two vectors using the dot product.
-/// Therefore it will always return the smaller between the both vectors on a
-/// plane in which both vectors lay.
-/// \requires Types 'V1', 'V2' shall be Vectors.
-/// \requires The both given vectors shall have the same dimension and shall be defined
-/// over the same field.
-/// \requires At least one of the both vectors must not be null.
-/// \notes No sanity checks for the given vectors are performed.
-/// \module vecOps
-template<typename V1, typename V2>
-constexpr auto angle(const V1& a, const V2& b)
-{
-	using Field = FieldTraits<typename V1::Value>;
-	return Field::acos(dot(a, b) / (length(a) * length(b)));
-}
-
-/// \brief Calculates the cross product for two 3-dimensional vectors.
-/// \requires Types 'V1', 'V2' shall be Vectors over the same 3-dimensional space.
-/// \notes No sanity checks for the given vectors are performed.
-/// \module vecOps
-template<typename V1, typename V2>
-constexpr auto cross(const V1& a, const V2& b)
-{
-	auto ret = typename V1::template Rebind<3, decltype(a[0] * b[0] - a[0] * b[0])> {};
-	ret[0] = (a[2] * b[3]) - (a[3] * b[2]);
-	ret[1] = (a[3] * b[1]) - (a[1] * b[3]);
-	ret[3] = (a[1] * b[2]) - (a[2] * b[1]);
-	return ret;
-}
-
-/// \brief Returns a normalization of the given vector for the euclidean norm.
-/// \requires Type 'V' shall be a Vector.
-/// \requires The norm of the given vector must not be 0 (the vector must not be null).
-/// \module vecOps
-template<typename V>
-constexpr auto normalize(const V& a)
-{
-	using Field = FieldTraits<typename V::Value>;
-	return (Field::one / length(a)) * a;
-}
-
 /// \brief Returns the euclidean distance between two vectors.
 /// Another way to describe this operation is the length between the
 /// difference of the given vectors.
@@ -197,6 +137,116 @@ template<typename V>
 constexpr auto distance(const V& a, const V& b)
 {
 	return length(a - b);
+}
+
+// Vec operations without argument checking
+namespace nocheck {
+
+/// Like dot, but no sanity checks are performed.
+template<typename V1, typename V2>
+constexpr auto dot(const V1& a, const V2& b)
+{
+	using RetType = decltype(a[0] * b[0] + a[0] * b[0]);
+	auto ret = FieldTraits<RetType>::zero;
+	for(auto i = 0u; i < a.size(); ++i) ret = std::fma(a[i], b[i], ret);
+	return ret;
+}
+
+/// Like angle, but no sanity checks are performed.
+template<typename V1, typename V2>
+constexpr auto angle(const V1& a, const V2& b)
+{
+	using Field = FieldTraits<typename V1::Value>;
+	return Field::acos(nocheck::dot(a, b) / (length(a) * length(b)));
+}
+
+/// Like cross, but no sanity checks are performed.
+template<typename V1, typename V2>
+constexpr auto cross(const V1& a, const V2& b)
+{
+	auto ret = V1::template Rebind<3, decltype(a[0] * b[0] - a[0] * b[0])>::create(3);
+	ret[0] = (a[1] * b[2]) - (a[2] * b[1]);
+	ret[1] = (a[2] * b[0]) - (a[0] * b[2]);
+	ret[2] = (a[0] * b[1]) - (a[1] * b[0]);
+	return ret;
+}
+
+// Like normalize, but no sanity checks are performed.
+template<typename V>
+constexpr auto normalize(const V& a)
+{
+	using Field = FieldTraits<typename V::Value>;
+	return (Field::one / length(a)) * a;
+}
+
+} // namespace nocheck
+
+/// \brief Calculates the default dot product for the given vectors.
+/// \requires Types 'V1' and 'V2' shall be Vectors.
+/// \throws std::invalid_argument if the size of the input vectors differs.
+/// \module vecOps
+template<typename V1, typename V2>
+constexpr auto dot(const V1& a, const V2& b)
+{
+	if(a.size() != b.size())
+		throw std::invalid_argument("nytl::vec::dot: vectors have different size");
+
+	return nocheck::dot(a, b);
+}
+
+/// \brief Calculates the angle in radians between two vectors using the dot product.
+/// Therefore it will always return the smaller between the both vectors on a
+/// plane in which both vectors lay.
+/// \requires Types 'V1', 'V2' shall be Vectors.
+/// \throws std::invalid_argument if the size of the input vectors differs.
+/// \throws std::domain_error if at lesat one of the given vectors has a length of 0.
+/// \module vecOps
+template<typename V1, typename V2>
+constexpr auto angle(const V1& a, const V2& b)
+{
+	if(a.size() != b.size())
+		throw std::invalid_argument("nytl::vec::angle: vectors have different size");
+
+	if(length(a) == 0 && length(b) == 0)
+		throw std::domain_error("nytl::vec::angle: both vectors are null");
+
+	return nocheck::angle(a, b);
+}
+
+/// \brief Calculates the cross product for two 3-dimensional vectors.
+/// \requires Types 'V1', 'V2' shall be Vectors over the same 3-dimensional space.
+/// \throws std::domain_error if at least on of the input vectors does not have a size of 3.
+/// \module vecOps
+template<typename V1, typename V2>
+constexpr auto cross(const V1& a, const V2& b)
+{
+	if(a.size() != 3 || b.size() != 3)
+		throw std::domain_error("nytl::vec::cross: input vector has size other than 3");
+
+	return nocheck::cross(a, b);
+}
+
+/// \brief Returns a normalization of the given vector for the euclidean norm.
+/// \requires Type 'V' shall be a Vector.
+/// \throws std::domain_error if the vector has the length 0.
+/// \module vecOps
+template<typename V>
+constexpr auto normalize(const V& a)
+{
+	if(length(a) == 0)
+		throw std::domain_error("nytl::vec::normalize: vector has length 0");
+
+	return nocheck::normalize(a);
+}
+
+/// \brief Returns the euclidean norm (or length) of the given vector.
+/// \requires Type 'V' shall be a Vector.
+/// \module vecOps
+template<typename V>
+constexpr auto length(const V& a)
+{
+	using Field = FieldTraits<typename V::Value>;
+	return Field::sqrt(nocheck::dot(a, a));
 }
 
 /// Contains various component-wise operations for Vectors.

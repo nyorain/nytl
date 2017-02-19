@@ -7,7 +7,6 @@
 #include <nytl/scalar.hpp>
 
 // TODO: test component-wise (nytl::vec::cw) operations
-// TODO: test cross product!
 
 using Vec3 = nytl::Vec<3, double>;
 using Vec2 = nytl::Vec<2, double>;
@@ -113,4 +112,13 @@ TEST_CASE("Distances are computed", "[distances]") {
 	REQUIRE(nytl::vec::distance(f, f) == test::approx(0.0));
 	REQUIRE(nytl::vec::distance(x, y) == test::approx(nytl::vec::length(x - y)));
 	REQUIRE(nytl::vec::distance(y, x) == test::approx(nytl::vec::length(x - y)));
+}
+
+TEST_CASE("Cross products are computed", "[cross-product]") {
+	REQUIRE(nytl::vec::cross(a, b) == test::approx(Vec3{0.0, 0.0, 0.0}));
+	REQUIRE(nytl::vec::cross(a, c) == test::approx(Vec3{0.0, 3.0, -2.0}));
+	REQUIRE(nytl::vec::cross(c, a) == test::approx(Vec3{0.0, -3.0, 2.0}));
+	REQUIRE(nytl::vec::cross(x, x) == test::approx(Vec3{0.0, 0.0, 0.0}));
+	REQUIRE(nytl::vec::cross(f, y) == test::approx(-nytl::vec::cross(y, f)));
+	REQUIRE(nytl::vec::cross(x, y) == test::approx(Vec3{21.0, 16.0, -18.0}));
 }
