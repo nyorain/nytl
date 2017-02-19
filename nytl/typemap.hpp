@@ -10,12 +10,13 @@
 #define NYTL_INCLUDE_TYPEMAP
 
 #include <nytl/fwd/typemap.hpp> // nytl::Typemap default template parameter
+#include <nytl/any.hpp> // std::any
+
 #include <unordered_map> // std::unordered_map
 #include <typeinfo> // std::type_info
 #include <memory> // std::unique_ptr
 #include <type_traits> // std::conditional_t
 #include <stdexcept> // std::invalid_argument
-#include <any> // std::any
 
 namespace nytl {
 namespace detail {

@@ -40,6 +40,8 @@ TODO for nytl
 - seperation interface/implemetation where neeeded (callback/connection/typemap)
 
 - C++17
+	- merge branch
+		- remove nytl/any.hpp
 	- matOps/vecOps: use structured bindings
 		- especially lu[p] mess
 	- scope: remove make* wrapper functions

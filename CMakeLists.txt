@@ -8,7 +8,12 @@ set(vpatch 0)
 option(Test "Build the nytl tests" off)
 include_directories(${CMAKE_SOURCE_DIR})
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -std=c++1z")
+# it currently only compiles on gcc/clang anyways
+set(CMAKE_CXX_FLAGS
+	"${CMAKE_CXX_FLAGS} \
+	-std=c++1z \
+	-Wall -Wextra -Wpedantic \
+	-Wno-missing-braces -Wno-unused-const-variable")
 
 if(Test)
 	enable_testing() # must be called here

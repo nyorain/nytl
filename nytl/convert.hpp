@@ -97,33 +97,13 @@ constexpr auto containerCast(const U& con)
 	return ret;
 }
 
-// - general Converter using constexpr if dispatching -
+// - general converter -
 template<typename From, typename To>
 struct Converter<From, To> {
-	template<typename A, typename B>
-	using ValidStaticCast = decltype(static_cast<B>(std::declval<A>()));
-
-	template<typename A, typename B>
-	using ValidContainerCast = decltype(containerCast<B>(std::declval<A>()));
-
-	static To call(const From& other)
+	static auto call(const From& other) -> decltype(static_cast<To>(other))
 	{
-		if constexpr(validExpression<ValidStaticCast, From, To>)
-			return static_cast<To>(other);
-		else if constexpr(validExpression<ValidContainerCast, From, To>)
-			return containerCast<To>(other);
-		else
-			static_assert(templatize<From>(false), "Invalid conversion!");
+		return static_cast<To>(other);
 	}
-};
-
-// - arrayCast Converter -
-template<typename From, typename To, std::size_t I> using ValidArrayCast =
-	void_t<decltype(arrayCast<To>(std::declval<std::array<From, I>>()))>;
-
-template<typename From, typename To, std::size_t I>
-struct Converter<std::array<From, I>, std::array<To, I>, ValidArrayCast<From, To, I>> {
-	static std::array<To, I> call(const std::array<From, I>& other) { return arrayCast<To>(other); }
 };
 
 } // namespace nytl

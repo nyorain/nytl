@@ -10,30 +10,29 @@
 // TODO: test component-wise (nytl::vec::cw) operations
 // TODO: more testvectors, use other sizes and types
 
-using Vec2 = nytl::Vec<2, double>;
-using Vec3 = nytl::Vec<3, double>;
-using Vec4 = nytl::Vec<4, double>;
+using namespace nytl;
 
-constexpr Vec3 a{1.0, 2.0, 3.0};
-constexpr Vec3 b{0.0, 0.0, 0.0};
-constexpr Vec3 c{1.0, 0.0, 0.0};
-constexpr Vec3 d{-1.0, 1.0, 1.0};
-constexpr Vec3 e{0.0001, 1.0, -1.0};
-constexpr Vec3 f{100.0, 500.0, -4.0};
+constexpr Vec3d a{1.0, 2.0, 3.0};
+constexpr Vec3d b{0.0, 0.0, 0.0};
+constexpr Vec3d c{1.0, 0.0, 0.0};
+constexpr Vec3d d{-1.0, 1.0, 1.0};
+constexpr Vec3d e{0.0001, 1.0, -1.0};
+constexpr Vec3d f{100.0, 500.0, -4.0};
 
-constexpr Vec3 x{2.0, 3.0, 5.0};
-constexpr Vec3 y{4.0, -3.0, 2.0};
-constexpr Vec3 z{0.0, 10.0, 1.0};
+constexpr Vec3d x{2.0, 3.0, 5.0};
+constexpr Vec3d y{4.0, -3.0, 2.0};
+constexpr Vec3d z{0.0, 10.0, 1.0};
 
 TEST_METHOD("[vec-addition]") {
 	EXPECT(a + b, test::approx(a));
 	EXPECT(a - b, test::approx(a));
-	EXPECT(a + a, test::approx(Vec3{2.0, 4.0, 6.0}));
-	EXPECT(x + z, test::approx(Vec3{2.0, 13.0, 6.0}));
+	EXPECT(a + a, test::approx(Vec3d{2.0, 4.0, 6.0}));
+	EXPECT(x + z, test::approx(Vec3d{2.0, 13.0, 6.0}));
 	EXPECT(b - x + x - x + b, test::approx(-x));
 	EXPECT(f - f, test::approx(b));
 	EXPECT(b, test::approx(-b));
-	EXPECT((Vec3{1.0, 1.0, 1.0} + Vec3{-1.0, 2.0, 0.0}), (test::approx(Vec3{0.0, 3.0, 1.0})));
+	EXPECT((Vec3d{1.0, 1.0, 1.0} + Vec3d{-1.0, 2.0, 0.0}), (test::approx(Vec3d{0.0, 3.0, 1.0})));
+	EXPECT((Vec2i{1, 2} - Vec2d{1.0, 2.0}), (test::approx(Vec2f{0.0, 0.0})));
 
 	// - should not compile - TODO
 }
@@ -43,9 +42,9 @@ TEST_METHOD("[scalar multiplication]") {
 	EXPECT((5 * b), test::approx(b));
 	EXPECT((-1 * f), test::approx(-f));
 	EXPECT((0 * e), test::approx(b));
-	EXPECT((0.5 * y), test::approx(Vec3{2.0, -1.5, 1.0}));
+	EXPECT((0.5 * y), test::approx(Vec3f{2.0, -1.5, 1.0}));
 	EXPECT((0.2 * z), test::approx(z - 0.8 * z));
-	EXPECT((2 * x + y), test::approx(Vec3{8.0, 3.0, 12.0}));
+	EXPECT((2 * x + y), test::approx(Vec3f{8.0, 3.0, 12.0}));
 }
 
 TEST_METHOD("[multiplies]") {
@@ -95,16 +94,20 @@ TEST_METHOD("[length]") {
 	EXPECT(nytl::vec::length(z), test::approx(std::sqrt(nytl::vec::dot(z, z))));
 	EXPECT(nytl::vec::length(x - a), test::approx(std::sqrt(6.0)));
 	EXPECT(nytl::vec::length(1.5 * (a + b + c)), test::approx(1.5 * std::sqrt(17.0)));
+	EXPECT(nytl::vec::length(Vec3i{1, 2, 3}), test::approx(std::sqrt(14.0)));
 }
 
 TEST_METHOD("[angles]") {
-	constexpr Vec2 a2{1.0, 0.0};
-	constexpr Vec2 b2{0.0, 1.0};
-	constexpr Vec2 c2{1.0, 1.0};
+	constexpr Vec2d a2{1.0, 0.0};
+	constexpr Vec2d b2{0.0, 1.0};
+	constexpr Vec2i c2{1, 1};
 
-	constexpr Vec3 a3{1.0, 0.0, -1.0};
-	constexpr Vec3 b3{1.0, 0.0, 0.0};
-	constexpr Vec3 c3{0.0, 1.0, 0.0};
+	constexpr Vec3f a3{1.0, 0.0, -1.0};
+	constexpr Vec3i b3{1, 0, 0};
+	constexpr Vec3ui c3{0u, 1u, 0u};
+
+	std::cout << nytl::vec::dot(b2, c2) << "\n";
+	std::cout << nytl::vec::length(b2) * nytl::vec::length(c2) << "\n";
 
 	EXPECT(nytl::vec::angle(x, x), test::approx(0.0));
 	EXPECT(nytl::vec::angle(a2, b2), test::approx(nytl::radians(90.0)));
@@ -113,8 +116,8 @@ TEST_METHOD("[angles]") {
 	EXPECT(nytl::vec::angle(c2, b2), test::approx(nytl::constants::pi / 4));
 
 	EXPECT(nytl::vec::angle(a3, b3), test::approx(nytl::constants::pi / 4));
-	EXPECT(nytl::vec::angle(c3, b3), test::approx(nytl::radians(90.0)));
-	EXPECT(nytl::vec::angle(b3, c3), test::approx(nytl::constants::pi / 2));
+	EXPECT(nytl::vec::angle(static_cast<Vec3i>(c3), b3), test::approx(nytl::radians(90.0)));
+	EXPECT(nytl::vec::angle(b3, static_cast<Vec3i>(c3)), test::approx(nytl::constants::pi / 2));
 
 	EXPECT_ERROR(nytl::vec::angle(a, b), std::domain_error);
 	EXPECT_ERROR(nytl::vec::angle(b, b), std::domain_error);
@@ -136,12 +139,12 @@ TEST_METHOD("[distances]") {
 }
 
 TEST_METHOD("[cross-product]") {
-	EXPECT(nytl::vec::cross(a, b), test::approx(Vec3{0.0, 0.0, 0.0}));
-	EXPECT(nytl::vec::cross(a, c), test::approx(Vec3{0.0, 3.0, -2.0}));
-	EXPECT(nytl::vec::cross(c, a), test::approx(Vec3{0.0, -3.0, 2.0}));
-	EXPECT(nytl::vec::cross(x, x), test::approx(Vec3{0.0, 0.0, 0.0}));
+	EXPECT(nytl::vec::cross(a, b), test::approx(Vec3d{0.0, 0.0, 0.0}));
+	EXPECT(nytl::vec::cross(a, c), test::approx(Vec3d{0.0, 3.0, -2.0}));
+	EXPECT(nytl::vec::cross(c, a), test::approx(Vec3d{0.0, -3.0, 2.0}));
+	EXPECT(nytl::vec::cross(x, x), test::approx(Vec3d{0.0, 0.0, 0.0}));
 	EXPECT(nytl::vec::cross(f, y), test::approx(-nytl::vec::cross(y, f)));
-	EXPECT(nytl::vec::cross(x, y), test::approx(Vec3{21.0, 16.0, -18.0}));
+	EXPECT(nytl::vec::cross(x, y), test::approx(Vec3d{21.0, 16.0, -18.0}));
 
 	// - should not compile -
 	// nytl::vec::cross(x, Vec2{1.0, 2.0});

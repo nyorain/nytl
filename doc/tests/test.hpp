@@ -14,10 +14,13 @@ template<typename... T> constexpr void unused(T&&...) {}
 template<typename... T> using void_t = void;
 
 auto width = 50u;
-int failed; // number of tests failed
-std::vector<std::pair<std::function<void(const char*)>, const char*>> tests;
+auto addWidth = 16u;
+const char* currentTestName = "<no testing function>";
 
-int add(std::function<void(const char*)> f, const char* name)
+int failed; // number of tests failed
+std::vector<std::pair<std::function<void()>, const char*>> tests;
+
+int add(std::function<void()> f, const char* name)
 {
 	tests.push_back({std::move(f), name});
 	return 0;
@@ -27,9 +30,9 @@ int add(std::function<void(const char*)> f, const char* name)
 #define CAT(A, B) CAT_IMPL(A, B)
 
 #define TEST_METHOD_IMPL(name, testname) \
-	static void testname(const char* test_testName_); \
+	static void testname(); \
 	namespace { const auto CAT(testname, reg) = ::test::add(testname, name); } \
-	static void testname(const char* test_testName_)
+	static void testname()
 
 #define TEST_METHOD(name) TEST_METHOD_IMPL(name, CAT(test, __LINE__))
 
@@ -37,7 +40,7 @@ int add(std::function<void(const char*)> f, const char* name)
 		auto&& test_ce_a = expr; \
 		auto&& test_ce_b = expect; \
 		if(test_ce_a != test_ce_b) \
-			test::checkExpectFailed(test_testName_, __FILE__, __LINE__,  \
+			test::checkExpectFailed(::test::currentTestName, __FILE__, __LINE__,  \
 				#expr, #expect, test_ce_a, test_ce_b); \
 	}
 
@@ -48,7 +51,7 @@ int add(std::function<void(const char*)> f, const char* name)
 		catch(const error&) { test_thrown = true; } \
 		catch(...) { test_sthelse = true; } \
 		if(!test_thrown) \
-			test::checkErrorFailed(test_testName_, __FILE__, __LINE__, #expr, \
+			test::checkErrorFailed(::test::currentTestName, __FILE__, __LINE__, #expr, \
 				#error, test_sthelse); \
 	}
 
@@ -128,30 +131,37 @@ std::string failString(int count)
 int main()
 {
 	using namespace test;
+	auto aw = width + addWidth;
+
 	for(auto t : test::tests) {
 		auto prev = failed;
 
 		auto length = std::strlen(t.second);
-		for(auto i = 0u; i < std::floor((width + 10 - length) / 2.0) - 1; ++i) std::cout << "=";
+
+		for(auto i = 0u; i < std::floor((aw - length) / 2.0) - 1; ++i) std::cout << "=";
 		std::cout << " ";
 		std::cout << t.second;
 		std::cout << " ";
 
-		for(auto i = 0u; i < std::ceil((width + 10 - length) / 2.0) - 1; ++i) std::cout << "=";
+		for(auto i = 0u; i < std::ceil((aw - length) / 2.0) - 1; ++i) std::cout << "=";
 		std::cout << "\n\n";
 
-		t.first(t.second);
+		test::currentTestName = t.second;
+		t.first();
 		std::cout << "\t" << failString(failed - prev) << "\n";
 	}
+
+	// for(auto i = 0u; i < aw; ++i) std::cout << "*";
+	// std::cout << "\n";
 
 	auto str = "[Total]";
 
 	auto length = std::strlen(str);
-	for(auto i = 0u; i < std::floor((width + 10 - length) / 2.0) - 1; ++i) std::cout << "=";
+	for(auto i = 0u; i < std::floor((aw - length) / 2.0) - 1; ++i) std::cout << "*";
 	std::cout << " ";
 	std::cout << str;
 	std::cout << " ";
-	for(auto i = 0u; i < std::ceil((width + 10 - length) / 2.0) - 1; ++i) std::cout << "=";
+	for(auto i = 0u; i < std::ceil((aw - length) / 2.0) - 1; ++i) std::cout << "*";
 
 	std::cout << "\n" << failString(failed);
 	return failed;

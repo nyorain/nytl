@@ -126,12 +126,8 @@ template<typename V1, typename V2>
 struct AssertSameDimensions {
 	static constexpr void call(const V1& a, const V2& b)
 	{
-		if constexpr(validExpression<ConstexprDimsValid, V1, V2>) {
-			static_assert(V1::size() == V2::size(), "nytl::vec: vectors must have same dimension");
-		} else {
-			if(a.size() != b.size())
-				throw std::invalid_argument("nytl::vec: vectors must have same dimension");
-		}
+		if(a.size() != b.size())
+			throw std::invalid_argument("nytl::vec: vectors must have same dimension");
 	}
 };
 
@@ -139,12 +135,8 @@ template<typename V1, unsigned int Dim>
 struct AssertDimension {
 	static constexpr void call(const V1& a)
 	{
-		if constexpr(validExpression<ConstexprDimsValid, V1>) {
-			static_assert(V1::size() == Dim, "nytl::vec: vector must have specified dimension");
-		} else {
-			if(a.size() != Dim)
-				throw std::invalid_argument("nytl::vec: vector must have specified dimension");
-		}
+		if(a.size() != Dim)
+			throw std::invalid_argument("nytl::vec: vector must have specified dimension");
 	}
 };
 

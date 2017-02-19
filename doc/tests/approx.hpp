@@ -3,7 +3,7 @@
 
 namespace test {
 
-constexpr auto defaultEpsilon = 0.000000001;
+constexpr auto defaultEpsilon = 0.0000001;
 
 template<typename T>
 class Approx;
@@ -39,7 +39,8 @@ class Approx : public Approx<double> {};
 template<std::size_t I, typename T>
 class Approx<nytl::Vec<I, T>> {
 public:
-	friend bool operator==(const nytl::Vec<I, T>& lhs, const Approx& rhs)
+	template<typename T2>
+	friend bool operator==(const nytl::Vec<I, T2>& lhs, const Approx& rhs)
 	{
 		if(lhs.size() != rhs.value.size())
 			return false;
@@ -51,15 +52,20 @@ public:
 		return true;
 	}
 
-	friend bool operator==(const Approx& lhs, const nytl::Vec<I, T>& rhs)
+	template<typename T2>
+	friend bool operator==(const Approx& lhs, const nytl::Vec<I, T2>& rhs)
 	{
 		return operator==(rhs, lhs);
 	}
-	friend bool operator!=(const nytl::Vec<I, T>& lhs, const Approx& rhs)
+
+	template<typename T2>
+	friend bool operator!=(const nytl::Vec<I, T2>& lhs, const Approx& rhs)
 	{
 		return !operator==(lhs, rhs);
 	}
-	friend bool operator!=(const Approx& lhs, const nytl::Vec<I, T>& rhs)
+
+	template<typename T2>
+	friend bool operator!=(const Approx& lhs, const nytl::Vec<I, T2>& rhs)
 	{
 		return !operator==(lhs, rhs);
 	}
@@ -73,27 +79,33 @@ public:
 template<std::size_t R, std::size_t C, typename T>
 class Approx<nytl::Mat<R, C, T>> {
 public:
-	friend bool operator==(const nytl::Mat<R, C, T>& lhs, const Approx& rhs)
+	template<typename T2>
+	friend bool operator==(const nytl::Mat<R, C, T2>& lhs, const Approx& rhs)
 	{
-		if(lhs.size() != rhs.value.size())
+		if(lhs.rows() != rhs.value.rows())
 			return false;
 
-		for(auto i = 0u; i < lhs.size(); ++i)
+		for(auto i = 0u; i < lhs.rows(); ++i)
 			if(lhs[i] != approx(rhs.value[i], rhs.epsilon))
 				return false;
 
 		return true;
 	}
 
-	friend bool operator==(const Approx& lhs, const nytl::Mat<R, C, T>& rhs)
+	template<typename T2>
+	friend bool operator==(const Approx& lhs, const nytl::Mat<R, C, T2>& rhs)
 	{
 		return operator==(rhs, lhs);
 	}
-	friend bool operator!=(const nytl::Mat<R, C, T>& lhs, const Approx& rhs)
+
+	template<typename T2>
+	friend bool operator!=(const nytl::Mat<R, C, T2>& lhs, const Approx& rhs)
 	{
 		return !operator==(lhs, rhs);
 	}
-	friend bool operator!=(const Approx& lhs, const nytl::Mat<R, C, T>& rhs)
+
+	template<typename T2>
+	friend bool operator!=(const Approx& lhs, const nytl::Mat<R, C, T2>& rhs)
 	{
 		return !operator==(lhs, rhs);
 	}
@@ -106,7 +118,10 @@ public:
 template<typename T>
 Approx<T> approx(const T& value, double epsilon)
 {
-	return {value, epsilon};
+	Approx<T> ret;
+	ret.value = value;
+	ret.epsilon = epsilon;
+	return ret;
 }
 
 template<typename T>

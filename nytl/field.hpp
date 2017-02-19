@@ -14,23 +14,17 @@
 
 namespace nytl {
 
-/// Base class for FieldTrait specializations with zero and one from the real numbers
-/// and implementations for mathematical operations inside the stl.
+/// The data type of a field that offers full precision.
+/// Needed so that e.g. even int can be used to represent the real numbers.
 template<typename T>
-struct FieldTraitsBase {
-	static constexpr auto zero = T {0};
-	static constexpr auto one = T {1};
+struct FullPrecisionField {
+	using type = double;
+};
 
-	static constexpr auto abs(T value) { return std::abs(value); }
-	static constexpr auto sqrt(T value) { return std::sqrt(value); }
-
-	static constexpr auto sin(T value) { return std::sin(value); }
-	static constexpr auto cos(T value) { return std::cos(value); }
-	static constexpr auto tan(T value) { return std::tan(value); }
-
-	static constexpr auto asin(T value) { return std::asin(value); }
-	static constexpr auto acos(T value) { return std::acos(value); }
-	static constexpr auto atan(T value) { return std::atan(value); }
+/// FullPrecisionField specialization for complex numbers.
+template<typename T>
+struct FullPrecisionField<std::complex<T>> {
+	using type = std::complex<double>;
 };
 
 /// \brief Specifies traits of a mathematical field
@@ -40,16 +34,23 @@ struct FieldTraitsBase {
 /// Additionally one has to specify the zero and one values for the field, as well as providing
 /// a FullPrecision typedef to the type that should be used when e.g. division on two arbitary
 /// field types is performed (useful to make int able to represent the field of real numbers).
-template<typename T, typename = void>
-struct FieldTraits : FieldTraitsBase<T> {
-	using FullPrecision = double;
-};
-
-/// \brief FieldTraits specialization for std::complex numbers.
-/// Note that all common mathematical functions are also defined for complex numbers.
 template<typename T>
-struct FieldTraits<std::complex<T>> {
-	using FullPrecision = std::complex<double>;
+struct FieldTraits {
+	using FullPrecision = typename FullPrecisionField<T>::type;
+
+	static constexpr auto zero = T {0};
+	static constexpr auto one = T {1};
+
+	static constexpr auto abs(FullPrecision value) { return std::abs(value); }
+	static constexpr auto sqrt(FullPrecision value) { return std::sqrt(value); }
+
+	static constexpr auto sin(FullPrecision value) { return std::sin(value); }
+	static constexpr auto cos(FullPrecision value) { return std::cos(value); }
+	static constexpr auto tan(FullPrecision value) { return std::tan(value); }
+
+	static constexpr auto asin(FullPrecision value) { return std::asin(value); }
+	static constexpr auto acos(FullPrecision value) { return std::acos(value); }
+	static constexpr auto atan(FullPrecision value) { return std::atan(value); }
 };
 
 } // namespace nytl
