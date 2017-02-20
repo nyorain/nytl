@@ -272,6 +272,26 @@ std::ostream& operator<<(std::ostream& os, const Vec<D, T>& a)
 	return vec::print(os, a);
 }
 
+// Specialization. TODO: c++17
+namespace vec::detail {
+
+template<std::size_t D1, typename T1, std::size_t D2, typename T2>
+struct AssertSameDimensions<Vec<D1, T1>, Vec<D2, T2>> {
+	static constexpr void call(const Vec<D1, T1>&, const Vec<D2, T2>&)
+	{
+		static_assert(D1 == D2, "nytl::vec: vectors must have same dimension!");
+	}
+};
+
+template<std::size_t D1, typename T1, unsigned int Dim>
+struct AssertDimension<Vec<D1, T1>, Dim> {
+	static constexpr void call(const Vec<D1, T1>&)
+	{
+		static_assert(D1 == Dim, "nytl::vec: vector must have specified dimension!");
+	}
+};
+
+} // namespace vec::detail
 } // namespace nytl
 
 #endif // header guard

@@ -26,12 +26,30 @@ namespace nytl {
 template<std::size_t D, typename T>
 std::ostream& print(std::ostream& os, const Rect<D, T>& rect)
 {
-	auto& tos = templatize<T>(os);
+	auto& tos = templatize<T>(os); // we don't want to include ostream
 	tos << "{";
 	vec::print(tos, rect.position);
 	vec::print(tos, rect.size);
 	tos << "}";
 	return tos;
+}
+
+/// \brief Prints the given Rect to a std::ostream.
+/// Simply uses nytl::print(os, rect).
+/// \module rectOps
+template<std::size_t D, typename T>
+std::ostream& operator<<(std::ostream& os, const Rect<D, T>& rect)
+{
+	return print(os, rect);
+}
+
+/// \brief Tests two rects for equality.
+/// They are equal when their position and size vectors are equal.
+/// \module rectOps
+template<typename T1, typename T2, std::size_t D>
+bool operator==(const Rect<D, T1>& a, const Rect<D, T2>& b)
+{
+	return a.position == b.position && a.size == b.size;
 }
 
 /// \brief Returns the total size of a given Rect.
@@ -110,16 +128,16 @@ template<std::size_t D, typename T>
 constexpr Rect<D, T> intersection(const Rect<D, T>& a, const Rect<D, T>& b)
 {
 	auto pos = vec::cw::max(a.position, b.position);
-	auto end = vec::cw::min(a.position + size, b.position + b.size);
+	auto end = vec::cw::min(a.position + a.size, b.position + b.size);
 
 	// check if there is no intersection
 	for(auto i = 0u; i < pos.size(); ++i)
 		if(pos[i] > end[i]) return {{}, {}};
 
-	return {pos, size - pos};
+	return {pos, end - pos};
 }
 
-/// \brief Returns the difference of the first Rect to the second Rect.
+/// \brief Returns the difference of the first Rect to the second Rect (a -b).
 /// Effectively returns the parts of the first Rect that are not part of the second one.
 /// Returns the resulting Rects as a vector since the count depends on the layout
 /// of the Rects. If the Rects have no intersection, just returns a vector with
@@ -136,6 +154,8 @@ std::vector<Rect<D, T>> difference(const Rect<D, T>& a, const Rect<D, T>& b)
 	};
 
 	std::vector<Rect<D, T>> ret;
+	ret.reserve(2 * D);
+
 	for(std::size_t i(0); i < D; ++i) {
 
 		// rect before intersection
@@ -151,7 +171,8 @@ std::vector<Rect<D, T>> difference(const Rect<D, T>& a, const Rect<D, T>& b)
 		}
 
 		// rect after intersection
-		if(inRange(b.position[i] + b.size[i], a.position[i], a.size[i])) {
+		// if(inRange(b.position[i] + b.size[i], a.position[i], a.size[i])) {
+		if(inRange(a.position[i], a.size[i], b.position[i] + b.size[i])) {
 			auto pos = a.position;
 			pos[i] = b.position[i] + b.size[i];
 			for(std::size_t o(0); o < i; ++o)

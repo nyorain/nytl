@@ -2,7 +2,10 @@ TODO for nytl
 =============
 
 - testing !important
-- vec rework (see associated branch)
+
+- check correct header includes (nytl, stl)
+
+- vec rework (see associated branch) [C++17]
 	- make operators even more explicit, dont allow vec2 + vec3!
 
 - integration (glm, eigen)

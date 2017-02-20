@@ -10,6 +10,9 @@
 // TODO: test component-wise (nytl::vec::cw) operations
 // TODO: more testvectors, use other sizes and types
 
+// NOTE: for a real test, uncomment the should not compile statements
+// one-by-one and assure that they not compile
+
 using namespace nytl;
 
 constexpr Vec3d a{1.0, 2.0, 3.0};
@@ -22,6 +25,20 @@ constexpr Vec3d f{100.0, 500.0, -4.0};
 constexpr Vec3d x{2.0, 3.0, 5.0};
 constexpr Vec3d y{4.0, -3.0, 2.0};
 constexpr Vec3d z{0.0, 10.0, 1.0};
+
+// just a few random vectors
+// no special meaning
+constexpr Vec4d a4d{1.0, 2.7, 3.87, 8.22};
+constexpr Vec4d b4d{0.0, -2.334, 0.0, -103.4};
+constexpr Vec4d c4d{1.0, 2.7, 3.87, 8.22};
+
+constexpr Vec3d a3d{1.0, 2.2, 3.0};
+constexpr Vec3d b3d{0.0, 0.0, 0.0};
+constexpr Vec3d c3d{1.0, 10.3, -2.0};
+
+constexpr Vec2d a2d{1.0, 2.0};
+constexpr Vec2d b2d{0.0, 12.0};
+constexpr Vec2d c2d{-5.0, 2.5};
 
 TEST_METHOD("[vec-addition]") {
 	EXPECT(a + b, test::approx(a));
@@ -77,7 +94,7 @@ TEST_METHOD("[dot]") {
 	EXPECT(nytl::vec::dot(y, d), test::approx(-5.0));
 
 	// - should not compile -
-	// nytl::vec::dot(a, Vec2{1.0, 2.0});
+	// nytl::vec::dot(a, Vec2d{1.0, 2.0});
 }
 
 TEST_METHOD("[length]") {
@@ -134,8 +151,8 @@ TEST_METHOD("[distances]") {
 	EXPECT(nytl::vec::distance(y, x), test::approx(nytl::vec::length(x - y)));
 
 	// - should not compile - TODO
-	// nytl::vec::distance(Vec2{2.0, 3.0}, a);
-	// nytl::vec::distance(Vec4{2.0, 3.0. 0.0, 1.0}, x);
+	// nytl::vec::distance(Vec2d{2.0, 3.0}, a);
+	// nytl::vec::distance(Vec4d{2.0, 3.0. 0.0, 1.0}, x);
 }
 
 TEST_METHOD("[cross-product]") {
@@ -147,7 +164,7 @@ TEST_METHOD("[cross-product]") {
 	EXPECT(nytl::vec::cross(x, y), test::approx(Vec3d{21.0, 16.0, -18.0}));
 
 	// - should not compile -
-	// nytl::vec::cross(x, Vec2{1.0, 2.0});
-	// nytl::vec::cross(Vec2{2.0, 3.0}, Vec2{1.0, 2.0});
-	// nytl::vec::cross(nytl::Vec4{1.0, 2.0, 3.0, 4.0}, f);
+	// nytl::vec::cross(x, Vec2d{1.0, 2.0});
+	// nytl::vec::cross(Vec2d{2.0, 3.0}, Vec2d{1.0, 2.0});
+	// nytl::vec::cross(Vec4d{1.0, 2.0, 3.0, 4.0}, f);
 }

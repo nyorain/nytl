@@ -126,6 +126,7 @@ public:
 		}
 
 		callIter_ = iter.above;
+		return ret;
 	}
 
 	/// Clears all registered functions.

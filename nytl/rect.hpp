@@ -45,6 +45,7 @@ public:
 		{ return Rect<OD, OP>{static_cast<Vec<OD, OP>>(position), static_cast<Vec<OD, OP>>(size)}; }
 };
 
+
 } // namespace nytl
 
 #endif // header guard

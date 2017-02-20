@@ -101,24 +101,21 @@ constexpr auto length(const V& a);
 template<typename V>
 std::ostream& print(std::ostream& os, const V& vec)
 {
-	templatize<V>(os) << "(";
+	auto& tos = templatize<V>(os); // we don't want to include ostream
+	tos << "(";
 
 	auto it = vec.begin();
-	os << *it;
+	tos << *it;
 	while(++it != vec.end())
-	templatize<V>(os) << ", " << *it;
+	tos << ", " << *it;
 
-	templatize<V>(os) << ")";
+	tos << ")";
 	return os;
 }
 
 namespace detail {
 
-template<typename V>
-constexpr auto constexprDim = V::size();
-
-template<typename... V>
-using ConstexprDimsValid = void_t<decltype(constexprDim<V>)...>;
+// TODO: c++17!
 
 /// \brief Helper that asserts that the given vectors have the same dimension.
 /// \requires Types 'V1','V2' shall be Vector types.
