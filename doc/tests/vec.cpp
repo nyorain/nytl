@@ -1,6 +1,9 @@
 #include "test.hpp"
 #include "approx.hpp"
+
 #include <cmath>
+#include <complex>
+#include <iomanip>
 
 // testing both, vec and vecOps
 #include <nytl/vec.hpp>
@@ -15,129 +18,167 @@
 
 using namespace nytl;
 
-constexpr Vec3d a{1.0, 2.0, 3.0};
-constexpr Vec3d b{0.0, 0.0, 0.0};
-constexpr Vec3d c{1.0, 0.0, 0.0};
-constexpr Vec3d d{-1.0, 1.0, 1.0};
-constexpr Vec3d e{0.0001, 1.0, -1.0};
-constexpr Vec3d f{100.0, 500.0, -4.0};
+// collection of 3d vecs
 
-constexpr Vec3d x{2.0, 3.0, 5.0};
-constexpr Vec3d y{4.0, -3.0, 2.0};
-constexpr Vec3d z{0.0, 10.0, 1.0};
-
-// just a few random vectors
+// just a few random vectors with different types
 // no special meaning
-constexpr Vec4d a4d{1.0, 2.7, 3.87, 8.22};
-constexpr Vec4d b4d{0.0, -2.334, 0.0, -103.4};
-constexpr Vec4d c4d{1.0, 2.7, 3.87, 8.22};
+// double
+constexpr Vec2d d2a {1.0, 2.0};
+constexpr Vec2d d2b {0.0, 12.0};
+constexpr Vec2d d2c {-5.0, 2.5};
 
-constexpr Vec3d a3d{1.0, 2.2, 3.0};
-constexpr Vec3d b3d{0.0, 0.0, 0.0};
-constexpr Vec3d c3d{1.0, 10.3, -2.0};
+constexpr Vec3d d3a {1.0, 2.0, 3.0};
+constexpr Vec3d d3b {0.0, 0.0, 0.0};
+constexpr Vec3d d3c {1.0, 0.0, 0.0};
+constexpr Vec3d d3d {-1.0, 1.0, 1.0};
+constexpr Vec3d d3e {0.0001, 1.0, -1.0};
+constexpr Vec3d d3f {100.0, 500.0, -4.0};
+constexpr Vec3d d3g {2.0, 3.0, 5.0};
+constexpr Vec3d d3h {4.0, -3.0, 2.0};
+constexpr Vec3d d3i {0.0, 10.0, 1.0};
 
-constexpr Vec2d a2d{1.0, 2.0};
-constexpr Vec2d b2d{0.0, 12.0};
-constexpr Vec2d c2d{-5.0, 2.5};
+constexpr Vec4d d4a{1.0, 2.7, 3.87, 8.22};
+constexpr Vec4d d4b{0.0, -2.334, 0.0, -103.4};
+constexpr Vec4d d4c{1.0, 2.7, 3.87, 8.22};
+
+// int
+constexpr Vec2i i2a {1, 2};
+constexpr Vec3i i3a {-1, 0, 2};
+constexpr Vec4i i4a {5, -2, 12, 0};
+
+// TODO: c++17: make them constexpr
+nytl::Vec<5, int> i5a {1, 2, 3, 4, 5};
+nytl::Vec<5, int> i5b {10, 20, -10, -20, 0};
+nytl::Vec<7, int> i7a {1, 2, 3, 4, 5, 6, 7};
+nytl::Vec<7, int> i7b {-1, 0, 0, 0, 1, 4, 5};
+
+// complex
+using Vec2cd = Vec2<std::complex<double>>;
+using Vec3cd = Vec3<std::complex<double>>;
+using Vec4cd = Vec4<std::complex<double>>;
+
+constexpr Vec2cd c2a {{1.0, 0.0}, {2.0, 0.0}};
+constexpr Vec2cd c2b {{0.0, -10.0}, {5.0, 2.0}};
+constexpr Vec3cd c3a {{1.0, 0.0}, {-2.0, 0.0}, {0.0, 1.0}};
+constexpr Vec3cd c3b {{0.0, 3.0}, {-2.0, 34.0}, {0.0, 0.0}};
+constexpr Vec4cd c4a {{5.0, -2.0}, {7.0, 10.0}, {23.0, 34.0}, {0.0, -11.0}};
 
 TEST_METHOD("[vec-addition]") {
-	EXPECT(a + b, test::approx(a));
-	EXPECT(a - b, test::approx(a));
-	EXPECT(a + a, test::approx(Vec3d{2.0, 4.0, 6.0}));
-	EXPECT(x + z, test::approx(Vec3d{2.0, 13.0, 6.0}));
-	EXPECT(b - x + x - x + b, test::approx(-x));
-	EXPECT(f - f, test::approx(b));
-	EXPECT(b, test::approx(-b));
-	EXPECT((Vec3d{1.0, 1.0, 1.0} + Vec3d{-1.0, 2.0, 0.0}), (test::approx(Vec3d{0.0, 3.0, 1.0})));
-	EXPECT((Vec2i{1, 2} - Vec2d{1.0, 2.0}), (test::approx(Vec2f{0.0, 0.0})));
+	EXPECT(-d3a, test::approx(Vec3d{-1.0, -2.0, -3.0}));
+	EXPECT(d3a + d3b, test::approx(d3a));
+	EXPECT(d3a - d3b, test::approx(d3a));
+	EXPECT(d3a + d3a, test::approx(Vec3d{2.0, 4.0, 6.0}));
+	EXPECT(d3g + d3i, test::approx(Vec3d{2.0, 13.0, 6.0}));
+	EXPECT(d3b - d3g + d3g - d3g + d3b, test::approx(-d3g));
+	EXPECT(d3f - d3f, test::approx(d3b));
+	EXPECT(d3b, test::approx(-d3b));
+	EXPECT(d2a + i2a, test::approx(Vec2d{2.0, 4.0}));
+	EXPECT(d3b - i3a, test::approx(Vec3d{1.0, 0.0, -2.0}));
+	EXPECT(c3a + c3b, test::approx(Vec3cd{{1.0, 3.0}, {-4.0, 34.0}, {0.0, 1.0}}));
+	EXPECT(c2a - c2b, test::approx(Vec2cd{{1.0, 10.0}, {-3.0, -2.0}}));
+	EXPECT(i5a + i5b, test::approx(Vec<5, int>{11, 22, -7, -16, 5}));
 
 	// - should not compile - TODO
+	// d2a + d3a;
+	// d3a + d2a;
+	// i3a + i2a;
+	// c3a + c4a;
+	// i2a + c2a;
 }
 
 TEST_METHOD("[scalar multiplication]") {
-	EXPECT((2 * a), test::approx(a + a));
-	EXPECT((5 * b), test::approx(b));
-	EXPECT((-1 * f), test::approx(-f));
-	EXPECT((0 * e), test::approx(b));
-	EXPECT((0.5 * y), test::approx(Vec3f{2.0, -1.5, 1.0}));
-	EXPECT((0.2 * z), test::approx(z - 0.8 * z));
-	EXPECT((2 * x + y), test::approx(Vec3f{8.0, 3.0, 12.0}));
+	EXPECT(2 * d3a, test::approx(d3a + d3a));
+	EXPECT(5 * d3b, test::approx(d3b));
+	EXPECT(-1 * d3f, test::approx(-d3f));
+	EXPECT(0 * d3e, test::approx(d3b));
+	EXPECT(0.5 * d3h, test::approx(Vec3f{2.0, -1.5, 1.0}));
+	EXPECT(0.2 * d3i, test::approx(d3i - 0.8 * d3i));
+	EXPECT(2 * d3g + d3h, test::approx(Vec3f{8.0, 3.0, 12.0}));
+	EXPECT(2 * i5a, test::approx(Vec<5, int>{2, 4, 6, 8, 10}));
+	EXPECT((std::complex<double>{-2, 0.0} * c2a), test::approx(Vec2cd{{-2.0, 0.0}, {-4.0, 0.0}}));
 }
 
 TEST_METHOD("[multiplies]") {
-	EXPECT(nytl::vec::multiply(a), test::approx(6.0));
-	EXPECT(nytl::vec::multiply(b), test::approx(0.0));
-	EXPECT(nytl::vec::multiply(c), test::approx(0.0));
-	EXPECT(nytl::vec::multiply(d), test::approx(-1.0));
-	EXPECT(nytl::vec::multiply(e), test::approx(-0.0001));
-	EXPECT(nytl::vec::multiply(f), test::approx(-200000.0));
+	EXPECT(nytl::vec::multiply(d3a), test::approx(6.0));
+	EXPECT(nytl::vec::multiply(d3b), test::approx(0.0));
+	EXPECT(nytl::vec::multiply(d3c), test::approx(0.0));
+	EXPECT(nytl::vec::multiply(d3d), test::approx(-1.0));
+	EXPECT(nytl::vec::multiply(d3e), test::approx(-0.0001));
+	EXPECT(nytl::vec::multiply(d3f), test::approx(-200000.0));
+	EXPECT(nytl::vec::multiply(c2a), test::approx(c2a[0] * c2a[1]));
+	EXPECT(static_cast<unsigned int>(nytl::vec::multiply(i7a)), nytl::factorial(7));
 }
 
 TEST_METHOD("[sums]") {
-	EXPECT(nytl::vec::sum(a), test::approx(6.0));
-	EXPECT(nytl::vec::sum(b), test::approx(0.0));
-	EXPECT(nytl::vec::sum(c), test::approx(1.0));
-	EXPECT(nytl::vec::sum(d), test::approx(1.0));
-	EXPECT(nytl::vec::sum(e), test::approx(0.0001));
-	EXPECT(nytl::vec::sum(f), test::approx(596.0));
+	EXPECT(nytl::vec::sum(d3a), test::approx(6.0));
+	EXPECT(nytl::vec::sum(d3b), test::approx(0.0));
+	EXPECT(nytl::vec::sum(d3c), test::approx(1.0));
+	EXPECT(nytl::vec::sum(d3d), test::approx(1.0));
+	EXPECT(nytl::vec::sum(d3e), test::approx(0.0001));
+	EXPECT(nytl::vec::sum(d3f), test::approx(596.0));
+	EXPECT(nytl::vec::sum(i7a), 1 + 2 + 3 + 4 + 5 + 6 + 7);
+	EXPECT(nytl::vec::sum(c3b), test::approx(c3b[0] + c3b[1] + c3b[2]));
 }
 
 TEST_METHOD("[dot]") {
-	EXPECT(nytl::vec::dot(a, b), test::approx(0.0));
-	EXPECT(nytl::vec::dot(a, c), test::approx(1.0));
-	EXPECT(nytl::vec::dot(a, d), test::approx(4.0));
-	EXPECT(nytl::vec::dot(d, a), test::approx(4.0));
-	EXPECT(nytl::vec::dot(x, a), test::approx(23.0));
-	EXPECT(nytl::vec::dot(x, y), test::approx(9.0));
-	EXPECT(nytl::vec::dot(z, x), test::approx(35.0));
-	EXPECT(nytl::vec::dot(x, f), test::approx(1680.0));
-	EXPECT(nytl::vec::dot(y, d), test::approx(-5.0));
+	EXPECT(nytl::vec::dot(d3a, d3b), test::approx(0.0));
+	EXPECT(nytl::vec::dot(d3a, d3c), test::approx(1.0));
+	EXPECT(nytl::vec::dot(d3a, d3d), test::approx(4.0));
+	EXPECT(nytl::vec::dot(d3d, d3a), test::approx(4.0));
+	EXPECT(nytl::vec::dot(d3g, d3a), test::approx(23.0));
+	EXPECT(nytl::vec::dot(d3g, d3h), test::approx(9.0));
+	EXPECT(nytl::vec::dot(d3i, d3g), test::approx(35.0));
+	EXPECT(nytl::vec::dot(d3g, d3f), test::approx(1680.0));
+	EXPECT(nytl::vec::dot(d3h, d3d), test::approx(-5.0));
 
 	// - should not compile -
-	// nytl::vec::dot(a, Vec2d{1.0, 2.0});
+	// nytl::vec::dot(d3a, d2a);
+	// nytl::vec::dot(c2a, c3a);
 }
 
 TEST_METHOD("[length]") {
-	EXPECT(nytl::vec::length(b), test::approx(0.0));
-	EXPECT(nytl::vec::length(a), test::approx(std::sqrt(14.0)));
-	EXPECT(nytl::vec::length(f), test::approx(nytl::vec::length(-f)));
-	EXPECT(nytl::vec::length(2 * a), test::approx(2 * nytl::vec::length(a)));
-	EXPECT(nytl::vec::length(1232 * a), test::approx(1232 * nytl::vec::length(a)));
-	EXPECT(nytl::vec::length(-5 * a), test::approx(5.0 * nytl::vec::length(a)));
-	EXPECT(nytl::vec::length(b), test::approx(0.0));
-	EXPECT(nytl::vec::length(c), test::approx(1.0));
-	EXPECT(nytl::vec::length(x), test::approx(std::sqrt(38.0)));
-	EXPECT(nytl::vec::length(y), test::approx(std::sqrt(29.0)));
-	EXPECT(nytl::vec::length(z), test::approx(std::sqrt(nytl::vec::dot(z, z))));
-	EXPECT(nytl::vec::length(x - a), test::approx(std::sqrt(6.0)));
-	EXPECT(nytl::vec::length(1.5 * (a + b + c)), test::approx(1.5 * std::sqrt(17.0)));
+	EXPECT(nytl::vec::length(d3b), test::approx(0.0));
+	EXPECT(nytl::vec::length(d3a), test::approx(std::sqrt(14.0)));
+	EXPECT(nytl::vec::length(d3f), test::approx(nytl::vec::length(-d3f)));
+	EXPECT(nytl::vec::length(2 * d3a), test::approx(2 * nytl::vec::length(d3a)));
+	EXPECT(nytl::vec::length(1232 * d3a), test::approx(1232 * nytl::vec::length(d3a)));
+	EXPECT(nytl::vec::length(-5 * d3a), test::approx(5.0 * nytl::vec::length(d3a)));
+	EXPECT(nytl::vec::length(d3b), test::approx(0.0));
+	EXPECT(nytl::vec::length(d3c), test::approx(1.0));
+	EXPECT(nytl::vec::length(d3g), test::approx(std::sqrt(38.0)));
+	EXPECT(nytl::vec::length(d3h), test::approx(std::sqrt(29.0)));
+	EXPECT(nytl::vec::length(d3i), test::approx(std::sqrt(nytl::vec::dot(d3i, d3i))));
+	EXPECT(nytl::vec::length(d3g - d3a), test::approx(std::sqrt(6.0)));
+	EXPECT(nytl::vec::length(1.5 * (d3a + d3b + d3c)), test::approx(1.5 * std::sqrt(17.0)));
 	EXPECT(nytl::vec::length(Vec3i{1, 2, 3}), test::approx(std::sqrt(14.0)));
 }
 
 TEST_METHOD("[angles]") {
-	constexpr Vec2d a2{1.0, 0.0};
-	constexpr Vec2d b2{0.0, 1.0};
-	constexpr Vec2i c2{1, 1};
+	// custom angle vectors
+	constexpr Vec2d a {1.0, 0.0};
+	constexpr Vec2d b {0.0, 1.0};
+	constexpr Vec2i c {1, 1};
 
-	constexpr Vec3f a3{1.0, 0.0, -1.0};
-	constexpr Vec3i b3{1, 0, 0};
-	constexpr Vec3ui c3{0u, 1u, 0u};
+	EXPECT(nytl::vec::angle(a, b), test::approx(nytl::radians(90.0)));
+	EXPECT(nytl::vec::angle(b, a), test::approx(nytl::constants::pi / 2));
+	EXPECT(nytl::vec::angle(a, c), test::approx(nytl::radians(45.0)));
+	EXPECT(nytl::vec::angle(c, b), test::approx(nytl::constants::pi / 4));
 
-	std::cout << nytl::vec::dot(b2, c2) << "\n";
-	std::cout << nytl::vec::length(b2) * nytl::vec::length(c2) << "\n";
+	constexpr Vec3f d {1.0, 0.0, -1.0};
+	constexpr Vec3i e {1, 0, 0};
+	constexpr Vec3ui f {0u, 1u, 0u};
 
-	EXPECT(nytl::vec::angle(x, x), test::approx(0.0));
-	EXPECT(nytl::vec::angle(a2, b2), test::approx(nytl::radians(90.0)));
-	EXPECT(nytl::vec::angle(b2, a2), test::approx(nytl::constants::pi / 2));
-	EXPECT(nytl::vec::angle(a2, c2), test::approx(nytl::radians(45.0)));
-	EXPECT(nytl::vec::angle(c2, b2), test::approx(nytl::constants::pi / 4));
+	EXPECT(nytl::vec::angle(d, e), test::approx(nytl::constants::pi / 4));
+	EXPECT(nytl::vec::angle(f, e), test::approx(nytl::radians(90.0)));
+	EXPECT(nytl::vec::angle(e, f), test::approx(nytl::constants::pi / 2));
 
-	EXPECT(nytl::vec::angle(a3, b3), test::approx(nytl::constants::pi / 4));
-	EXPECT(nytl::vec::angle(static_cast<Vec3i>(c3), b3), test::approx(nytl::radians(90.0)));
-	EXPECT(nytl::vec::angle(b3, static_cast<Vec3i>(c3)), test::approx(nytl::constants::pi / 2));
+	EXPECT_ERROR(nytl::vec::angle(d3a, d3b), std::domain_error);
+	EXPECT_ERROR(nytl::vec::angle(d3b, d3b), std::domain_error);
 
-	EXPECT_ERROR(nytl::vec::angle(a, b), std::domain_error);
-	EXPECT_ERROR(nytl::vec::angle(b, b), std::domain_error);
+	EXPECT(nytl::vec::angle(d3g, d3g), test::approx(0.0));
+	EXPECT(nytl::vec::angle(d3g, d3h), test::approx(1.296246288593885243));
+	EXPECT(nytl::vec::angle(d2a, d2b), test::approx(0.46364760900080614903));
+	EXPECT(nytl::vec::angle(i5a, i5b), test::approx(1.8295137377985963845));
 
 	// - should not compile -
 	// nytl::vec::angle(a3, a2);
@@ -145,10 +186,10 @@ TEST_METHOD("[angles]") {
 }
 
 TEST_METHOD("[distances]") {
-	EXPECT(nytl::vec::distance(a, b), test::approx(nytl::vec::length(a)));
-	EXPECT(nytl::vec::distance(f, f), test::approx(0.0));
-	EXPECT(nytl::vec::distance(x, y), test::approx(nytl::vec::length(x - y)));
-	EXPECT(nytl::vec::distance(y, x), test::approx(nytl::vec::length(x - y)));
+	EXPECT(nytl::vec::distance(d3a, d3b), test::approx(nytl::vec::length(d3a)));
+	EXPECT(nytl::vec::distance(d3f, d3f), test::approx(0.0));
+	EXPECT(nytl::vec::distance(d3g, d3h), test::approx(nytl::vec::length(d3g - d3h)));
+	EXPECT(nytl::vec::distance(d3h, d3g), test::approx(nytl::vec::length(d3g - d3h)));
 
 	// - should not compile - TODO
 	// nytl::vec::distance(Vec2d{2.0, 3.0}, a);
@@ -156,12 +197,12 @@ TEST_METHOD("[distances]") {
 }
 
 TEST_METHOD("[cross-product]") {
-	EXPECT(nytl::vec::cross(a, b), test::approx(Vec3d{0.0, 0.0, 0.0}));
-	EXPECT(nytl::vec::cross(a, c), test::approx(Vec3d{0.0, 3.0, -2.0}));
-	EXPECT(nytl::vec::cross(c, a), test::approx(Vec3d{0.0, -3.0, 2.0}));
-	EXPECT(nytl::vec::cross(x, x), test::approx(Vec3d{0.0, 0.0, 0.0}));
-	EXPECT(nytl::vec::cross(f, y), test::approx(-nytl::vec::cross(y, f)));
-	EXPECT(nytl::vec::cross(x, y), test::approx(Vec3d{21.0, 16.0, -18.0}));
+	EXPECT(nytl::vec::cross(d3a, d3b), test::approx(Vec3d{0.0, 0.0, 0.0}));
+	EXPECT(nytl::vec::cross(d3a, d3c), test::approx(Vec3d{0.0, 3.0, -2.0}));
+	EXPECT(nytl::vec::cross(d3c, d3a), test::approx(Vec3d{0.0, -3.0, 2.0}));
+	EXPECT(nytl::vec::cross(d3g, d3g), test::approx(Vec3d{0.0, 0.0, 0.0}));
+	EXPECT(nytl::vec::cross(d3f, d3h), test::approx(-nytl::vec::cross(d3h, d3f)));
+	EXPECT(nytl::vec::cross(d3g, d3h), test::approx(Vec3d{21.0, 16.0, -18.0}));
 
 	// - should not compile -
 	// nytl::vec::cross(x, Vec2d{1.0, 2.0});

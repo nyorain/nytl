@@ -194,7 +194,7 @@ constexpr auto dot(const V1& a, const V2& b)
 {
 	using RetType = decltype(a[0] * b[0] + a[0] * b[0]);
 	auto ret = FieldTraits<RetType>::zero;
-	for(auto i = 0u; i < a.size(); ++i) ret = std::fma(a[i], b[i], ret);
+	for(auto i = 0u; i < a.size(); ++i) ret += a[i] * b[i];
 	return ret;
 }
 
@@ -229,6 +229,8 @@ constexpr auto normalize(const V& a)
 } // namespace nocheck
 
 /// \brief Calculates the default dot product for the given vectors.
+/// Note that this follows the dot definition for real numbers and does
+/// not automatically handle the dot definition for complex numbers.
 /// \requires Types 'V1' and 'V2' shall be Vectors.
 /// \throws std::invalid_argument if the size of the input vectors differs.
 /// \module vecOps
@@ -242,7 +244,8 @@ constexpr auto dot(const V1& a, const V2& b)
 /// \brief Calculates the angle in radians between two vectors using the dot product.
 /// Therefore it will always return the smaller between the both vectors on a
 /// plane in which both vectors lay.
-/// For two equal vectors, it will return 0.0.
+/// For two equal vectors, it will return always 0.0.
+/// Does only work for real numbers and does not handle complex vectors.
 /// \requires Types 'V1', 'V2' shall be Vectors.
 /// \throws std::invalid_argument if the size of the input vectors differs.
 /// \throws std::domain_error if at lesat one of the given vectors has a length of 0.
@@ -253,13 +256,18 @@ constexpr auto angle(const V1& a, const V2& b)
 	using Field = FieldTraits<typename V1::Value>;
 	detail::assertSameDimensions(a, b);
 
-	if(length(a) == 0 || length(b) == 0)
+	auto la = length(a);
+	auto lb = length(b);
+	if(la == Field::zero || lb == Field::zero)
 		throw std::domain_error("nytl::vec::angle: both vectors are null");
 
-	if(a == b)
-		return Field::acos(Field::one);
+	auto res = Field::acos(nocheck::dot(a, b) / (la * lb));
 
-	return nocheck::angle(a, b);
+	// We do this check here to output 0 for angle(a, a).
+	// This might produce nan somtimes due to rounding errors.
+	// res != res is true when res represents nan
+	if(res != res) res = Field::acos(Field::one);
+	return res;
 }
 
 /// \brief Calculates the cross product for two 3-dimensional vectors.
@@ -282,10 +290,13 @@ constexpr auto cross(const V1& a, const V2& b)
 template<typename V>
 constexpr auto normalize(const V& a)
 {
-	if(length(a) == 0)
+	using Field = FieldTraits<typename V::Value>;
+
+	auto la = length(a);
+	if(la == Field::zero)
 		throw std::domain_error("nytl::vec::normalize: vector has length 0");
 
-	return nocheck::normalize(a);
+	return (Field::one / la) * a;
 }
 
 /// \brief Returns the euclidean norm (or length) of the given vector.

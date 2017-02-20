@@ -35,6 +35,39 @@ public:
 template<typename T>
 class Approx : public Approx<double> {};
 
+/// Approx specialization for complex types
+template<typename T>
+class Approx<std::complex<T>> {
+public:
+	template<typename OT>
+	friend bool operator==(std::complex<OT> lhs, const Approx& rhs)
+	{
+		return lhs.real() == approx(rhs.value.real()) && lhs.imag() == approx(rhs.value.imag());
+	}
+
+	template<typename OT>
+	friend bool operator==(const Approx& lhs, std::complex<OT> rhs)
+	{
+		return operator==(rhs, lhs);
+	}
+
+	template<typename OT>
+	friend bool operator!=(std::complex<OT> lhs, const Approx& rhs)
+	{
+		return !operator==(lhs, rhs);
+	}
+
+	template<typename OT>
+	friend bool operator!=(const Approx& lhs, std::complex<OT> rhs)
+	{
+		return !operator==(lhs, rhs);
+	}
+
+public:
+	std::complex<T> value {};
+	double epsilon {defaultEpsilon};
+};
+
 /// Approx specialization for nytl::Vec
 template<std::size_t I, typename T>
 class Approx<nytl::Vec<I, T>> {

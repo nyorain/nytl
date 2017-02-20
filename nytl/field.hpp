@@ -38,8 +38,8 @@ template<typename T>
 struct FieldTraits {
 	using FullPrecision = typename FullPrecisionField<T>::type;
 
-	static constexpr auto zero = T {0};
-	static constexpr auto one = T {1};
+	static constexpr T zero = T {0};
+	static constexpr T one = T {1};
 
 	static constexpr auto abs(FullPrecision value) { return std::abs(value); }
 	static constexpr auto sqrt(FullPrecision value) { return std::sqrt(value); }
@@ -52,6 +52,9 @@ struct FieldTraits {
 	static constexpr auto acos(FullPrecision value) { return std::acos(value); }
 	static constexpr auto atan(FullPrecision value) { return std::atan(value); }
 };
+
+template<typename T> constexpr T FieldTraits<T>::zero;
+template<typename T> constexpr T FieldTraits<T>::one;
 
 } // namespace nytl
 

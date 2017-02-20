@@ -5,6 +5,8 @@ TODO for nytl
 
 - check correct header includes (nytl, stl)
 
+- vecOps: compile time error for complex numbers in non-supporting operations
+	- e.g. dot&angle: they might not behave as expected
 - vec rework (see associated branch) [C++17]
 	- make operators even more explicit, dont allow vec2 + vec3!
 
