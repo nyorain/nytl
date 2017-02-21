@@ -9,7 +9,6 @@
 #ifndef NYTL_INCLUDE_MAT_OPS
 #define NYTL_INCLUDE_MAT_OPS
 
-#include <nytl/field.hpp> // nytl::FieldTraits
 #include <nytl/tmpUtil.hpp> // nytl::templatize
 
 #include <utility> // std::swap
@@ -19,49 +18,6 @@
 #include <cmath> // std::fma
 
 namespace nytl::mat {
-
-/// The concept matrix types have to fulfill:
-/// struct Matrix {
-/// public:
-/// 	using Size = ...; // usually std::size_t. Must be convertible from/to int.
-/// 	using Value = ...; // value type, mathematical field
-/// 	using RowType = ...; // Vector type able to hold one row of this matrix
-/// 	using ColType = ...; // Vector type able to hold one column of this matrix
-///
-/// 	// Rebinds the Matrix implementation
-/// 	template<Size MaxR, Size MaxC, typename T> using Rebind = ...;
-///
-/// 	// dimensions of the matrix. Might be symbolic constants
-/// 	static constexpr Size rowDim = ..;
-/// 	static constexpr Size colDim = ..;
-///
-/// 	// creates a matrix for the given rows and cols.
-/// 	static Matrix create(Size rows, Size cols);
-///
-/// public:
-/// 	// matrix[r][c] must return a reference to the value of matrix in row r and column c.
-///  	auto operator[](Size); // must return some kind of referencing vector.
-///  	const auto operator[](Size) const; // must return some kind of referencing vector.
-///
-/// 	Size rows() const; // the number of rows
-/// 	Size cols() const; // the number of columns
-/// };
-///
-/// // NOTE: As specified in the Vector concept, vectors are interpreted column vectors.
-/// // The matrix vector multiplication operators must be implemented this way.
-/// // Invalid operations (such as multiply 3x2 matrix with 4x4 matrix) should not be implemented
-/// // or throw an exception.
-///
-/// auto operator*(Value, Matrix);
-/// auto operator*(Matrix, Matrix); // default matrix multiplication
-/// auto operator*(Matrix, Vector); // multiplication of matrix with vector
-/// auto operator*(Vector, Matrix); // multiplication of vector with 1-row matrix
-/// auto operator+(Matrix, Matrix);
-/// auto operator-(Matrix, Matrix);
-/// bool operator==(Matrix, Matrix);
-/// bool operator!=(Matrix, Matrix);
-///
-/// For an example Matrix implementation: nytl/mat.hpp: [nytl::Mat]().
 
 /// \brief Prints the given matrix with numerical values to the given ostream.
 /// If this function is used, header <ostream> must be included.
@@ -212,7 +168,7 @@ constexpr void zero(M& mat)
 {
 	for(auto r = 0u; r < mat.rows(); ++r)
 		for(auto c = 0u; c < mat.cols(); ++c)
-			mat[r][c] = FieldTraits<typename M::Value>::zero;
+			mat[r][c] = 0.0;
 }
 
 /// \brief Sets all values of the given matrix to 1 of the underlaying field.
@@ -223,7 +179,7 @@ constexpr void one(M& mat)
 {
 	for(auto r = 0u; r < mat.rows(); ++r)
 		for(auto c = 0u; c < mat.cols(); ++c)
-			mat[r][c] = FieldTraits<typename M::Value>::one;
+			mat[r][c] = 1.0;
 }
 
 /// \brief Returns the trace of a square matrix, i.e. the sum of its diagonal elements
@@ -261,7 +217,7 @@ constexpr void identity(M& mat)
 {
 	zero(mat);
 	for(auto n = 0u; n < mat.rows(); ++n)
-		mat[n][n] = FieldTraits<typename M::Value>::one;
+		mat[n][n] = 1.0;
 }
 
 /// \brief Transposes the given matrix.
@@ -292,11 +248,9 @@ constexpr auto transpose(const M& mat)
 template<typename M>
 constexpr auto pivot(M& mat, typename M::Size row, typename M::Size column, bool after = false)
 {
-	using Field = FieldTraits<typename M::Value>;
-
 	auto maxRow = row;
 	for(auto r = after ? row + 1 : 0; r < mat.rows(); ++r)
-		if(Field::abs(mat[r][column]) > Field::abs(mat[maxRow][column]))
+		if(std::abs(mat[r][column]) > std::abs(mat[maxRow][column]))
 			maxRow = r;
 
 	if(maxRow != row)
@@ -313,20 +267,18 @@ constexpr auto pivot(M& mat, typename M::Size row, typename M::Size column, bool
 /// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
 /// \notes This operation divides by values from the matrix so it must have a type does
 /// correctly implement division over the desired field (e.g. integer matrices will result
-/// in errors here).
+/// in quiet rounding errors here).
 /// \requires Type 'M' shall be a Matrix.
 /// \module matOps
 template<typename M>
 constexpr void rowEcholon(M& mat)
 {
-	auto fieldZero = FieldTraits<typename M::Value>::zero;
-
 	// Start with the topleft element and go one right in each step.
 	// We only go one down if we could eliminate the current column with the current row.
 	for(auto r = 0u, c = 0u; r < mat.rows() && c < mat.cols(); ++c) {
 		// maximize the current pivot. Only consider rows after the current one.
 		// go to the next column (continue without increasing the row) if the pivot is zero
-		if(pivot(mat, r, c, true) == fieldZero) continue;
+		if(pivot(mat, r, c, true) == 0.0) continue;
 
 		// Divide all elements in this row by the first element since it should be 1
 		// we already assured that the pivot cannot be zero, so we can divide by it
@@ -352,8 +304,7 @@ constexpr void rowEcholon(M& mat)
 template<typename M>
 constexpr auto rowEcholonCopy(const M& mat)
 {
-	using RetValue = typename FieldTraits<typename M::Value>::FullPrecision;
-	using RetMat = typename M::template Rebind<M::rowDim, M::colDim, RetValue>;
+	using RetMat = typename M::template Rebind<M::rowDim, M::colDim, double>;
 
 	auto ret = RetMat::create(mat.rows(), mat.cols());
 	copy(ret, mat);
@@ -389,7 +340,7 @@ constexpr void reducedRowEcholon(M& mat)
 
 		// eliminate other coefficients in the current column above the current row
 		for(auto p = 0u; p < r; ++p) {
-			auto fac = mat[p][c];
+			auto fac = mat[p][c] / mat[r][c];
 			for(auto q = 0u; q < mat.cols(); ++q) {
 				mat[p][q] -= fac * mat[r][q];
 			}
@@ -403,8 +354,7 @@ constexpr void reducedRowEcholon(M& mat)
 template<typename M>
 constexpr auto reducedRowEcholonCopy(const M& mat)
 {
-	using RetValue = typename FieldTraits<typename M::Value>::FullPrecision;
-	using RetMat = typename M::template Rebind<M::rowDim, M::colDim, RetValue>;
+	using RetMat = typename M::template Rebind<M::rowDim, M::colDim, double>;
 
 	auto ret = RetMat::create(mat.rows(), mat.cols());
 	copy(ret, mat);
@@ -430,17 +380,13 @@ constexpr auto reducedRowEcholonCopy(const M& mat)
 template<typename M>
 constexpr auto luDecomp(const M& mat)
 {
-	using RetValue = typename FieldTraits<typename M::Value>::FullPrecision;
-	using RetMat = typename M::template Rebind<M::rowDim, M::colDim, RetValue>;
-
-	auto fieldZero = FieldTraits<typename M::Value>::zero;
-	auto fieldOne = FieldTraits<typename M::Value>::one;
+	using RetMat = typename M::template Rebind<M::rowDim, M::colDim, double>;
 
 	std::tuple<RetMat, RetMat, RetMat, int> ret {};
 	auto& lower = (std::get<0>(ret) = RetMat::create(mat.rows(), mat.cols()));
 	auto& upper = (std::get<1>(ret) = RetMat::create(mat.rows(), mat.cols()));
 	auto& perm = (std::get<2>(ret) = RetMat::create(mat.rows(), mat.cols()));
-	auto& sign = (std::get<3>(ret) = fieldOne);
+	auto& sign = (std::get<3>(ret) = 1.0);
 
 	identity(perm);
 	copy(upper, mat);
@@ -451,9 +397,9 @@ constexpr auto luDecomp(const M& mat)
 		// swapping the current row with another row. If we do so, we have to pretend we
 		// swapped the matrix in the beginning and therefore also change the lower matrix and
 		// remember the swap in the permutation matrix
-		if(upper[n][n] == fieldZero) {
+		if(upper[n][n] == 0.0) {
 			for(auto r = n + 1; r < mat.rows(); ++r) {
-				if(upper[r][n] != fieldZero) {
+				if(upper[r][n] != 0.0) {
 					swapRow(perm, r, n);
 					swapRow(upper, r, n);
 					swapRow(lower, r, n);
@@ -464,28 +410,24 @@ constexpr auto luDecomp(const M& mat)
 
 			// If all coefficients in the column are zero (e.g. a zero matrix), its ok since
 			// we don't have any more coefficients to eliminate.
-			if(upper[n][n] == fieldZero) {
-				lower[n][n] = fieldOne;
+			if(upper[n][n] == 0.0) {
+				lower[n][n] = 1.0;
 				continue;
 			}
 		}
 
-		lower[n][n] = fieldOne;
+		lower[n][n] = 1.0;
 
 		// erase all coefficients in the nth column below the nth row.
 		// pivoting already assured that mat[n][n] is not zero
 		auto rown = row(upper, n);
 		for(auto i = n + 1; i < mat.rows(); ++i) {
-			auto fac = static_cast<RetValue>(upper[i][n]) / upper[n][n];
+			auto fac = static_cast<double>(upper[i][n]) / upper[n][n];
 			auto rowi = row(upper, i);
 			auto rowin = rowi - fac * rown;
 			row(upper, i, rowin);
 			lower[i][n] = fac;
 		}
-
-		// TODO: remove this debug stuff...?
-		// std::cout << upper << "\n";
-		// std::cout << lower << "\n";
 	}
 
 	return ret;
@@ -498,9 +440,7 @@ namespace nocheck {
 template<typename M, typename V>
 constexpr auto luEvaluate(const M& l, const M& u, const V& b)
 {
-	// implemented with help of gamedev.net article https://goo.gl/CgPGvm
-	using RetValue = typename FieldTraits<typename M::Value>::FullPrecision;
-	using RetVec = typename V::template Rebind<V::dim, RetValue>;
+	using RetVec = typename V::template Rebind<V::dim, double>;
 
 	auto d = RetVec::create(b.size());
 	auto x = RetVec::create(b.size());
@@ -550,9 +490,8 @@ constexpr auto luEvaluate(const M& l, const M& u, const V& b)
 	if(l.rows() != l.cols() || u.rows() != u.cols() || l.rows() != u.rows())
 		throw std::invalid_argument("nytl::mat::luEvaluate: invalid lu matrices");
 
-	auto zero = FieldTraits<typename M::Value>::zero;
 	for(auto n = 0u; n < l.rows(); ++n)
-		if(l[n][n] == zero || u[n][n] == zero)
+		if(l[n][n] == 0.0 || u[n][n] == 0.0)
 			throw std::invalid_argument("nytl::mat::luEvaluate: singular lower or upper matrix");
 
 	return nocheck::luEvaluate(l, u, b);
@@ -608,8 +547,7 @@ namespace nocheck {
 template<typename M>
 constexpr auto inverse(const M& l, const M& u, const M& p)
 {
-	using RetValue = typename FieldTraits<typename M::Value>::FullPrecision;
-	using RetMat = typename M::template Rebind<M::rowDim, M::colDim, RetValue>;
+	using RetMat = typename M::template Rebind<M::rowDim, M::colDim, double>;
 	auto ret = RetMat::create(l.rows(), l.cols());
 
 	for(auto i = 0u; i < ret.cols(); ++i)
@@ -657,9 +595,8 @@ constexpr auto inverse(const M& l, const M& u)
 	if(l.rows() != l.cols() || u.rows() != u.cols() || l.rows() != u.rows())
 		throw std::invalid_argument("nytl::mat::inverse: non-square matrix");
 
-	auto zero = FieldTraits<typename M::Value>::zero;
 	for(auto n = 0u; n < l.rows(); ++n)
-		if(u[n][n] == zero || l[n][n] == zero)
+		if(u[n][n] == 0.0 || l[n][n] == 0.0)
 			throw std::invalid_argument("nytl::mat::inverse: singular matrix");
 
 	return nocheck::inverse(l, u);
@@ -674,9 +611,8 @@ constexpr auto inverse(const M& l, const M& u, const M& p)
 	if(l.rows() != l.cols() || u.rows() != u.cols() || l.rows() != u.rows())
 		throw std::invalid_argument("nytl::mat::inverse: non-square matrix");
 
-	auto zero = FieldTraits<typename M::Value>::zero;
 	for(auto n = 0u; n < l.rows(); ++n)
-		if(u[n][n] == zero || l[n][n] == zero)
+		if(u[n][n] == 0.0 || l[n][n] == 0.0)
 			throw std::invalid_argument("nytl::mat::inverse: singular matrix");
 
 	return nocheck::inverse(l, u, p);
@@ -706,7 +642,7 @@ constexpr auto inverse(const M& mat)
 	return inverse(l, u, p);
 
 	for(auto n = 0u; n < l.rows(); ++n)
-		if(u[n][n] == FieldTraits<typename M::Value>::zero)
+		if(u[n][n] == 0.0)
 			throw std::invalid_argument("nytl::mat::inverse: singular matrix");
 
 	return nocheck::inverse(l, u, p);
@@ -732,7 +668,7 @@ constexpr bool invert(M& mat)
 
 	// check for singular matrix
 	for(auto n = 0u; n < l.rows(); ++n)
-		if(u[n][n] == FieldTraits<typename M::Value>::zero)
+		if(u[n][n] == 0.0)
 			return false;
 
 	mat = nocheck::inverse(l, u, p);

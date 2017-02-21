@@ -1,6 +1,8 @@
 #include "test.hpp"
 #include <nytl/callback.hpp>
 #include <nytl/tmpUtil.hpp>
+#include <nytl/observe.hpp>
+
 
 TEST_METHOD("[callback-1]") {
 	nytl::Callback<void()> a;
@@ -47,6 +49,23 @@ TEST_METHOD("[callback-2]") {
 		EXPECT(ret[i], i + 1u);
 }
 
+TEST_METHOD("[callback-3]") {
+	nytl::TrackedConnectionID id;
+
+	{
+		nytl::TrackedCallback<void()> cb;
+		auto conn = cb.add([]{});
+		EXPECT(conn.connected(), true);
+		cb.clear();
+		EXPECT(conn.connected(), false);
+
+		id = cb.add([]{}).id();
+		EXPECT(id.valid(), true);
+	}
+
+	EXPECT(id.valid(), false);
+}
+
 TEST_METHOD("[connection]") {
 	nytl::Callback<void()> cb;
 
@@ -56,7 +75,7 @@ TEST_METHOD("[connection]") {
 	EXPECT(called, 1u);
 
 	{
-		auto conn2 = nytl::ConnectionGuard(cb.add([&]{ ++called; }));
+		auto conn2 = nytl::UniqueConnection(cb.add([&]{ ++called; }));
 		auto conn3 = cb.add([&]{ ++called; });
 		nytl::unused(conn3);
 

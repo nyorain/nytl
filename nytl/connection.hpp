@@ -9,8 +9,9 @@
 #ifndef NYTL_INCLUDE_CONNECTION_HPP
 #define NYTL_INCLUDE_CONNECTION_HPP
 
-#include <iostream>
-#include <exception>
+#include <iostream> // std::cerr
+#include <exception> // std::exception
+#include <memory> // std::shared_ptr
 
 namespace nytl {
 
@@ -18,13 +19,13 @@ namespace nytl {
 /// An example (in nytl) is nytl::Callback.
 /// The way for obtaining such a connection if class-defined, this interface defines
 /// only a common way to disconnect again, which can then be used by the connection classes.
-/// Using this abstraction makes e.g. the Connection and Connection class possible as generic
-/// connections, seperated from the type of the class they have a connection for.
+/// Using this abstraction makes e.g. the Connection class possible as generic
+/// connection, seperated from the type of the class it has a connection for.
 template <typename ID>
 class BasicConnectable {
 public:
 	virtual ~BasicConnectable() = default;
-	virtual bool disconnect(ID id) = 0;
+	virtual bool disconnect(const ID& id) = 0;
 };
 
 /// \brief Associates a BasicConnectable implementation with one of its connection ids.
@@ -41,7 +42,7 @@ public:
 	BasicConnection& operator=(const BasicConnection& lhs) noexcept = default;
 
 	void disconnect() { if(conn_) conn_->disconnect(id_); conn_ = {}; id_ = {}; }
-	bool connected() const { return (conn_); }
+	bool connected() const { return conn_ && id_.valid(); }
 
 	C* connectable() const { return conn_; }
 	ID id() const { return id_; }
@@ -57,50 +58,27 @@ protected:
 /// of the Connection object without then explicitly releasing the Connection id results
 /// in undefined behaviour. Same as BasicConnection, but owns the connection
 /// it holds, i.e. disconnects it on destruction. Therefore there should never be multiple
-/// BasicConnectionGuards for the same connection ids. If there exists a connection guard
+/// BasicConnectionGuards for the same connection id. If there exists a connection guard
 /// for a connection this connection should not be disconnected in any other way than
 /// the destruction of the guard (except the guard is explicitly released).
 /// \reqruies Type 'C' shall be disconnectable, i.e. implement disconnect() member function.
 /// \reqruies Type 'ID' shall be default and copy constructable/assignable.
 template<typename C, typename ID>
-class BasicConnectionGuard {
+class BasicUniqueConnection {
 public:
-	BasicConnectionGuard() = default;
-	BasicConnectionGuard(C& conn, ID id) : conn_(&conn), id_(id) {}
-	BasicConnectionGuard(BasicConnection<C, ID> lhs) : conn_(lhs.connectable()), id_(lhs.id()) {}
-	~BasicConnectionGuard()
-	{
-		try {
-			disconnect();
-		} catch(const std::exception& error) {
-			std::cerr << "nytl::~BasicConnectionGuard: " << error.what() << "\n";
-		}
-	}
+	BasicUniqueConnection() = default;
+	BasicUniqueConnection(C& conn, ID id) : conn_(&conn), id_(id) {}
+	BasicUniqueConnection(BasicConnection<C, ID> lhs) : conn_(lhs.connectable()), id_(lhs.id()) {}
+	~BasicUniqueConnection();
 
-	BasicConnectionGuard(BasicConnectionGuard&& lhs) noexcept
-		: conn_(lhs.conn_), id_(lhs.id_)
-	{
-		lhs.id_ = {};
-		lhs.conn_ = {};
-	}
-
-	BasicConnectionGuard& operator=(BasicConnectionGuard&& lhs) noexcept
-	{
-		try {
-			disconnect();
-		} catch(const std::exception& error) {
-			std::cerr << "nytl::~BasicConnectionGuard: " << error.what() << "\n";
-		}
-
-		conn_ = lhs.conn_;
-		id_ = lhs.id_;
-		lhs.conn_ = {};
-		lhs.id_ = {};
-		return *this;
-	}
+	BasicUniqueConnection(BasicUniqueConnection&& lhs) noexcept;
+	BasicUniqueConnection& operator=(BasicUniqueConnection&& lhs) noexcept;
 
 	void disconnect() { if(conn_) conn_->disconnect(id_); conn_ = {}; id_ = {}; }
-	bool connected() const noexcept { return (conn_); }
+	bool connected() const noexcept { return conn_ && id_.valid(); }
+
+	/// Releases ownership of the associated connection and returns its id.
+	/// After the call this object will be empty.
 	ID release() { auto cpy = id_; id_ = {}; conn_ = {}; return cpy; }
 
 	C* connectable() const { return conn_; }
@@ -111,6 +89,44 @@ protected:
 	ID id_ {};
 };
 
+// using ConnectionID = struct ConnectionIDType*;
+struct ConnectionID {
+	std::size_t value;
+
+	constexpr void reset() {}
+	constexpr bool valid() const { return value; }
+};
+
+constexpr bool operator==(ConnectionID a, ConnectionID b) { return a.value == b.value; }
+constexpr bool operator!=(ConnectionID a, ConnectionID b) { return a.value != b.value; }
+
+struct TrackedConnectionID {
+	std::shared_ptr<std::size_t> value;
+
+	TrackedConnectionID() = default;
+	TrackedConnectionID(std::size_t val) : value(std::make_shared<std::size_t>(val)) {}
+
+	void reset() { if(value) *value = 0; value.reset(); }
+	bool valid() const { return value && *value; }
+};
+
+bool operator==(const TrackedConnectionID& a, const TrackedConnectionID& b)
+{
+	return a.value == b.value;
+}
+bool operator!=(const TrackedConnectionID& a, const TrackedConnectionID& b)
+{
+	return a.value != b.value;
+}
+
+using Connectable = BasicConnectable<ConnectionID>;
+using Connection = BasicConnection<Connectable, ConnectionID>;
+using UniqueConnection = BasicUniqueConnection<Connectable, ConnectionID>;
+
+using TrackedConnectable = BasicConnectable<TrackedConnectionID>;
+using TrackedConnection = BasicConnection<TrackedConnectable, TrackedConnectionID>;
+using TrackedUniqueConnection = BasicUniqueConnection<TrackedConnectable, TrackedConnectionID>;
+
 // - helper functions to create connection objects -
 // only needed until C++!7
 template<typename C, typename ID>
@@ -118,13 +134,43 @@ auto makeConnection(C& connectable, ID id)
 	{ return BasicConnection<ID, C>(connectable, id); }
 
 template<typename C, typename ID>
-auto makeConnectionGuard(C& connectable, ID id)
-	{ return BasicConnectionGuard<ID, C>(connectable, id); }
+auto makeUniqueConnection(C& connectable, ID id)
+	{ return BasicUniqueConnection<ID, C>(connectable, id); }
 
-using ConnectionID = struct ConnectionIDType*;
-using Connectable = BasicConnectable<ConnectionID>;
-using Connection = BasicConnection<Connectable, ConnectionID>;
-using ConnectionGuard = BasicConnectionGuard<Connectable, ConnectionID>;
+// - implementation -
+template<typename C, typename ID> BasicUniqueConnection<C, ID>&
+BasicUniqueConnection<C, ID>::operator=(BasicUniqueConnection&& lhs) noexcept
+{
+	try {
+		disconnect();
+	} catch(const std::exception& error) {
+		std::cerr << "nytl::BasicUniqueConnection: disconnect failed: " << error.what() << "\n";
+	}
+
+	conn_ = lhs.conn_;
+	id_ = lhs.id_;
+	lhs.conn_ = {};
+	lhs.id_ = {};
+	return *this;
+}
+
+template<typename C, typename ID>
+BasicUniqueConnection<C, ID>::~BasicUniqueConnection()
+{
+	try {
+		disconnect();
+	} catch(const std::exception& error) {
+		std::cerr << "nytl::~BasicUniqueConnection: disconnect failed: " << error.what() << "\n";
+	}
+}
+
+template<typename C, typename ID>
+BasicUniqueConnection<C, ID>::BasicUniqueConnection(BasicUniqueConnection&& lhs) noexcept
+	: conn_(lhs.conn_), id_(lhs.id_)
+{
+	lhs.id_ = {};
+	lhs.conn_ = {};
+}
 
 } // namespace nytl
 

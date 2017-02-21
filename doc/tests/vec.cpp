@@ -2,7 +2,6 @@
 #include "approx.hpp"
 
 #include <cmath>
-#include <complex>
 #include <iomanip>
 
 // testing both, vec and vecOps
@@ -52,17 +51,6 @@ nytl::Vec<5, int> i5b {10, 20, -10, -20, 0};
 nytl::Vec<7, int> i7a {1, 2, 3, 4, 5, 6, 7};
 nytl::Vec<7, int> i7b {-1, 0, 0, 0, 1, 4, 5};
 
-// complex
-using Vec2cd = Vec2<std::complex<double>>;
-using Vec3cd = Vec3<std::complex<double>>;
-using Vec4cd = Vec4<std::complex<double>>;
-
-constexpr Vec2cd c2a {{1.0, 0.0}, {2.0, 0.0}};
-constexpr Vec2cd c2b {{0.0, -10.0}, {5.0, 2.0}};
-constexpr Vec3cd c3a {{1.0, 0.0}, {-2.0, 0.0}, {0.0, 1.0}};
-constexpr Vec3cd c3b {{0.0, 3.0}, {-2.0, 34.0}, {0.0, 0.0}};
-constexpr Vec4cd c4a {{5.0, -2.0}, {7.0, 10.0}, {23.0, 34.0}, {0.0, -11.0}};
-
 TEST_METHOD("[vec-addition]") {
 	EXPECT(-d3a, test::approx(Vec3d{-1.0, -2.0, -3.0}));
 	EXPECT(d3a + d3b, test::approx(d3a));
@@ -74,16 +62,12 @@ TEST_METHOD("[vec-addition]") {
 	EXPECT(d3b, test::approx(-d3b));
 	EXPECT(d2a + i2a, test::approx(Vec2d{2.0, 4.0}));
 	EXPECT(d3b - i3a, test::approx(Vec3d{1.0, 0.0, -2.0}));
-	EXPECT(c3a + c3b, test::approx(Vec3cd{{1.0, 3.0}, {-4.0, 34.0}, {0.0, 1.0}}));
-	EXPECT(c2a - c2b, test::approx(Vec2cd{{1.0, 10.0}, {-3.0, -2.0}}));
 	EXPECT(i5a + i5b, test::approx(Vec<5, int>{11, 22, -7, -16, 5}));
 
 	// - should not compile - TODO
 	// d2a + d3a;
 	// d3a + d2a;
 	// i3a + i2a;
-	// c3a + c4a;
-	// i2a + c2a;
 }
 
 TEST_METHOD("[scalar multiplication]") {
@@ -95,7 +79,6 @@ TEST_METHOD("[scalar multiplication]") {
 	EXPECT(0.2 * d3i, test::approx(d3i - 0.8 * d3i));
 	EXPECT(2 * d3g + d3h, test::approx(Vec3f{8.0, 3.0, 12.0}));
 	EXPECT(2 * i5a, test::approx(Vec<5, int>{2, 4, 6, 8, 10}));
-	EXPECT((std::complex<double>{-2, 0.0} * c2a), test::approx(Vec2cd{{-2.0, 0.0}, {-4.0, 0.0}}));
 }
 
 TEST_METHOD("[multiplies]") {
@@ -105,7 +88,6 @@ TEST_METHOD("[multiplies]") {
 	EXPECT(nytl::vec::multiply(d3d), test::approx(-1.0));
 	EXPECT(nytl::vec::multiply(d3e), test::approx(-0.0001));
 	EXPECT(nytl::vec::multiply(d3f), test::approx(-200000.0));
-	EXPECT(nytl::vec::multiply(c2a), test::approx(c2a[0] * c2a[1]));
 	EXPECT(static_cast<unsigned int>(nytl::vec::multiply(i7a)), nytl::factorial(7));
 }
 
@@ -117,7 +99,6 @@ TEST_METHOD("[sums]") {
 	EXPECT(nytl::vec::sum(d3e), test::approx(0.0001));
 	EXPECT(nytl::vec::sum(d3f), test::approx(596.0));
 	EXPECT(nytl::vec::sum(i7a), 1 + 2 + 3 + 4 + 5 + 6 + 7);
-	EXPECT(nytl::vec::sum(c3b), test::approx(c3b[0] + c3b[1] + c3b[2]));
 }
 
 TEST_METHOD("[dot]") {
@@ -133,7 +114,6 @@ TEST_METHOD("[dot]") {
 
 	// - should not compile -
 	// nytl::vec::dot(d3a, d2a);
-	// nytl::vec::dot(c2a, c3a);
 }
 
 TEST_METHOD("[length]") {

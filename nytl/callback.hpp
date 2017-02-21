@@ -20,7 +20,8 @@ namespace nytl {
 
 // First declaration - undefined.
 // Signature must have the format ReturnType(Args...)
-template<class Signature> class Callback;
+template<typename Signature, typename ID = ConnectionID> class Callback;
+template<typename Signature> using TrackedCallback = Callback<Signature, TrackedConnectionID>;
 
 /// \brief Represents a Callback for which listener functions can be registered.
 ///
@@ -51,14 +52,24 @@ template<class Signature> class Callback;
 /// The class is not designed threadsafe, if one thread calls e.g. call() while another
 /// one calls add() it may cause undefined behaviour.
 /// \module function
-template<class Ret, class ... Args>
-class Callback<Ret(Args...)> : public Connectable {
+template<typename Ret, typename... Args, typename CID>
+class Callback<Ret(Args...), CID> : public BasicConnectable<CID> {
 public:
+	using ID = CID;
+	using Signature = Ret(Args...);
+	using Conn = BasicConnection<BasicConnectable<ID>, ID>;
+
+	~Callback()
+	{
+		for(auto& slot : slots_)
+			slot.id.reset();
+	}
+
 	/// \brief Registers a new function in the same way add does.
 	/// \returns A unique connection id for the registered function which can be used to
 	/// unregister it.
 	template<typename F>
-	Connection operator+=(F&& func)
+	Conn operator+=(F&& func)
 	{
 		return add(std::forward<F>(func));
 	}
@@ -67,7 +78,7 @@ public:
 	/// \returns A unique connection id for the registered function which can be used to
 	/// unregister it.
 	template<typename F>
-	Connection operator=(F&& func)
+	Conn operator=(F&& func)
 	{
 		clear();
 		return add(std::forward<F>(func));
@@ -76,10 +87,10 @@ public:
 	/// \brief Registers a new Callback function.
 	/// \returns A unique connection id for the registered function which can be used to
 	/// unregister it.
-	Connection add(std::function<Ret(Args...)> func)
+	Conn add(std::function<Ret(Args...)> func)
 	{
 		emplace();
-		slots_.back().func = [f = std::move(func)](Connection, Args... args) {
+		slots_.back().func = [f = std::move(func)](Conn, Args... args) {
 			return f(std::forward<Args>(args)...);
 		};
 
@@ -89,7 +100,7 @@ public:
 	/// \brief Registers a new Callback function with additional connection parameter.
 	/// \returns A unique connection id for the registered function which can be used to
 	/// unregister it.
-	Connection add(std::function<Ret(Connection, Args...)> func)
+	Conn add(std::function<Ret(Conn, Args...)> func)
 	{
 		emplace();
 		slots_.back().func = std::move(func);
@@ -132,6 +143,9 @@ public:
 	/// Clears all registered functions.
 	void clear()
 	{
+		for(auto& slot : slots_)
+			slot.id.reset();
+
 		slots_.clear();
 	}
 
@@ -144,12 +158,12 @@ public:
 	/// Removes the callback function registered with the given id.
 	/// Returns whether the function could be found. If the id is invalid or the
 	/// associated function was already removed, returns false.
-	bool disconnect(ConnectionID id) override
+	bool disconnect(const ID& id) override
 	{
-		if(id == nullptr) return false;
+		if(id == ID {}) return false;
 		for(auto it = slots_.begin(); it != slots_.end(); ++it) {
 			if(it->id == id) {
-				it->id = nullptr;
+				it->id.reset();
 				slots_.erase(it);
 				if(callIter_) callIter_->checkErase(it - slots_.begin());
 				return true;
@@ -157,20 +171,20 @@ public:
 		}
 
 		return false;
-	};
+	}
 
 protected:
 	void emplace()
 	{
 		slots_.emplace_back();
-		auto id = ++reinterpret_cast<std::uintptr_t&>(highestID_);
-		slots_.back().id = reinterpret_cast<ConnectionID>(id);
+		auto id = ++highestID_;
+		slots_.back().id = {id};
 	}
 
 	// Represents one registered callback function with id
 	struct CallbackSlot {
-		ConnectionID id;
-		std::function<Ret(Connection, Args...)> func;
+ 		ID id;
+		std::function<Ret(Conn, Args...)> func;
 	};
 
 	// Represents one call function on the stack.
@@ -191,40 +205,50 @@ protected:
 		}
 	};
 
-	ConnectionID highestID_ {};
+	std::size_t highestID_ {};
 	std::vector<CallbackSlot> slots_;
 	CallIter* callIter_ {}; // pointer to iter inside the lowest (last called) this->call
 };
 
 
 // Callback specialization for a void return type.
-template<typename... Args>
-class Callback<void(Args...)> : public Connectable {
+template<typename... Args, typename CID>
+class Callback<void(Args...), CID> : public BasicConnectable<CID> {
 public:
+	using ID = CID;
+	using Signature = void(Args...);
+	using Conn = BasicConnection<BasicConnectable<ID>, ID>;
+
+	~Callback()
+	{
+		for(auto& slot : slots_)
+			slot.id.reset();
+	}
+
 	template<typename F>
-	Connection operator+=(F&& func)
+	Conn operator+=(F&& func)
 	{
 		return add(std::forward<F>(func));
 	}
 
 	template<typename F>
-	Connection operator=(F&& func)
+	Conn operator=(F&& func)
 	{
 		clear();
 		return add(std::forward<F>(func));
 	}
 
-	Connection add(std::function<void(Args...)> func)
+	Conn add(std::function<void(Args...)> func)
 	{
 		emplace();
-		slots_.back().func = [f = std::move(func)](Connection, Args... args) {
+		slots_.back().func = [f = std::move(func)](Conn, Args... args) {
 			return f(std::forward<Args>(args)...);
 		};
 
-		return {*this, slots_.back().id};
+		return Conn(*this, slots_.back().id);
 	}
 
-	Connection add(std::function<void(Connection, Args...)> func)
+	Conn add(std::function<void(Conn, Args...)> func)
 	{
 		emplace();
 		slots_.back().func = std::move(func);
@@ -249,6 +273,9 @@ public:
 
 	void clear()
 	{
+		for(auto& slot : slots_)
+			slot.id.reset();
+
 		slots_.clear();
 	}
 
@@ -257,12 +284,12 @@ public:
 		call(std::forward<Args>(a)...);
 	}
 
-	bool disconnect(ConnectionID id) override
+	bool disconnect(const ID& id) override
 	{
-		if(id == nullptr) return false;
+		if(id == ID {}) return false;
 		for(auto it = slots_.begin(); it != slots_.end(); ++it) {
 			if(it->id == id) {
-				it->id = nullptr;
+				it->id.reset();
 				slots_.erase(it);
 				if(callIter_) callIter_->checkErase(it - slots_.begin());
 				return true;
@@ -276,13 +303,13 @@ protected:
 	void emplace()
 	{
 		slots_.emplace_back();
-		auto id = ++reinterpret_cast<std::uintptr_t&>(highestID_);
-		slots_.back().id = reinterpret_cast<ConnectionID>(id);
+		auto id = ++highestID_;
+		slots_.back().id = {id};
 	}
 
 	struct CallbackSlot {
-		ConnectionID id;
-		std::function<void(Connection, Args...)> func;
+		ID id;
+		std::function<void(Conn, Args...)> func;
 	};
 
 	struct CallIter {
@@ -296,7 +323,7 @@ protected:
 		}
 	};
 
-	ConnectionID highestID_ {};
+	std::size_t highestID_;
 	std::vector<CallbackSlot> slots_;
 	CallIter* callIter_ {};
 };

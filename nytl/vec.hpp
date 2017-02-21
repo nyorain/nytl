@@ -284,7 +284,7 @@ struct AssertSameDimensions<Vec<D1, T1>, Vec<D2, T2>> {
 };
 
 template<std::size_t D1, typename T1, unsigned int Dim>
-struct AssertDimension<Vec<D1, T1>, Dim> {
+struct AssertDimension<Dim, Vec<D1, T1>> {
 	static constexpr void call(const Vec<D1, T1>&)
 	{
 		static_assert(D1 == Dim, "nytl::vec: vector must have specified dimension!");

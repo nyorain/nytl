@@ -1,5 +1,6 @@
 #include <nytl/vec.hpp>
 #include <nytl/mat.hpp>
+#include <complex>
 
 namespace test {
 

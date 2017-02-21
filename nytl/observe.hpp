@@ -69,7 +69,7 @@ public:
 	/// the new one.
 	/// \returns Whether the given observable object could be found. If this returns
 	/// false the old observer could not be found and the new one was not added.
-	bool moveObserver(Observer<T>& oldone, Observer<T>& newone)
+	bool moveObserver(Observer<T>& oldone, Observer<T>& newone) noexcept
 	{
 		auto it = std::find(observer_.begin(), observer_.end(), &oldone);
 		if(it == observer_.cend()) return false;
