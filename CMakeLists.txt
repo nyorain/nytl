@@ -13,6 +13,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-missing-braces -Wno-unused-const-variable")
 
+set(CMAKE_BUILD_TYPE Debug)
+
 if(Test)
 	enable_testing() # must be called here
 	add_subdirectory(doc/tests)

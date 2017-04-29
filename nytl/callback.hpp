@@ -1,4 +1,4 @@
-// Copyright (c) 2017 nyorain
+	// Copyright (c) 2017 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
@@ -22,6 +22,66 @@ namespace nytl {
 // Signature must have the format ReturnType(Args...)
 template<typename Signature, typename ID = ConnectionID> class Callback;
 template<typename Signature> using TrackedCallback = Callback<Signature, TrackedConnectionID>;
+
+// TODO: C++17: do this with cnstexpr if in callback
+namespace detail {
+
+template<typename Ret>
+struct CallbackCall {
+	template<typename CB, typename CallIter, typename Slots, typename... Args>
+	static std::vector<Ret> call(CB& cb, CallIter*& iter, const Slots& slots, Args... args)
+	{
+		CallIter stackIter;
+		stackIter.above = iter;
+		iter = &stackIter;
+		auto& idx = stackIter.current;
+
+		std::vector<Ret> ret;
+		ret.reserve(slots.size());
+
+		while(idx < slots.size()) {
+			const auto& slot = slots[idx];
+			++idx;
+			// auto f = slot.func;
+			ret.push_back(slot.func({cb, slot.id}, std::forward<Args>(args)...));
+		}
+
+		iter = stackIter.above;
+		return ret;
+	}
+};
+
+template<>
+struct CallbackCall<void> {
+	template<typename CB, typename CallIter, typename Slots, typename... Args>
+	static void call(CB& cb, CallIter*& iter, const Slots& slots, Args... args)
+	{
+		CallIter stackIter;
+		stackIter.above = iter;
+		iter = &stackIter;
+		auto& idx = stackIter.current;
+
+		std::cout << "callbegin " << &slots << "\n";
+		while(idx < slots.size()) {
+			const auto& slot = slots[idx];
+			std::cout << "\tcall: " << idx << ": " << slot.id.value << ": " << &slot << ": " << &slots[idx] << "\n";
+			++idx;
+
+			if(slot.id.value == 2) {
+				auto f = slot.func;
+				f({cb, slot.id}, std::forward<Args>(args)...);
+			} else {
+				slot.func({cb, slot.id}, std::forward<Args>(args)...);
+			}
+		}
+
+		std::cout << "callend " << &slots << "\n";
+
+		iter = stackIter.above;
+	}
+};
+
+}
 
 /// \brief Represents a Callback for which listener functions can be registered.
 ///
@@ -108,7 +168,7 @@ public:
 	}
 
 	/// Calls all registered functions and returns a Vector with the returned objects.
-	std::vector<Ret> call(Args... a)
+	auto call(Args... a)
 	{
 		// we need the implementation with a CallIter instead of e.g. a range-based
 		// for loop, since slots can be removed are added from the called functions.
@@ -122,22 +182,36 @@ public:
 		// The caller only pays for what he uses and simply triggering the callback
 		// is not that expensive.
 
-		CallIter iter;
-		iter.above = callIter_;
-		callIter_ = &iter;
-		auto& idx = iter.current;
+		// CallIter iter;
+		// iter.above = callIter_;
+		// callIter_ = &iter;
+		// auto& idx = iter.current;
+		//
+		// if constexpr(std::is_same_v<Ret, void>) {
+		// 	while(idx < slots_.size()) {
+		// 		auto& slot = slots_[idx];
+		// 		++idx;
+		// 		slot.func({*this, slot.id}, std::forward<Args>(a)...);
+		// 	}
+		//
+		// 	callIter_ = iter.above;
+		// 	return;
+		// } else {
+		// 	std::vector<Ret> ret;
+		// 	ret.reserve(slots_.size());
+		//
+		// 	while(idx < slots_.size()) {
+		// 		auto& slot = slots_[idx];
+		// 		++idx;
+		// 		ret.push_back(slot.func({*this, slot.id}, std::forward<Args>(a)...));
+		// 	}
+		//
+		// 	callIter_ = iter.above;
+		// 	return ret;
+		// }
 
-		std::vector<Ret> ret;
-		ret.reserve(slots_.size());
-
-		while(idx < slots_.size()) {
-			auto& slot = slots_[idx];
-			++idx;
-			ret.push_back(slot.func({*this, slot.id}, std::forward<Args>(a)...));
-		}
-
-		callIter_ = iter.above;
-		return ret;
+		// std::cout << "!CALL! " << &slots_ << "\n";
+		return detail::CallbackCall<Ret>::call(*this, callIter_, slots_, std::forward<Args>(a)...);
 	}
 
 	/// Clears all registered functions.
@@ -150,7 +224,7 @@ public:
 	}
 
 	/// Operator version of call. Calls all registered functions and return their returned objects.
-	std::vector<Ret> operator() (Args... a)
+	auto operator() (Args... a)
 	{
 		return call(std::forward<Args>(a)...);
 	}
@@ -160,12 +234,25 @@ public:
 	/// associated function was already removed, returns false.
 	bool disconnect(const ID& id) override
 	{
-		if(id == ID {}) return false;
-		for(auto it = slots_.begin(); it != slots_.end(); ++it) {
-			if(it->id == id) {
+		if(id == ID {} || !slots_) return false;
+
+		// first
+		if(slots_->id == id) {
+			if(callIter_) callIter_->checkErase(slots_);
+
+			slots_->id.reset();
+			auto tmp = slots_;
+			slots_ = slots_->next;
+			delete tmp;
+		}
+
+		// iterate
+		for(auto it = slots_; it && it->next; it = it->next) {
+			if(it->next->id == id) {
 				it->id.reset();
-				slots_.erase(it);
-				if(callIter_) callIter_->checkErase(it - slots_.begin());
+
+				if(callIter_)
+					callIter_->checkErase(it - slots_.begin());
 				return true;
 			}
 		}
@@ -176,15 +263,25 @@ public:
 protected:
 	void emplace()
 	{
-		slots_.emplace_back();
 		auto id = ++highestID_;
-		slots_.back().id = {id};
+
+		if(!slots_) {
+			slots_ = new CallbackSlot();
+			slots_->id = id;
+			return;
+		}
+
+		auto slot = slots_;
+		while(slot->next) slot = slot->next;
+		slot->next = new CallbackSlot();
+		slot->next->id = id;
 	}
 
 	// Represents one registered callback function with id
 	struct CallbackSlot {
  		ID id;
 		std::function<Ret(Conn, Args...)> func;
+		CallbackSlot* next;
 	};
 
 	// Represents one call function on the stack.
@@ -192,142 +289,23 @@ protected:
 	// as being able to add/disconnect functions from within a call function.
 	// Done without any memory allocation by just using the stack.
 	struct CallIter {
-		unsigned int current {}; // current iteration index
+		CallbackSlot* next {};
 		CallIter* above {}; // optional pointer to the CallIter from the above iteration
 
 		// Will be called from diconnect to signal that the entry with the given id
 		// has been disconnected. This will update the current value if needed and signal
 		// the CallIter above (if there is one).
-		void checkErase(unsigned int id)
+		void checkErase(CallbackSlot* slot)
 		{
-			if(id < current) --current;
-			if(above) above->checkErase(id);
+			if(slot == next) next = slot->next;
+			if(above) above->checkErase(slot);
 		}
 	};
 
 	std::size_t highestID_ {};
-	std::vector<CallbackSlot> slots_;
+	CallbackSlot* slots_ {};
 	CallIter* callIter_ {}; // pointer to iter inside the lowest (last called) this->call
 };
-
-
-// Callback specialization for a void return type.
-template<typename... Args, typename CID>
-class Callback<void(Args...), CID> : public BasicConnectable<CID> {
-public:
-	using ID = CID;
-	using Signature = void(Args...);
-	using Conn = BasicConnection<BasicConnectable<ID>, ID>;
-
-	~Callback()
-	{
-		for(auto& slot : slots_)
-			slot.id.reset();
-	}
-
-	template<typename F>
-	Conn operator+=(F&& func)
-	{
-		return add(std::forward<F>(func));
-	}
-
-	template<typename F>
-	Conn operator=(F&& func)
-	{
-		clear();
-		return add(std::forward<F>(func));
-	}
-
-	Conn add(std::function<void(Args...)> func)
-	{
-		emplace();
-		slots_.back().func = [f = std::move(func)](Conn, Args... args) {
-			return f(std::forward<Args>(args)...);
-		};
-
-		return Conn(*this, slots_.back().id);
-	}
-
-	Conn add(std::function<void(Conn, Args...)> func)
-	{
-		emplace();
-		slots_.back().func = std::move(func);
-		return {*this, slots_.back().id};
-	}
-
-	void call(Args... a)
-	{
-		CallIter iter;
-		iter.above = callIter_;
-		callIter_ = &iter;
-		auto& idx = iter.current;
-
-		while(idx < slots_.size()) {
-			auto& slot = slots_[idx];
-			++idx;
-			slot.func({*this, slot.id}, std::forward<Args>(a)...);
-		}
-
-		callIter_ = iter.above;
-	}
-
-	void clear()
-	{
-		for(auto& slot : slots_)
-			slot.id.reset();
-
-		slots_.clear();
-	}
-
-	void operator() (Args... a)
-	{
-		call(std::forward<Args>(a)...);
-	}
-
-	bool disconnect(const ID& id) override
-	{
-		if(id == ID {}) return false;
-		for(auto it = slots_.begin(); it != slots_.end(); ++it) {
-			if(it->id == id) {
-				it->id.reset();
-				slots_.erase(it);
-				if(callIter_) callIter_->checkErase(it - slots_.begin());
-				return true;
-			}
-		}
-
-		return false;
-	};
-
-protected:
-	void emplace()
-	{
-		slots_.emplace_back();
-		auto id = ++highestID_;
-		slots_.back().id = {id};
-	}
-
-	struct CallbackSlot {
-		ID id;
-		std::function<void(Conn, Args...)> func;
-	};
-
-	struct CallIter {
-		unsigned int current {};
-		CallIter* above {};
-
-		void checkErase(unsigned int id)
-		{
-			if(id < current) --current;
-			if(above) above->checkErase(id);
-		}
-	};
-
-	std::size_t highestID_;
-	std::vector<CallbackSlot> slots_;
-	CallIter* callIter_ {};
-};
-
 
 } // namespace nytl
 

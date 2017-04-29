@@ -1,8 +1,6 @@
 #include "test.hpp"
-#include <nytl/callback.hpp>
+#include <nytl/callbackFixed.hpp>
 #include <nytl/tmpUtil.hpp>
-#include <nytl/observe.hpp>
-
 
 TEST_METHOD("[callback-1]") {
 	nytl::Callback<void()> a;
@@ -49,21 +47,43 @@ TEST_METHOD("[callback-2]") {
 		EXPECT(ret[i], i + 1u);
 }
 
-TEST_METHOD("[callback-3]") {
-	nytl::TrackedConnectionID id;
+TEST_METHOD("[inter-callback]") {
+	nytl::Callback<void()> cb;
+	int called {};
 
-	{
-		nytl::TrackedCallback<void()> cb;
-		auto conn = cb.add([]{});
-		EXPECT(conn.connected(), true);
-		cb.clear();
-		EXPECT(conn.connected(), false);
+	nytl::Connection c4;
 
-		id = cb.add([]{}).id();
-		EXPECT(id.valid(), true);
-	}
+	auto c1 = cb.add([&]{ ++called; });
+	cb.add([&](nytl::Connection conn){ conn.disconnect(); called++; });
+	cb.add([&]{ ++called; c1.disconnect(); });
+	cb.add([&]{ if(called > 3 && called < 10) { cb(); c4.disconnect(); } });
+	c4 = cb.add([&]{ if(called < 5) cb(); });
+	cb.add([&](nytl::Connection conn){ ++called; conn.disconnect(); });
 
-	EXPECT(id.valid(), false);
+	cb();
+	EXPECT(called, 11);
+}
+
+TEST_METHOD("[clusterfuck]") {
+	nytl::Callback<void()> cb;
+	int called {};
+
+	cb.add([&]{ ++called; if(called < 2) cb(); });
+	cb.add([&]{ cb.add([&]{ if(called < 3) cb(); }); });
+	cb.add([&]{ cb.add([&](nytl::Connection conn){ conn.disconnect(); if(called < 4) cb(); }); });
+	cb.add([&](nytl::Connection conn){ conn.disconnect(); cb(); });
+	nytl::Connection conn1 = cb.add([&]{ conn1.disconnect(); cb(); });
+
+	auto conn2 = cb.add([&]{ cb.add([&]{ ++called; }); });
+	cb.add([&]{ conn2.disconnect(); });
+
+	cb.add([&](nytl::Connection){ cb.clear(); });
+	cb.add([&] { cb.clear(); });
+
+	cb();
+
+	EXPECT(called, 4);
+	// EXPECT(cb.size(), 0u);
 }
 
 TEST_METHOD("[connection]") {
