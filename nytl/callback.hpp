@@ -64,7 +64,7 @@ public:
 		++iterationCount_;
 		for(auto& sub : subs_) {
 			try {
-				sub.id.reset(-1);
+				sub.id.remove();
 			} catch(const std::exception& err) {
 				std::cerr << "nytl::~Callback: id.reset() failed: " << err.what() << "\n";
 			}
@@ -132,7 +132,7 @@ public:
 	/// Propagates all upcoming exceptions untouched.
 	auto call(Args... a)
 	{
-		callID_ = (callID_ + 1) % std::numeric_limits<std::int64_t>::max();
+		callID_ = (callID_ + 1) % std::numeric_limits<std::int64_t>::max(); // wrap if needed
 		std::int64_t callid = callID_; // the actual calling id (to include newly removed)
 		auto last = end_; // the end (to not iterate over newly added subs)
 
@@ -141,10 +141,21 @@ public:
 
 		// make sure the iteration count and cleanup done if possible
 		// even in the case of an exception.
-		// removeOld should never throw
-		auto scopeGuard = makeScopeGuard([&]{
+		auto successGuard = makeSuccessGuard([&]{
 			if(--iterationCount_ == 0)
 				removeOld();
+		});
+
+		// make sure we catch a potential exception by removeOld if we are leaving
+		// the scope because of an exception.
+		auto exceptionGuard = makeExceptionGuard([&]{
+			if(--iterationCount_ == 0) {
+				try {
+					removeOld();
+				} catch(const std::exception& err) {
+					std::cerr << "nytl::Callback::call removeOld: " << err.what() << "\n";
+				}
+			}
 		});
 
 		// the first continue check is needed to not call functions that were
@@ -284,7 +295,7 @@ protected:
 
 	/// Removes all old functions that could previously
 	/// not be removed because of an active iteration.
-	void removeOld() noexcept
+	void removeOld()
 	{
 		// make sure that the iterator is not invalidated while iterating
 		++iterationCount_;

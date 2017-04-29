@@ -53,7 +53,7 @@ public:
 
 protected:
 	F func_;
-	unsigned int exceptions_;
+	int exceptions_;
 };
 
 /// Typedef for a ScopeGuard that is only executed when the scope is left due to a thrown exception.
