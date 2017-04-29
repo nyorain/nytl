@@ -34,17 +34,34 @@ public:
 template <typename C, typename ID>
 class ConnectionT {
 public:
+	ConnectionT(C& connectable, ID id)
+		: connectable_(&connectable), id_(id) {}
+
 	ConnectionT() noexcept = default;
-	ConnectionT(C& connectable, ID id);
 	~ConnectionT() = default;
 
 	ConnectionT(const ConnectionT&) noexcept = default;
 	ConnectionT& operator=(const ConnectionT&) noexcept = default;
 
-	void disconnect();
-	bool connected() const noexcept;
+	/// Disconnects the represented connection.
+	void disconnect()
+	{
+		if(connectable_)
+			connectable_->disconnect(id_);
+		connectable_ = {};
+		id_ = {};
+	}
 
+	/// Returns whether this connection object is valid.
+	/// Note that depending on the connection id and callable type and if
+	/// the callback was destroyed before the connection, this may
+	/// not represent the status of the connection.
+	bool connected() const noexcept { return connectable_ && id_.valid(); }
+
+	/// The associated connectable object.
 	C* connectable() const { return connectable_; }
+
+	/// The associated connection id.
 	ID id() const { return id_; }
 
 protected:
@@ -67,21 +84,75 @@ template<typename C, typename ID>
 class UniqueConnectionT {
 public:
 	UniqueConnectionT() = default;
-	UniqueConnectionT(C& conn, ID id);
-	UniqueConnectionT(ConnectionT<C, ID> lhs);
-	~UniqueConnectionT();
 
-	UniqueConnectionT(UniqueConnectionT&& lhs) noexcept;
-	UniqueConnectionT& operator=(UniqueConnectionT&& lhs) noexcept;
+	UniqueConnectionT(C& connectable, ID id)
+		: connectable_(&connectable), id_(id) {}
 
-	void disconnect();
-	bool connected() const noexcept;
-	C* connectable() const { return conn_; }
+	UniqueConnectionT(ConnectionT<C, ID> lhs)
+		: connectable_(lhs.connectable()), id_(lhs.id()) {}
+
+	~UniqueConnectionT()
+	{
+		try {
+			disconnect();
+		} catch(const std::exception& error) {
+			std::cerr << "nytl::~UniqueConnectionT: disconnect failed: " << error.what() << "\n";
+		}
+	}
+
+	UniqueConnectionT(UniqueConnectionT&& lhs) noexcept
+		: connectable_(lhs.connectable_), id_(lhs.id_)
+	{
+		lhs.id_ = {};
+		lhs.connectable_ = {};
+	}
+
+	UniqueConnectionT& operator=(UniqueConnectionT&& lhs) noexcept
+	{
+		try {
+			disconnect();
+		} catch(const std::exception& error) {
+			std::cerr << "nytl::UniqueConnectionT: disconnect failed: " << error.what() << "\n";
+		}
+
+		connectable_ = lhs.connectable_;
+		id_ = lhs.id_;
+		lhs.conn_ = {};
+		lhs.id_ = {};
+		return *this;
+	}
+
+	/// Disconnects the represented connection.
+	void disconnect()
+	{
+		if(connected())
+			connectable_->disconnect(id_);
+		connectable_ = {};
+		id_ = {};
+	}
+
+	/// The associated connectable object.
+	C* connectable() const { return connectable_; }
+
+	/// The associated connection id.
 	ID id() const { return id_; }
 
-	/// Releases ownership of the associated connection and returns its id.
+	/// Returns whether this connection object is valid.
+	/// Note that depending on the connection id and callable type and if
+	/// the callback was destroyed before the connection, this may
+	/// not represent the status of the connection.
+	bool connected() const noexcept { return connectable_ && id_.valid(); }
+
+	/// Releases ownership of the associated connection and returns a non-owned
+	/// connection object.
 	/// After the call this object will be empty.
-	ID release();
+	ID release()
+	{
+		ConnectionT<C, ID> ret{connectable_, id_};
+		id_ = {};
+		connectable_ = {};
+		return ret;
+	}
 
 protected:
 	C* connectable_ {};
@@ -92,8 +163,8 @@ protected:
 struct ConnectionID {
 	std::size_t value;
 
-	constexpr void reset() { value = 0; }
-	constexpr bool valid() const { return value; }
+	constexpr void reset() noexcept { value = {}; }
+	constexpr bool valid() const noexcept { return value; }
 };
 
 /// Shares the id value between all connections so that disconnections from
@@ -104,10 +175,9 @@ struct TrackedConnectionID {
 	TrackedConnectionID() = default;
 	TrackedConnectionID(std::size_t val) : value(std::make_shared<std::size_t>(val)) {}
 
-	void reset() { if(value) *value = 0; value.reset(); }
-	bool valid() const { return value && *value; }
+	void reset() noexcept { if(value) *value = 0; value.reset(); }
+	bool valid() const noexcept { return value && *value; }
 };
-
 
 using Connectable = ConnectableT<ConnectionID>;
 using Connection = ConnectionT<Connectable, ConnectionID>;
@@ -117,72 +187,14 @@ using TrackedConnectable = ConnectableT<TrackedConnectionID>;
 using TrackedConnection = ConnectionT<TrackedConnectable, TrackedConnectionID>;
 using TrackedUniqueConnection = UniqueConnectionT<TrackedConnectable, TrackedConnectionID>;
 
-
-
-// - implementation -
-template<typename C, typename ID>
-ConnectionT<C, ID>::ConnectionT(C& connectable, ID id)
-	: connectable_(&connectable), id_(id)
+constexpr bool operator==(ConnectionID a, ConnectionID b)
 {
+	return a.value == b.value;
 }
-
-template<typename C, typename ID>
-void ConnectionT<C, ID>::disconnect()
+constexpr bool operator!=(ConnectionID a, ConnectionID b)
 {
-	if(connectable_) connectable_->disconnect(id_);
-	connectable_ = {};
-	id_ = {};
+	return a.value != b.value;
 }
-
-// UniqueConnection
-template<typename C, typename ID> UniqueConnectionT<C, ID>&
-UniqueConnectionT<C, ID>::operator=(UniqueConnectionT&& lhs) noexcept
-{
-	try {
-		disconnect();
-	} catch(const std::exception& error) {
-		std::cerr << "nytl::UniqueConnectionT: disconnect failed: " << error.what() << "\n";
-	}
-
-	conn_ = lhs.conn_;
-	id_ = lhs.id_;
-	lhs.conn_ = {};
-	lhs.id_ = {};
-	return *this;
-}
-
-template<typename C, typename ID>
-UniqueConnectionT<C, ID>::~UniqueConnectionT()
-{
-	try {
-		disconnect();
-	} catch(const std::exception& error) {
-		std::cerr << "nytl::~UniqueConnectionT: disconnect failed: " << error.what() << "\n";
-	}
-}
-
-template<typename C, typename ID>
-UniqueConnectionT<C, ID>::UniqueConnectionT(UniqueConnectionT&& lhs) noexcept
-	: connectable_(lhs.connectable_), id_(lhs.id_)
-{
-	lhs.id_ = {};
-	lhs.connectable_ = {};
-}
-
-template<typename C, typename ID>
-UniqueConnectionT(C& conn, ID id) : conn_(&conn), id_(id) {}
-UniqueConnectionT(ConnectionT<C, ID> lhs) : conn_(lhs.connectable()), id_(lhs.id()) {}
-
-void disconnect() { if(conn_) conn_->disconnect(id_); conn_ = {}; id_ = {}; }
-C* connectable() const { return conn_; }
-ID id() const { return id_; }
-
-ID release() { auto cpy = id_; id_ = {}; conn_ = {}; return cpy; }
-
-// ConnectionIDs
-constexpr bool operator==(ConnectionID a, ConnectionID b) { return a.value == b.value; }
-constexpr bool operator!=(ConnectionID a, ConnectionID b) { return a.value != b.value; }
-
 bool operator==(const TrackedConnectionID& a, const TrackedConnectionID& b)
 {
 	return a.value == b.value;

@@ -1,4 +1,4 @@
-	// Copyright (c) 2017 nyorain
+// Copyright (c) 2017 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
@@ -6,130 +6,71 @@
 
 #pragma once
 
-#ifndef NYTL_INCLUDE_CALLBACK
-#define NYTL_INCLUDE_CALLBACK
+#ifndef NYTL_INCLUDE_RECURSIVE_CALLBACK
+#define NYTL_INCLUDE_RECURSIVE_CALLBACK
 
-#include <nytl/connection.hpp> // nytl::BasicConnection
+#include <nytl/connectionFixed.hpp> // nytl::BasicConnection
+#include <nytl/nonCopyable.hpp> // nytl::NonCopyable
 
 #include <functional> // std::function
-#include <vector> // std::vector
+#include <forward_list> // std::vector
 #include <utility> // std::move
 #include <cstdint> // std::uintptr_t
+#include <type_traits> // std::is_same
+#include <vector> // std::vector
 
 namespace nytl {
 
-// First declaration - undefined.
-// Signature must have the format ReturnType(Args...)
 template<typename Signature, typename ID = ConnectionID> class Callback;
-template<typename Signature> using TrackedCallback = Callback<Signature, TrackedConnectionID>;
 
-// TODO: C++17: do this with cnstexpr if in callback
-namespace detail {
+// TODO: use std::pmr for more efficient memory allocations (?)
+//
+// Concept for ID:
+//  - default constructor
+//  - constructor only with std::size_t (or sth compatible) for the id
+//  - copyable/copy-assignable
+//  - reset(): Will be called to reset the connection id. Might be called multiple times.
+//  - valid() const: Should return whether the connection id is valid.
 
-template<typename Ret>
-struct CallbackCall {
-	template<typename CB, typename CallIter, typename Slots, typename... Args>
-	static std::vector<Ret> call(CB& cb, CallIter*& iter, const Slots& slots, Args... args)
-	{
-		CallIter stackIter;
-		stackIter.above = iter;
-		iter = &stackIter;
-		auto& idx = stackIter.current;
-
-		std::vector<Ret> ret;
-		ret.reserve(slots.size());
-
-		while(idx < slots.size()) {
-			const auto& slot = slots[idx];
-			++idx;
-			// auto f = slot.func;
-			ret.push_back(slot.func({cb, slot.id}, std::forward<Args>(args)...));
-		}
-
-		iter = stackIter.above;
-		return ret;
-	}
-};
-
-template<>
-struct CallbackCall<void> {
-	template<typename CB, typename CallIter, typename Slots, typename... Args>
-	static void call(CB& cb, CallIter*& iter, const Slots& slots, Args... args)
-	{
-		CallIter stackIter;
-		stackIter.above = iter;
-		iter = &stackIter;
-		auto& idx = stackIter.current;
-
-		std::cout << "callbegin " << &slots << "\n";
-		while(idx < slots.size()) {
-			const auto& slot = slots[idx];
-			std::cout << "\tcall: " << idx << ": " << slot.id.value << ": " << &slot << ": " << &slots[idx] << "\n";
-			++idx;
-
-			if(slot.id.value == 2) {
-				auto f = slot.func;
-				f({cb, slot.id}, std::forward<Args>(args)...);
-			} else {
-				slot.func({cb, slot.id}, std::forward<Args>(args)...);
-			}
-		}
-
-		std::cout << "callend " << &slots << "\n";
-
-		iter = stackIter.above;
-	}
-};
-
-}
-
-/// \brief Represents a Callback for which listener functions can be registered.
-///
-/// Used for registering functions that should be called when the Callback is triggered.
-/// This is intented as more lightweight, easier, more dynmaic and
-/// macro-free options to the signal-slot mechanism used by many c++ libraries.
-/// The template parameter Signature indicated the return types registered functions should have
-/// and the parameters they take.
-///
-/// Registering a Callback function returns a unique connection id which can either
-/// totally ignored, dealt with manually or wrapped into a nytl::Connection guard.
-/// The returned id can be only be used to unregister the function.
-/// Any object that can be represented by a std::function can be registered at a Callback object,
-/// so it is impossible to unregister a function only by knowing its function
-/// (std::function cannot be compared for equality), that is why unique ids are used to
-/// unregister/check the registered functions.
-///
-/// Registered functions that should be called if the Callback is activated must have the
-/// signature Ret(Args...). Alternatively, the function can have the signature
-/// Ret(nytl::Connection, Args...) in which case it will receive an additional connection parameter
-/// that can then be used to disconnect the callback connection for the called function from
-/// withtin itself.
-/// This (as well as adding a new callback function from inside a callback function of the
-/// same callback object) can be done safely. Calls to the callback can also safely be nested,
-/// so e.g. a registered callback function can trigger the callback again from within (but should
-/// not do so too often or it will result in a stack overflow).
-///
-/// The class is not designed threadsafe, if one thread calls e.g. call() while another
-/// one calls add() it may cause undefined behaviour.
-/// \module function
-template<typename Ret, typename... Args, typename CID>
-class Callback<Ret(Args...), CID> : public BasicConnectable<CID> {
+// TODO: class/param concept doc!
+/// Callback List.
+template<typename Ret, typename... Args, typename ID>
+class Callback<Ret(Args...), ID> : public ConnectableT<ID> {
 public:
-	using ID = CID;
 	using Signature = Ret(Args...);
-	using Conn = BasicConnection<BasicConnectable<ID>, ID>;
+	using Connection = ConnectionT<ConnectableT<ID>, ID>;
+
+	Callback() = default;
+
+	Callback(const Callback& other) = delete;
+	Callback& operator=(const Callback& other) = delete;
+
+	Callback(Callback&& other) = delete;
+	Callback& operator=(Callback&& other) = delete;
 
 	~Callback()
 	{
-		for(auto& slot : slots_)
-			slot.id.reset();
+		// Output warnings in bad cases.
+		if(iterationCount_)
+			std::cerr << "nytl::~Callback: iterationCount_ != 0\n";
+
+		// We clear manually instead of calling clear so we can at least
+		// try to reset every id in the case of exceptions.
+		for(auto& sub : subs_) {
+			try {
+				sub.id.reset();
+			} catch(const std::exception& err) {
+				std::cerr << "nytl::~Callback: id.reset() failed: " << err.what() << "\n";
+			}
+		}
 	}
 
 	/// \brief Registers a new function in the same way add does.
 	/// \returns A unique connection id for the registered function which can be used to
 	/// unregister it.
+	/// \throws std::logic_error If an empty function target is registered.
 	template<typename F>
-	Conn operator+=(F&& func)
+	Connection operator+=(F&& func)
 	{
 		return add(std::forward<F>(func));
 	}
@@ -137,8 +78,10 @@ public:
 	/// \brief Resets all registered function and sets the given one as only Callback function.
 	/// \returns A unique connection id for the registered function which can be used to
 	/// unregister it.
+	/// \throws std::logic_error If an empty function target is registered.
+	/// Propagates exceptions from ID::reset().
 	template<typename F>
-	Conn operator=(F&& func)
+	Connection operator=(F&& func)
 	{
 		clear();
 		return add(std::forward<F>(func));
@@ -147,83 +90,89 @@ public:
 	/// \brief Registers a new Callback function.
 	/// \returns A unique connection id for the registered function which can be used to
 	/// unregister it.
-	Conn add(std::function<Ret(Args...)> func)
+	/// \throws std::logic_error If an empty function target is registered.
+	Connection add(std::function<Ret(Args...)> func)
 	{
-		emplace();
-		slots_.back().func = [f = std::move(func)](Conn, Args... args) {
-			return f(std::forward<Args>(args)...);
-		};
+		if(!func)
+			throw std::logic_error("nytl::Callback::add: empty function");
 
-		return {*this, slots_.back().id};
+		auto& sub = emplace();
+		sub.func = std::move(func);
+		return {*this, sub.id};
 	}
 
 	/// \brief Registers a new Callback function with additional connection parameter.
 	/// \returns A unique connection id for the registered function which can be used to
 	/// unregister it.
-	Conn add(std::function<Ret(Conn, Args...)> func)
+	/// \throws std::logic_error If an empty function target is registered.
+	Connection add(std::function<Ret(Connection, Args...)> func)
 	{
-		emplace();
-		slots_.back().func = std::move(func);
-		return {*this, slots_.back().id};
+		if(!func)
+			throw std::logic_error("nytl::Callback::add: empty function");
+
+		auto& sub = emplace();
+		Connection conn {*this, sub.id};
+		sub.func = [conn, f = std::move(func)](Args... args) {
+			return f(conn, std::forward<Args>(args)...);
+		};
+
+		return conn;
 	}
 
-	/// Calls all registered functions and returns a Vector with the returned objects.
+	/// Calls all registered functions and returns a vector with the returned objects,
+	/// or void when this is a void callback.
+	/// Will call all the functions registered at the moment of calling, i.e. additional
+	/// functions added from within are not called.
+	/// Propagates all upcoming exceptions untouched.
 	auto call(Args... a)
 	{
-		// we need the implementation with a CallIter instead of e.g. a range-based
-		// for loop, since slots can be removed are added from the called functions.
-		// See disconnect function.
-		// The whole mechanism works by pushing a CallIter on the stack from this function,
-		// storing a pointer to it inside the class and using this point from
-		// disconnect to potentially modify the current iteration index.
-		// If this function was called in a nested way all existent CallIters will be
-		// signaled (as in a linked list, except only on the stack).
-		// Provide almost no overhead when nested calls or removes are not used
-		// The caller only pays for what he uses and simply triggering the callback
-		// is not that expensive.
+		auto last = end_;
+		++iterationCount_;
 
-		// CallIter iter;
-		// iter.above = callIter_;
-		// callIter_ = &iter;
-		// auto& idx = iter.current;
-		//
-		// if constexpr(std::is_same_v<Ret, void>) {
-		// 	while(idx < slots_.size()) {
-		// 		auto& slot = slots_[idx];
-		// 		++idx;
-		// 		slot.func({*this, slot.id}, std::forward<Args>(a)...);
-		// 	}
-		//
-		// 	callIter_ = iter.above;
-		// 	return;
-		// } else {
-		// 	std::vector<Ret> ret;
-		// 	ret.reserve(slots_.size());
-		//
-		// 	while(idx < slots_.size()) {
-		// 		auto& slot = slots_[idx];
-		// 		++idx;
-		// 		ret.push_back(slot.func({*this, slot.id}, std::forward<Args>(a)...));
-		// 	}
-		//
-		// 	callIter_ = iter.above;
-		// 	return ret;
-		// }
+		if constexpr(std::is_same<Ret, void>::value) {
+			for(auto it = subs_.begin(); it != subs_.end(); ++it) {
+				if(!it->id.valid()) continue;
+				it->func(std::forward<Args>(a)...);
+				if(it == last) break;
+			}
 
-		// std::cout << "!CALL! " << &slots_ << "\n";
-		return detail::CallbackCall<Ret>::call(*this, callIter_, slots_, std::forward<Args>(a)...);
+			if(--iterationCount_ == 0)
+				removeOld();
+		} else {
+			std::vector<Ret> ret;
+			ret.reserve(size());
+
+			for(auto it = subs_.begin(); it != subs_.end(); ++it) {
+				if(!it->id.valid()) continue;
+				ret.push_back(it->func(std::forward<Args>(a)...));
+				if(it == last) break;
+			}
+
+			if(--iterationCount_ == 0)
+				removeOld();
+
+			return ret;
+		}
 	}
 
 	/// Clears all registered functions.
+	/// Will propagate exceptions from ID::reset().
 	void clear()
 	{
-		for(auto& slot : slots_)
-			slot.id.reset();
+		// first reset the ids and functions
+		for(auto& sub : subs_) {
+			sub.id.reset();
+		}
 
-		slots_.clear();
+		// clear/remove only if no one is currently iterating
+		// we only reset end_ (not really needed, cleanup for easier debugging)
+		if(iterationCount_ == 0) {
+			subs_.clear();
+			end_ = subs_.end();
+		}
 	}
 
-	/// Operator version of call. Calls all registered functions and return their returned objects.
+	/// Operator version of call.
 	auto operator() (Args... a)
 	{
 		return call(std::forward<Args>(a)...);
@@ -232,81 +181,88 @@ public:
 	/// Removes the callback function registered with the given id.
 	/// Returns whether the function could be found. If the id is invalid or the
 	/// associated function was already removed, returns false.
+	/// Propagates exceptions from ID::reset().
 	bool disconnect(const ID& id) override
 	{
-		if(id == ID {} || !slots_) return false;
+		if(subs_.empty()) return false;
 
-		// first
-		if(slots_->id == id) {
-			if(callIter_) callIter_->checkErase(slots_);
+		// check for first one
+		if(subs_.begin()->id == id) {
+			if(iterationCount_) subs_.begin()->id.reset();
+			else subs_.pop_front();
 
-			slots_->id.reset();
-			auto tmp = slots_;
-			slots_ = slots_->next;
-			delete tmp;
+			return true;
 		}
 
-		// iterate
-		for(auto it = slots_; it && it->next; it = it->next) {
-			if(it->next->id == id) {
-				it->id.reset();
+		// iterate through subs, always check the next elem (fwd linked list)
+		// the end condition constructs a copy of it and increases it to check
+		for(auto it = subs_.begin(); true; ++it) {
+			auto next = it;
+			if(++next == subs_.end())
+				break;
 
-				if(callIter_)
-					callIter_->checkErase(it - slots_.begin());
+			if(next->id == id) {
+				if(iterationCount_) next->id.reset();
+				else subs_.erase_after(it);
+
 				return true;
 			}
 		}
 
+		// TODO: remove debug output
+		std::cerr << "nytl::Callback::disonnect: could not find id\n";
 		return false;
 	}
 
 protected:
-	void emplace()
-	{
-		auto id = ++highestID_;
+	/// Represents one callback subscription entry.
+	/// Invalid (formally removed) when id is not valid.
+	/// Note that these means that alternative ID classes can
+	/// remove subscriptions from the outside without actively
+	/// calling disconnect.
+	/// We cannot touch func while any iteration is active.
+	struct Subscription {
+		std::function<Ret(Args...)> func;
+		ID id;
+	};
 
-		if(!slots_) {
-			slots_ = new CallbackSlot();
-			slots_->id = id;
-			return;
+	/// Emplaces a new subscription for the given function.
+	Subscription& emplace()
+	{
+		if(subs_.empty()) {
+			subs_.emplace_front();
+			end_ = subs_.begin();
+		} else {
+			end_ = subs_.emplace_after(end_);
 		}
 
-		auto slot = slots_;
-		while(slot->next) slot = slot->next;
-		slot->next = new CallbackSlot();
-		slot->next->id = id;
+		end_->id = {++highestID_};
+		return *end_;
 	}
 
-	// Represents one registered callback function with id
-	struct CallbackSlot {
- 		ID id;
-		std::function<Ret(Conn, Args...)> func;
-		CallbackSlot* next;
-	};
+	/// Removes all old (i.e. !sub.func) functions that could previously
+	/// not be removed.
+	void removeOld()
+	{
+		subs_.remove_if([](const auto& sub){ return !sub.id.valid(); });
+	}
 
-	// Represents one call function on the stack.
-	// Implemented this way to allow nesting calls to the same object as well
-	// as being able to add/disconnect functions from within a call function.
-	// Done without any memory allocation by just using the stack.
-	struct CallIter {
-		CallbackSlot* next {};
-		CallIter* above {}; // optional pointer to the CallIter from the above iteration
+	/// Upper approximation of the current size.
+	/// May be larger than the actual size.
+	std::size_t size() const
+	{
+		std::size_t ret = 0u;
+		for(auto it = subs_.begin(); it != subs_.end(); ++it)
+			++ret;
+		return ret;
+	}
 
-		// Will be called from diconnect to signal that the entry with the given id
-		// has been disconnected. This will update the current value if needed and signal
-		// the CallIter above (if there is one).
-		void checkErase(CallbackSlot* slot)
-		{
-			if(slot == next) next = slot->next;
-			if(above) above->checkErase(slot);
-		}
-	};
-
+	std::forward_list<Subscription> subs_ {};
+	typename decltype(subs_)::iterator end_ {}; // the last entry in subs
+	unsigned int iterationCount_ {}; // the number of active iterations (in call)
 	std::size_t highestID_ {};
-	CallbackSlot* slots_ {};
-	CallIter* callIter_ {}; // pointer to iter inside the lowest (last called) this->call
 };
 
 } // namespace nytl
 
-#endif // header guard
+#endif
