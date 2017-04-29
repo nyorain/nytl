@@ -106,7 +106,10 @@ public:
 
 protected:
 	/// Returns a string for the given number of failed tests.
-	static std::string failString(unsigned int failCount);
+	static inline std::string failString(unsigned int failCount);
+
+	/// Prints the error for an unexpected exception
+	static inline void unexpectedException(const std::string& errorString);
 
 	static std::vector<Unit> units;
 	static unsigned int totalFailed;
@@ -143,7 +146,7 @@ protected:
 	catch(const std::exception& err) { TEST_other = (TEST_otherString = err.what()).c_str(); } \
 	catch(...) { TEST_other = "<Not a std::exception>"; }\
 	if(!TEST_thrown) \
-			test::Testing::checkErrorFailed({__LINE__, __FILE__}, #error, TEST_other); \
+			test::Testing::errorFailed({__LINE__, __FILE__}, #error, TEST_other); \
 	}
 
 // Implementation
@@ -165,38 +168,48 @@ std::stringstream Testing::errout {};
 template<typename V, typename E>
 void Testing::expectFailed(const FailInfo& info, const V& value, const E& expected)
 {
-	if(currentFailed != 0 ) {
+	// topline
+	if(currentFailed == 0) {
 		errout << indentation;
 		for(auto i = 0u; i < separationWidth; ++i) errout << failSeparator;
 		errout << "\n";
-	} else {
-		errout << "\n";
 	}
 
+	// error
 	errout << indentation << "Check expect failed in test " << currentTest << "\n"
 		   << indentation << info.file << ":" << info.line << "\n"
 		   << indentation << "Expected " << printable(expected)
 		   << ", got " << printable(value) << "\n";
+
+	// bottom line
+	errout << indentation;
+	for(auto i = 0u; i < separationWidth; ++i) errout << failSeparator;
+	errout << "\n";
 
 	++currentFailed;
 }
 
 void Testing::errorFailed(const FailInfo& info, const char* error, const char* other)
 {
-	if(currentFailed != 0 ) {
+	// topline
+	if(currentFailed == 0) {
 		errout << indentation;
 		for(auto i = 0u; i < separationWidth; ++i) errout << failSeparator;
 		errout << "\n";
-	} else {
-		errout << "\n";
 	}
 
+	// error
 	errout << indentation << "Check error failed in test " << currentTest << "\n"
 		   << indentation << info.file << ":" << info.line << "\n"
 		   << indentation << "Expected Error " << error << ", ";
 
 	if(other) errout << "other error was thrown instead: " << other << "\n";
  	else errout << ", no error was thrown\n";
+
+	// bottom line
+	errout << indentation;
+	for(auto i = 0u; i < separationWidth; ++i) errout << failSeparator;
+	errout << "\n";
 
 	++currentFailed;
 }
@@ -214,30 +227,62 @@ unsigned int Testing::run()
 		currentFailed = 0;
 
 		currentTest = unit.name.c_str();
-		unit.func();
+		auto thrown = false;
+
+		try {
+			unit.func();
+		} catch(const std::exception& exception) {
+			thrown = true;
+			unexpectedException(std::string("std::exception::what(): ") + exception.what());
+		} catch(...) {
+			thrown = true;
+			unexpectedException("<Not a std::exception object>");
+		}
 
 		auto fstr = failString(currentFailed);
-		auto alls = currentFailed == 0;
+		if(thrown) fstr += ", unexpected exception thrown!";
 
-		*output << unit.name << ": " << fstr;
-		if(!alls) *output << errout.str() << "\n";
+		auto errstr = errout.str();
+		*output << unit.name << ": " << fstr << "\n";
+		if(!errstr.empty()) *output << errstr << "\n";
 
 		totalFailed += currentFailed;
 	}
 
-	*output << "Total" << ": " << failString(totalFailed);
+	*output << "Total" << ": " << failString(totalFailed) << "\n";
 	return totalFailed;
 }
 
 std::string Testing::failString(unsigned int failCount)
 {
 	if(failCount == 0) {
-		return "All tests succeeded!\n";
+		return "All tests succeeded!";
 	} else if(failCount == 1) {
-		return "1 test failed!\n";
+		return "1 test failed!";
 	} else {
-		return std::to_string(failCount) + " tests failed!\n";
+		return std::to_string(failCount) + " tests failed!";
 	}
+}
+
+void Testing::unexpectedException(const std::string& errorString)
+{
+	// topline
+	if(currentFailed == 0) {
+		errout << indentation;
+		for(auto i = 0u; i < separationWidth; ++i) errout << failSeparator;
+		errout << "\n";
+	}
+
+	// error
+	errout << indentation << "Unexpected error in test " << currentTest << ":\n"
+		   << indentation << errorString << "\n";
+
+	// bottom line
+	errout << indentation;
+	for(auto i = 0u; i < separationWidth; ++i) errout << failSeparator;
+	errout << "\n";
+
+	++currentFailed;
 }
 
 }

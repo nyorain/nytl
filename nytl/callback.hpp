@@ -11,6 +11,7 @@
 
 #include <nytl/connection.hpp> // nytl::BasicConnection
 #include <nytl/nonCopyable.hpp> // nytl::NonCopyable
+#include <nytl/scope.hpp> // nytl::ScopeGuard
 
 #include <functional> // std::function
 #include <forward_list> // std::vector
@@ -28,25 +29,20 @@ template<typename Signature, typename ID = ConnectionID> class Callback;
 // Concept for ID:
 //  - default constructor
 //  - constructor only with std::size_t (or sth compatible) for the id
+//  - noexcept desctructor
 //  - copyable/copy-assignable
 //  - reset(): Will be called to reset the connection id. Might be called multiple times.
-//  - valid() const: Should return whether the connection id is valid.
+//  - valid() const noexcept: Should return whether the connection id is valid.
 
 // TODO: class/param concept doc!
 /// Callback List.
 template<typename Ret, typename... Args, typename ID>
-class Callback<Ret(Args...), ID> : public ConnectableT<ID> {
+class Callback<Ret(Args...), ID> : public ConnectableT<ID>, public NonCopyable {
 public:
 	using Signature = Ret(Args...);
 	using Connection = ConnectionT<ConnectableT<ID>, ID>;
 
 	Callback() = default;
-
-	Callback(const Callback& other) = delete;
-	Callback& operator=(const Callback& other) = delete;
-
-	Callback(Callback&& other) = delete;
-	Callback& operator=(Callback&& other) = delete;
 
 	~Callback()
 	{
@@ -129,6 +125,14 @@ public:
 		auto last = end_;
 		++iterationCount_;
 
+		// make sure the iteration count and cleanup done if possible
+		// even in the case of an exception.
+		// removeOld should never throw
+		auto scopeGuard = makeScopeGuard([&]{
+			if(--iterationCount_ == 0)
+				removeOld();
+		});
+
 		if constexpr(std::is_same<Ret, void>::value) {
 			for(auto it = subs_.begin(); it != subs_.end(); ++it) {
 				if(!it->id.valid()) continue;
@@ -136,8 +140,6 @@ public:
 				if(it == last) break;
 			}
 
-			if(--iterationCount_ == 0)
-				removeOld();
 		} else {
 			std::vector<Ret> ret;
 			ret.reserve(size());
@@ -147,9 +149,6 @@ public:
 				ret.push_back(it->func(std::forward<Args>(a)...));
 				if(it == last) break;
 			}
-
-			if(--iterationCount_ == 0)
-				removeOld();
 
 			return ret;
 		}
@@ -242,7 +241,7 @@ protected:
 
 	/// Removes all old (i.e. !sub.func) functions that could previously
 	/// not be removed.
-	void removeOld()
+	void removeOld() noexcept
 	{
 		subs_.remove_if([](const auto& sub){ return !sub.id.valid(); });
 	}

@@ -2,6 +2,109 @@
 #include <nytl/callback.hpp>
 #include <nytl/tmpUtil.hpp>
 
+// basic connection and callback functionality
+TEST(basic) {
+	nytl::Callback<void()> cb;
+	auto called = 0u;
+
+	// #1
+	called = 0u;
+	auto inc = [&]{ ++called; };
+	cb += inc;
+	cb.add(inc);
+	cb();
+	EXPECT(called, 2u);
+
+	// #2
+	called = 0u;
+	cb = inc;
+	cb();
+	EXPECT(called, 1u);
+
+	// #3
+	called = 0u;
+	cb.clear();
+	cb();
+	EXPECT(called, 0u);
+
+	// #4
+	called = 0u;
+	cb.add([&](nytl::Connection conn){
+		++called;
+		EXPECT(conn.connected(), true);
+		EXPECT(conn.connectable(), &cb);
+		conn.disconnect();
+		EXPECT(conn.connected(), false);
+	});
+	cb();
+	EXPECT(called, 1u);
+
+	// #5
+	called = 0u;
+	cb();
+	EXPECT(called, 0u);
+
+	// #6
+	cb.clear();
+	ERROR(cb.add(std::function<void()>{}), std::logic_error);
+	ERROR(cb.add(std::function<void(nytl::Connection)>{}), std::logic_error);
+	ERROR(cb = std::function<void()>{}, std::logic_error);
+	ERROR(cb += std::function<void(nytl::Connection)>{}, std::logic_error);
+}
+
+// tests correct return values,order and exception propagation
+TEST(retval) {
+	nytl::Callback<unsigned int()> cb;
+
+	// #1
+	cb.add([]{ return 0u; });
+	cb.add([]{ return 1u; });
+	cb.add([]{ return 2u; });
+	auto ret = cb();
+	EXPECT(ret.size(), 3u);
+	EXPECT(ret.at(0), 0u);
+	EXPECT(ret.at(1), 1u);
+	EXPECT(ret.at(2), 2u);
+
+	// #2
+	cb.clear();
+	cb.add([]() -> unsigned int { throw 0; });
+	cb.add([]() -> unsigned int { throw 1; });
+	cb.add([]() -> unsigned int { throw 2; });
+
+	auto caught = false;
+	try { cb(); }
+	catch(int i) {
+		caught = true;
+		EXPECT(i, 0);
+	}
+	EXPECT(caught, true);
+
+	// #3
+	cb.clear();
+	ret = cb();
+	EXPECT(ret.empty(), true);
+}
+
+// adds and remove callback during the call
+TEST(interfer) {
+	nytl::Callback<void()> cb;
+	auto called = 0u;
+
+	// #1
+	called = 0;
+	cb.add([&]{ cb.add([&]{ ++called; }); });
+	cb();
+	EXPECT(called, 0u);
+	cb();
+	EXPECT(called, 1u);
+
+	throw 7;
+}
+
+
+// - old, rather random tests -
+// - might break when working on callback -
 TEST(callback_1) {
 	nytl::Callback<void()> a;
 
