@@ -9,7 +9,7 @@
 #ifndef NYTL_INCLUDE_RECURSIVE_CALLBACK
 #define NYTL_INCLUDE_RECURSIVE_CALLBACK
 
-#include <nytl/connectionFixed.hpp> // nytl::BasicConnection
+#include <nytl/connection.hpp> // nytl::BasicConnection
 #include <nytl/nonCopyable.hpp> // nytl::NonCopyable
 
 #include <functional> // std::function

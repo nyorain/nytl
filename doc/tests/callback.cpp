@@ -1,8 +1,8 @@
 #include "test.hpp"
-#include <nytl/callbackFixed.hpp>
+#include <nytl/callback.hpp>
 #include <nytl/tmpUtil.hpp>
 
-TEST_METHOD("[callback-1]") {
+TEST(callback_1) {
 	nytl::Callback<void()> a;
 
 	int called {};
@@ -32,7 +32,7 @@ TEST_METHOD("[callback-1]") {
 	EXPECT(called, 1);
 }
 
-TEST_METHOD("[callback-2]") {
+TEST(callback_2) {
 	nytl::Callback<unsigned int()> cb;
 	cb.add([]{ return 1; });
 	cb.add([]{ return 2; });
@@ -47,7 +47,7 @@ TEST_METHOD("[callback-2]") {
 		EXPECT(ret[i], i + 1u);
 }
 
-TEST_METHOD("[inter-callback]") {
+TEST(inter_callback) {
 	nytl::Callback<void()> cb;
 	int called {};
 
@@ -64,7 +64,7 @@ TEST_METHOD("[inter-callback]") {
 	EXPECT(called, 11);
 }
 
-TEST_METHOD("[clusterfuck]") {
+TEST(clusterfuck) {
 	nytl::Callback<void()> cb;
 	int called {};
 
@@ -86,7 +86,7 @@ TEST_METHOD("[clusterfuck]") {
 	// EXPECT(cb.size(), 0u);
 }
 
-TEST_METHOD("[connection]") {
+TEST(connection) {
 	nytl::Callback<void()> cb;
 
 	auto called = 0u;
