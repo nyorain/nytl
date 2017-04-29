@@ -6,8 +6,8 @@
 
 #pragma once
 
-#ifndef NYTL_INCLUDE_MAT_HPP
-#define NYTL_INCLUDE_MAT_HPP
+#ifndef NYTL_INCLUDE_MAT
+#define NYTL_INCLUDE_MAT
 
 #include <nytl/fwd/mat.hpp> // nytl::Mat forward declaration
 #include <nytl/vec.hpp> // nytl::Vec

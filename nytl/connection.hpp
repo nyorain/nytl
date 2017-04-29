@@ -6,8 +6,8 @@
 
 #pragma once
 
-#ifndef NYTL_INCLUDE_CONNECTION_HPP
-#define NYTL_INCLUDE_CONNECTION_HPP
+#ifndef NYTL_INCLUDE_CONNECTION
+#define NYTL_INCLUDE_CONNECTION
 
 #include <iostream> // std::cerr
 #include <exception> // std::exception
@@ -56,7 +56,7 @@ public:
 	/// Note that depending on the connection id and callable type and if
 	/// the callback was destroyed before the connection, this may
 	/// not represent the status of the connection.
-	bool connected() const noexcept { return connectable_ && id_.valid(); }
+	bool connected() const noexcept { return connectable_ && id_.id() > 0; }
 
 	/// The associated connectable object.
 	C* connectable() const { return connectable_; }
@@ -141,7 +141,7 @@ public:
 	/// Note that depending on the connection id and callable type and if
 	/// the callback was destroyed before the connection, this may
 	/// not represent the status of the connection.
-	bool connected() const noexcept { return connectable_ && id_.valid(); }
+	bool connected() const noexcept { return connectable_ && id_.id() > 0; }
 
 	/// Releases ownership of the associated connection and returns a non-owned
 	/// connection object.
@@ -161,22 +161,24 @@ protected:
 
 /// Default ID for a connection that is entirely defined over its value.
 struct ConnectionID {
-	std::size_t value;
+	std::int64_t value;
 
-	constexpr void reset() noexcept { value = {}; }
-	constexpr bool valid() const noexcept { return value; }
+	constexpr void reset(std::int64_t val) noexcept { value = val; }
+	constexpr std::int64_t id() const noexcept { return value; }
+	constexpr void remove() const noexcept {}
 };
 
 /// Shares the id value between all connections so that disconnections from
 /// another connection or the callback itself can be observed.
 struct TrackedConnectionID {
-	std::shared_ptr<std::size_t> value;
+	std::shared_ptr<std::int64_t> value;
 
 	TrackedConnectionID() = default;
-	TrackedConnectionID(std::size_t val) : value(std::make_shared<std::size_t>(val)) {}
+	TrackedConnectionID(std::int64_t val) : value(std::make_shared<std::int64_t>(val)) {}
 
 	void reset() noexcept { if(value) *value = 0; value.reset(); }
-	bool valid() const noexcept { return value && *value; }
+	std::int64_t id() const noexcept { return (value) ? 0 : *value; }
+	void remove() const noexcept {}
 };
 
 using Connectable = ConnectableT<ConnectionID>;

@@ -99,7 +99,58 @@ TEST(interfer) {
 	cb();
 	EXPECT(called, 1u);
 
-	throw 7;
+	// #2
+	called = 0;
+	nytl::Connection conn3;
+	cb.clear();
+	cb.add([&](nytl::Connection conn){ ++called; conn.disconnect(); });
+	auto conn2 = cb.add([&]{ ++called; conn3.disconnect(); });
+	conn3 = cb.add([&]{ ++called; });
+	cb();
+	EXPECT(called, 3u);
+	conn2.disconnect();
+	cb();
+	EXPECT(called, 3u);
+
+	// #3
+	called = 0;
+	cb = [&]{ ++called; };
+	cb += [&](nytl::Connection conn){
+		++called;
+		conn.disconnect();
+
+		cb();
+		EXPECT(called, 3u);
+	};
+
+	cb();
+	EXPECT(called, 3u);
+}
+
+
+TEST(inter_callback) {
+	nytl::Callback<void()> cb;
+	int called {};
+
+	nytl::Connection c4;
+
+	// more complex example
+	// use the call times to calculate the overall called number
+
+	auto c1 = cb.add([&]{ ++called; }); // 1 call
+	cb.add([&](nytl::Connection conn){ conn.disconnect(); called++; }); // 1 call
+	cb.add([&]{ ++called; c1.disconnect(); }); // 1 + 7 + 1 calls
+	cb.add([&]{ if(called < 10) { cb(); c4.disconnect(); } }); // 1 + 7 + 1 calls
+	c4 = cb.add([&]{ if(called < 11) cb(); }); // 1 + 7 + 1 calls
+
+	// special case: although the connection is destroyed the first time
+	// this will be called 1 + 7 + 1 times as well since it is disconnected
+	// in the deepest recall, while the other calls were already started, so
+	// they will call the function as well. This behaviour is explicityly wanted
+	cb.add([&](nytl::Connection conn){ ++called; conn.disconnect(); });
+
+	cb();
+	EXPECT(called, 20);
 }
 
 
@@ -133,38 +184,6 @@ TEST(callback_1) {
 	a = inc;
 	a();
 	EXPECT(called, 1);
-}
-
-TEST(callback_2) {
-	nytl::Callback<unsigned int()> cb;
-	cb.add([]{ return 1; });
-	cb.add([]{ return 2; });
-	cb.add([]{ return 3; });
-	cb.add([]{ return 4; });
-	cb.add([]{ return 5; });
-
-	auto ret = cb();
-	EXPECT(ret.size(), 5u);
-
-	for(auto i = 0u; i < ret.size(); ++i)
-		EXPECT(ret[i], i + 1u);
-}
-
-TEST(inter_callback) {
-	nytl::Callback<void()> cb;
-	int called {};
-
-	nytl::Connection c4;
-
-	auto c1 = cb.add([&]{ ++called; });
-	cb.add([&](nytl::Connection conn){ conn.disconnect(); called++; });
-	cb.add([&]{ ++called; c1.disconnect(); });
-	cb.add([&]{ if(called > 3 && called < 10) { cb(); c4.disconnect(); } });
-	c4 = cb.add([&]{ if(called < 5) cb(); });
-	cb.add([&](nytl::Connection conn){ ++called; conn.disconnect(); });
-
-	cb();
-	EXPECT(called, 11);
 }
 
 TEST(clusterfuck) {

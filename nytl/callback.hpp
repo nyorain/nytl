@@ -2,12 +2,12 @@
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
-///\file Defines the Callback template class and void specialization.
+/// \file Defines the Callback template class.
 
 #pragma once
 
-#ifndef NYTL_INCLUDE_RECURSIVE_CALLBACK
-#define NYTL_INCLUDE_RECURSIVE_CALLBACK
+#ifndef NYTL_INCLUDE_CALLBACK
+#define NYTL_INCLUDE_CALLBACK
 
 #include <nytl/connection.hpp> // nytl::BasicConnection
 #include <nytl/nonCopyable.hpp> // nytl::NonCopyable
@@ -16,26 +16,35 @@
 #include <functional> // std::function
 #include <forward_list> // std::vector
 #include <utility> // std::move
-#include <cstdint> // std::uintptr_t
+#include <cstdint> // std::uint64_t
+#include <cstddef> // std::size_t
 #include <type_traits> // std::is_same
 #include <vector> // std::vector
+#include <limits> // std::numeric_limits
+#include <iostream> // std::cerr
+#include <stdexcept> // std::logic_error
 
 namespace nytl {
 
 template<typename Signature, typename ID = ConnectionID> class Callback;
+template<typename Signature> using TrackedCallback = Callback<Signature, TrackedConnectionID>;
 
-// TODO: use std::pmr for more efficient memory allocations (?)
-//
-// Concept for ID:
-//  - default constructor
-//  - constructor only with std::size_t (or sth compatible) for the id
-//  - noexcept desctructor
-//  - copyable/copy-assignable
-//  - reset(): Will be called to reset the connection id. Might be called multiple times.
-//  - valid() const noexcept: Should return whether the connection id is valid.
+// TODO (C++17): use std::pmr for more efficient memory allocations (?)
 
-// TODO: class/param concept doc!
-/// Callback List.
+/// List of callback functions.
+/// Everyone can register their functions in a callback object and
+/// then all registered functions togehter might be called.
+/// The special part about Callback is that it is written for
+/// recursive scenarios, e.g. where the callback is called inside a
+/// function that was called because the callback was called.
+/// So the callback might be accessed from inside such a function.
+/// The class is not threadsafe in any way.
+/// Exceptions are usually propagated.
+/// The class can not be copied and moving it naturally invalidates all
+/// Connection objects referencing it (while the connection id objects stay valid).
+///
+/// \tparam ID A type that fulfills the CallbackConnectionID concept (see docs/callback.md).
+/// Examples are ConnectionID or TrackedConnectionID (in nytl/connection.hpp).
 template<typename Ret, typename... Args, typename ID>
 class Callback<Ret(Args...), ID> : public ConnectableT<ID>, public NonCopyable {
 public:
@@ -52,9 +61,10 @@ public:
 
 		// We clear manually instead of calling clear so we can at least
 		// try to reset every id in the case of exceptions.
+		++iterationCount_;
 		for(auto& sub : subs_) {
 			try {
-				sub.id.reset();
+				sub.id.reset(-1);
 			} catch(const std::exception& err) {
 				std::cerr << "nytl::~Callback: id.reset() failed: " << err.what() << "\n";
 			}
@@ -122,7 +132,11 @@ public:
 	/// Propagates all upcoming exceptions untouched.
 	auto call(Args... a)
 	{
-		auto last = end_;
+		callID_ = (callID_ + 1) % std::numeric_limits<std::int64_t>::max();
+		std::int64_t callid = callID_; // the actual calling id (to include newly removed)
+		auto last = end_; // the end (to not iterate over newly added subs)
+
+		// make sure the no list iterators are invalidated while iterating
 		++iterationCount_;
 
 		// make sure the iteration count and cleanup done if possible
@@ -133,9 +147,12 @@ public:
 				removeOld();
 		});
 
+		// the first continue check is needed to not call functions that were
+		// removed before this call started but call functions that were removed
+		// only by some other callback function
 		if constexpr(std::is_same<Ret, void>::value) {
 			for(auto it = subs_.begin(); it != subs_.end(); ++it) {
-				if(!it->id.valid()) continue;
+				if(it->id.id() <= 0 && -it->id.id() < callid) continue;
 				it->func(std::forward<Args>(a)...);
 				if(it == last) break;
 			}
@@ -145,7 +162,7 @@ public:
 			ret.reserve(size());
 
 			for(auto it = subs_.begin(); it != subs_.end(); ++it) {
-				if(!it->id.valid()) continue;
+				if(it->id.id() <= 0 && it->id.id() > callid) continue;
 				ret.push_back(it->func(std::forward<Args>(a)...));
 				if(it == last) break;
 			}
@@ -155,12 +172,19 @@ public:
 	}
 
 	/// Clears all registered functions.
-	/// Will propagate exceptions from ID::reset().
+	/// Will propagate exceptions from ID::reset() or ID::remove().
 	void clear()
 	{
-		// first reset the ids and functions
-		for(auto& sub : subs_) {
-			sub.id.reset();
+		{
+			// make sure that the iterator is not invalidated while iterating
+			++iterationCount_;
+			auto scopeGuard = makeScopeGuard([&]{ --iterationCount_; });
+
+			// reset the ids or notify the ids of removal
+			for(auto& sub : subs_) {
+				if(iterationCount_ == 1) sub.id.remove();
+				else sub.id.reset(-callID_);
+			}
 		}
 
 		// clear/remove only if no one is currently iterating
@@ -187,11 +211,19 @@ public:
 
 		// check for first one
 		if(subs_.begin()->id == id) {
-			if(iterationCount_) subs_.begin()->id.reset();
-			else subs_.pop_front();
+			if(iterationCount_ == 0) {
+				subs_.pop_front();
+				subs_.begin()->id.remove();
+			} else {
+				subs_.begin()->id.reset(-callID_);
+			}
 
 			return true;
 		}
+
+		// make sure that the iterator is not invalidated while iterating
+		++iterationCount_;
+		auto scopeGuard = makeScopeGuard([&]{ --iterationCount_; });
 
 		// iterate through subs, always check the next elem (fwd linked list)
 		// the end condition constructs a copy of it and increases it to check
@@ -201,15 +233,17 @@ public:
 				break;
 
 			if(next->id == id) {
-				if(iterationCount_) next->id.reset();
-				else subs_.erase_after(it);
+				if(iterationCount_ == 1) {
+					next->id.remove();
+					subs_.erase_after(it);
+				} else {
+					next->id.reset(-callID_);
+				}
 
 				return true;
 			}
 		}
 
-		// TODO: remove debug output
-		std::cerr << "nytl::Callback::disonnect: could not find id\n";
 		return false;
 	}
 
@@ -220,6 +254,7 @@ protected:
 	/// remove subscriptions from the outside without actively
 	/// calling disconnect.
 	/// We cannot touch func while any iteration is active.
+	/// If the
 	struct Subscription {
 		std::function<Ret(Args...)> func;
 		ID id;
@@ -228,6 +263,7 @@ protected:
 	/// Emplaces a new subscription for the given function.
 	Subscription& emplace()
 	{
+		// emplace at the last position
 		if(subs_.empty()) {
 			subs_.emplace_front();
 			end_ = subs_.begin();
@@ -235,15 +271,30 @@ protected:
 			end_ = subs_.emplace_after(end_);
 		}
 
-		end_->id = {++highestID_};
+		// output at least a warning when subID_ has to be wrapped
+		// Usually this should not happen. Bad things can happend then.
+		if(subID_ == std::numeric_limits<std::int64_t>::max()) {
+			std::cerr << "nytl::Callback::emplace: WARNING wrapping subID_ at maximum\n";
+			subID_ = 0;
+		}
+
+		end_->id = {static_cast<std::int64_t>(++subID_)};
 		return *end_;
 	}
 
-	/// Removes all old (i.e. !sub.func) functions that could previously
-	/// not be removed.
+	/// Removes all old functions that could previously
+	/// not be removed because of an active iteration.
 	void removeOld() noexcept
 	{
-		subs_.remove_if([](const auto& sub){ return !sub.id.valid(); });
+		// make sure that the iterator is not invalidated while iterating
+		++iterationCount_;
+		auto scopeGuard = makeScopeGuard([&]{ --iterationCount_; });
+
+		subs_.remove_if([](const auto& sub){
+			auto remove = sub.id.id() <= 0;
+			if(remove) sub.id.remove(); // notify the id
+			return remove;
+		});
 	}
 
 	/// Upper approximation of the current size.
@@ -256,12 +307,13 @@ protected:
 		return ret;
 	}
 
-	std::forward_list<Subscription> subs_ {};
+	std::forward_list<Subscription> subs_ {}; // all registered subscriptions
 	typename decltype(subs_)::iterator end_ {}; // the last entry in subs
 	unsigned int iterationCount_ {}; // the number of active iterations (in call)
-	std::size_t highestID_ {};
+	std::uint64_t subID_ {}; // the highest subscription id given
+	std::uint64_t callID_ {}; // the highest call id given (see the call function)
 };
 
 } // namespace nytl
 
-#endif
+#endif // header guard

@@ -6,8 +6,8 @@
 
 #pragma once
 
-#ifndef NYTL_INCLUDE_UTF_HPP
-#define NYTL_INCLUDE_UTF_HPP
+#ifndef NYTL_INCLUDE_UTF
+#define NYTL_INCLUDE_UTF
 
 #include <string> // std::string
 #include <array> // std::array

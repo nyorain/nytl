@@ -6,8 +6,8 @@
 
 #pragma once
 
-#ifndef NYTL_INCLUDE_SCALAR_HPP
-#define NYTL_INCLUDE_SCALAR_HPP
+#ifndef NYTL_INCLUDE_SCALAR
+#define NYTL_INCLUDE_SCALAR
 
 namespace nytl {
 namespace constants {
