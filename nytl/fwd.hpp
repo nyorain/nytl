@@ -32,17 +32,20 @@ template<typename T> class Observer;
 template<typename T> class ObservingPtr;
 
 // connection.hpp
-template<typename ID> class BasicConnectable;
-template<typename Base, typename ID> class BasicConnection;
-template<typename Base, typename ID> class BasicConnectionGuard;
-template<typename Base, typename ID> class BasicConnectionRef;
+template <typename ID> class ConnectableT;
+template <typename C, typename ID> class ConnectionT;
+template <typename C, typename ID> class UniqueConnectionT;
 
-using ConnectionID = struct ConnectionIDType*;
-using Connectable = BasicConnectable<ConnectionID>;
+struct ConnectionID;
+struct TrackedConnectionID;
 
-using Connection = BasicConnection<Connectable, ConnectionID>;
-using ConnectionRef = BasicConnectionRef<Connectable, ConnectionID>;
-using ConnectionGuard = BasicConnectionGuard<Connectable, ConnectionID>;
+using Connectable = ConnectableT<ConnectionID>;
+using Connection = ConnectionT<Connectable, ConnectionID>;
+using UniqueConnection = UniqueConnectionT<Connectable, ConnectionID>;
+
+using TrackedConnectable = ConnectableT<TrackedConnectionID>;
+using TrackedConnection = ConnectionT<TrackedConnectable, TrackedConnectionID>;
+using TrackedUniqueConnection = UniqueConnectionT<TrackedConnectable, TrackedConnectionID>;
 
 // callback.hpp
 template<typename Signature> class Callback;
