@@ -66,11 +66,11 @@ template<size_t OD, typename OT>
 constexpr Vec<D, T>::operator Vec<OD, OT>() const
 {
 	auto ret = Vec<OD, OT>{};
-	if constexpr(!ret.staticSized) ret.resize(size()); // dynamic size
+	if constexpr(!decltype(ret)::staticSized) ret.resize(this->size()); // dynamic size
 
-	for(auto i = 0u; i < std::min(ret.size(), size()); ++i)
+	for(auto i = 0u; i < std::min(ret.size(), this->size()); ++i)
 		ret[i] = (*this)[i];
-	for(auto i = std::min(ret.size(), size()); i < ret.size(); ++i)
+	for(auto i = this->size(); i < ret.size(); ++i)
 		ret[i] = {};
 	return ret;
 }
