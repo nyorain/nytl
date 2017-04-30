@@ -24,21 +24,30 @@ namespace detail {
 /// \requires Types 'V1','V2' shall be Vector types.
 template<typename V1, typename V2>
 struct AssertSameDimensions {
+
 	static constexpr void call(const V1& a, const V2& b)
 	{
-		if(a.size() != b.size())
-			throw std::invalid_argument("nytl::vec: vectors must have same dimension");
+		if constexpr(V1::staticSized && V2::staticSized) {
+			static_assert(V1::size() == V2::size(), "nytl::vec: vectors must have same dimension");
+		} else {
+			if(a.size() != b.size())
+				throw std::invalid_argument("nytl::vec: vectors must have same dimension");
+		}
 	}
 };
 
 /// \brief Helper that asserts that a vector of type V1 has dimension Dim.
-/// \reuqires Type 'V' shall be a Vector type.
+/// \requires Type 'V' shall be a Vector type.
 template<unsigned int Dim, typename V>
 struct AssertDimension {
 	static constexpr void call(const V& a)
 	{
-		if(a.size() != Dim)
-			throw std::invalid_argument("nytl::vec: vector must have specified dimension");
+		if constexpr(V::staticSized) {
+			static_assert(V::size() == Dim, "nytl::vec: vector must have specified dimension");
+		} else {
+			if(a.size() != Dim)
+				throw std::invalid_argument("nytl::vec: vector must have specified dimension");
+		}
 	}
 };
 
@@ -58,6 +67,25 @@ template<unsigned int Dim, typename V>
 constexpr void assertDimension(const V& a)
 {
 	AssertDimension<Dim, V>::call(a);
+}
+
+/// \brief Creates a new vector from implementatoin 'V' with value type 'T'
+/// and size 'S'
+template<typename V, typename T, std::size_t S>
+auto createVector()
+{
+	if constexpr(V::staticSized) return V::template Rebind<T>::template create<S>();
+	else return V::template Rebind<T>::create(S);
+
+}
+
+/// \brief Creates a new vector from the same implementation and size as the given vector
+/// with value type T.
+template<typename T, typename V>
+auto createVector(const V& v)
+{
+	if constexpr(V::staticSized) return V::template Rebind<T>::template create<V::size()>();
+	else return V::template Rebind<T>::create(v.size());
 }
 
 } // namespace detail
@@ -95,7 +123,7 @@ constexpr auto angle(const V1& a, const V2& b)
 template<typename V1, typename V2>
 constexpr auto cross(const V1& a, const V2& b)
 {
-	auto ret = V1::template Rebind<3, decltype(a[0] * b[0] - a[0] * b[0])>::create(3);
+	auto ret = detail::createVector<V1, decltype(a[0] * b[0] - a[0] * b[0]), 3>();
 	ret[0] = (a[1] * b[2]) - (a[2] * b[1]);
 	ret[1] = (a[2] * b[0]) - (a[0] * b[2]);
 	ret[2] = (a[0] * b[1]) - (a[1] * b[0]);
@@ -283,7 +311,7 @@ constexpr auto multiply(const V1& a, const V2& b)
 {
 	detail::assertSameDimensions(a, b);
 
-	auto ret = typename V1::template Rebind<V1::dim, decltype(a[0] * b[0])> {};
+	auto ret = detail::createVector<decltype(a[0] * b[0])>(a);
 	for(auto i = 0u; i < a.size(); ++i)
 		ret[i] = a[i] * b[i];
 	return ret;
@@ -298,7 +326,7 @@ constexpr auto divide(const V1& a, const V2& b)
 {
 	detail::assertSameDimensions(a, b);
 
-	auto ret = typename V1::template Rebind<V1::dim, decltype(a[0] / b[0])> {};
+	auto ret = detail::createVector<decltype(a[0] / b[0])>(a);
 	for(auto i = 0u; i < a.size(); ++i)
 		ret[i] = a[i] / b[i];
 	return ret;
