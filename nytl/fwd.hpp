@@ -47,9 +47,6 @@ using TrackedConnectable = ConnectableT<TrackedConnectionID>;
 using TrackedConnection = ConnectionT<TrackedConnectable, TrackedConnectionID>;
 using TrackedUniqueConnection = UniqueConnectionT<TrackedConnectable, TrackedConnectionID>;
 
-// callback.hpp
-template<typename Signature> class Callback;
-
 } // namespace nytl
 
 #endif // header guad
