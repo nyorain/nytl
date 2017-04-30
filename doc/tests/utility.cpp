@@ -2,7 +2,6 @@
 
 #include <nytl/callback.hpp>
 #include <nytl/span.hpp>
-#include <nytl/observe.hpp>
 #include <nytl/typemap.hpp>
 #include <nytl/utf.hpp>
 #include <nytl/referenced.hpp>
@@ -14,30 +13,6 @@
 #include <list>
 
 // TODO: to test: functionTraits, nonCopyable, tuple (operations)
-
-// - observe -
-struct SomeClass {};
-struct MyObserver : public nytl::Observer<SomeClass> {
-	bool called {};
-	void observeDestruction(SomeClass&) override { called = true; }
-};
-
-using ObsClass = nytl::ObservableWrapper<SomeClass>;
-
-TEST(observer) {
-	{
-		auto observer = MyObserver {};
-		auto object = new ObsClass {};
-		auto ptr = nytl::ObservingPtr<ObsClass>(object);
-		EXPECT((ptr), true);
-
-		object->addObserver(observer);
-		delete object; // will trigger observer.observeDestruction(*object)
-
-		EXPECT(observer.called, true);
-		EXPECT((ptr), false);
-	}
-}
 
 // - typemap -
 TEST(typemap) {

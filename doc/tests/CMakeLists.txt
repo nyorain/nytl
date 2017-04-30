@@ -13,6 +13,9 @@ add_test(callback callback)
 add_executable(clone clone.cpp)
 add_test(clone clone)
 
+add_executable(observe observe.cpp)
+add_test(observe observe)
+
 add_executable(span span.cpp)
 add_test(span span)
 

@@ -51,20 +51,29 @@ public:
 	}
 
 	/// \brief Adds the given observer to the list of observers.
+	/// The same observer can be added mutiple times, in which case it will also be
+	/// called multiple times.
 	void addObserver(Observer<T>& obs)
 	{
 		observer_.push_back(&obs);
 	}
 
 	/// \brief Removes the given observer from the list of observers.
-	/// \returns Whether the given observable object could be found
-	bool removeObserver(const Observer<T>& obs)
+	/// Removed the observer entirely, i.e. removes all entries if the observer
+	/// was added multiple times.
+	/// Will always return false if an observer calls this during its callback.
+	/// \returns The number of elements found. So returns 0 if no elements could be found.
+	unsigned int removeObserver(const Observer<T>& obs)
 	{
+		auto before = observer_.size();
 		observer_.erase(std::remove(observer_.begin(), observer_.end(), &obs), observer_.end());
-		return false;
+		return (before - observer_.size());
 	}
 
 	/// \brief Changes a given observer to a new one.
+	/// Will move the first found observer of oldone to newone.
+	/// So if oldone is registered mulitple times, will only move the
+	/// first entry.
 	/// Might be more efficient than first removing the oldone and then adding
 	/// the new one.
 	/// \returns Whether the given observable object could be found. If this returns
@@ -76,6 +85,9 @@ public:
 		*it = &newone;
 		return true;
 	}
+
+	/// Returns a constant reference to the list of observers.
+	const std::vector<Observer<T>*>& observers() const noexcept { return observer_; }
 
 protected:
 	std::vector<Observer<T>*> observer_;
