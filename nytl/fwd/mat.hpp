@@ -11,8 +11,10 @@
 
 namespace nytl {
 
-template<std::size_t R, std::size_t C, typename T> struct Mat;
-template<std::size_t D, typename T> using SquareMat = Mat<D, D, T>;
+using std::size_t;
+
+template<size_t R, size_t C, typename T> struct Mat;
+template<size_t D, typename T> using SquareMat = Mat<D, D, T>;
 
 template<class T> using Mat2 = SquareMat<2,T>;
 template<class T> using Mat3 = SquareMat<3,T>;

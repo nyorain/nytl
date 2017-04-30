@@ -81,7 +81,7 @@ protected:
 	virtual ~AbstractCloneMovable() = default;
 };
 
-/// \brief Can be derived from to make cloning for interfaces possible.
+/// \brief Can be derived from to make cloning for abstract classes possible.
 /// If some interface class derived from this type using the CRTP idiom (i.e. 'T' is the
 /// deriving class), objects of this interface will be able to be cloned, i.e. they can
 /// be duplicated to a new object without knowing their exact implementation type.
@@ -124,7 +124,6 @@ Base* DeriveCloneMovable<Base, Derived>::doCloneMove()
 template<typename Base, typename Derived>
 Base* DeriveCloneable<Base, Derived>::doClone() const
 	{ return new Derived(static_cast<const Derived&>(*this)); }
-
 
 }
 

@@ -10,10 +10,32 @@
 #define NYTL_INCLUDE_STRING_PARAM
 
 #include <string> // std::string
-#include <cstring> // std:strcmp TODO: replace with constexpr function
+#include <cstddef> // std::size_t
 #include <nytl/span.hpp> // nytl::Span
 
 namespace nytl {
+
+/// \brief Constexpr version of std::strlen.
+/// Has exactly the same functionality as std::strlen.
+/// The string must be null-terminated and not null.
+/// Does not count the terminating character.
+constexpr std::size_t strlen(const char* str)
+{
+	std::size_t ret = 0u;
+	while(*(str + ret) != '\0') ++ret;
+	return ret;
+}
+
+/// \brief Constexpr function that checks two string literals for equality.
+/// Both strings must be nullterminated and not null.
+constexpr auto strsame(const char* a, const char* b)
+{
+	while(*a == *b)
+		if(!*a++ || !*b++)
+			return true;
+
+	return false;
+}
 
 /// \brief This class can be used to effeciently accept string parameters of different types.
 /// \details Usually, there are multiple possibilities to take string params:
@@ -44,24 +66,14 @@ protected:
 };
 
 inline bool operator==(const StringParam& param, const char* other)
-	{ return std::strcmp(param.data(), other) == 0; }
+	{ return strsame(param.data(), other); }
 inline bool operator!=(const StringParam& param, const char* other)
-	{ return std::strcmp(param.data(), other) != 0; }
+	{ return !strsame(param.data(), other); }
 
 inline bool operator==(const StringParam& param, const std::string& other)
-	{ return std::strcmp(param.data(), other.c_str()) == 0; }
+	{ return strsame(param.data(), other.c_str()); }
 inline bool operator!=(const StringParam& param, const std::string& other)
-	{ return std::strcmp(param.data(), other.c_str()) != 0; }
-
-/// Computes the length of a null-terminated string at runtime.
-/// The returned length does not include the first null-terminator.
-/// Does basically the same as std::strlen but can do it at compile time.
-constexpr std::size_t strlen(const char* str)
-{
-	std::size_t ret = 0u;
-	while(*(str + ret) != '\0') ++ret;
-	return ret;
-}
+	{ return !strsame(param.data(), other.c_str()); }
 
 /// \brief Class dervied from [nytl::StringParam]() that also holds the length of the stored string.
 /// \details Can be used as parameter type for strings which size is needed in performance-critical

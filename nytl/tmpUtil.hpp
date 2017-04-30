@@ -28,6 +28,7 @@ using Expand = int[];
 /// \module utility
 template<typename...> struct DeriveDummy {};
 
+// TODO C++17: remove this (std::void_t)
 /// C++17 alias template for void, used to detect ill-formed types in a SFINAE-context.
 /// ```
 /// // Function foo must be callable with a value of type A.

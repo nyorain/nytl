@@ -10,6 +10,7 @@
 #define NYTL_INCLUDE_MAT_OPS
 
 #include <nytl/tmpUtil.hpp> // nytl::templatize
+#include <nytl/vecOps.hpp>
 
 #include <utility> // std::swap
 #include <stdexcept> // std::invalid_argument
@@ -18,6 +19,93 @@
 #include <cmath> // std::fma
 
 namespace nytl::mat {
+namespace detail {
+
+template<typename... M>
+using ConstexprDims = void_t<decltype(M::rows(), M::cols())...>;
+
+/// \brief Helper that asserts that the given matrices have the same dimensions
+/// \requires Types 'M1','M2' shall be Matrix types.
+template<typename M1, typename M2>
+struct AssertSameDimensions {
+	static constexpr void call(const M1& a, const M2& b)
+	{
+		if constexpr(validExpression<ConstexprDims, M1, M2>) {
+			static_assert(M1::rows() == M2::rows() && M1::cols() == M2::cols(),
+				"nytl::mat: matrices must have same dimensions");
+		} else {
+			if(a.rows() != b.rows() || a.cols() != b.cols())
+				throw std::invalid_argument("nytl::mat: matrices must have same dimensions");
+		}
+	}
+};
+
+/// \brief Helper that asserts that the given matrices have dimensions that make them
+/// suitable for multiplicating them.
+/// \requires Types 'M1','M2' shall be Matrix types
+template<typename M1, typename M2>
+struct AssertMultDimensions {
+	static constexpr void call(const M1& a, const M2& b)
+	{
+		if constexpr(validExpression<ConstexprDims, M1, M2>) {
+			static_assert(M1::cols() == M2::rows(),
+				"nytl::mat: matrices must have multiplicatable dimensions");
+		} else {
+			if(a.cols() != b.rows())
+				throw std::invalid_argument("nytl::mat: matrices must have "
+					"multiplicatable dimensions");
+		}
+	}
+};
+
+/// \brief Asserts that the both given matrices have the same dimension.
+/// Will result in a compile time error if possible, otherwise throws
+/// std::invalid_argument.
+template<typename M1, typename M2>
+constexpr void assertSameDimensions(const M1& a, const M2& b)
+{
+	AssertSameDimensions<M1, M2>::call(a, b);
+}
+
+/// \brief Asserts that the both given Matrix times have dimensions that
+/// make them suited for mulitplication.
+/// Will result in a compile time error if possible, otherwise throws
+/// std::invalid_argument.
+template<typename M1, typename M2>
+constexpr void assertMultDimensions(const M1& a, const M2& b)
+{
+	AssertMultDimensions<M1, M2>::call(a, b);
+}
+
+/// \brief Creates a matrix of implementation type 'M' with value type 'T' and
+/// rows/cols 'R'/'C'.
+template<typename M, typename T, std::size_t R, std::size_t C>
+auto createMatrix()
+{
+	if constexpr(M::staticSized) return M::template Rebind<T>::template create<R, C>();
+	else return M::template Rebind<T>::create(R, C);
+}
+
+/// \brief Creates a matrix with the transposed dimension as the given one.
+/// Will not copy/set any values.
+template<typename M>
+auto createTransposeMatrix(const M& mat)
+{
+	if constexpr(M::staticSized) return M::template create<M::cols(), M::rows()>();
+	else return M::create(mat.cols(), mat.rows());
+}
+
+/// \brief Creates a matrix with the same implementation and dimension as the given one
+/// but with value type 'T'
+template<typename T, typename M>
+auto createMatrix(const M& mat)
+{
+	if constexpr(M::staticSized)
+		return M::template Rebind<T>::template create<M::rows(), M::cols()>();
+	else return M::template Rebind<T>::create(mat.rows(), mat.cols());
+}
+
+}
 
 /// \brief Prints the given matrix with numerical values to the given ostream.
 /// If this function is used, header <ostream> must be included.
@@ -227,7 +315,7 @@ constexpr void identity(M& mat)
 template<typename M>
 constexpr auto transpose(const M& mat)
 {
-	auto ret = typename M::template Rebind<M::colDim, M::rowDim, typename M::Value> {};
+	auto ret = detail::createTransposeMatrix(mat);
 
 	for(auto r = 0u; r < mat.rows(); ++r)
 		for(auto c = 0u; c < mat.cols(); ++c)
@@ -304,9 +392,7 @@ constexpr void rowEcholon(M& mat)
 template<typename M>
 constexpr auto rowEcholonCopy(const M& mat)
 {
-	using RetMat = typename M::template Rebind<M::rowDim, M::colDim, double>;
-
-	auto ret = RetMat::create(mat.rows(), mat.cols());
+	auto ret = detail::createMatrix<double>(mat);
 	copy(ret, mat);
 	rowEcholon(ret);
 	return ret;
@@ -354,9 +440,7 @@ constexpr void reducedRowEcholon(M& mat)
 template<typename M>
 constexpr auto reducedRowEcholonCopy(const M& mat)
 {
-	using RetMat = typename M::template Rebind<M::rowDim, M::colDim, double>;
-
-	auto ret = RetMat::create(mat.rows(), mat.cols());
+	auto ret = detail::createMatrix<double>(mat);
 	copy(ret, mat);
 	reducedRowEcholon(ret);
 	return ret;
@@ -380,12 +464,12 @@ constexpr auto reducedRowEcholonCopy(const M& mat)
 template<typename M>
 constexpr auto luDecomp(const M& mat)
 {
-	using RetMat = typename M::template Rebind<M::rowDim, M::colDim, double>;
+	using RetMat = decltype(detail::createMatrix<double>(mat));
 
 	std::tuple<RetMat, RetMat, RetMat, int> ret {};
-	auto& lower = (std::get<0>(ret) = RetMat::create(mat.rows(), mat.cols()));
-	auto& upper = (std::get<1>(ret) = RetMat::create(mat.rows(), mat.cols()));
-	auto& perm = (std::get<2>(ret) = RetMat::create(mat.rows(), mat.cols()));
+	auto& lower = (std::get<0>(ret) = detail::createMatrix<double>(mat));
+	auto& upper = (std::get<1>(ret) = detail::createMatrix<double>(mat));
+	auto& perm = (std::get<2>(ret) = detail::createMatrix<double>(mat));
 	auto& sign = (std::get<3>(ret) = 1.0);
 
 	identity(perm);
@@ -440,10 +524,8 @@ namespace nocheck {
 template<typename M, typename V>
 constexpr auto luEvaluate(const M& l, const M& u, const V& b)
 {
-	using RetVec = typename V::template Rebind<V::dim, double>;
-
-	auto d = RetVec::create(b.size());
-	auto x = RetVec::create(b.size());
+	auto d = vec::detail::createVector<double>(b);
+	auto x = vec::detail::createVector<double>(b);
 
 	// forward substitution
 	for(auto i = 0u; i < d.size(); ++i) {
@@ -505,12 +587,7 @@ constexpr auto luEvaluate(const M& l, const M& u, const V& b)
 template<typename M>
 constexpr auto determinant(const M& mat)
 {
-	// auto [l, u, p, s] = luDecomp(mat); // TODO: C++17
-
-	auto lups = luDecomp(mat);
-	auto& u = std::get<1>(lups);
-	auto& s = std::get<3>(lups);
-
+	auto [l, u, p, s] = luDecomp(mat);
 	return s * static_cast<typename M::Value>(multiplyDiagonal(u));
 }
 
@@ -547,9 +624,7 @@ namespace nocheck {
 template<typename M>
 constexpr auto inverse(const M& l, const M& u, const M& p)
 {
-	using RetMat = typename M::template Rebind<M::rowDim, M::colDim, double>;
-	auto ret = RetMat::create(l.rows(), l.cols());
-
+	auto ret = detail::createMatrix<double>(l);
 	for(auto i = 0u; i < ret.cols(); ++i)
 		col(ret, i, nocheck::luEvaluate(l, u, col(p, i)));
 
@@ -563,7 +638,7 @@ constexpr auto inverse(const M& l, const M& u, const M& p)
 template<typename M>
 constexpr auto inverse(const M& l, const M& u)
 {
-	auto p = M::create(l.rows(), l.cols());
+	auto p = detail::createMatrix<typename M::Value>(l);
 	identity(p);
 	return inverse(l, u, p);
 }
@@ -575,12 +650,7 @@ constexpr auto inverse(const M& l, const M& u)
 template<typename M>
 constexpr auto inverse(const M& mat)
 {
-	// auto [l, u, p, s] = luDecomp(mat); //TODO C++17
-	auto lups = luDecomp(mat);
-	const auto& l = std::get<0>(lups);
-	const auto& u = std::get<1>(lups);
-	const auto& p = std::get<2>(lups);
-
+	auto [l, u, p, s] = luDecomp(mat);
 	return inverse(l, u, p);
 }
 
@@ -633,14 +703,7 @@ constexpr auto inverse(const M& mat)
 	if(mat.rows() != mat.cols())
 		throw std::invalid_argument("nytl::mat::inverse: non-square matrix");
 
-	// auto [l, u, p, s] = luDecomp(mat); //TODO C++17
-	auto lups = luDecomp(mat);
-	const auto& l = std::get<0>(lups);
-	const auto& u = std::get<1>(lups);
-	const auto& p = std::get<2>(lups);
-
-	return inverse(l, u, p);
-
+	auto [l, u, p, s] = luDecomp(mat);
 	for(auto n = 0u; n < l.rows(); ++n)
 		if(u[n][n] == 0.0)
 			throw std::invalid_argument("nytl::mat::inverse: singular matrix");
@@ -660,11 +723,7 @@ constexpr bool invert(M& mat)
 {
 	if(mat.rows() != mat.cols()) return false;
 
-	// auto [l, u, p, s] = luDecomp(mat); //TODO C++17
-	auto lups = luDecomp(mat);
-	const auto& l = std::get<0>(lups);
-	const auto& u = std::get<1>(lups);
-	const auto& p = std::get<2>(lups);
+	auto [l, u, p, s] = luDecomp(mat); //TODO C++17
 
 	// check for singular matrix
 	for(auto n = 0u; n < l.rows(); ++n)

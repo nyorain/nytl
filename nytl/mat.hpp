@@ -21,141 +21,163 @@ namespace nytl {
 /// \tparam T The value type of the matrix.
 /// \tparam R The rows of the matrix.
 /// \tparam C The columns of the matrix.
-template<std::size_t R, std::size_t C, typename T>
+template<size_t R, size_t C, typename T>
 struct Mat {
 public:
 	Vec<R, Vec<C, T>> data_;
 
 public:
 	using Value = T;
-	using Size = std::size_t;
+	using Size = size_t;
 	using RowVec = Vec<C, T>;
 	using ColVec = Vec<R, T>;
 
-	constexpr static auto rowDim = R;
-	constexpr static auto colDim = C;
+	/// Rebinds the matrix implementation to another value type.
+	template<typename OT> using Rebind = Mat<R, C, OT>;
 
-	template<Size OR, Size OC, typename OT> using Rebind = Mat<OR, OC, OT>;
-	constexpr static Mat create(Size r, Size c)
-	{
-		Mat ret {};
-		ret.data_ = Vec<R, Vec<C, T>>::create(r);
-		for(auto& row : ret.data_) row = Vec<C, T>::create(c);
-		return ret;
-	}
+	/// Static sized matrix implementation
+	static constexpr auto staticSized = true;
 
-	constexpr auto rows() const { return data_.size(); }
-	constexpr auto cols() const { return data_[0].size(); }
+	/// Creates a new matrix with the given size
+	template<Size OR, Size OC>
+	static constexpr Mat<OR, OC, T> create() { return {}; }
+
+	/// The (static/fixed) dimensions of the matrix
+	static constexpr auto rows() { return R; }
+	static constexpr auto cols() { return C; }
 
 public:
+	/// Returns the ith row of the matrix.
 	constexpr RowVec& operator[](Size i){ return data_[i]; }
 	constexpr const RowVec& operator[](Size i) const { return data_[i]; }
 
-	constexpr RowVec& at(Size r)
-		{ if(r >= rows()) throw std::out_of_range("nytl::Mat::at"); return data_[r]; }
-	constexpr const RowVec& at(Size r) const
-		{ if(r >= rows()) throw std::out_of_range("nytl::Mat::at"); return data_[r]; }
+	/// Returns the ith row of the matrix.
+	/// If these exceeds the size of the matrix, throws std::out_of_range.
+	constexpr RowVec& at(Size r) { checkRow(r); return data_[r]; }
+	constexpr const RowVec& at(Size r) const { checkRow(r); return data_[r]; }
 
+	/// Returns the value at position (r, c).
+	/// If this position exceeds the size of the matrix, throws std::out_of_range.
 	constexpr T& at(Size r, Size c) { return at(r).at(c); }
 	constexpr const T& at(Size r, Size c) const { return at(r).at(c); }
+
+	/// Utility function that throws std::out_of_range if the matrix does not have
+	/// the given row.
+	constexpr void checkRow(Size r) { if(r >= rows()) throw std::out_of_range("nytl::Mat::at"); }
 };
 
-// - operators -
-template<typename T1, typename T2, std::size_t R, std::size_t M, std::size_t C>
-constexpr auto operator*(const Mat<R, M, T1>& a, const Mat<M, C, T2>& b)
-{
-	using RetType = decltype(a[0][0] * b[0][0] + a[0][0] * b[0][0]);
-	auto ret = Mat<R, C, RetType>::create(R, C);
+// Dynamic-sized specialization of the Mat type
+// See/include nytl/dynMat.hpp
+template<typename T> struct Mat<0, 0, T>;
 
-	for(auto r = 0u; r < R; ++r)
-		for(auto c = 0u; c < C; ++c)
+// Invalid instanciations
+template<size_t R, typename T> struct Mat<R, 0, T>;
+template<size_t C, typename T> struct Mat<0, C, T>;
+
+
+// - implementation/operators -
+template<typename T1, typename T2, size_t R1, size_t C1, size_t R2, size_t C2>
+constexpr auto operator*(const Mat<R1, C1, T1>& a, const Mat<R2, C2, T2>& b)
+{
+	mat::detail::assertMultDimensions(a, b);
+	constexpr auto dyn = !(Mat<R1, C1, T1>::staticSized && Mat<R2, C2, T2>::staticSized);
+
+	auto ret = Mat<dyn ? 0 : R1, dyn ? 0 : C2, decltype(a[0][0] * b[0][0] + a[0][0] * b[0][0])> {};
+	if constexpr(dyn) ret.resize(a.rows(), b.cols());
+
+	for(auto r = 0u; r < ret.rows(); ++r)
+		for(auto c = 0u; c < ret.cols(); ++c)
 			ret[r][c] = vec::dot(mat::row(a, r), mat::col(b, c));
 
 	return ret;
 }
 
-template<typename T1, typename T2, std::size_t R, std::size_t C>
-constexpr auto operator*(const Mat<R, C, T1>& a, const Vec<C, T2>& b)
+template<typename T1, typename T2, size_t R, size_t C, size_t VD>
+constexpr auto operator*(const Mat<R, C, T1>& a, const Vec<VD, T2>& b)
 {
-	using RetType = decltype(a[0][0] * b[0] + a[0][0] * b[0]);
-	auto ret = Vec<C, RetType> {};
+	vec::detail::assertSameDimensions(a[0], b);
+	constexpr auto dyn = !Mat<R, C, T1>::staticSized;
 
-	for(auto r = 0u; r < R; ++r)
+	auto ret = Vec<dyn ? 0 : R, decltype(a[0][0] * b[0] + a[0][0] * b[0])> {};
+	if constexpr(!decltype(ret)::staticSized) ret.resize(a.rows());
+
+	for(auto r = 0u; r < ret.size(); ++r)
 		ret[r] = vec::dot(mat::row(a, r), b);
 
 	return ret;
 }
 
-template<typename F, typename T, std::size_t R, std::size_t C>
+template<typename F, typename T, size_t R, size_t C>
 constexpr auto operator*(const F& f, const Mat<R, C, T>& a)
+	-> decltype(mat::detail::createMatrix<decltype(f * a[0][0])>(a))
 {
-	using RetType = decltype(f * a[0][0]);
-	auto ret = Mat<R, C, RetType>::create(R, C);
+	auto ret = mat::detail::createMatrix<decltype(f * a[0][0])>(a);
 
-	for(auto r = 0u; r < R; ++r)
-		for(auto c = 0u; c < C; ++c)
+	for(auto r = 0u; r < ret.rows(); ++r)
+		for(auto c = 0u; c < ret.cols(); ++c)
 			ret[r][c] = f * a[r][c];
 
 	return ret;
 }
 
-template<typename T1, typename T2, std::size_t R, std::size_t C>
+template<typename T1, typename T2, size_t R, size_t C>
 constexpr auto operator+(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b)
 {
-	using RetType = decltype(a[0][0] + b[0][0]);
-	auto ret = Mat<R, C, RetType>::create(R, C);
+	mat::detail::assertSameDimensions(a, b);
+	auto ret = mat::detail::createMatrix<decltype(a[0][0] + b[0][0])>(a);
 
-	for(auto r = 0u; r < R; ++r)
-		for(auto c = 0u; c < C; ++c)
+	for(auto r = 0u; r < ret.rows(); ++r)
+		for(auto c = 0u; c < ret.cols(); ++c)
 			ret[r][c] = a[r][c] + b[r][c];
 
 	return ret;
 }
 
-template<typename T1, typename T2, std::size_t R, std::size_t C>
+template<typename T1, typename T2, size_t R, size_t C>
 constexpr auto operator-(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b)
 {
-	using RetType = decltype(a[0][0] + b[0][0]);
-	auto ret = Mat<R, C, RetType>::create(R, C);
+	mat::detail::assertSameDimensions(a, b);
+	auto ret = mat::detail::createMatrix<decltype(a[0][0] - b[0][0])>(a);
 
-	for(auto r = 0u; r < R; ++r)
-		for(auto c = 0u; c < C; ++c)
+	for(auto r = 0u; r < ret.rows(); ++r)
+		for(auto c = 0u; c < ret.cols(); ++c)
 			ret[r][c] = a[r][c] - b[r][c];
 
 	return ret;
 }
 
-template<typename T, std::size_t R, std::size_t C>
+template<typename T, size_t R, size_t C>
 constexpr auto operator-(const Mat<R, C, T>& a)
 {
-	using RetType = decltype(-a[0][0]);
-	auto ret = Mat<R, C, RetType>::create(R, C);
+	auto ret = mat::detail::createMatrix<decltype(-a[0][0])>(a);
 
-	for(auto r = 0u; r < R; ++r)
-		for(auto c = 0u; c < C; ++c)
+	for(auto r = 0u; r < ret.rows(); ++r)
+		for(auto c = 0u; c < ret.cols(); ++c)
 			ret[r][c] = -a[r][c];
 
 	return ret;
 }
 
-template<typename T1, typename T2, std::size_t R, std::size_t C>
+template<typename T1, typename T2, size_t R, size_t C>
 constexpr auto operator==(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b)
 {
-	for(auto r = 0u; r < R; ++r)
-		for(auto c = 0u; c < C; ++c)
+	mat::detail::assertSameDimensions(a, b);
+
+	for(auto r = 0u; r < a.rows(); ++r)
+		for(auto c = 0u; c < a.cols(); ++c)
 			if(a[r][c] != b[r][c])
 				return false;
 
 	return true;
 }
 
-template<typename T1, typename T2, std::size_t R, std::size_t C>
+template<typename T1, typename T2, size_t R, size_t C>
 constexpr auto operator!=(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b)
 {
 	return !(a == b);
 }
 
-template<typename T, std::size_t R, std::size_t C>
+template<typename T, size_t R, size_t C>
 std::ostream& operator<<(std::ostream& os, const Mat<R, C, T>& a)
 {
 	return mat::print(os, a);

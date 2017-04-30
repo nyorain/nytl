@@ -2,7 +2,7 @@
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
-/// \file Defines utility templates to get inforMation about callable types.
+/// \file Defines utility templates to get information about callable types.
 
 #pragma once
 
@@ -53,7 +53,8 @@ struct FunctionTraits<Ret(Args...)> {
 	using ArgType = typename std::tuple_element_t<I, ArgTuple>;
 };
 
-// - FunctionTraits specializations -
+
+// - implementation -
 // Function pointer
 template<typename Ret, typename... Args>
 struct FunctionTraits<Ret(*)(Args...)> : public FunctionTraits<Ret(Args...)> {};
