@@ -10,6 +10,9 @@ add_test(utility utility)
 add_executable(callback callback.cpp)
 add_test(callback callback)
 
+add_executable(clone clone.cpp)
+add_test(clone clone)
+
 add_executable(span span.cpp)
 add_test(span span)
 

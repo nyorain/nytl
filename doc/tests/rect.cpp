@@ -21,7 +21,7 @@ namespace nytl {
 // -----|-----     |
 //      |    B     |
 //      ------------
-TEST_METHOD("[rect]") {
+TEST(rect) {
 	nytl::Rect2i a {{0, 0}, {100, 100}};
 	nytl::Rect2i b {{50, 50}, {100, 100}};
 
@@ -53,8 +53,8 @@ TEST_METHOD("[rect]") {
 	EXPECT(diffba.size(), 2u);
 
 	if(diffba.size() == 2u) {
-		nytl::print(std::cout, diffba[0]);
-		nytl::print(std::cout, diffba[1]);
+		// nytl::print(std::cout, diffba[0]);
+		// nytl::print(std::cout, diffba[1]);
 
 		nytl::Rect2i da1 {{50, 100}, {100, 50}};
 		nytl::Rect2i da2 {{100, 50}, {50, 50}};

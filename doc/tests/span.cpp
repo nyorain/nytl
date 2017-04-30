@@ -21,7 +21,7 @@ void foo(nytl::Span<std::string> names, int& count)
 void bar(nytl::Span<const std::string, 3>) {}
 void baz(nytl::Span<const std::string, 5>) {}
 
-TEST_METHOD("[span]") {
+TEST(span) {
 	int count {};
 
 	std::array<std::string, 3> namesArray {{"foo", "bar", "baz"}};
@@ -32,7 +32,7 @@ TEST_METHOD("[span]") {
 	EXPECT(count, 3 * 3 + 1 + 2);
 
 	bar(namesArray);
-	EXPECT_ERROR(baz(namesArray), std::exception);
+	ERROR(baz(namesArray), std::exception);
 
 	std::vector<std::string> namesVector {"foo", "bar", "baz", "abz", "bla"};
 
@@ -43,7 +43,7 @@ TEST_METHOD("[span]") {
 	EXPECT(count, 5 * 3 + 3 + 2);
 
 	baz(namesVector);
-	EXPECT_ERROR(bar(namesVector), std::exception);
+	ERROR(bar(namesVector), std::exception);
 
 	bar({namesVector.data(), 3});
 

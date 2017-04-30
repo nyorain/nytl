@@ -9,7 +9,6 @@
 #include <nytl/flags.hpp>
 #include <nytl/convert.hpp>
 #include <nytl/stringParam.hpp>
-#include <nytl/clone.hpp>
 #include <nytl/functionTraits.hpp>
 
 #include <list>
@@ -25,7 +24,7 @@ struct MyObserver : public nytl::Observer<SomeClass> {
 
 using ObsClass = nytl::ObservableWrapper<SomeClass>;
 
-TEST_METHOD("[observer]") {
+TEST(observer) {
 	{
 		auto observer = MyObserver {};
 		auto object = new ObsClass {};
@@ -41,7 +40,7 @@ TEST_METHOD("[observer]") {
 }
 
 // - typemap -
-TEST_METHOD("[typemap]") {
+TEST(typemap) {
 	{
 		nytl::Typemap<std::string> typemap;
 
@@ -59,7 +58,7 @@ TEST_METHOD("[typemap]") {
 
 		auto dany = typemap.create("double");
 		EXPECT(dany.has_value(), false);
-		EXPECT_ERROR(typemap.id(typeid(double)), std::exception);
+		ERROR(typemap.id(typeid(double)), std::exception);
 
 		bool found {};
 		found = nytl::remove<int>(typemap);
@@ -70,7 +69,7 @@ TEST_METHOD("[typemap]") {
 
 		found = typemap.remove("float");
 		EXPECT(found, true);
-		EXPECT_ERROR(typemap.id(typeid(int)), std::exception);
+		ERROR(typemap.id(typeid(int)), std::exception);
 		EXPECT(typemap.typeInfo("float"), typeid(void));
 		EXPECT(typemap.typeInfo("std::string"), typeid(std::string));
 		EXPECT(typemap.exists("void"), false);
@@ -78,7 +77,7 @@ TEST_METHOD("[typemap]") {
 }
 
 //  - utf -
-TEST_METHOD("[utf]") {
+TEST(utf) {
 	std::string utf8 = u8"äöüßabêéè"; // some multi-char utf8 string
 
 	EXPECT(nytl::charCount(utf8), 9u);
@@ -92,11 +91,11 @@ TEST_METHOD("[utf]") {
 	auto& a = nytl::nth(utf8, 4, size);
 	EXPECT(size, 1u);
 	EXPECT(std::string(&a, (unsigned int) size), u8"a");
-	EXPECT_ERROR(nytl::nth(utf8, 10, size), std::out_of_range);
+	ERROR(nytl::nth(utf8, 10, size), std::out_of_range);
 }
 
 // - referenced -
-TEST_METHOD("[referenced]") {
+TEST(referenced) {
 	bool deleted {};
 	auto del = [&](const auto*){ deleted = true; };
 
@@ -142,7 +141,7 @@ enum class Enum {
 
 NYTL_FLAG_OPS(Enum)
 
-TEST_METHOD("[flags]") {
+TEST(flags) {
 	constexpr auto entry23 = Enum::entry2 | Enum::entry3;
 	static_assert(entry23.value() == 6, "flags test #1");
 
@@ -157,7 +156,7 @@ TEST_METHOD("[flags]") {
 }
 
 // - convert -
-TEST_METHOD("[convert]") {
+TEST(convert) {
 	auto convertedFloat = nytl::convert<float>(7);
 	EXPECT(convertedFloat, 7.f);
 
@@ -185,46 +184,28 @@ TEST_METHOD("[convert]") {
 constexpr void stringParamA(nytl::StringParam) {}
 constexpr int stringParamB(nytl::SizedStringParam param) { return param.size(); }
 
-TEST_METHOD("[stringParam]") {
+TEST(stringParam) {
 	stringParamA("test");
-	static_assert(stringParamB("lengthIs9") == 9, "stringParam test #1");
+	static_assert(stringParamB("lengthIs9\0discarded") == 9, "stringParam test #1");
+
 	EXPECT(stringParamB(std::string("length7")), 7);
+
+	EXPECT(nytl::StringParam("test") == "test", true);
+	EXPECT(nytl::StringParam("test") == nytl::SizedStringParam("test"), true);
+	EXPECT(nytl::StringParam("test") == "tes\0t", false);
+	EXPECT(nytl::SizedStringParam("ayy") == "ayy\0oo", true);
+	EXPECT(nytl::StringParam("nytl") == std::string("nytl"), true);
+	EXPECT("nytl" == nytl::SizedStringParam("ny"), false);
 }
 
 // - clone -
-struct CloneBase : public nytl::AbstractCloneable<CloneBase> {
-	virtual int value() const = 0;
-};
-
-struct CloneDerived : public nytl::DeriveCloneable<CloneBase, CloneDerived> {
-	int value_;
-	int value() const override { return value_; }
-};
-
-struct CloneBase2 : public nytl::Cloneable<CloneBase2> {};
-struct CloneDerived2 : public nytl::DeriveCloneable<CloneBase2, CloneDerived2> {};
-struct CloneDerived3 : public nytl::DeriveCloneable<CloneDerived2, CloneDerived3> {};
-
-TEST_METHOD("[clone]") {
-	auto derived = CloneDerived {};
-	derived.value_ = 42;
-
-	auto ptr = static_cast<CloneBase*>(&derived);
-
-	auto copy = nytl::clone(*ptr);
-	auto moved = nytl::cloneMove(*ptr);
-
-	EXPECT(copy->value(), 42);
-	EXPECT(moved->value(), 42);
-}
-
 
 // - template meta programming -
 template<typename T> using Expression1 = decltype(foooo(std::declval<T>()));
 template<typename T> using Expression2 = decltype(foo(std::declval<T>()));
 template<typename T> using Expression3 = decltype(std::round(std::declval<T>()));
 
-TEST_METHOD("[tmp]") {
+TEST(tmp) {
 	static_assert(nytl::validExpression<Expression1, int> == false, "tmp:0");
 	static_assert(nytl::validExpression<Expression2, int> == false, "tmp:1");
 	static_assert(nytl::validExpression<Expression3, int> == true, "tmp:2");

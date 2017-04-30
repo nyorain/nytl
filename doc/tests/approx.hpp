@@ -1,10 +1,22 @@
+// Copyright (c) 2017 nyorain
+// Distributed under the Boost Software License, Version 1.0.
+// See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
+
+/// Can be used for approximating floating point numbers.
+/// Example: 3.0 == approx(3.1, 0.2) will result in true.
+/// By default uses a small (like 10^-8) epsilon value.
+/// Can be easily extended to custom types with floating-point
+/// components.
+
+#pragma once
+
 #include <nytl/vec.hpp>
 #include <nytl/mat.hpp>
 #include <complex>
 
 namespace test {
 
-constexpr auto defaultEpsilon = 0.0000001;
+constexpr auto defaultEpsilon = 0.00000001;
 
 template<typename T>
 class Approx;
@@ -43,26 +55,21 @@ public:
 	template<typename OT>
 	friend bool operator==(std::complex<OT> lhs, const Approx& rhs)
 	{
-		return lhs.real() == approx(rhs.value.real()) && lhs.imag() == approx(rhs.value.imag());
+		return lhs.real() == approx(rhs.value.real())
+			&& lhs.imag() == approx(rhs.value.imag());
 	}
 
 	template<typename OT>
 	friend bool operator==(const Approx& lhs, std::complex<OT> rhs)
-	{
-		return operator==(rhs, lhs);
-	}
+		{ return operator==(rhs, lhs); }
 
 	template<typename OT>
 	friend bool operator!=(std::complex<OT> lhs, const Approx& rhs)
-	{
-		return !operator==(lhs, rhs);
-	}
+		{ return !operator==(lhs, rhs); }
 
 	template<typename OT>
 	friend bool operator!=(const Approx& lhs, std::complex<OT> rhs)
-	{
-		return !operator==(lhs, rhs);
-	}
+		{ return !operator==(lhs, rhs); }
 
 public:
 	std::complex<T> value {};
@@ -128,21 +135,15 @@ public:
 
 	template<typename T2>
 	friend bool operator==(const Approx& lhs, const nytl::Mat<R, C, T2>& rhs)
-	{
-		return operator==(rhs, lhs);
-	}
+		{ return operator==(rhs, lhs); }
 
 	template<typename T2>
 	friend bool operator!=(const nytl::Mat<R, C, T2>& lhs, const Approx& rhs)
-	{
-		return !operator==(lhs, rhs);
-	}
+		{ return !operator==(lhs, rhs); }
 
 	template<typename T2>
 	friend bool operator!=(const Approx& lhs, const nytl::Mat<R, C, T2>& rhs)
-	{
-		return !operator==(lhs, rhs);
-	}
+		{ return !operator==(lhs, rhs); }
 
 public:
 	nytl::Mat<R, C, T> value {};

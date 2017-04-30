@@ -2,6 +2,8 @@ TODO for nytl
 =============
 
 - testing !important
+	- split utility testing
+	- vec: test dynVec, test cast operator, test __all__ operators
 - move Approx/approx to nytl (nytl/approx.hpp) !important
 
 - is `int a = nytl::convert(1.f)` really a good idea? i guess not somehow...
