@@ -2,13 +2,16 @@ TODO for nytl
 =============
 
 - testing !important
+- move Approx/approx to nytl (nytl/approx.hpp) !important
+
+- is `int a = nytl::convert(1.f)` really a good idea? i guess not somehow...
 
 - check correct header includes (nytl, stl)
 
 - vecOps: compile time error for complex numbers in non-supporting operations
 	- e.g. dot&angle: they might not behave as expected
 - vec rework (see associated branch) [C++17]
-	- make operators even more explicit, dont allow vec2 + vec3!
+	- make operators even more explicit, e.g. dont allow vec2 + vec3!
 
 - integration (glm, eigen)
 - rework (?)
@@ -22,7 +25,6 @@ TODO for nytl
 	- would be hard [in the sense of non-trivial] to implement
 		- custom iterators, could not provide data() function
 	- would be very convenient to e.g. access a column of a matrix
-- more tests
 - more/better vecOps/matrixOps
 	- submatrix and subvector functions (possible as generic? otherwise only for Vec/Mat)
 	- more lu decomp algorithms (like e.g. crout)

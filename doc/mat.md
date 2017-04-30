@@ -1,5 +1,4 @@
-
-The Matrix type concept:
+The Matrix<T> type concept:
 
 ```cpp
 struct Matrix {
@@ -10,22 +9,25 @@ public:
 	using ColType = ...; // Vector type able to hold one column of this matrix
 
 	// Rebinds the Matrix implementation
-	template<Size MaxR, Size MaxC, typename T> using Rebind = ...;
+	template<typename T> using Rebind = ...;
 
-	// dimensions of the matrix. Might be symbolic constants
-	static constexpr Size rowDim = ..;
-	static constexpr Size colDim = ..;
+	// Whether the matrix is static sized
+	static consetxpr bool staticSized = ...;
 
-	// creates a matrix for the given rows and cols.
+	// if static sized:
+	static constexpr Size rows(); // the number of rows
+	static constexpr Size cols(); // the number of columns
+	template<Size R, size C> static Matrix create(); // creates a new matrix with given size
+
+	// if not static sized:
+	Size rows(); // the number of rows
+	Size cols(); // the number of columns
 	static Matrix create(Size rows, Size cols);
 
 public:
 	// matrix[r][c] must return a reference to the value of matrix in row r and column c.
  	auto operator[](Size); // must return some kind of referencing vector.
  	const auto operator[](Size) const; // must return some kind of referencing vector.
-
-	Size rows() const; // the number of rows
-	Size cols() const; // the number of columns
 };
 
 auto operator*(Value, Matrix);

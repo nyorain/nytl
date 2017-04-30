@@ -1,15 +1,13 @@
 Concept: Vector<T>
 - Represents a mathematical vector of a finite-dimensional vector space.
 - T represents the field of the Vector. Therefore the values of the vector are part of a field.
-	- This means it must provide the +,*,-,/ operators, a
+	- This means it must provide the `+,*,-,/` operators, a
 	  0 and 1 value and respect the associative/commutative properties of a field.
 	- There must be a valid nytl::FieldTraits specialization for the field over which
 	  the vector is defined.
 - Every vector can be multiplied by a value of its field and be added to another vector
   of the same space. This operations must be implemented using the * and + operators.
 - DefaultConstructible, CopyConstructable, CopyAssignable, Destructable, EqualityComparable.
-- Provides a const size() function that returns the number of elements it stores aka
-  the dimension this vector has.
 - Provides const and non-const versions of the [] operator. Returns a mutable reference
   for the non-const version and a const-reference/copy for the const version.
   The operator can be called with an integer value that can hold the size of the vector.
@@ -17,6 +15,16 @@ Concept: Vector<T>
   If a Rebind with the given properies is not possible it must result in a compile-time error.
 - Vectors are interpreted as column vectors regarding matrix operations.
 - The size (or dimension) of a vector shall never be 0.
+- Provides a const size() function that returns the number of elements it stores aka
+  the dimension this vector has.
+
+- Has a public,static,constexpr bool member: staticSized
+	- if that is true:
+		- provides template<Size S> static Vec that creates a new vector for the given size
+		- the size function is constexpr static
+	- if that is false:
+		- provides static Vec create(Size) that creates a new vector for the given size
+		- the size function can be non-constexpr and non-static
 
 
 - __NOTE__: in comparison to a mathematical vector, the operations for a vector and
@@ -41,10 +49,17 @@ public:
 	using Reference = ...; // usually Value&
 	using ConstReference = ...; // usually const Value&
 
-	// rebinds the vector implementation class
-	template<Size Dim, typename T> using Rebind = ...;
+	// Rebinds the implementation to a different type.
+	// Should result in compile time error if not possible
+	template<typename> Rebind = ...;
 
-	static constexpr Size dim = ...; // dimension the vector has. Might be a symbolic value.
+	static constexpr bool staticSized = ...; // static sized?
+
+	// if static sized:
+	template<typename D>
+	Vector create();
+
+	// if not static sized:
 	Vector create(Size size); // creates a vector with the given size
 
 public:
