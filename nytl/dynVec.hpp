@@ -29,14 +29,14 @@ public:
 	using Reference = typename Vector::reference;
 	using ConstReference = typename Vector::const_reference;
 
-	template<Size OD, typename OT> using Rebind = Vec<OD, OT>;
+	template<typename OT> using Rebind = Vec<dynamicSize, OT>;
 	static constexpr Vec<dynamicSize, T> create(Size);
 
-	static constexpr auto dim = dynamicSize;
+	static constexpr auto staticSized = false;
 
 public:
-	template<typename OT>
-	constexpr explicit operator Vec<dynamicSize, OT>() const;
+	template<size_t OD, typename OT>
+	constexpr explicit operator Vec<OD, OT>() const;
 };
 
 // - implementation -
@@ -49,13 +49,15 @@ constexpr Vec<dynamicSize, T> Vec<dynamicSize, T>::create(Size size)
 }
 
 template<typename T>
-template<typename OT>
-constexpr Vec<dynamicSize, T>::operator Vec<dynamicSize, OT>() const
+template<size_t OD, typename OT>
+constexpr Vec<dynamicSize, T>::operator Vec<OD, OT>() const
 {
-	auto ret = Vec<dynamicSize, OT>::create(this->size());
+	auto ret = Vec<OD, OT>{};
+	if constexpr(!decltype(ret)::staticSized) ret.resize(this->size()); // dynamic size
+
 	for(auto i = 0u; i < std::min(ret.size(), this->size()); ++i)
 		ret[i] = (*this)[i];
-	for(auto i = std::min(ret.size(), this->size()); i < ret.size(); ++i)
+	for(auto i = this->size(); i < ret.size(); ++i)
 		ret[i] = {};
 	return ret;
 }
