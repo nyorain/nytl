@@ -68,7 +68,7 @@ constexpr void assertSameDimensions(const M1& a, const M2& b)
 }
 
 /// \brief Asserts that the both given Matrix times have dimensions that
-/// make them suited for mulitplication.
+/// make them suited for multiplication.
 /// Will result in a compile time error if possible, otherwise throws
 /// std::invalid_argument.
 template<typename M1, typename M2>
@@ -126,7 +126,7 @@ std::ostream& print(std::ostream& ostream, const M& mat, unsigned int valueWidth
 	auto org = os.precision();
 	os << "{" << "\n";
 
-	// returns the number of digitis needed to present the integer part of i
+	// returns the number of digits needed to present the integer part of i
 	const auto numberOfDigits = [](double i) {
 		return (i < 10 && i >= 0) ? 1 : (i > -10 && i < 0) ? 2 :
 			(i > 0) ? std::log10(i) + 1 : std::log10(-i) + 2;
@@ -235,7 +235,7 @@ constexpr void swapCol(M& mat, typename M::Size n, typename M::Size i)
 
 /// \brief Copies the second matrix into the first one.
 /// Both matrices should have the same size, otherwise calling this functions
-/// results in undefined behaviour.
+/// results in undefined behavior.
 /// For example: `nytl::mat::copy(mat44f, mat44d);` copies the double matrix into the float one.
 /// \requires Types 'M', 'N' shall be matrix types. 'M' shall be mutable.
 /// \requires The value type of 'N' must be convertible to the value type of 'M'.
@@ -248,7 +248,7 @@ constexpr void copy(M& a, const N& b)
 			a[r][c] = b[r][c];
 }
 
-/// \brief Sets all values of the given matrix to 0 of the underlaying field.
+/// \brief Sets all values of the given matrix to 0 of the underlying field.
 /// \requires Type 'M' shall be a mutable Matrix.
 /// \module matOps
 template<typename M>
@@ -259,7 +259,7 @@ constexpr void zero(M& mat)
 			mat[r][c] = 0.0;
 }
 
-/// \brief Sets all values of the given matrix to 1 of the underlaying field.
+/// \brief Sets all values of the given matrix to 1 of the underlying field.
 /// \requires Type 'M' shall be a mutable Matrix.
 /// \module matOps
 template<typename M>
@@ -271,7 +271,7 @@ constexpr void one(M& mat)
 }
 
 /// \brief Returns the trace of a square matrix, i.e. the sum of its diagonal elements
-/// Undefined behaviour for empty or non-sqaure matrices.
+/// Undefined behavior for empty or non-square matrices.
 /// \requires Type 'M' shall be a Matrix.
 /// \module matOps
 template<typename M>
@@ -284,7 +284,7 @@ constexpr auto trace(const M& mat)
 }
 
 /// \brief Multiplies all elements in the diagonal of the given non-empty square matrix.
-/// Undefined behaviour for empty or non-square matrices.
+/// Undefined behavior for empty or non-square matrices.
 /// \requires Type 'M' shall be a Matrix.
 /// \module matOps
 template<typename M>
@@ -297,7 +297,7 @@ constexpr auto multiplyDiagonal(const M& mat)
 }
 
 /// \brief Sets the given matrix to the identity matrix.
-/// Undefined behaviour for non-square matrices.
+/// Undefined behavior for non-square matrices.
 /// \requires Type 'M' shall be a mutable Matrix.
 /// \module matOps
 template<typename M>
@@ -324,7 +324,7 @@ constexpr auto transpose(const M& mat)
 	return ret;
 }
 
-/// \brief Performs partical pivoting for the given matrix for given position.
+/// \brief Performs partial pivoting for the given matrix for given position.
 /// Finds the largest value in the given column and swaps its row with the given row.
 /// Complexity Lies within O(n^2).
 /// \param row The row of the matrix entry to maximize.
@@ -348,10 +348,10 @@ constexpr auto pivot(M& mat, typename M::Size row, typename M::Size column, bool
 }
 
 /// \brief Brings the given matrix into the row echolon form (ref).
-/// Implements the first step of the gaussian elimination algorithm for a given matrix.
+/// Implements the first step of the Gaussian elimination algorithm for a given matrix.
 /// The given matrix does not have to fulfill any requirements.
 /// Does directly modify the matrix. For a version that operates on a copy, see
-/// rowEcholonFormCopy.
+/// rowEcholonCopy.
 /// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
 /// \notes This operation divides by values from the matrix so it must have a type does
 /// correctly implement division over the desired field (e.g. integer matrices will result
@@ -398,8 +398,8 @@ constexpr auto rowEcholonCopy(const M& mat)
 	return ret;
 }
 
-/// \brief Brings the given matrix into the reduced row echolon form (ref).
-/// Implements the full gaussian elimination for a given matrix.
+/// \brief Brings the given matrix into the reduced row echolon form (rref).
+/// Implements the full Gaussian elimination for a given matrix.
 /// The given matrix can be in any form.
 /// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
 /// \notes This operation divides by values from the matrix so it must have a type does
@@ -453,7 +453,7 @@ constexpr auto reducedRowEcholonCopy(const M& mat)
 /// of permutation were performed, or -1 if an uneven number of permutations were performed.
 /// The returned lower matrix will have only ones in its diagonal.
 /// Works for every square matrix, even singular ones like the zero matrix.
-/// The returned matrices always fullfill the equtation: PA = LU, where P is the permutation
+/// The returned matrices always fulfill the equation: PA = LU, where P is the permutation
 /// matrix, A the given matrix, L the lower and U the upper matrix.
 /// Read more about lu decomposition at [https://en.wikipedia.org/wiki/LU_decomposition]().
 /// The returned matrices have the full field precision type, since this operation divides values.
@@ -551,13 +551,13 @@ constexpr auto luEvaluate(const M& l, const M& u, const V& b)
 } // namespace nocheck
 
 /// \brief Returns the vector x so that LUx = b.
-/// Can be used to more efficiently solve multiple linear equotation systems for the
+/// Can be used to more efficiently solve multiple linear equitation systems for the
 /// same matrix by first decomposing it and then use this function instead of the default
-/// gaussian elimination implementation.
+/// Gaussian elimination implementation.
 /// \notes If the lu composition was done with a permutation matrix (PA = LU), the given
 /// vector must be premultiplied with the permutations inverse (tranpose) to get the vector
 /// that solves Ax = b. If PA = LU and Ax = b, so LUx = P * b
-/// \notes Does not check if the given equotation is solvable, i.e. results in undefined behaviour
+/// \notes Does not check if the given equitation is solvable, i.e. results in undefined behavior
 /// if it is not. The caller should check or assure this somehow. Could be done by
 /// checking whether the given lower or upper matrix is singular, i.e. whether one of its
 /// diagonal elements is zero.
@@ -603,7 +603,7 @@ constexpr auto determinant(const M& l, const M& u, int sign = 1)
 	return sign * multiplyDiagonal(l) * multiplyDiagonal(u);
 }
 
-/// \brief Returns whether the given matrix can be inversed.
+/// \brief Returns whether the given matrix can be inverted.
 /// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
 /// \returns false for non-square matrices.
 /// \requires Type 'M' shall be a Matrix.
@@ -617,7 +617,7 @@ constexpr bool invertible(const M& mat)
 
 namespace nocheck {
 
-/// \brief Returns the inverse of the matirx A with PA = LU.
+/// \brief Returns the inverse of the Matrix A with PA = LU.
 /// \notes Does not perform any sanity checks of the given matrix.
 /// \requires Type 'M' shall be an invertible square Matrix.
 /// \module matOps
@@ -631,7 +631,7 @@ constexpr auto inverse(const M& l, const M& u, const M& p)
 	return ret;
 }
 
-/// \brief Returns the inverse of the matirx A with A = LU.
+/// \brief Returns the inverse of the Matrix A with A = LU.
 /// \notes Does not perform any sanity checks of the given matrix.
 /// \requires Type 'M' shall be an invertible square Matrix.
 /// \module matOps
@@ -711,7 +711,7 @@ constexpr auto inverse(const M& mat)
 	return nocheck::inverse(l, u, p);
 }
 
-/// \brief Checks if the given matrix is invertibe and inverts it if so.
+/// \brief Checks if the given matrix is invertible and inverts it if so.
 /// \returns Whether the given matrix could be inverted, i.e. if the matrix
 /// is an invertible square matrix.
 /// If the matrix could not be inverted, false is returned and the matrix is left unchanged.
@@ -734,7 +734,7 @@ constexpr bool invert(M& mat)
 	return true;
 }
 
-/// \brief Returns whether the given Matrix is symmetrix
+/// \brief Returns whether the given Matrix is symmetric.
 /// Uses the == operator over M::Value to check for equality.
 /// \requires Type 'M' shall be a Matrix.
 /// \module matOps

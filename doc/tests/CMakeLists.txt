@@ -4,6 +4,9 @@ add_test(vec vec)
 add_executable(mat mat.cpp)
 add_test(mat mat)
 
+add_executable(typemap typemap.cpp)
+add_test(typemap typemap)
+
 add_executable(utility utility.cpp)
 add_test(utility utility)
 

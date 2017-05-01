@@ -26,25 +26,29 @@
 
 namespace nytl {
 
-template<typename Signature, typename ID = ConnectionID> class Callback;
-template<typename Signature> using TrackedCallback = Callback<Signature, TrackedConnectionID>;
-
 // TODO (C++17): use std::pmr for more efficient memory allocations (?)
 
 /// List of callback functions.
 /// Everyone can register their functions in a callback object and
-/// then all registered functions togehter might be called.
+/// then all registered functions together might be called.
 /// The special part about Callback is that it is written for
 /// recursive scenarios, e.g. where the callback is called inside a
 /// function that was called because the callback was called.
 /// So the callback might be accessed from inside such a function.
-/// The class is not threadsafe in any way.
+/// The class is not thread-safe in any way.
 /// Exceptions are usually propagated.
 /// The class can not be copied and moving it naturally invalidates all
 /// Connection objects referencing it (while the connection id objects stay valid).
 ///
 /// \tparam ID A type that fulfills the CallbackConnectionID concept (see docs/callback.md).
 /// Examples are ConnectionID or TrackedConnectionID (in nytl/connection.hpp).
+template<typename Signature, typename ID = ConnectionID> class Callback;
+
+/// Callback class typedef using TrackedConnectionID, that enables connection to see
+/// when the function is unregistered by another connection of because the callback is destroyed.
+template<typename Signature> using TrackedCallback = Callback<Signature, TrackedConnectionID>;
+
+// Callback specialization to enable the Ret(Args...) Signature format.
 template<typename Ret, typename... Args, typename ID>
 class Callback<Ret(Args...), ID> : public ConnectableT<ID>, public NonCopyable {
 public:
@@ -259,19 +263,19 @@ public:
 	}
 
 protected:
-	/// Represents one callback subscription entry.
-	/// Invalid (formally removed) when id is not valid.
-	/// Note that these means that alternative ID classes can
-	/// remove subscriptions from the outside without actively
-	/// calling disconnect.
-	/// We cannot touch func while any iteration is active.
-	/// If the
+	// Represents one callback subscription entry.
+	// Invalid (formally removed) when id is not valid.
+	// Note that these means that alternative ID classes can
+	// remove subscriptions from the outside without actively
+	// calling disconnect.
+	// We cannot touch func while any iteration is active.
+	// If the
 	struct Subscription {
 		std::function<Ret(Args...)> func;
 		ID id;
 	};
 
-	/// Emplaces a new subscription for the given function.
+	// Emplaces a new subscription for the given function.
 	Subscription& emplace()
 	{
 		// emplace at the last position
@@ -293,8 +297,8 @@ protected:
 		return *end_;
 	}
 
-	/// Removes all old functions that could previously
-	/// not be removed because of an active iteration.
+	// Removes all old functions that could previously
+	// not be removed because of an active iteration.
 	void removeOld()
 	{
 		// make sure that the iterator is not invalidated while iterating
@@ -308,8 +312,8 @@ protected:
 		});
 	}
 
-	/// Upper approximation of the current size.
-	/// May be larger than the actual size.
+	// Upper approximation of the current size.
+	// May be larger than the actual size.
 	std::size_t size() const
 	{
 		std::size_t ret = 0u;

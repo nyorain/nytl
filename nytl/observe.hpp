@@ -15,25 +15,25 @@
 
 namespace nytl {
 
-/// \brief Interface for classes that observe the lifetime of Observeable objects.
+/// \brief Interface for classes that observe the lifetime of Observable objects.
 /// Note that a observer implementation must unregister itself on destruction or
-/// assure that it will always outlife all objects it observes, otherwise undefined
-/// behaviour might be triggered.
+/// assure that it will always outlive all objects it observes, otherwise undefined
+/// behavior might be triggered.
 /// \module utility
 template<typename T>
 class Observer {
 public:
-	/// Will be called when an object observed by this observer will be desctructed.
+	/// Will be called when an object observed by this observer will be destructed.
 	virtual void observeDestruction(T&) = 0;
 };
 
 /// \brief Utility class to make the objects lifetime observable.
 /// \details Base class that can be derived from if the lifetime of objects of this class should be
-/// observeable by others.
-/// Note that this class is not threadsafe, and calls to move/add/remove Observer must interfer in
-/// any way. Adding the same Observer for one Observable object more than once is undefined
-/// behaviour. Adding an Observer for an Observable during its destruction callback is
-/// undefined behaviour.
+/// observable by others.
+/// Note that this class is not thread-safe, and calls to move/add/remove Observer must interfere
+/// in any way. Adding the same Observer for one Observable object more than once is undefined
+/// behavior. Adding an Observer for an Observable during its destruction callback is
+/// undefined behavior.
 /// \tparam T The class deriving from this class using the CRTP idiom.
 /// \module utility
 template<typename T>
@@ -51,7 +51,7 @@ public:
 	}
 
 	/// \brief Adds the given observer to the list of observers.
-	/// The same observer can be added mutiple times, in which case it will also be
+	/// The same observer can be added multiple times, in which case it will also be
 	/// called multiple times.
 	void addObserver(Observer<T>& obs)
 	{
@@ -71,11 +71,11 @@ public:
 	}
 
 	/// \brief Changes a given observer to a new one.
-	/// Will move the first found observer of oldone to newone.
-	/// So if oldone is registered mulitple times, will only move the
-	/// first entry.
 	/// Might be more efficient than first removing the oldone and then adding
 	/// the new one.
+	/// Will move the first found observer of oldone to newone.
+	/// So if oldone is registered multiple times, will only move the
+	/// first entry.
 	/// \returns Whether the given observable object could be found. If this returns
 	/// false the old observer could not be found and the new one was not added.
 	bool moveObserver(Observer<T>& oldone, Observer<T>& newone) noexcept
@@ -94,7 +94,7 @@ protected:
 };
 
 /// \brief Wrapper to make already defined classes observable.
-/// Useful for e.g. stl classes or other not-changeable classes whoes objects
+/// Useful for e.g. stl classes or other not-changeable classes whose objects
 /// should be observable in a certain context.
 /// Can be used like this (for the already defined class 'SomeClass'):
 /// ```cpp
@@ -113,6 +113,7 @@ protected:
 /// 	delete object; // will trigger observer.observeDestruction(*object)
 /// }
 /// ```
+/// \module utility
 template<typename T>
 struct ObservableWrapper : public T, public Observable<T> {
 	using T::T;
@@ -120,9 +121,9 @@ struct ObservableWrapper : public T, public Observable<T> {
 
 /// \brief Smart pointer class that observes the lifetime of its object.
 /// \details Basically a smart pointer that does always know whether the object it points to is
-/// alive or not. Does only work with objects of classes that are derived from nytl::Observeable.
+/// alive or not. Does only work with objects of classes that are derived from nytl::Observable.
 /// Semantics are related to std::unique_ptr/std::shared_ptr.
-/// \requires Type 'T' must be derived from [nytl::Obervable]() or fulfill its syntax.
+/// \requires Type 'T' must be derived from [nytl::Observable]() or fulfill its syntax.
 /// \module utility
 template<typename T>
 class ObservingPtr : public Observer<typename T::ObservableDerived> {

@@ -60,7 +60,7 @@ constexpr void assertSameDimensions(const V1& a, const V2& b)
 	AssertSameDimensions<V1, V2>::call(a, b);
 }
 
-/// \brief Asserts that the givne vector has dimension Dim.
+/// \brief Asserts that the given vector has dimension Dim.
 /// Will result in a compile time error if possible, otherwise throws
 /// std::invalid_argument.
 template<unsigned int Dim, typename V>
@@ -69,7 +69,7 @@ constexpr void assertDimension(const V& a)
 	AssertDimension<Dim, V>::call(a);
 }
 
-/// \brief Creates a new vector from implementatoin 'V' with value type 'T'
+/// \brief Creates a new vector from implementation 'V' with value type 'T'
 /// and size 'S'
 template<typename V, typename T, std::size_t S>
 auto createVector()
@@ -149,7 +149,7 @@ constexpr auto sum(const V& a)
 	return accumulate(a.begin(), a.end(), 0.0, std::plus<>());
 }
 
-/// \brief Mutliplies all values of the given vector using the * operator.
+/// \brief Multiplies all values of the given vector using the * operator.
 /// \requires Type 'V' shall be a non-empty Vector
 /// \module vecOps
 template<typename V>
@@ -200,7 +200,7 @@ constexpr auto distance(const V1& a, const V2& b)
 /// Does only work for real numbers and does not handle complex vectors.
 /// \requires Types 'V1', 'V2' shall be Vectors.
 /// \throws std::invalid_argument if the size of the input vectors differs.
-/// \throws std::domain_error if at lesat one of the given vectors has a length of 0.
+/// \throws std::domain_error if at least one of the given vectors has a length of 0.
 /// \module vecOps
 template<typename V1, typename V2>
 constexpr auto angle(const V1& a, const V2& b)

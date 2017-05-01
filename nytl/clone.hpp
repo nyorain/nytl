@@ -11,7 +11,7 @@
 
 namespace nytl {
 
-/// \brief Can be used to clone a cloneable object.
+/// \brief Can be used to clone a Cloneable object.
 /// Will perform a copy of the actual type the interface reference references.
 /// \requires Type 'T' shall be Cloneable (i.e. derived from a nytl::Cloneable or
 /// nytl::AbstractCloneable class using nytl::DeriveCloneable).
@@ -22,11 +22,11 @@ std::unique_ptr<T> clone(const T& obj)
 	return std::unique_ptr<T>(static_cast<T*>(obj.doClone()));
 }
 
-/// \brief Can be used to cloneMove a move-cloneable object.
+/// \brief Can be used to cloneMove a CloneMovable object.
 /// Will move from the given object and return a moved copy of it preserving the actual
 /// implementation type the interface reference references.
-/// \requires Type 'T' shall be MoveCloneable (i.e. derived from a nytl::CloneMovable or
-/// nytl::AbstractCloneMovable class using nytl::DeriveCloneMovable).
+/// \requires Type 'T' shall be derived from a nytl::CloneMovable or
+/// nytl::AbstractCloneMovable class using nytl::DeriveCloneMovable.
 /// \module utility
 template<typename T>
 std::unique_ptr<T> cloneMove(T& obj)
@@ -64,9 +64,9 @@ protected:
 	using DeriveCloneMovable<Base, Derived>::DeriveCloneMovable;
 };
 
-/// \brief Can be derived from to make cloneMoving for interfaces possible.
+/// \brief Can be derived from to make clone-moving for interfaces possible.
 /// If some interface class derived from this type using the CRTP idiom (i.e. 'T' is the
-/// deriving class), objects of this interface will be able to be cloneMoved, i.e. they can
+/// deriving class), objects of this interface will be able to be clone-moved, i.e. they can
 /// be move-copied into a new object without knowing their exact implementation type.
 /// Implementing classes usually use DeriveCloneMovable to implement it.
 /// To additionally enable normal cloning (i.e. copying without moving), see
@@ -86,8 +86,8 @@ protected:
 /// deriving class), objects of this interface will be able to be cloned, i.e. they can
 /// be duplicated to a new object without knowing their exact implementation type.
 /// Implementing classes usually use DeriveCloneable to implement it.
-/// To only enable cloneMoving (i.e. don't require implementations to actually duplicate objects),
-/// see [nytl::AbstractCloneMovable]().
+/// To only enable clone-moving (i.e. don't require implementations to actually duplicate
+/// objects), see [nytl::AbstractCloneMovable]().
 /// \module utility
 template<typename T>
 class AbstractCloneable : public AbstractCloneMovable<T> {
@@ -97,7 +97,7 @@ protected:
 };
 
 
-/// \brief Can be used to add the cloneMove interface to a class as well as already implement it.
+/// \brief Can be used to add the clone-move interface to a class as well as already implement it.
 /// \module utility
 template<typename T>
 struct CloneMovable : public AbstractCloneMovable<T> {
@@ -130,7 +130,7 @@ Base* DeriveCloneable<Base, Derived>::doClone() const
 #endif //header guard
 
 /// \file
-/// \brief Small utilities for defining/using Cloneable clases.
+/// \brief Small utilities for defining/using Cloneable classes.
 /// \details Small (full copyable) example for using this header:
 ///
 /// ```cpp
@@ -160,5 +160,6 @@ Base* DeriveCloneable<Base, Derived>::doClone() const
 ///		std::cout << moved->value() << "\n"; // will output 42
 /// }
 /// ```
-/// \note The rather complex doClone/doCloneMove virtual implementation is needed since
-/// one cannot return covariant return types from virtual functions when using CRTP.
+
+// NOTE: The rather complex doClone/doCloneMove virtual implementation is needed since
+// one cannot return covariant return types from virtual functions when using CRTP.

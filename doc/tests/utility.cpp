@@ -2,7 +2,6 @@
 
 #include <nytl/callback.hpp>
 #include <nytl/span.hpp>
-#include <nytl/typemap.hpp>
 #include <nytl/utf.hpp>
 #include <nytl/referenced.hpp>
 #include <nytl/flags.hpp>
@@ -14,42 +13,6 @@
 
 // TODO: to test: functionTraits, nonCopyable, tuple (operations)
 
-// - typemap -
-TEST(typemap) {
-	{
-		nytl::Typemap<std::string> typemap;
-
-		nytl::add<int>(typemap, "int");
-		nytl::add<float>(typemap, "float");
-		nytl::add<std::string>(typemap, "std::string");
-
-		auto iany = typemap.create("int");
-		auto& i = (std::any_cast<int&>(iany) = 7);
-		EXPECT(i, 7);
-
-		auto sany = typemap.create("std::string");
-		auto& s = (std::any_cast<std::string&>(sany) = "ayy");
-		EXPECT(s, "ayy");
-
-		auto dany = typemap.create("double");
-		EXPECT(dany.has_value(), false);
-		ERROR(typemap.id(typeid(double)), std::exception);
-
-		bool found {};
-		found = nytl::remove<int>(typemap);
-		EXPECT(found, true);
-
-		found = typemap.remove("int");
-		EXPECT(found, false);
-
-		found = typemap.remove("float");
-		EXPECT(found, true);
-		ERROR(typemap.id(typeid(int)), std::exception);
-		EXPECT(typemap.typeInfo("float"), typeid(void));
-		EXPECT(typemap.typeInfo("std::string"), typeid(std::string));
-		EXPECT(typemap.exists("void"), false);
-	}
-}
 
 //  - utf -
 TEST(utf) {
