@@ -18,12 +18,12 @@ namespace detail {
 	struct IsCallableImpl;
 } // namespace detail
 
-/// Metaprogramming template to check if a type can be called.
+/// Meta-programming template to check if a type can be called.
 /// \module function
 template<typename T>
 constexpr bool isCallable = detail::IsCallableImpl<T>::value;
 
-/// Metaprogramming template to retrieve information about a function type.
+/// Meta-programming template to retrieve information about a function type.
 /// \module function
 template<typename F> struct FunctionTraits;
 

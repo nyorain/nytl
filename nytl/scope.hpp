@@ -40,7 +40,7 @@ protected:
 };
 
 /// \brief Can be used to execute code when going out of scope only in a defined way.
-/// \tapram Thrown Whether to execute this scope guard only when the scope was left because
+/// \tparam Thrown Whether to execute this scope guard only when the scope was left because
 /// an exception was thrown. If 'Thrown' is true, the function will be executed only when an
 /// exception caused the scope exit and if 'Thrown' is false, it will only be executed
 /// when the scope was left normally.

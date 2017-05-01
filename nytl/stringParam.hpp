@@ -2,7 +2,7 @@
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
-///\file Defines StringParam classes for convinient and efficient string paramters.
+///\file Defines StringParam classes for convenient and efficient string parameters.
 
 #pragma once
 
@@ -27,7 +27,7 @@ constexpr std::size_t strlen(const char* str)
 }
 
 /// \brief Constexpr function that checks two string literals for equality.
-/// Both strings must be nullterminated and not null.
+/// Both strings must be null-terminated and not null.
 constexpr auto strsame(const char* a, const char* b)
 {
 	while(*a == *b)
@@ -37,7 +37,7 @@ constexpr auto strsame(const char* a, const char* b)
 	return false;
 }
 
-/// \brief This class can be used to effeciently accept string parameters of different types.
+/// \brief This class can be used to efficiently accept string parameters of different types.
 /// \details Usually, there are multiple possibilities to take string params:
 /// - Take a std::string param (may introduce a huge overhead for raw string literals)
 /// - Take a const char* param (inconvinient to call .c_str() on strings and rather C than C++)
@@ -75,7 +75,7 @@ inline bool operator==(const StringParam& param, const std::string& other)
 inline bool operator!=(const StringParam& param, const std::string& other)
 	{ return !strsame(param.data(), other.c_str()); }
 
-/// \brief Class dervied from [nytl::StringParam]() that also holds the length of the stored string.
+/// \brief Class derived from [nytl::StringParam]() that also holds the length of the stored string.
 /// \details Can be used as parameter type for strings which size is needed in performance-critical
 /// functions. Can be more efficient than querying the length with std::strlen since if an
 /// object is constructed from a std::string it can simply store the length.

@@ -14,7 +14,7 @@
 namespace nytl {
 
 /// \brief Can be used to invert the given value on Flags construction
-/// Can be used like this: `nytl::Flags<Enum>(nytl::invserseFlags, Enum::value)`.
+/// Can be used like this: `nytl::Flags<Enum>(nytl::invertFlags, Enum::value)`.
 /// \module utility
 struct InvertFlags {};
 constexpr InvertFlags invertFlags {};
@@ -23,10 +23,10 @@ constexpr InvertFlags invertFlags {};
 /// \details Use the [NYTL_FLAG_OPS]() macro to define binary operations on the
 /// enumeration that result in a nytl::Flags object for it.
 /// \requires Each value in the enumerations should have exactly one bit set and
-/// all values should have different bits set to make them combineable.
+/// all values should have different bits set so they can be combined.
 /// \tparam T The enum type from which values should be combined.
-/// \tparam U The raw type to store the values in. By default the underlaying type of
-/// the enum as reported by std::underlaying_type<T>
+/// \tparam U The raw type to store the values in. By default the underlying type of
+/// the enum as reported by std::underlying_type<T>
 /// \module utility
 template<typename T, typename U>
 class Flags {

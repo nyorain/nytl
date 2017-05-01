@@ -206,7 +206,7 @@ protected:
 
 /// \brief Convenience function for registering types in a Typemap.
 /// Requires since template member functions are inconvenient to call.
-/// Overrides the entry if the id is already present in the typemap.
+/// Overrides the entry if the id is already present in the Typemap.
 /// \module utility
 template<typename T, typename Identifier, typename Base, typename ID, typename... CArgs>
 void add(Typemap<Identifier, Base, CArgs...>& typemap, const ID& id)

@@ -20,7 +20,7 @@ namespace nytl {
 /// The way for obtaining such a connection if class-defined, this interface defines
 /// only a common way to disconnect again, which can then be used by the connection classes.
 /// Using this abstraction makes e.g. the Connection class possible as generic
-/// connection, seperated from the type of the class it has a connection for.
+/// connection, separated from the type of the class it has a connection for.
 template <typename ID>
 class ConnectableT {
 public:
@@ -73,13 +73,14 @@ protected:
 /// Note that this does not observe the lifetime of the object the connection id
 /// was received from. Destroying the associated Connectable object during the lifetime
 /// of the Connection object without then explicitly releasing the Connection id results
-/// in undefined behaviour. Same as BasicConnection, but owns the connection
+/// in undefined behavior. Same as BasicConnection, but owns the connection
 /// it holds, i.e. disconnects it on destruction. Therefore there should never be multiple
 /// BasicConnectionGuards for the same connection id. If there exists a connection guard
 /// for a connection this connection should not be disconnected in any other way than
 /// the destruction of the guard (except the guard is explicitly released).
-/// \reqruies Type 'C' shall be disconnectable, i.e. implement disconnect() member function.
-/// \reqruies Type 'ID' shall be default and copy constructable/assignable.
+/// \reqruies Type 'C' shall be Disconnectable, i.e. implement disconnect() member function, e.g
+/// derived from ConnectableT<ID>
+/// \reqruies Type 'ID' shall fulfill the ConntectableID concept.
 template<typename C, typename ID>
 class UniqueConnectionT {
 public:

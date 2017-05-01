@@ -95,7 +95,7 @@ namespace detail {
 ///		else return fallback(obj); // otherwise templated static_assert to generate error
 /// }
 /// ```
-template<template<class...> typename E, typename... T>
+template<template<typename...> typename E, typename... T>
 constexpr auto validExpression = detail::ValidExpressionT<E, void, T...>::value;
 
 // ValidExpression impl

@@ -1,4 +1,4 @@
-CallbackConnectionID concept:
+ConnectableID concept:
 
  - default constructor
  - constructor only with std::int64_t (or sth compatible) for the id

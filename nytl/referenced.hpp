@@ -17,17 +17,17 @@
 namespace nytl {
 
 /// Base class for reference counted objects.
-/// The reference count and its operations are atomic and threadsafe.
+/// The reference count and its operations are atomic and thread-safe.
 /// \requires 'T' must be derived from this class using the CRTP idiom
 /// \tparam T The derived class.
 /// \tparam Deleter The deleter type for objects of this type. Makes it possible
 /// to derive from this class without having to make the class virtual.
-/// The References constructor takes an object of type Deleter which will be called
+/// The Referenced constructor takes an object of type Deleter which will be called
 /// with the this pointer (casted to a const T* pointer) as soon as the reference count is
 /// decreased to zero and the object should be deleted. By default, std::default_delete<T>
 /// will be used that will just call delete on the object.
-/// \requires Deleter must implement operator() for a const T* parameter. Implementating it for
-/// a non-const T* parameter results in undefined behaviour.
+/// \requires Deleter must implement operator() for a T* parameter, but it is not allowed to
+/// change the T* object.
 /// \module utility
 template<typename T, typename Deleter = std::default_delete<T>>
 class Referenced {
@@ -42,11 +42,11 @@ public:
 
 	/// Decreases the reference count.
 	/// Calling unref more times than calling ref or using the object after the last unref results
-	/// in undefined behaviour since the object may be deleted already.
+	/// in undefined behavior since the object may be deleted already.
 	/// \returns The reference count after the call. If this is 0 the object was deleted.
 	auto unref() const
 	{
-		// atomic decrement. It is assured that this will never be called when count is already 0
+		// atomic decrease. It is assured that this will never be called when count is already 0
 		// the const_cast is done because std::default_delete takes a non-const pointer
 		auto cpy = --std::get<0>(members_);
 		if(cpy == 0) std::get<1>(members_)(const_cast<T*>(static_cast<const T*>(this)));
@@ -56,7 +56,7 @@ public:
 	/// Decreases the reference count without checking if the object has to be deleted.
 	/// Note that this function might be faster than the plain unref call so it could be
 	/// preferred when the caller knows that he does not hold the last reference.
-	/// Results in undefined behaviour if this function decreases the reference count to zero.
+	/// Results in undefined behavior if this function decreases the reference count to zero.
 	/// \note This function has to be used with attention.
 	auto unrefNodelete() const { return --std::get<0>(members_); }
 

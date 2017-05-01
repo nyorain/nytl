@@ -24,3 +24,6 @@ add_test(span span)
 
 add_executable(rect rect.cpp)
 add_test(rect rect)
+
+# nonCopyable is compile-time test only
+add_executable(nonCopyable nonCopyable.cpp)

@@ -13,7 +13,6 @@
 
 // TODO: to test: functionTraits, nonCopyable, tuple (operations)
 
-
 //  - utf -
 TEST(utf) {
 	std::string utf8 = u8"äöüßabêéè"; // some multi-char utf8 string

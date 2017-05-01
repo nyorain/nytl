@@ -26,15 +26,17 @@ namespace nytl {
 /// This template class does only work if 'D' >= 'A', since the dimension of the simplex
 /// can not be higher than the dimension of the space that contains this simplex. You cannot
 /// e.g. have a triangle in one dimensional space.
-/// The area described by a simplex is the most trivial space-filling unique and unambigous
+/// The area described by a simplex is the most trivial space-filling unique and unambiguous
 /// geometrical figure in a space with the same dimensions as the simplex (e.g. a triangle
 /// in 2 dimensions).
 /// \requires 'P' must be a mathematical field over which the space is defined.
 /// \requires 'D' must be greater or equal than 'A'.
 /// \module simplex
-template<std::size_t D, typename P, std::size_t A, typename>
+template<std::size_t D, typename P, std::size_t A>
 class Simplex {
 public:
+	static_assert(D >= A, "The Dimension of the Simplex cannot exceed the rooms dimension");
+	
 	static constexpr auto spaceDim = D; // dimensions of the space the simplex is in
 	static constexpr auto simplexDim = A; // dimensions of the simplex itself
 	static constexpr auto pointCount = A + 1; // number of points the simplex is defined by
@@ -53,7 +55,7 @@ public:
 
 	/// Returns the array of points this simplex is defined by.
 	/// References A + 1 points.
-	/// Can be used to acces (read/change/manipulate) the points.
+	/// Can be used to access (read/change/manipulate) the points.
 	/// Should be implemented by specializations.
 	constexpr Point* points() noexcept { return points_.data(); }
 

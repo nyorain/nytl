@@ -12,8 +12,8 @@
 
 namespace nytl {
 
-template<std::size_t D, typename P = double, std::size_t A = D,
-	typename = std::enable_if_t<D >= A>> class Simplex;
+template<std::size_t D, typename P = double, std::size_t A = D>
+class Simplex;
 
 template<std::size_t D, typename P = double>
 using Line = Simplex<D, P, 1>;

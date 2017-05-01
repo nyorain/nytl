@@ -4,17 +4,15 @@ TODO for nytl
 - testing !important
 	- split utility testing
 	- vec: test dynVec, test cast operator, test __all__ operators
-- move Approx/approx to nytl (nytl/approx.hpp) !important
-
+	- practical field tests for already unit tested interfaces
+		- optimize performance (if possible) (?)
+- move Approx/approx to nytl (nytl/approx.hpp)
 - is `int a = nytl::convert(1.f)` really a good idea? i guess not somehow...
-
 - check correct header includes (nytl, stl)
-
-- vecOps: compile time error for complex numbers in non-supporting operations
+- vecOps: compile time error for complex numbers in non-supporting operations (?)
 	- e.g. dot&angle: they might not behave as expected
 - vec rework (see associated branch) [C++17]
 	- make operators even more explicit, e.g. dont allow vec2 + vec3!
-
 - integration (glm, eigen)
 - rework (?)
 	- line/triangle/tetrahedron (with ops)

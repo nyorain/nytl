@@ -2,7 +2,7 @@
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
-///  file Contains the Span template class for not-owned contigous ranges.
+/// \file Contains the Span template class for not-owned contiguous ranges.
 
 #pragma once
 
@@ -10,7 +10,6 @@
 #define NYTL_INCLUDE_SPAN
 
 #include <nytl/fwd/span.hpp> // nytl::Span default template parameter
-#include <nytl/scalar.hpp> // nytl::constants::dynamicSize
 
 #include <cstdlib> // std::size_t
 #include <stdexcept> // std::out_of_range
@@ -26,13 +25,13 @@ namespace detail {
 /// The underlaying storage type of spans that is specialized for dyanmic size.
 template<typename T, std::size_t N> struct SpanStorage;
 
-/// \brief Describes a contigous, non-owned range of elements of type 'T'.
+/// \brief Describes a contiguous, non-owned range of elements of type 'T'.
 /// \details Spans can be used to pass sequences of elements around in a lightweight manner.
 /// Its main use are function parameters sine instead of a std::vector it will not allocate
 /// any memory or copy any elements but instead just reference them.
 /// \tparam T The type the range is defined over. Use const types for non-mutable ranges.
 /// \tparam N The size of the range. If not known at compile
-/// time, use nytl::constants::dynamicSize (also defaulted to dynamicSize).
+/// time, use 0.
 ///
 /// Some examples below. Note that Spans must be used carefully outside of temporary
 /// expressions since they are only valid as long the object they reference is valid.
@@ -59,7 +58,7 @@ template<typename T, std::size_t N> struct SpanStorage;
 ///
 ///		// careful when using span outside of temporary expressions
 ///		auto span = nytl::Span<int>(std::vector<int>{4, 1, 2, 0});
-/// 	// std::cout << span[0] << "\n"; // undefined behaviour!
+/// 	// std::cout << span[0] << "\n"; // would be undefined behavior!
 /// }
 ///
 /// void foo(nytl::Span<std::string> names)
@@ -156,7 +155,7 @@ struct SpanStorage {
 
 // SpanStorage specialization for runtime size. Stored an extra size value.
 template<typename T>
-struct SpanStorage<T, constants::dynamicSize> {
+struct SpanStorage<T, 0> {
 	constexpr SpanStorage() noexcept = default;
 	constexpr SpanStorage(T* pointer, std::size_t size) : data_(pointer), size_(size)
 	{
@@ -170,9 +169,9 @@ struct SpanStorage<T, constants::dynamicSize> {
 };
 
 // SpanStorage specialization for runtime size with const parameter.
-// Allows constrsuction from initializer list.
+// Allows constrsuction from initializer_list.
 template<typename T>
-struct SpanStorage<const T, constants::dynamicSize> {
+struct SpanStorage<const T, 0> {
 	constexpr SpanStorage() noexcept = default;
 	constexpr SpanStorage(const T* pointer, std::size_t size) : data_(pointer), size_(size)
 	{
