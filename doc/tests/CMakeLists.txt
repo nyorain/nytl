@@ -25,5 +25,8 @@ add_test(span span)
 add_executable(rect rect.cpp)
 add_test(rect rect)
 
+add_executable(connection connection.cpp)
+add_test(connection connection)
+
 # nonCopyable is compile-time test only
 add_executable(nonCopyable nonCopyable.cpp)

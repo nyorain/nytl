@@ -118,7 +118,7 @@ public:
 
 		connectable_ = lhs.connectable_;
 		id_ = lhs.id_;
-		lhs.conn_ = {};
+		lhs.connectable_ = {};
 		lhs.id_ = {};
 		return *this;
 	}
@@ -177,9 +177,9 @@ struct TrackedConnectionID {
 	TrackedConnectionID() = default;
 	TrackedConnectionID(std::int64_t val) : value(std::make_shared<std::int64_t>(val)) {}
 
-	void reset() noexcept { if(value) *value = 0; value.reset(); }
-	std::int64_t id() const noexcept { return (value) ? 0 : *value; }
-	void remove() const noexcept {}
+	void reset(std::int64_t val) noexcept { if(value) *value = val; }
+	std::int64_t id() const noexcept { return (value) ? *value : 0; }
+	void remove() noexcept { if(value) *value = 0; value.reset(); }
 };
 
 using Connectable = ConnectableT<ConnectionID>;

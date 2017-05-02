@@ -18,7 +18,6 @@ namespace constants {
 	constexpr const auto dynamicSize = 0u; // make vec/span dynamic sized
 } // namespace constants
 
-
 /// \brief simply constexpr implementation of std::accumulate.
 /// \requires Type 'InputIt' must be a InputIterator
 /// \requiers T must be CopyAssignable and CopyConstructible
