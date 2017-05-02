@@ -190,22 +190,14 @@ using TrackedConnectable = ConnectableT<TrackedConnectionID>;
 using TrackedConnection = ConnectionT<TrackedConnectable, TrackedConnectionID>;
 using TrackedUniqueConnection = UniqueConnectionT<TrackedConnectable, TrackedConnectionID>;
 
-constexpr bool operator==(ConnectionID a, ConnectionID b)
-{
-	return a.value == b.value;
-}
-constexpr bool operator!=(ConnectionID a, ConnectionID b)
-{
-	return a.value != b.value;
-}
-bool operator==(const TrackedConnectionID& a, const TrackedConnectionID& b)
-{
-	return a.value == b.value;
-}
-bool operator!=(const TrackedConnectionID& a, const TrackedConnectionID& b)
-{
-	return a.value != b.value;
-}
+constexpr inline bool operator==(ConnectionID a, ConnectionID b)
+	{ return a.value == b.value; }
+constexpr inline bool operator!=(ConnectionID a, ConnectionID b)
+	{ return a.value != b.value; }
+bool inline operator==(const TrackedConnectionID& a, const TrackedConnectionID& b)
+	{ return a.value == b.value; }
+bool inline operator!=(const TrackedConnectionID& a, const TrackedConnectionID& b)
+	{ return a.value != b.value; }
 
 } // namespace nytl
 
