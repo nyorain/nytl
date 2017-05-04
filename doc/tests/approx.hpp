@@ -10,27 +10,31 @@
 
 #pragma once
 
-#include <nytl/vec.hpp>
-#include <nytl/mat.hpp>
-#include <complex>
+#include <complex> // std::complex
 
-namespace test {
+namespace nytl {
 
-constexpr auto defaultEpsilon = 0.00000001;
+/// The default epsilon used if no custom epsilon is given.
+/// Note that Approx does not use this epsilon hardcoded but will mutiply
+/// it with the maximum of the compared values.
+constexpr auto defaultApproxEpsilon = 0.00000001;
 
+/// Represents an approximite value of type T.
+/// Usually type T is a floating-point value or something related to it, like
+/// a fp vector or matrix.
 template<typename T>
 class Approx;
 
-// TODO: remove in C++17
-/// Creates an Approx object for the given value.
+/// Creates an Approx object for the given value and epsilon.
 template<typename T>
-Approx<T> approx(const T& value, double epsilon = defaultEpsilon);
+Approx<T> approx(const T& value, double epsilon = defaultApproxEpsilon);
 
-/// Approx specialization for floating point types.
-template<>
-class Approx<double> {
+/// Default approx implementation for floating point types.
+/// Most other specializations use this implementation for their comparisons.
+template<typename T>
+class Approx {
 public:
-	friend bool operator==(double lhs, const Approx& rhs)
+	friend bool operator==(T lhs, const Approx& rhs)
 	{
 		auto max = std::max(std::abs(lhs), std::abs(rhs.value));
 		return std::abs(lhs - rhs.value) < rhs.epsilon * (1 + max);
@@ -41,14 +45,12 @@ public:
 	friend bool operator!=(const Approx& lhs, double rhs) { return !operator==(lhs, rhs); }
 
 public:
-	double value {};
-	double epsilon {defaultEpsilon};
+	T value {};
+	double epsilon {defaultApproxEpsilon};
 };
 
-template<typename T>
-class Approx : public Approx<double> {};
-
-/// Approx specialization for complex types
+/// Approx specialization for std::complex types.
+/// Will simply approximate the real and imaginary part separately.
 template<typename T>
 class Approx<std::complex<T>> {
 public:
@@ -73,97 +75,10 @@ public:
 
 public:
 	std::complex<T> value {};
-	double epsilon {defaultEpsilon};
+	double epsilon {defaultApproxEpsilon};
 };
 
-/// Approx specialization for nytl::Vec
-template<std::size_t I, typename T>
-class Approx<nytl::Vec<I, T>> {
-public:
-	template<typename T2>
-	friend bool operator==(const nytl::Vec<I, T2>& lhs, const Approx& rhs)
-	{
-		if(lhs.size() != rhs.value.size())
-			return false;
+} // namespace nytl
 
-		for(auto i = 0u; i < lhs.size(); ++i)
-			if(lhs[i] != approx(rhs.value[i], rhs.epsilon))
-				return false;
-
-		return true;
-	}
-
-	template<typename T2>
-	friend bool operator==(const Approx& lhs, const nytl::Vec<I, T2>& rhs)
-	{
-		return operator==(rhs, lhs);
-	}
-
-	template<typename T2>
-	friend bool operator!=(const nytl::Vec<I, T2>& lhs, const Approx& rhs)
-	{
-		return !operator==(lhs, rhs);
-	}
-
-	template<typename T2>
-	friend bool operator!=(const Approx& lhs, const nytl::Vec<I, T2>& rhs)
-	{
-		return !operator==(lhs, rhs);
-	}
-
-public:
-	nytl::Vec<I, T> value {};
-	double epsilon {defaultEpsilon};
-};
-
-/// Approx specialization for nytl::Mat
-template<std::size_t R, std::size_t C, typename T>
-class Approx<nytl::Mat<R, C, T>> {
-public:
-	template<typename T2>
-	friend bool operator==(const nytl::Mat<R, C, T2>& lhs, const Approx& rhs)
-	{
-		if(lhs.rows() != rhs.value.rows())
-			return false;
-
-		for(auto i = 0u; i < lhs.rows(); ++i)
-			if(lhs[i] != approx(rhs.value[i], rhs.epsilon))
-				return false;
-
-		return true;
-	}
-
-	template<typename T2>
-	friend bool operator==(const Approx& lhs, const nytl::Mat<R, C, T2>& rhs)
-		{ return operator==(rhs, lhs); }
-
-	template<typename T2>
-	friend bool operator!=(const nytl::Mat<R, C, T2>& lhs, const Approx& rhs)
-		{ return !operator==(lhs, rhs); }
-
-	template<typename T2>
-	friend bool operator!=(const Approx& lhs, const nytl::Mat<R, C, T2>& rhs)
-		{ return !operator==(lhs, rhs); }
-
-public:
-	nytl::Mat<R, C, T> value {};
-	double epsilon {defaultEpsilon};
-};
-
-template<typename T>
-Approx<T> approx(const T& value, double epsilon)
-{
-	Approx<T> ret;
-	ret.value = value;
-	ret.epsilon = epsilon;
-	return ret;
-}
-
-template<typename T>
-std::ostream& operator<<(std::ostream& os, const Approx<T>& approx)
-{
-	os << "Approx(" << approx.value << ")";
-	return os;
-}
-
-} // namespace test
+// TODO: legacy - to be removed (when tests are fixed)
+namespace test { using nytl::approx; }

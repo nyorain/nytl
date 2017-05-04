@@ -28,5 +28,11 @@ add_test(rect rect)
 add_executable(connection connection.cpp)
 add_test(connection connection)
 
+add_executable(approx approx.cpp)
+add_test(approx approx)
+
+add_executable(utf utf.cpp)
+add_test(utf utf)
+
 # nonCopyable is compile-time test only
 add_executable(nonCopyable nonCopyable.cpp)

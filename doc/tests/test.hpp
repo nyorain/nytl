@@ -110,6 +110,9 @@ public:
 	template<typename E, typename F>
 	static bool errorTest(const F& func, std::string& alternativeMsg);
 
+	/// Outputs a separation line.
+	static void separationLine();
+
 protected:
 	/// Returns a string for the given number of failed tests.
 	static inline std::string failString(unsigned int failCount);
@@ -124,7 +127,7 @@ protected:
 	static std::stringstream errout;
 };
 
-}
+} // namespace test
 
 /// Declares a new testing unit. After this macro the function body should follow like this:
 /// ``` TEST(SampleTest) { EXPECT(1 + 1, 2); } ```
@@ -165,15 +168,17 @@ const char* Testing::currentTest {};
 std::ostream* Testing::output = &std::cout;
 std::stringstream Testing::errout {};
 
+void Testing::separationLine()
+{
+	errout << indentation;
+	for(auto i = 0u; i < separationWidth; ++i) errout << failSeparator;
+	errout << "\n";
+}
+
 template<typename V, typename E>
 void Testing::expectFailed(const FailInfo& info, const V& value, const E& expected)
 {
-	// topline
-	if(currentFailed == 0) {
-		errout << indentation;
-		for(auto i = 0u; i < separationWidth; ++i) errout << failSeparator;
-		errout << "\n";
-	}
+	if(currentFailed == 0) separationLine();
 
 	// error
 	errout << indentation << "Check expect failed in test " << currentTest << "\n"
@@ -181,22 +186,14 @@ void Testing::expectFailed(const FailInfo& info, const V& value, const E& expect
 		   << indentation << "Expected " << printable(expected)
 		   << ", got " << printable(value) << "\n";
 
-	// bottom line
-	errout << indentation;
-	for(auto i = 0u; i < separationWidth; ++i) errout << failSeparator;
-	errout << "\n";
-
+	separationLine();
 	++currentFailed;
 }
 
 void Testing::errorFailed(const FailInfo& info, const char* error, const char* other)
 {
 	// topline
-	if(currentFailed == 0) {
-		errout << indentation;
-		for(auto i = 0u; i < separationWidth; ++i) errout << failSeparator;
-		errout << "\n";
-	}
+	if(currentFailed == 0) separationLine();
 
 	// error
 	errout << indentation << "Check error failed in test " << currentTest << "\n"
@@ -206,11 +203,7 @@ void Testing::errorFailed(const FailInfo& info, const char* error, const char* o
 	if(other) errout << "other error was thrown instead: " << other << "\n";
  	else errout << ", no error was thrown\n";
 
-	// bottom line
-	errout << indentation;
-	for(auto i = 0u; i < separationWidth; ++i) errout << failSeparator;
-	errout << "\n";
-
+	separationLine();
 	++currentFailed;
 }
 
@@ -293,22 +286,12 @@ std::string Testing::failString(unsigned int failCount)
 
 void Testing::unexpectedException(const std::string& errorString)
 {
-	// topline
-	if(currentFailed == 0) {
-		errout << indentation;
-		for(auto i = 0u; i < separationWidth; ++i) errout << failSeparator;
-		errout << "\n";
-	}
+	if(currentFailed == 0) separationLine();
 
-	// error
 	errout << indentation << "Unexpected error in test " << currentTest << ":\n"
 		   << indentation << errorString << "\n";
 
-	// bottom line
-	errout << indentation;
-	for(auto i = 0u; i < separationWidth; ++i) errout << failSeparator;
-	errout << "\n";
-
+	separationLine();
 	++currentFailed;
 }
 

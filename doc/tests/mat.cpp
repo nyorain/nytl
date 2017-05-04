@@ -1,5 +1,6 @@
 #include "test.hpp"
 #include "approx.hpp"
+#include "approxMath.hpp"
 
 #include <nytl/matOps.hpp>
 #include <nytl/mat.hpp>

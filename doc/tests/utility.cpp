@@ -13,24 +13,6 @@
 
 // TODO: to test: functionTraits, nonCopyable, tuple (operations)
 
-//  - utf -
-TEST(utf) {
-	std::string utf8 = u8"äöüßabêéè"; // some multi-char utf8 string
-
-	EXPECT(nytl::charCount(utf8), 9u);
-	EXPECT(std::string(nytl::nth(utf8, 0).data()), std::string(u8"ä"));
-	EXPECT(nytl::toUtf16(utf8), u"äöüßabêéè");
-	EXPECT(nytl::toUtf32(utf8), U"äöüßabêéè");
-	EXPECT(nytl::toUtf8(nytl::toUtf16(utf8)), u8"äöüßabêéè");
-	EXPECT(nytl::toUtf8(nytl::toUtf32(utf8)), u8"äöüßabêéè");
-
-	std::uint8_t size;
-	auto& a = nytl::nth(utf8, 4, size);
-	EXPECT(size, 1u);
-	EXPECT(std::string(&a, (unsigned int) size), u8"a");
-	ERROR(nytl::nth(utf8, 10, size), std::out_of_range);
-}
-
 // - referenced -
 TEST(referenced) {
 	bool deleted {};
