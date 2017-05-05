@@ -2,7 +2,9 @@ TODO for nytl
 =============
 
 - testing !important
-	- split utility testing
+	- to test: functionTraits, tuple (operations), rect, more rectOps/convert/flags, dynVec,
+		more connection, scope, more vec/vecOps testing needed
+	- fix todos at the top of unit tests
 	- vec: test dynVec, test cast operator, test __all__ operators
 	- practical field tests for already unit tested interfaces
 		- optimize performance (if possible) (?)

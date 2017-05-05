@@ -10,7 +10,6 @@
 #include <nytl/vec.hpp> // nytl::Vec
 #include <nytl/mat.hpp> // nytl::Mat
 
-
 namespace nytl {
 
 /// Approx specialization for nytl::Vec
@@ -80,18 +79,5 @@ public:
 	nytl::Mat<R, C, T> value {};
 	double epsilon {defaultApproxEpsilon};
 };
-
-template<typename T>
-Approx<T> approx(const T& value, double epsilon)
-{
-	return {value, epsilon};
-}
-
-template<typename T>
-std::ostream& operator<<(std::ostream& os, const Approx<T>& approx)
-{
-	os << "Approx(" << approx.value << ")";
-	return os;
-}
 
 } // namesapce nytl

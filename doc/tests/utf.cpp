@@ -1,10 +1,9 @@
 #include "test.hpp"
 #include <nytl/utf.hpp>
-
-// TODO:
-// - test for other charsets (that might take more bytes) e.g. asian
+#include <cstring>
 
 std::string utf8a = u8"äöüßabêéè"; // some multi-char utf8 string
+std::string utf8b = u8"百川生犬虫"; // some random asian chars
 
 TEST(conversion) {
 	EXPECT(nytl::charCount(utf8a), 9u);
@@ -12,6 +11,25 @@ TEST(conversion) {
 	EXPECT(nytl::toUtf32(utf8a), U"äöüßabêéè");
 	EXPECT(nytl::toUtf8(nytl::toUtf16(utf8a)), u8"äöüßabêéè");
 	EXPECT(nytl::toUtf8(nytl::toUtf32(utf8a)), utf8a);
+}
+
+TEST(asian) {
+	EXPECT(nytl::charCount(utf8b), 5u);
+	EXPECT(nytl::toUtf16(utf8b), u"百川生犬虫");
+	EXPECT(nytl::toUtf32(utf8b), U"百川生犬虫");
+	EXPECT(nytl::toUtf8(nytl::toUtf32(utf8b)), utf8b);
+	EXPECT(std::string(nytl::nth(utf8b, 0).data()), u8"百");
+	EXPECT(std::string(nytl::nth(utf8b, 1).data()), u8"川");
+	ERROR(std::string(nytl::nth(utf8b, 5).data()), std::out_of_range);
+
+	// change a char
+	std::uint8_t size;
+	auto& c2 = nytl::nth(utf8b, 2u, size);
+	auto sub = u8"気"; // expect it to have the same byte size
+	std::memcpy(&c2, sub, size);
+
+	EXPECT(nytl::charCount(utf8b), 5u);
+	EXPECT(std::string(nytl::nth(utf8b, 2u).data()), sub);
 }
 
 TEST(nth) {

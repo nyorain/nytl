@@ -57,8 +57,8 @@ public:
 	template<typename OT>
 	friend bool operator==(std::complex<OT> lhs, const Approx& rhs)
 	{
-		return lhs.real() == approx(rhs.value.real())
-			&& lhs.imag() == approx(rhs.value.imag());
+		return lhs.real() == approx(rhs.value.real(), rhs.epsilon)
+			&& lhs.imag() == approx(rhs.value.imag(), rhs.epsilon);
 	}
 
 	template<typename OT>
@@ -77,6 +77,20 @@ public:
 	std::complex<T> value {};
 	double epsilon {defaultApproxEpsilon};
 };
+
+template<typename T>
+Approx<T> approx(const T& value, double epsilon)
+{
+	return {value, epsilon};
+}
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const Approx<T>& approx)
+{
+	os << "Approx(" << approx.value << ")";
+	return os;
+}
+
 
 } // namespace nytl
 

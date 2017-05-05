@@ -43,6 +43,12 @@ auto convert(const O& other) -> decltype(Converter<O, T>::call(other))
 /// \module utility
 template<typename T>
 struct AutoCastable {
+	AutoCastable(const AutoCastable& other) = delete;
+	AutoCastable(AutoCastable&& other) = delete;
+
+	AutoCastable& operator=(const AutoCastable& other) = delete;
+	AutoCastable& operator=(AutoCastable&& other) = delete;
+
 	template<typename O> operator O() const { return convert<O, T>(*object_); }
 	const T* object_;
 };
@@ -57,7 +63,7 @@ struct AutoCastable {
 /// \note This might be really evil.
 /// \module utility
 template<typename O>
-auto convert(const O& other)
+AutoCastable<O> convert(const O& other)
 {
 	return AutoCastable<O>{&other};
 }
@@ -97,13 +103,39 @@ constexpr auto containerCast(const U& con)
 	return ret;
 }
 
-// - general converter -
+// - conerter implementation -
+// Expressions to check
+namespace detail {
+	template<typename From, typename To, std::size_t I>
+	using ValidArrayCast = decltype(arrayCast<To>(std::declval<std::array<From, I>>()));
+
+	template<typename A, typename B>
+	using ValidStaticCast = decltype(static_cast<B>(std::declval<A>()));
+
+	template<typename A, typename B>
+	using ValidContainerCast = decltype(containerCast<B>(std::declval<A>()));
+}
+
+// default converter implementation
 template<typename From, typename To>
 struct Converter<From, To> {
-	static auto call(const From& other) -> decltype(static_cast<To>(other))
+	static auto call(const From& other)
 	{
-		return static_cast<To>(other);
+		if constexpr(validExpression<detail::ValidStaticCast, From, To>)
+			return static_cast<To>(other);
+		else if constexpr(validExpression<detail::ValidContainerCast, From, To>)
+			return containerCast<To>(other);
+		else static_assert(templatize<From>(false), "Invalid conversion!");
 	}
+};
+
+// arrayCast converter implementation
+template<typename From, typename To, std::size_t I>
+struct Converter< std::array<From, I>, std::array<To, I>,
+	void_t<detail::ValidArrayCast<From, To, I>>> {
+
+	static std::array<To, I> call(const std::array<From, I>& other)
+		{ return arrayCast<To>(other); }
 };
 
 } // namespace nytl

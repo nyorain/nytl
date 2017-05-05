@@ -102,14 +102,6 @@ constexpr Vec<D, T>& operator*=(Vec<D, T>& vec, OT fac)
 	return vec;
 }
 
-template<size_t D, typename T, typename OT>
-constexpr Vec<D, T>& operator/=(Vec<D, T>& vec, OT fac)
-{
-	for(auto& val : vec)
-		val /= fac;
-	return vec;
-}
-
 template<size_t D1, size_t D2, typename T1, typename T2>
 constexpr auto operator+(const Vec<D1, T1>& a, const Vec<D2, T2>& b)
 {

@@ -7,8 +7,8 @@ add_test(mat mat)
 add_executable(typemap typemap.cpp)
 add_test(typemap typemap)
 
-add_executable(utility utility.cpp)
-add_test(utility utility)
+add_executable(referenced referenced.cpp)
+add_test(referenced referenced)
 
 add_executable(callback callback.cpp)
 add_test(callback callback)
@@ -34,5 +34,15 @@ add_test(approx approx)
 add_executable(utf utf.cpp)
 add_test(utf utf)
 
-# nonCopyable is compile-time test only
+add_executable(stringParam stringParam.cpp)
+add_test(stringParam stringParam)
+
+add_executable(flags flags.cpp)
+add_test(flags flags)
+
+add_executable(convert convert.cpp)
+add_test(convert convert)
+
+# compile-time tests only
 add_executable(nonCopyable nonCopyable.cpp)
+add_executable(tmp tmp.cpp)

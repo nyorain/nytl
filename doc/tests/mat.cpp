@@ -19,19 +19,19 @@ TEST(basic) {
 	auto r1 = nytl::Vec<1, double>{2.0};
 	auto r2 = nytl::Vec<1, double>{1.0};
 
-	nytl::Mat<2, 1, double> x {r1, r2};
+	nytl::Mat<2, 1, double> x {{r1, r2}};
 	nytl::Mat<1, 3, double> y {1.0, 2.0, 3.0};
 	nytl::Mat<4, 1, double> z {-1.0, 0.0, 1.0, -2.0};
-	nytl::Mat<2, 3, double> a {nytl::Vec3d{1.0, 2.0, -1.0}, nytl::Vec3d{0.0, 2.0, 1.0}};
-	nytl::Mat<4, 2, double> b {nytl::Vec2d{1.0, 1.0}, {0.0, 2.0}, {3.0, -1.0}, {-1.0, 2.0}};
+	nytl::Mat<2, 3, double> a {{nytl::Vec3d{1.0, 2.0, -1.0}, nytl::Vec3d{0.0, 2.0, 1.0}}};
+	nytl::Mat<4, 2, double> b {{nytl::Vec2d{1.0, 1.0}, {0.0, 2.0}, {3.0, -1.0}, {-1.0, 2.0}}};
 
 	nytl::Mat<4, 1, double> r2bx {6.0, 4.0, 10.0, 0.0};
-	nytl::Mat<4, 3, double> rba {
+	nytl::Mat<4, 3, double> rba {{
 		nytl::Vec3d{1.0, 4.0, 0.0},
 		{0.0, 4.0, 2.0},
 		{3.0, 4.0, -4.0},
 		{-1.0, 2.0, 3.0}
-	};
+	}};
 	nytl::Mat<4, 4, double> rzzt {
 		1.0, 0.0, -1.0, 2.0,
 		0.0, 0.0, 0.0, 0.0,
@@ -150,13 +150,13 @@ TEST(inverse) {
 	}
 
 	{
-		nytl::Mat<5, 5, double> a {
+		nytl::Mat<5, 5, double> a {{
 			nytl::Vec<5, double>{1, -2, 3, 5, 8},
 			{0, -1, -1, 0, 3},
 			{2, 4, -1, 10, 1},
 			{0, 0, 5, 0, 0},
 			{1, 3, 0, 5, -1}
-		};
+		}};
 
 		auto lups = nytl::mat::luDecomp(a);
 		const auto& l = std::get<0>(lups);

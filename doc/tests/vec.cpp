@@ -52,6 +52,20 @@ constexpr nytl::Vec<5, int> i5b {10, 20, -10, -20, 0};
 constexpr nytl::Vec<7, int> i7a {1, 2, 3, 4, 5, 6, 7};
 constexpr nytl::Vec<7, int> i7b {-1, 0, 0, 0, 1, 4, 5};
 
+TEST(basic) {
+	auto cpy = d3a;
+	cpy += d3c;
+	cpy -= d3d;
+	EXPECT(cpy, (Vec3d{3.0, 1.0, 2.0}));
+
+	cpy = -cpy;
+	EXPECT(cpy, (Vec3d{-3.0, -1.0, -2.0}));
+
+	cpy *= -4;
+	EXPECT(cpy, (Vec3d{12.0, 4.0, 8.0}));
+	EXPECT(cpy != (Vec3d{12.0, 4.0, 1.0}), true);
+}
+
 TEST(vec_addition) {
 	EXPECT(-d3a, test::approx(Vec3d{-1.0, -2.0, -3.0}));
 	EXPECT(d3a + d3b, test::approx(d3a));

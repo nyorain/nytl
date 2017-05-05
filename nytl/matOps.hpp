@@ -588,6 +588,7 @@ template<typename M>
 constexpr auto determinant(const M& mat)
 {
 	auto [l, u, p, s] = luDecomp(mat);
+	nytl::unused(l, p);
 	return s * static_cast<typename M::Value>(multiplyDiagonal(u));
 }
 
@@ -651,6 +652,7 @@ template<typename M>
 constexpr auto inverse(const M& mat)
 {
 	auto [l, u, p, s] = luDecomp(mat);
+	nytl::unused(s);
 	return inverse(l, u, p);
 }
 
@@ -704,6 +706,8 @@ constexpr auto inverse(const M& mat)
 		throw std::invalid_argument("nytl::mat::inverse: non-square matrix");
 
 	auto [l, u, p, s] = luDecomp(mat);
+	nytl::unused(s);
+
 	for(auto n = 0u; n < l.rows(); ++n)
 		if(u[n][n] == 0.0)
 			throw std::invalid_argument("nytl::mat::inverse: singular matrix");

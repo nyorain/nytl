@@ -50,14 +50,15 @@ inline std::size_t charCount(const std::string& utf8)
 /// \brief Returns the character at position n (started at 0) from the given utf8 string.
 /// \details In difference to the builtin std::string access function this does not return
 /// the nth byte, but the nth utf8 character.
-/// Since every (unicode) utf8 character can take up to 4 bytes, an array holding
-/// 4 chars is returned.
+/// Since every (unicode) utf8 character can take up to 4 bytes, the last char in the
+/// returned array will always be '\0', which allows to treat its data as null-terminated
+/// const char pointer.
 /// Example: `nytl::nth(u8"äüß", 1)` returns the char "ü" as utf8 array,
 /// i.e. {0xc3, 0xbc ,0, 0} since u8"ü"[0] == 0xc3 and u8"ü"[1] == 0xbc.
 /// \note Indexing starts at zero! `nth(utf8, 1)` returns actually the second char.
 /// \throws std::out_of_range if n > charCount(utf8)
 /// \module utf
-inline std::array<char, 4> nth(const std::string& utf8, std::size_t n)
+inline std::array<char, 5> nth(const std::string& utf8, std::size_t n)
 {
 	std::size_t count = 0u;
 	auto it = utf8.begin();
@@ -74,7 +75,7 @@ inline std::array<char, 4> nth(const std::string& utf8, std::size_t n)
 		}
 
 		if(count == n) {
-			std::array<char, 4> ret {};
+			std::array<char, 5> ret {};
 			for(auto i = 0u; i < length; ++i) ret[i] = *(it + i);
 			return ret;
 		}
