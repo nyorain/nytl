@@ -49,6 +49,7 @@ public:
 	constexpr bool operator!=(const Flags& rhs) const noexcept { return value_ != rhs.value(); }
 
 	constexpr const U& value() const noexcept { return value_; }
+	constexpr operator U() const noexcept { return value_; }
 
 protected:
 	U value_ {};

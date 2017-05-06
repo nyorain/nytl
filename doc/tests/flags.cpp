@@ -24,6 +24,6 @@ TEST(flags) {
 	static_assert((entryNot3 & Enum::entry1) == Enum::entry1, "flags test #4");
 	static_assert((entryNot3 & Enum::entry2) == Enum::entry2, "flags test #5");
 
-	static_assert(static_cast<int>(entry23.value()) == 6, "flags cast test 1");
-	static_assert(static_cast<int>(entry3.value()) == 4, "flags cast test 1");
+	static_assert(static_cast<unsigned int>(entry23) == 6, "flags cast test 1");
+	static_assert(static_cast<int>(entry3) == 4, "flags cast test 1");
 }
