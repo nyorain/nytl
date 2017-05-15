@@ -70,7 +70,7 @@ constexpr auto center(const Rect<D, T>& rect)
 }
 
 /// \brief Returns whether the given Rect contains the given point (as Vec).
-/// Returns true if the lies on the outline of the given rect.
+/// Returns true if the lays on the outline of the given rect.
 /// \requires Types 'T1' and 'T2' must describe the same field and be comparable.
 /// \module rectOps
 template<std::size_t D, typename T1, typename T2>
@@ -85,7 +85,7 @@ constexpr bool contains(const Rect<D, T1>& rect, const Vec<D, T2>& point)
 }
 
 /// \brief Returns whether the given Rect contains the given point (as Vec).
-/// Returns false if the lies on the outline of the given rect.
+/// Returns false if the lays on the outline of the given rect.
 /// \requires Types 'T1' and 'T2' must describe the same field and be comparable.
 /// \module rectOps
 template<std::size_t D, typename T1, typename T2>

@@ -3,6 +3,8 @@
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
 /// \file Various operations for real vectors.
+/// Over the whole files, template types names V or V* must fulfil the
+/// vector concept specified in doc/vec.md
 
 #pragma once
 
@@ -270,8 +272,26 @@ std::ostream& print(std::ostream& os, const V& vec)
 	return os;
 }
 
-/// Contains various component-wise operations for Vectors.
-namespace cw {
+namespace cw { // component-wise operations
+namespace ip { // inplace operations
+
+/// \brief Applies the given function to every value in the given vector.
+template<typename V, typename F>
+constexpr void apply(V& vec, F&& func)
+{
+	for(auto i = 0u; i < vec.size(); ++i)
+		func(vec[i]);
+}
+
+template<typename V>
+constexpr void abs(V& vec)
+	{ apply(vec, [](auto& x){ x = std::abs(x); }); }
+
+template<typename V, typename T>
+constexpr void pow(V& vec, const T& e)
+	{ apply(vec, [&e](auto& x){ x = std::pow(x, e); }); }
+
+}
 
 /// \brief Returns a vector holding the component-wise maximum of the given Vectors.
 /// \requires Type 'V' shall be a Vector type.

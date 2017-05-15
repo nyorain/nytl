@@ -204,3 +204,9 @@ TEST(cross_product) {
 	// nytl::vec::cross(Vec2d{2.0, 3.0}, Vec2d{1.0, 2.0});
 	// nytl::vec::cross(Vec4d{1.0, 2.0, 3.0, 4.0}, d3b);
 }
+
+TEST(cw1) {
+	auto copy = d3a;
+	nytl::vec::cw::ip::abs(copy);
+	EXPECT(copy, test::approx(d3a));
+}
