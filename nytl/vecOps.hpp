@@ -23,7 +23,6 @@ namespace nytl::vec {
 namespace detail {
 
 /// \brief Helper that asserts that the given vectors have the same dimension.
-/// \requires Types 'V1','V2' shall be Vector types.
 template<typename V1, typename V2>
 struct AssertSameDimensions {
 
@@ -39,7 +38,6 @@ struct AssertSameDimensions {
 };
 
 /// \brief Helper that asserts that a vector of type V1 has dimension Dim.
-/// \requires Type 'V' shall be a Vector type.
 template<unsigned int Dim, typename V>
 struct AssertDimension {
 	static constexpr void call(const V& a)
@@ -98,7 +96,6 @@ auto createVector(const V& v)
 namespace nocheck {
 
 /// \brief Like dot, but no sanity checks are performed.
-/// \module vecOps
 template<typename V1, typename V2>
 constexpr auto dot(const V1& a, const V2& b)
 {
@@ -113,7 +110,6 @@ constexpr auto dot(const V1& a, const V2& b)
 /// \brief Like angle, but no sanity checks are performed.
 /// There might be unexpected results e.g. when both vectors are
 /// equal due to rounding errors.
-/// \module vecOps
 template<typename V1, typename V2>
 constexpr auto angle(const V1& a, const V2& b)
 {
@@ -121,7 +117,6 @@ constexpr auto angle(const V1& a, const V2& b)
 }
 
 /// \brief Like cross, but no sanity checks are performed.
-/// \module vecOps
 template<typename V1, typename V2>
 constexpr auto cross(const V1& a, const V2& b)
 {
@@ -133,7 +128,6 @@ constexpr auto cross(const V1& a, const V2& b)
 }
 
 /// \brief Like normalize, but no sanity checks are performed.
-/// \module vecOps
 template<typename V>
 constexpr auto normalize(const V& a)
 {
@@ -143,8 +137,6 @@ constexpr auto normalize(const V& a)
 } // namespace nocheck
 
 /// \brief Sums up all values of the given vector using the + operator.
-/// \requires Type 'V' shall be a Vector
-/// \module vecOps
 template<typename V>
 constexpr auto sum(const V& a)
 {
@@ -152,8 +144,6 @@ constexpr auto sum(const V& a)
 }
 
 /// \brief Multiplies all values of the given vector using the * operator.
-/// \requires Type 'V' shall be a non-empty Vector
-/// \module vecOps
 template<typename V>
 constexpr auto multiply(const V& a)
 {
@@ -163,9 +153,7 @@ constexpr auto multiply(const V& a)
 /// \brief Calculates the default dot product for the given vectors.
 /// Note that this follows the dot definition for real numbers and does
 /// not automatically handle the dot definition for complex numbers.
-/// \requires Types 'V1' and 'V2' shall be Vectors.
 /// \throws std::invalid_argument if the size of the input vectors differs.
-/// \module vecOps
 template<typename V1, typename V2>
 constexpr auto dot(const V1& a, const V2& b)
 {
@@ -174,8 +162,6 @@ constexpr auto dot(const V1& a, const V2& b)
 }
 
 /// \brief Returns the euclidean norm (or length) of the given vector.
-/// \requires Type 'V' shall be a Vector.
-/// \module vecOps
 template<typename V>
 constexpr auto length(const V& a)
 {
@@ -185,10 +171,8 @@ constexpr auto length(const V& a)
 /// \brief Returns the euclidean distance between two vectors.
 /// Another way to describe this operation is the length between the
 /// difference of the given vectors.
-/// \requires Types 'V1','V2' shall be Vector types.
 /// \requires The both given vectors shall have the same dimension.
-/// Will not check for this but subtract them from each other.
-/// \module vecOps
+/// Will not check for this and simply subtract them from each other.
 template<typename V1, typename V2>
 constexpr auto distance(const V1& a, const V2& b)
 {
@@ -200,10 +184,8 @@ constexpr auto distance(const V1& a, const V2& b)
 /// plane in which both vectors lay.
 /// For two equal vectors, it will return always 0.0.
 /// Does only work for real numbers and does not handle complex vectors.
-/// \requires Types 'V1', 'V2' shall be Vectors.
 /// \throws std::invalid_argument if the size of the input vectors differs.
 /// \throws std::domain_error if at least one of the given vectors has a length of 0.
-/// \module vecOps
 template<typename V1, typename V2>
 constexpr auto angle(const V1& a, const V2& b)
 {
@@ -224,9 +206,8 @@ constexpr auto angle(const V1& a, const V2& b)
 }
 
 /// \brief Calculates the cross product for two 3-dimensional vectors.
-/// \requires Types 'V1', 'V2' shall be Vectors over the same 3-dimensional space.
+/// \requires The given vectors shall be in the 3-dimensional space.
 /// \throws std::domain_error if at least on of the input vectors does not have a size of 3.
-/// \module vecOps
 template<typename V1, typename V2>
 constexpr auto cross(const V1& a, const V2& b)
 {
@@ -237,9 +218,7 @@ constexpr auto cross(const V1& a, const V2& b)
 }
 
 /// \brief Returns a normalization of the given vector for the euclidean norm.
-/// \requires Type 'V' shall be a Vector.
 /// \throws std::domain_error if the vector has the length 0.
-/// \module vecOps
 template<typename V>
 constexpr auto normalize(const V& a)
 {
@@ -254,9 +233,7 @@ constexpr auto normalize(const V& a)
 /// If this function is used, header <ostream> must be included.
 /// This function does not implement operator<< since this operator should only implemented
 /// for the Vector implementation types.
-/// \requires Type 'V' shall be a Vector
 /// \requires There must be an implementation of operator<<(std::ostream&, V::Value).
-/// \module vecOps
 template<typename V>
 std::ostream& print(std::ostream& os, const V& vec)
 {
@@ -283,20 +260,78 @@ constexpr void apply(V& vec, F&& func)
 		func(vec[i]);
 }
 
+// Various utility functions.
+// Always modify the given vector in place and simply apply the similar
+// named stl or nytl function on all components.
 template<typename V>
 constexpr void abs(V& vec)
 	{ apply(vec, [](auto& x){ x = std::abs(x); }); }
+
+template<typename V>
+constexpr void degrees(V& vec)
+	{ apply(vec, [](auto& x){ x = nytl::degrees(x); }); }
+
+template<typename V>
+constexpr void radians(V& vec)
+	{ apply(vec, [](auto& x){ x = nytl::radians(x); }); }
+
+template<typename V>
+constexpr void sin(V& vec)
+	{ apply(vec, [](auto& x){ x = std::sin(x); }); }
+
+template<typename V>
+constexpr void cos(V& vec)
+	{ apply(vec, [](auto& x){ x = std::cos(x); }); }
+
+template<typename V>
+constexpr void tan(V& vec)
+	{ apply(vec, [](auto& x){ x = std::cos(x); }); }
+
+template<typename V>
+constexpr void asin(V& vec)
+	{ apply(vec, [](auto& x){ x = std::asin(x); }); }
+
+template<typename V>
+constexpr void acos(V& vec)
+	{ apply(vec, [](auto& x){ x = std::acos(x); }); }
+
+template<typename V>
+constexpr void atan(V& vec)
+	{ apply(vec, [](auto& x){ x = std::atan(x); }); }
+
+template<typename V>
+constexpr void exp(V& vec)
+	{ apply(vec, [](auto& x){ x = std::exp(x); }); }
+
+template<typename V>
+constexpr void log(V& vec)
+	{ apply(vec, [](auto& x){ x = std::log(x); }); }
+
+template<typename V>
+constexpr void sqrt(V& vec)
+	{ apply(vec, [](auto& x){ x = std::sqrt(x); }); }
+
+template<typename V>
+constexpr void exp2(V& vec)
+	{ apply(vec, [](auto& x){ x = std::exp2(x); }); }
+
+template<typename V>
+constexpr void floor(V& vec)
+	{ apply(vec, [](auto& x){ x = std::floor(x); }); }
+
+template<typename V>
+constexpr void ceil(V& vec)
+	{ apply(vec, [](auto& x){ x = std::ceil(x); }); }
 
 template<typename V, typename T>
 constexpr void pow(V& vec, const T& e)
 	{ apply(vec, [&e](auto& x){ x = std::pow(x, e); }); }
 
-}
+} // namespace ip
 
 /// \brief Returns a vector holding the component-wise maximum of the given Vectors.
 /// \requires Type 'V' shall be a Vector type.
 /// \requires The both given vectors shall have the same dimension.
-/// \module vecOps
 template<typename V>
 constexpr auto max(V a, const V& b)
 {
@@ -311,7 +346,6 @@ constexpr auto max(V a, const V& b)
 /// \brief Returns a vector holding the component-wise maximum of the given Vectors.
 /// \requires Type 'V' shall be a Vector type.
 /// \requires The both given vectors shall have the same dimension.
-/// \module vecOps
 template<typename V>
 constexpr auto min(V a, const V& b)
 {
@@ -325,7 +359,6 @@ constexpr auto min(V a, const V& b)
 
 /// \brief Multiplies the two vectors component wise
 /// \requires Types 'V1', 'V2' shall be Vector types over the same space.
-/// \module vecOps
 template<typename V1, typename V2>
 constexpr auto multiply(const V1& a, const V2& b)
 {
@@ -340,7 +373,6 @@ constexpr auto multiply(const V1& a, const V2& b)
 /// \brief Component-wise divides the first vector by the second one.
 /// Will not perform any zero checks.
 /// \requires Types 'V1', 'V2' shall be Vector types over the same space.
-/// \module vecOps
 template<typename V1, typename V2>
 constexpr auto divide(const V1& a, const V2& b)
 {

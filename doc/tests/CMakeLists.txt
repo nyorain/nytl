@@ -1,6 +1,9 @@
 add_executable(vec vec.cpp)
 add_test(vec vec)
 
+add_executable(dynVec dynVec.cpp)
+add_test(dynVec dynVec)
+
 add_executable(mat mat.cpp)
 add_test(mat mat)
 
@@ -46,3 +49,4 @@ add_test(convert convert)
 # compile-time tests only
 add_executable(nonCopyable nonCopyable.cpp)
 add_executable(tmp tmp.cpp)
+add_executable(functionTraits functionTraits.cpp)

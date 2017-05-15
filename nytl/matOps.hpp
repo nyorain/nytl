@@ -3,6 +3,8 @@
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
 /// \file Various matrix related operations.
+/// All types in this file named M or M* are expected to fulfil the Matrix
+/// concept desribed by doc/mat.md
 
 #pragma once
 
@@ -25,7 +27,6 @@ template<typename... M>
 using ConstexprDims = void_t<decltype(M::rows(), M::cols())...>;
 
 /// \brief Helper that asserts that the given matrices have the same dimensions
-/// \requires Types 'M1','M2' shall be Matrix types.
 template<typename M1, typename M2>
 struct AssertSameDimensions {
 	static constexpr void call(const M1& a, const M2& b)
@@ -42,7 +43,6 @@ struct AssertSameDimensions {
 
 /// \brief Helper that asserts that the given matrices have dimensions that make them
 /// suitable for multiplicating them.
-/// \requires Types 'M1','M2' shall be Matrix types
 template<typename M1, typename M2>
 struct AssertMultDimensions {
 	static constexpr void call(const M1& a, const M2& b)
@@ -115,9 +115,7 @@ auto createMatrix(const M& mat)
 /// \param valueWidth The number of characters per matrix value. Can be 0 to not care for it.
 /// \param rowSpacing The spacing in the beginning of each row.
 /// \param breakAfter Whether to insert a newline after printing the matrix.
-/// \requires Type 'V' shall be a Vector
-/// \requires There must be an implementation of operator<<(std::ostream&, V::Value).
-/// \module matOps
+/// \requires There must be an implementation of operator<<(std::ostream&, M::Value).
 template<typename M>
 std::ostream& print(std::ostream& ostream, const M& mat, unsigned int valueWidth = 6,
 	const char* rowSpacing = "    ", bool breakAfter = true)
@@ -156,8 +154,6 @@ std::ostream& print(std::ostream& ostream, const M& mat, unsigned int valueWidth
 /// \brief Returns the row with index n of the given matrix.
 /// For example: `nytl::mat::row(mat44, 0);` returns the first (index 0) row of a matrix.
 /// \returns A M::RowVec holding the elements from the nth row.
-/// \requires Type 'M' shall be a Matrix.
-/// \module matOps
 template<typename M>
 constexpr auto row(const M& mat, typename M::Size n)
 {
@@ -171,8 +167,6 @@ constexpr auto row(const M& mat, typename M::Size n)
 /// \brief Returns the column with index n of the given matrix.
 /// For example: `nytl::mat::row(mat44, 1);` returns the second (index 1) column of a matrix.
 /// \returns A M::ColVec holding the elements from the nth column.
-/// \requires Type 'M' shall be a Matrix.
-/// \module matOps
 template<typename M>
 constexpr auto col(const M& mat, typename M::Size n)
 {
@@ -183,12 +177,10 @@ constexpr auto col(const M& mat, typename M::Size n)
 	return ret;
 }
 
-/// \brief Sets the nth row of the given Matrix.
+/// \brief Sets the nth row of the given mutable matrix.
 /// For example: `nytl::mat::row(mat44, 0, vec4);` sets the first row of a matrix.
-/// \requires Type 'M' shall be a mutable Matrix.
-/// \requires Type 'R' shall be a Container that can be accessed using operator[] and
+/// \requires Type 'R' shall be a container that can be accessed using operator[] and
 /// that holds at least as much values as mat has columns which can be converted to M::Value.
-/// \module matOps
 template<typename M, typename R>
 constexpr void row(M& mat, typename M::Size n, const R& row)
 {
@@ -198,10 +190,8 @@ constexpr void row(M& mat, typename M::Size n, const R& row)
 
 /// \brief Sets the column with index n to the given column.
 /// For example: `nytl::mat::col(mat44, 2, vec4);` sets the 3rd column of a matrix.
-/// \requires Type 'M' shall be a mutable Matrix.
-/// \requires Type 'R' shall be a Container that can be accessed using operator[] and
+/// \requires Type 'R' shall be a container that can be accessed using operator[] and
 /// that holds at least as much values as mat has rows which can be converted to M::Value.
-/// \module matOps
 template<typename M, typename C>
 constexpr void col(M& mat, typename M::Size n, const C& col)
 {
@@ -211,8 +201,7 @@ constexpr void col(M& mat, typename M::Size n, const C& col)
 
 /// \brief Swaps the row with index n with the row with index i.
 /// For example: `nytl::mat::swapRow(mat44, 2, 3);` swaps the 3rd and 4th row
-/// \requires Type 'M' shall be a mutable Matrix.
-/// \module matOps
+/// The given matrix must be mutable.
 template<typename M>
 constexpr void swapRow(M& mat, typename M::Size n, typename M::Size i)
 {
@@ -223,8 +212,7 @@ constexpr void swapRow(M& mat, typename M::Size n, typename M::Size i)
 
 /// \brief Swaps the column with index n with the column with index i.
 /// For example: `nytl::mat::swapCol(mat44, 2, 3);` swaps the 3rd and 4th column
-/// \requires Type 'M' shall be a mutable Matrix.
-/// \module matOps
+/// The given matrix must be mutable.
 template<typename M>
 constexpr void swapCol(M& mat, typename M::Size n, typename M::Size i)
 {
@@ -237,9 +225,8 @@ constexpr void swapCol(M& mat, typename M::Size n, typename M::Size i)
 /// Both matrices should have the same size, otherwise calling this functions
 /// results in undefined behavior.
 /// For example: `nytl::mat::copy(mat44f, mat44d);` copies the double matrix into the float one.
-/// \requires Types 'M', 'N' shall be matrix types. 'M' shall be mutable.
-/// \requires The value type of 'N' must be convertible to the value type of 'M'.
-/// \module matOps
+/// The first given matrix must be mutable.
+/// \requires std::is_convertible<N::Value, M::Value>
 template<typename M, typename N>
 constexpr void copy(M& a, const N& b)
 {
@@ -249,8 +236,7 @@ constexpr void copy(M& a, const N& b)
 }
 
 /// \brief Sets all values of the given matrix to 0 of the underlying field.
-/// \requires Type 'M' shall be a mutable Matrix.
-/// \module matOps
+/// The given matrix must be mutable.
 template<typename M>
 constexpr void zero(M& mat)
 {
@@ -260,8 +246,7 @@ constexpr void zero(M& mat)
 }
 
 /// \brief Sets all values of the given matrix to 1 of the underlying field.
-/// \requires Type 'M' shall be a mutable Matrix.
-/// \module matOps
+/// The given matrix must be mutable.
 template<typename M>
 constexpr void one(M& mat)
 {
@@ -272,8 +257,6 @@ constexpr void one(M& mat)
 
 /// \brief Returns the trace of a square matrix, i.e. the sum of its diagonal elements
 /// Undefined behavior for empty or non-square matrices.
-/// \requires Type 'M' shall be a Matrix.
-/// \module matOps
 template<typename M>
 constexpr auto trace(const M& mat)
 {
@@ -285,8 +268,6 @@ constexpr auto trace(const M& mat)
 
 /// \brief Multiplies all elements in the diagonal of the given non-empty square matrix.
 /// Undefined behavior for empty or non-square matrices.
-/// \requires Type 'M' shall be a Matrix.
-/// \module matOps
 template<typename M>
 constexpr auto multiplyDiagonal(const M& mat)
 {
@@ -298,8 +279,7 @@ constexpr auto multiplyDiagonal(const M& mat)
 
 /// \brief Sets the given matrix to the identity matrix.
 /// Undefined behavior for non-square matrices.
-/// \requires Type 'M' shall be a mutable Matrix.
-/// \module matOps
+/// The given matrix must be mutable.
 template<typename M>
 constexpr void identity(M& mat)
 {
@@ -310,8 +290,6 @@ constexpr void identity(M& mat)
 
 /// \brief Transposes the given matrix.
 /// \returns A rebound matrix of the same implementation with C rows and R rows.
-/// \requires Type 'M' shall be a Matrix.
-/// \module matOps
 template<typename M>
 constexpr auto transpose(const M& mat)
 {
@@ -327,12 +305,11 @@ constexpr auto transpose(const M& mat)
 /// \brief Performs partial pivoting for the given matrix for given position.
 /// Finds the largest value in the given column and swaps its row with the given row.
 /// Complexity Lies within O(n^2).
+/// The given matrix must be mutable.
 /// \param row The row of the matrix entry to maximize.
 /// \param column The column of the matrix entry to maximize.
 /// \param after If this is true, only rows after the given one are considered for swapping.
 /// \returns The new value at the given position.
-/// \requires Type 'M' shall be a mutable Matrix.
-/// \module matOps
 template<typename M>
 constexpr auto pivot(M& mat, typename M::Size row, typename M::Size column, bool after = false)
 {
@@ -356,8 +333,6 @@ constexpr auto pivot(M& mat, typename M::Size row, typename M::Size column, bool
 /// \notes This operation divides by values from the matrix so it must have a type does
 /// correctly implement division over the desired field (e.g. integer matrices will result
 /// in quiet rounding errors here).
-/// \requires Type 'M' shall be a Matrix.
-/// \module matOps
 template<typename M>
 constexpr void rowEcholon(M& mat)
 {
@@ -388,7 +363,6 @@ constexpr void rowEcholon(M& mat)
 
 /// \brief Same as [nytl::mat::rowEcholon](), but operates on a copy.
 /// Assures that the given matrix is converted to a matrix will full precision.
-/// \module matOps
 template<typename M>
 constexpr auto rowEcholonCopy(const M& mat)
 {
@@ -402,11 +376,10 @@ constexpr auto rowEcholonCopy(const M& mat)
 /// Implements the full Gaussian elimination for a given matrix.
 /// The given matrix can be in any form.
 /// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
+/// The given matrix must be mutable.
 /// \notes This operation divides by values from the matrix so it must have a type does
 /// correctly implement division over the desired field (e.g. integer matrices will result
 /// in errors here).
-/// \requires Type 'M' shall be a Matrix.
-/// \module matOps
 template<typename M>
 constexpr void reducedRowEcholon(M& mat)
 {
@@ -436,7 +409,6 @@ constexpr void reducedRowEcholon(M& mat)
 
 /// \brief Same as [nytl::mat::reducedRowEcholon](), but operates on a copy.
 /// Assures that the given matrix is converted to a matrix will full precision.
-/// \module matOps
 template<typename M>
 constexpr auto reducedRowEcholonCopy(const M& mat)
 {
@@ -446,7 +418,7 @@ constexpr auto reducedRowEcholonCopy(const M& mat)
 	return ret;
 }
 
-/// \brief Computes a LU decomposition of a given matrix.
+/// \brief Computes a LU decomposition of a given square matrix.
 /// \returns std::tuple with the lower (0) and upper (1) matrix of the decomposition, as
 /// well as the used permutation matrix (2) and the sign of the permutation (3).
 /// The sign is a value of the field the matrix is defined over. It's 1 if an even number
@@ -459,8 +431,6 @@ constexpr auto reducedRowEcholonCopy(const M& mat)
 /// The returned matrices have the full field precision type, since this operation divides values.
 /// This function cannot fail in any way.
 /// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
-/// \requires Type 'M' shall be a square Matrix.
-/// \module matOps
 template<typename M>
 constexpr auto luDecomp(const M& mat)
 {
@@ -520,7 +490,6 @@ constexpr auto luDecomp(const M& mat)
 namespace nocheck {
 
 /// \brief Same as [nytl::mat::luEvaluate]() but does not perform any matrix checks.
-/// \module matOps
 template<typename M, typename V>
 constexpr auto luEvaluate(const M& l, const M& u, const V& b)
 {
@@ -554,6 +523,7 @@ constexpr auto luEvaluate(const M& l, const M& u, const V& b)
 /// Can be used to more efficiently solve multiple linear equitation systems for the
 /// same matrix by first decomposing it and then use this function instead of the default
 /// Gaussian elimination implementation.
+/// The given matrix must be a square matrix.
 /// \notes If the lu composition was done with a permutation matrix (PA = LU), the given
 /// vector must be premultiplied with the permutations inverse (tranpose) to get the vector
 /// that solves Ax = b. If PA = LU and Ax = b, so LUx = P * b
@@ -563,9 +533,7 @@ constexpr auto luEvaluate(const M& l, const M& u, const V& b)
 /// diagonal elements is zero.
 /// The returned vector has a full field precision type, since this operation divides values.
 /// Complexity Lies within O(n^2) where n is the number of rows/cols of the given matrix.
-/// \requires Type 'M' shall be a square Matrix.
 /// \requires Type 'V' shall be a vector that has as many elements as l and u have rows/columns.
-/// \module matOps
 template<typename M, typename V>
 constexpr auto luEvaluate(const M& l, const M& u, const V& b)
 {
@@ -581,9 +549,6 @@ constexpr auto luEvaluate(const M& l, const M& u, const V& b)
 
 /// \brief Returns the determinant of the given square matrix.
 /// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
-/// \requires Type 'M' shall be a Matrix.
-/// \requires The given matrix shall be a square matrix.
-/// \module matOps
 template<typename M>
 constexpr auto determinant(const M& mat)
 {
@@ -596,8 +561,6 @@ constexpr auto determinant(const M& mat)
 /// \param l The lower matrix of the lu decomposition.
 /// \param lu The upper matrix of the lu decomposition.
 /// \param sign The sign of the permutation matrix used on the original matrix.
-/// \requires Type 'M' shall be a Matrix.
-/// \module matOps
 template<typename M>
 constexpr auto determinant(const M& l, const M& u, int sign = 1)
 {
@@ -607,8 +570,6 @@ constexpr auto determinant(const M& l, const M& u, int sign = 1)
 /// \brief Returns whether the given matrix can be inverted.
 /// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
 /// \returns false for non-square matrices.
-/// \requires Type 'M' shall be a Matrix.
-/// \module matOps
 template<typename M>
 constexpr bool invertible(const M& mat)
 {
@@ -618,10 +579,9 @@ constexpr bool invertible(const M& mat)
 
 namespace nocheck {
 
-/// \brief Returns the inverse of the Matrix A with PA = LU.
+/// \brief Returns the inverse of a matrix A with PA = LU.
 /// \notes Does not perform any sanity checks of the given matrix.
-/// \requires Type 'M' shall be an invertible square Matrix.
-/// \module matOps
+/// The matrix must be square-sized and invertible.
 template<typename M>
 constexpr auto inverse(const M& l, const M& u, const M& p)
 {
@@ -634,8 +594,7 @@ constexpr auto inverse(const M& l, const M& u, const M& p)
 
 /// \brief Returns the inverse of the Matrix A with A = LU.
 /// \notes Does not perform any sanity checks of the given matrix.
-/// \requires Type 'M' shall be an invertible square Matrix.
-/// \module matOps
+/// The given matrices must be square-sized and invertible.
 template<typename M>
 constexpr auto inverse(const M& l, const M& u)
 {
@@ -646,8 +605,7 @@ constexpr auto inverse(const M& l, const M& u)
 
 /// \brief Same as [nytl::mat::inverse(const M& mat)]() but does not check for errors.
 /// \notes Does not perform any sanity checks of the given matrix.
-/// \requires Type 'M' shall be an invertible square Matrix.
-/// \module matOps
+/// The matrix must be square-sized and invertible.
 template<typename M>
 constexpr auto inverse(const M& mat)
 {
@@ -660,7 +618,6 @@ constexpr auto inverse(const M& mat)
 
 /// \brief Returns the inverse of the matrix A with A = LU.
 /// \throws std::invalid_argument For a non-square or singular matrix
-/// \module matOps
 template<typename M>
 constexpr auto inverse(const M& l, const M& u)
 {
@@ -676,7 +633,6 @@ constexpr auto inverse(const M& l, const M& u)
 
 /// \brief Returns the inverse of the matrix A with PA = LU.
 /// \throws std::invalid_argument For a non-square or singular matrix
-/// \module matOps
 template<typename M>
 constexpr auto inverse(const M& l, const M& u, const M& p)
 {
@@ -697,8 +653,6 @@ constexpr auto inverse(const M& l, const M& u, const M& p)
 /// to check if a matrix is invertible and calculate the inverse if so. This will
 /// be way more efficient then first checking and then calculating it.
 /// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
-/// \requires Type 'M' shall be a Matrix type.
-/// \module matOps
 template<typename M>
 constexpr auto inverse(const M& mat)
 {
@@ -720,8 +674,7 @@ constexpr auto inverse(const M& mat)
 /// is an invertible square matrix.
 /// If the matrix could not be inverted, false is returned and the matrix is left unchanged.
 /// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
-/// \requires Type 'M' shall be a mutable Matrix.
-/// \module matOps
+/// The given matrix must be mutable.
 template<typename M>
 constexpr bool invert(M& mat)
 {
@@ -740,8 +693,6 @@ constexpr bool invert(M& mat)
 
 /// \brief Returns whether the given Matrix is symmetric.
 /// Uses the == operator over M::Value to check for equality.
-/// \requires Type 'M' shall be a Matrix.
-/// \module matOps
 template<typename M>
 constexpr bool symmetric(const M& mat)
 {
