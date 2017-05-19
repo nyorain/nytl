@@ -7,7 +7,7 @@
 #ifndef NYTL_INCLUDE_FWD_TYPEMAP
 #define NYTL_INCLUDE_FWD_TYPEMAP
 
-#include <nytl/any.hpp> // std::any
+#include <any>
 
 namespace nytl {
 	template<typename I, typename B = std::any, typename... CArgs> class Typemap;

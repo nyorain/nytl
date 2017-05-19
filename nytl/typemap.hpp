@@ -10,7 +10,6 @@
 #define NYTL_INCLUDE_TYPEMAP
 
 #include <nytl/fwd/typemap.hpp> // nytl::Typemap default template parameter
-#include <nytl/any.hpp> // std::any TODO C++ 17
 
 #include <unordered_map> // std::unordered_map
 #include <typeinfo> // std::type_info

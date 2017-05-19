@@ -9,6 +9,8 @@
 #ifndef NYTL_INCLUDE_TMP_UTIL
 #define NYTL_INCLUDE_TMP_UTIL
 
+#include <utility> // std::forward
+
 namespace nytl {
 
 /// \brief Useful typedef for expanding the use of variadic template arguments.
@@ -65,7 +67,7 @@ template<typename A, typename> using Variadic = A;
 /// have to be included by a template functions if a function is not used.
 /// \module utility
 template<typename V, typename T>
-decltype(auto) templatize(T&& value) { return value; }
+decltype(auto) templatize(T&& value) { return std::forward<T>(value); }
 
 
 namespace detail {
