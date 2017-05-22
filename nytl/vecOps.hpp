@@ -131,7 +131,7 @@ constexpr auto cross(const V1& a, const V2& b)
 template<typename V>
 constexpr auto normalize(const V& a)
 {
-	return (1.0 / length(a)) * a;
+	return (typename V::Value {1} / length(a)) * a;
 }
 
 } // namespace nocheck
@@ -140,14 +140,14 @@ constexpr auto normalize(const V& a)
 template<typename V>
 constexpr auto sum(const V& a)
 {
-	return accumulate(a.begin(), a.end(), 0.0, std::plus<>());
+	return accumulate(a.begin(), a.end(), typename V::Value{0}, std::plus<>());
 }
 
 /// \brief Multiplies all values of the given vector using the * operator.
 template<typename V>
 constexpr auto multiply(const V& a)
 {
-	return accumulate(a.begin(), a.end(), 1.0, std::multiplies<>());
+	return accumulate(a.begin(), a.end(), typename V::Value {1}, std::multiplies<>());
 }
 
 /// \brief Calculates the default dot product for the given vectors.
@@ -223,10 +223,10 @@ template<typename V>
 constexpr auto normalize(const V& a)
 {
 	auto la = length(a);
-	if(la == 0.0)
+	if(la == typename V::Value{0})
 		throw std::domain_error("nytl::vec::normalize: vector has length 0");
 
-	return (1.0 / la) * a;
+	return (typename V::Value {1} / la) * a;
 }
 
 /// \brief Prints the given vector to the given ostream.
