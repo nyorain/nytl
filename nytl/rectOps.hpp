@@ -107,7 +107,7 @@ template<std::size_t D, typename T1, typename T2>
 constexpr bool intersects(const Rect<D, T1>& a, const Rect<D, T2>& b)
 {
 	return contains(a, b.position) || contains(a, b.position + b.size) ||
-		contains(b, a.position) || contains(b, a.position + size);
+		contains(b, a.position) || contains(b, a.position + a.size);
 }
 
 /// \brief Returns whether the the two given Rects intersect.
@@ -118,7 +118,7 @@ template<std::size_t D, typename T1, typename T2>
 constexpr bool intersectsReal(const Rect<D, T1>& a, const Rect<D, T2>& b)
 {
 	return containsReal(a, b.position) || containsReal(a, b.position + b.size) ||
-		containsReal(b, a.position) || containsReal(b, a.position + size);
+		containsReal(b, a.position) || containsReal(b, a.position + a.size);
 }
 
 /// \brief Returns the intersection between the given Rects.
