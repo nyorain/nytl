@@ -1,4 +1,4 @@
-#include "test.hpp"
+#include "bugged.hpp"
 #include <nytl/stringParam.hpp>
 
 constexpr void stringParamA(nytl::StringParam) {}

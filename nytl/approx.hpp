@@ -4,7 +4,7 @@
 
 /// Can be used for approximating floating point numbers.
 /// Example: 3.0 == approx(3.1, 0.2) will result in true.
-/// By default uses a small (like 10^-8) epsilon value.
+/// By default uses a small (like 10^-10) epsilon value.
 /// Can be easily extended to custom types with floating-point
 /// components.
 
@@ -91,8 +91,4 @@ std::ostream& operator<<(std::ostream& os, const Approx<T>& approx)
 	return os;
 }
 
-
 } // namespace nytl
-
-// TODO: legacy - to be removed (when tests are fixed)
-namespace test { using nytl::approx; }

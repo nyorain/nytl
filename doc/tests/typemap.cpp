@@ -1,4 +1,4 @@
-#include "test.hpp"
+#include "bugged.hpp"
 #include <nytl/typemap.hpp>
 
 TEST(basic) {

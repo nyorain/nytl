@@ -1,4 +1,4 @@
-#include "test.hpp"
+#include "bugged.hpp"
 #include <nytl/observe.hpp>
 #include <vector>
 
@@ -57,7 +57,6 @@ TEST(move) {
 }
 
 TEST(ptr) {
-	auto observer = MyObserver<ObsClass> {};
 	auto observed = new ObsClass {};
 
 	auto ptr = nytl::ObservingPtr<ObsClass>(observed);

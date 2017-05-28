@@ -1,7 +1,6 @@
-#include "test.hpp"
-#include "approx.hpp"
-#include "approxMath.hpp"
-
+#include "bugged.hpp"
+#include <nytl/approx.hpp>
+#include <nytl/approxSpec.hpp>
 #include <nytl/vec.hpp>
 #include <nytl/dynVec.hpp>
 #include <nytl/vecOps.hpp>
