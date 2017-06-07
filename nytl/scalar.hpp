@@ -78,6 +78,47 @@ constexpr unsigned long factorial(unsigned int n)
 	return (n <= 1ul) ? 1ul : n * factorial(n - 1);
 }
 
+/// Maps the given signed number onto a unique unsigned one.
+/// Maps 0 to 0, 1 to 2, 2 to 4, -1 to 1, -2 to 3 and so on.
+unsigned int mapUnsigned(int x)
+{
+	return (x < 0) ? -x * 2 - 1 : x * 2;
+}
+
+/// Reverses the mapUnsigned function.
+/// Returns the signed number that would be mapped onto the given unique
+/// unsigned number.
+int unmapUnsigned(unsigned int x)
+{
+	auto ix = static_cast<int>(x);
+	return (ix % 2) ? -(ix + 1) / 2 : ix / 2;
+}
+
+/// Combines the two given unsigned numbers into a single unique one
+/// using the cantorsche pairing function. Combine it with calls
+/// to mapUnsigned to enable it for signed x,y inputs.
+unsigned int pair(unsigned int x, unsigned int y)
+{
+	return (x + y) * (x + y + 1) / 2 + y;
+}
+
+/// Returns clamp(value, min, max), i.e. value or min/max if value exceeds those bounds.
+/// Stores in store if the value was clamped, i.e. sets store to 0 if it was not clamped,
+/// to -1 if it was clamped to min or to 1 if is was clamped to max.
+auto clampStore(float value, float min, float max, int& store)
+{
+	store = 0;
+	if(value <= min) {
+		store = -1;
+		return min;
+	} else if(value >= max) {
+		store = 1;
+		return max;
+	}
+
+	return value;
+}
+
 } // namespace nytl
 
 #endif // header guard

@@ -36,7 +36,7 @@ template<std::size_t D, typename P, std::size_t A>
 class Simplex {
 public:
 	static_assert(D >= A, "The Dimension of the Simplex cannot exceed the rooms dimension");
-	
+
 	static constexpr auto spaceDim = D; // dimensions of the space the simplex is in
 	static constexpr auto simplexDim = A; // dimensions of the simplex itself
 	static constexpr auto pointCount = A + 1; // number of points the simplex is defined by
@@ -76,9 +76,6 @@ public:
 	constexpr explicit operator Simplex<OD, OP, A>() const noexcept
 		{ return {arrayCast<Vec<OD, OP>>(points_)}; }
 };
-
-// To get various functions/operators/utility for dealing with simplices:
-// #include <nytl/simplexOps.hpp>
 
 } // namespace nytl
 
