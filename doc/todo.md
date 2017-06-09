@@ -11,7 +11,6 @@ TODO for nytl
 		- simplify them?
 	- practical field tests for already unit tested interfaces
 		- optimize performance (if possible) (?)
-- move Approx/approx to nytl (nytl/approx.hpp)
 - is `int a = nytl::convert(1.f)` really a good idea? not sure... [AutoCastable]
 - check correct header includes (nytl, stl)
 - vecOps cw/ip
