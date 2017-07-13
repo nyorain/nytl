@@ -2,11 +2,8 @@
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
-// NOTE: this file should not have a header guard
-// Files that include it should undefine the macro at the end of their file
-// It can be included again.
-
 #include <string> // std::string
+#include <stdexcept> // std::runtime_error
 
 /// Define this macro to 0 before including any nytl headers to disable
 /// any runtime checks. May lead to segmentation faults when invalid parameters are
@@ -15,6 +12,38 @@
 	#define NYTL_RUNTIME_CHECK 1
 #endif
 
+#ifndef NYTL_INCLUDE_ASSURE
+#define NYTL_INCLUDE_ASSURE
+
+namespace nytl {
+
+class AssureError : public std::runtime_error {
+public:
+	AssureError(const char* func, const char* msg)
+		: runtime_error(""), func_(func), msg_(msg) {}
+
+	const char* what() const noexcept override {
+		static std::string string;
+		string.clear();
+		string += func_;
+		string += ": ";
+		string += msg_;
+		return string.c_str();
+	}
+
+	const char* func_;
+	const char* msg_;
+};
+
+}
+
+#endif // header guard
+
+
+// NOTE: this part of the file should not have a header guard
+// Files that include it should undefine the macro at the end of their file
+// It can be included again.
+
 /// Utility macro that makes sure expr is fulfilled.
 /// Will test it at compile time if static_ is true.
 #define nytl_assure(static_, expr, message) \
@@ -22,8 +51,6 @@
 		static_assert(expr, message); \
 	} else if constexpr(NYTL_RUNTIME_CHECK) { \
 		if(!(expr)) {\
-			std::string msg = __FUNCTION__; \
-			msg += ": " message; \
-			throw std::invalid_argument(msg); \
+			throw nytl::AssureError(__FUNCTION__, message "(" #expr ")"); \
 		} \
 	}

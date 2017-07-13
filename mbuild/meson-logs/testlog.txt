@@ -1,0 +1,43 @@
+Log of Meson test suite run on 2017-07-13T15:25:02.668635
+
+1/2 vec                                     FAIL     0.01 s
+
+--- command ---
+/var/host/media/removable/data/programming/projects/nytl/mbuild/doc/tests/vec
+--- stdout ---
+basic: All tests succeeded
+vec_addition: All tests succeeded
+scalar_mult: All tests succeeded
+multiplies: All tests succeeded
+sums: All tests succeeded
+dot: All tests succeeded
+length: All tests succeeded
+angles: 1 test failed
+    --------------------------------------------------
+    Check error failed in test angles
+    ../doc/tests/vec.cpp:176
+    Expected Error nytl::AssureError, other error was thrown instead: 
+        
+    --------------------------------------------------
+
+distances: All tests succeeded
+cross_product: All tests succeeded
+cw1: All tests succeeded
+Total: 1 test failed
+-------
+
+2/2 dynVec                                  OK       0.01 s
+
+--- command ---
+/var/host/media/removable/data/programming/projects/nytl/mbuild/doc/tests/dynVec
+--- stdout ---
+resize: All tests succeeded
+ops: All tests succeeded
+Total: All tests succeeded
+-------
+
+
+OK:         1
+FAIL:       1
+SKIP:       0
+TIMEOUT:    0

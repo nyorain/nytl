@@ -1,49 +1,49 @@
-tvec = executable('vec', 'vec.cpp', depencencies: nytl_dep)
+tvec = executable('vec', 'vec.cpp', dependencies: nytl_dep)
 test('vec', tvec)
 
-add_executable(dynVec dynVec.cpp)
-add_test(dynVec dynVec)
+tdynVec = executable('dynVec', 'dynVec.cpp', dependencies: nytl_dep)
+test('dynVec', tdynVec)
 
-add_executable(mat mat.cpp)
-add_test(mat mat)
-
-add_executable(typemap typemap.cpp)
-add_test(typemap typemap)
-
-add_executable(referenced referenced.cpp)
-add_test(referenced referenced)
-
-add_executable(callback callback.cpp)
-add_test(callback callback)
-
-add_executable(clone clone.cpp)
-add_test(clone clone)
-
-add_executable(observe observe.cpp)
-add_test(observe observe)
-
-add_executable(span span.cpp)
-add_test(span span)
-
-add_executable(rect rect.cpp)
-add_test(rect rect)
-
-add_executable(connection connection.cpp)
-add_test(connection connection)
-
-add_executable(approx approx.cpp)
-add_test(approx approx)
-
-add_executable(utf utf.cpp)
-add_test(utf utf)
-
-add_executable(flags flags.cpp)
-add_test(flags flags)
-
-add_executable(convert convert.cpp)
-add_test(convert convert)
-
-# compile-time tests only
-add_executable(nonCopyable nonCopyable.cpp)
-add_executable(tmp tmp.cpp)
-add_executable(functionTraits functionTraits.cpp)
+# executable('mat',  'mat.cpp')
+# test(mat mat)
+#
+# executable(typemap typemap.cpp)
+# test(typemap typemap)
+#
+# executable(referenced referenced.cpp)
+# test(referenced referenced)
+#
+# executable(callback callback.cpp)
+# test(callback callback)
+#
+# executable(clone clone.cpp)
+# test(clone clone)
+#
+# executable(observe observe.cpp)
+# test(observe observe)
+#
+# executable(span span.cpp)
+# test(span span)
+#
+# executable(rect rect.cpp)
+# test(rect rect)
+#
+# executable(connection connection.cpp)
+# test(connection connection)
+#
+# executable(approx approx.cpp)
+# test(approx approx)
+#
+# executable(utf utf.cpp)
+# test(utf utf)
+#
+# executable(flags flags.cpp)
+# test(flags flags)
+#
+# executable(convert convert.cpp)
+# test(convert convert)
+#
+# # compile-time tests only
+# executable(nonCopyable nonCopyable.cpp)
+# executable(tmp tmp.cpp)
+# executable(functionTraits functionTraits.cpp)
