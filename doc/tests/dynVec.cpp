@@ -1,6 +1,6 @@
 #include "bugged.hpp"
 #include <nytl/approx.hpp>
-#include <nytl/approxSpec.hpp>
+#include <nytl/approxVec.hpp>
 #include <nytl/vec.hpp>
 #include <nytl/dynVec.hpp>
 #include <nytl/vecOps.hpp>

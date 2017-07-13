@@ -1,7 +1,7 @@
 #include "bugged.hpp"
 
 #include <nytl/approx.hpp>
-#include <nytl/approxSpec.hpp>
+#include <nytl/approxVec.hpp>
 #include <nytl/matOps.hpp>
 #include <nytl/mat.hpp>
 #include <nytl/vecOps.hpp>

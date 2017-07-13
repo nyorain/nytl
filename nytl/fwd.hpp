@@ -22,10 +22,6 @@
 
 namespace nytl {
 
-// stringParam.hpp
-class StringParam;
-class SizedStringParam;
-
 // observe.hpp
 template<typename T> class Observable;
 template<typename T> class Observer;
