@@ -1,0 +1,12 @@
+[
+  {
+    "directory": "/var/host/media/removable/data/programming/projects/nytl/mbuild",
+    "command": "g++-7  '-Idoc/tests/vec@exe' '-Idoc/tests' '-I../doc/tests' '-I.' '-I../' '-fdiagnostics-color=always' '-pipe' '-D_FILE_OFFSET_BITS=64' '-Wall' '-Winvalid-pch' '-Wnon-virtual-dtor' '-std=c++1z' '-O0' '-g' '-Wall' '-Wextra' '-Wpedantic' '-Wno-missing-braces' '-MMD' '-MQ' 'doc/tests/vec@exe/vec.cpp.o' '-MF' 'doc/tests/vec@exe/vec.cpp.o.d' -o 'doc/tests/vec@exe/vec.cpp.o' -c ../doc/tests/vec.cpp",
+    "file": "../doc/tests/vec.cpp"
+  },
+  {
+    "directory": "/var/host/media/removable/data/programming/projects/nytl/mbuild",
+    "command": "g++-7  '-Idoc/tests/dynVec@exe' '-Idoc/tests' '-I../doc/tests' '-I.' '-I../' '-fdiagnostics-color=always' '-pipe' '-D_FILE_OFFSET_BITS=64' '-Wall' '-Winvalid-pch' '-Wnon-virtual-dtor' '-std=c++1z' '-O0' '-g' '-Wall' '-Wextra' '-Wpedantic' '-Wno-missing-braces' '-MMD' '-MQ' 'doc/tests/dynVec@exe/dynVec.cpp.o' '-MF' 'doc/tests/dynVec@exe/dynVec.cpp.o.d' -o 'doc/tests/dynVec@exe/dynVec.cpp.o' -c ../doc/tests/dynVec.cpp",
+    "file": "../doc/tests/dynVec.cpp"
+  }
+]

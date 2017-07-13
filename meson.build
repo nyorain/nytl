@@ -1,9 +1,16 @@
 project('nytl', 'cpp',
     license: 'Boost',
+		version: '0.4.0',
     default_options: ['cpp_std=c++1z'])
 
 version = '0.4.0'
-subdir('doc/tests')
+
+add_global_arguments(
+	'-Wall',
+	'-Wextra',
+	'-Wpedantic',
+	'-Wno-missing-braces',
+	language: 'cpp')
 
 headers = [
 	'nytl/approx.hpp',
@@ -49,6 +56,8 @@ fwd_headers = [
 install_headers(headers + fwd_headers, subdir: 'nytl')
 
 inc_dir = include_directories('.')
-nytl_dep = declare_dependency('nytl',
-	version: version,
+nytl_dep = declare_dependency(
+	version: meson.project_version(),
 	include_directories: inc_dir)
+
+subdir('doc/tests')
