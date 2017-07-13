@@ -11,6 +11,7 @@
 #ifndef NYTL_INCLUDE_VEC_OPS
 #define NYTL_INCLUDE_VEC_OPS
 
+#include <nytl/assure.hpp> // nytl::assure
 #include <nytl/tmpUtil.hpp> // nytl::templatize
 #include <nytl/scalar.hpp> // nytl::accumulate
 
@@ -21,53 +22,6 @@
 
 namespace nytl::vec {
 namespace detail {
-
-/// \brief Helper that asserts that the given vectors have the same dimension.
-template<typename V1, typename V2>
-struct AssertSameDimensions {
-
-	static constexpr void call(const V1& a, const V2& b)
-	{
-		if constexpr(V1::staticSized && V2::staticSized) {
-			static_assert(V1::size() == V2::size(), "nytl::vec: vectors must have same dimension");
-		} else {
-			if(a.size() != b.size())
-				throw std::invalid_argument("nytl::vec: vectors must have same dimension");
-		}
-	}
-};
-
-/// \brief Helper that asserts that a vector of type V1 has dimension Dim.
-template<unsigned int Dim, typename V>
-struct AssertDimension {
-	static constexpr void call(const V& a)
-	{
-		if constexpr(V::staticSized) {
-			static_assert(V::size() == Dim, "nytl::vec: vector must have specified dimension");
-		} else {
-			if(a.size() != Dim)
-				throw std::invalid_argument("nytl::vec: vector must have specified dimension");
-		}
-	}
-};
-
-/// \brief Asserts that the both given vectors have the same dimension.
-/// Will result in a compile time error if possible, otherwise throws
-/// std::invalid_argument.
-template<typename V1, typename V2>
-constexpr void assertSameDimensions(const V1& a, const V2& b)
-{
-	AssertSameDimensions<V1, V2>::call(a, b);
-}
-
-/// \brief Asserts that the given vector has dimension Dim.
-/// Will result in a compile time error if possible, otherwise throws
-/// std::invalid_argument.
-template<unsigned int Dim, typename V>
-constexpr void assertDimension(const V& a)
-{
-	AssertDimension<Dim, V>::call(a);
-}
 
 /// \brief Creates a new vector from implementation 'V' with value type 'T'
 /// and size 'S'
@@ -90,52 +44,6 @@ auto createVector(const V& v)
 
 } // namespace detail
 
-/// Vec operations without argument checking
-/// Useful for extra performance gains when things like
-/// vector dimension are known.
-namespace nocheck {
-
-/// \brief Like dot, but no sanity checks are performed.
-template<typename V1, typename V2>
-constexpr auto dot(const V1& a, const V2& b)
-{
-	using RetType = decltype(a[0] * b[0] + a[0] * b[0]);
-	auto ret = RetType {};
-	for(auto i = 0u; i < a.size(); ++i)
-		ret += a[i] * b[i];
-
-	return ret;
-}
-
-/// \brief Like angle, but no sanity checks are performed.
-/// There might be unexpected results e.g. when both vectors are
-/// equal due to rounding errors.
-template<typename V1, typename V2>
-constexpr auto angle(const V1& a, const V2& b)
-{
-	return std::acos(nocheck::dot(a, b) / (length(a) * length(b)));
-}
-
-/// \brief Like cross, but no sanity checks are performed.
-template<typename V1, typename V2>
-constexpr auto cross(const V1& a, const V2& b)
-{
-	auto ret = detail::createVector<V1, decltype(a[0] * b[0] - a[0] * b[0]), 3>();
-	ret[0] = (a[1] * b[2]) - (a[2] * b[1]);
-	ret[1] = (a[2] * b[0]) - (a[0] * b[2]);
-	ret[2] = (a[0] * b[1]) - (a[1] * b[0]);
-	return ret;
-}
-
-/// \brief Like normalize, but no sanity checks are performed.
-template<typename V>
-constexpr auto normalize(const V& a)
-{
-	return (typename V::Value {1} / length(a)) * a;
-}
-
-} // namespace nocheck
-
 /// \brief Sums up all values of the given vector using the + operator.
 template<typename V>
 constexpr auto sum(const V& a)
@@ -153,19 +61,27 @@ constexpr auto multiply(const V& a)
 /// \brief Calculates the default dot product for the given vectors.
 /// Note that this follows the dot definition for real numbers and does
 /// not automatically handle the dot definition for complex numbers.
-/// \throws std::invalid_argument if the size of the input vectors differs.
+/// \expect Both vectors must have the same dimension
 template<typename V1, typename V2>
 constexpr auto dot(const V1& a, const V2& b)
 {
-	detail::assertSameDimensions(a, b);
-	return nocheck::dot(a, b);
+	nytl_assure(a.staticSized && b.staticSized,
+		a.size() == b.size(),
+		"Invalid vector dimensions for dot operation");
+
+	using RetType = decltype(a[0] * b[0] + a[0] * b[0]);
+	auto ret = RetType {};
+	for(auto i = 0u; i < a.size(); ++i)
+		ret += a[i] * b[i];
+
+	return ret;
 }
 
 /// \brief Returns the euclidean norm (or length) of the given vector.
 template<typename V>
 constexpr auto length(const V& a)
 {
-	return std::sqrt(nocheck::dot(a, a));
+	return std::sqrt(dot(a, a));
 }
 
 /// \brief Returns the euclidean distance between two vectors.
@@ -189,16 +105,18 @@ constexpr auto distance(const V1& a, const V2& b)
 template<typename V1, typename V2>
 constexpr auto angle(const V1& a, const V2& b)
 {
-	detail::assertSameDimensions(a, b);
+	nytl_assure(a.staticSized && b.staticSized,
+		a.size() == b.size(),
+		"Invalid vector dimensions for dot operation");
 
 	auto la = length(a);
 	auto lb = length(b);
-	if(la == 0.0 || lb == 0.0)
-		throw std::domain_error("nytl::vec::angle: both vectors are null");
+	nytl_assure(false, la != 0 || lb != 0,
+		"nytl::vec::angle: Both vectors have a length of 0");
 
 	// We do this check here to output 0 for angle(a, a).
 	// This might produce nan somtimes due to rounding errors.
-	auto div = nocheck::dot(a, b) / (la * lb);
+	auto div = dot(a, b) / (la * lb);
 	if(div > 1.0)
 		return 0.0;
 
@@ -211,10 +129,15 @@ constexpr auto angle(const V1& a, const V2& b)
 template<typename V1, typename V2>
 constexpr auto cross(const V1& a, const V2& b)
 {
-	detail::assertDimension<3>(a);
-	detail::assertDimension<3>(b);
+	nytl_assure(a.staticSized && b.staticSized,
+		a.size() == 3 && b.size() == 3,
+		"Invalid vector dimensions for cross operation");
 
-	return nocheck::cross(a, b);
+	auto ret = detail::createVector<V1, decltype(a[0] * b[0] - a[0] * b[0]), 3>();
+	ret[0] = (a[1] * b[2]) - (a[2] * b[1]);
+	ret[1] = (a[2] * b[0]) - (a[0] * b[2]);
+	ret[2] = (a[0] * b[1]) - (a[1] * b[0]);
+	return ret;
 }
 
 /// \brief Returns a normalization of the given vector for the euclidean norm.
@@ -335,7 +258,9 @@ constexpr void pow(V& vec, const T& e)
 template<typename V>
 constexpr auto max(V a, const V& b)
 {
-	detail::assertSameDimensions(a, b);
+	nytl_assure(a.staticSized && b.staticSized,
+		a.size() == b.size(),
+		"Vectors must have same dimension");
 
 	for(auto i = 0u; i < a.size(); ++i)
 		if(b[i] > a[i])
@@ -349,7 +274,9 @@ constexpr auto max(V a, const V& b)
 template<typename V>
 constexpr auto min(V a, const V& b)
 {
-	detail::assertSameDimensions(a, b);
+	nytl_assure(a.staticSized && b.staticSized,
+		a.size() == b.size(),
+		"Vectors must have same dimension");
 
 	for(auto i = 0u; i < a.size(); ++i)
 		if(b[i] < a[i])
@@ -362,7 +289,9 @@ constexpr auto min(V a, const V& b)
 template<typename V1, typename V2>
 constexpr auto multiply(const V1& a, const V2& b)
 {
-	detail::assertSameDimensions(a, b);
+	nytl_assure(a.staticSized && b.staticSized,
+		a.size() == b.size(),
+		"Vectors must have same dimension");
 
 	auto ret = detail::createVector<decltype(a[0] * b[0])>(a);
 	for(auto i = 0u; i < a.size(); ++i)
@@ -376,7 +305,9 @@ constexpr auto multiply(const V1& a, const V2& b)
 template<typename V1, typename V2>
 constexpr auto divide(const V1& a, const V2& b)
 {
-	detail::assertSameDimensions(a, b);
+	nytl_assure(a.staticSized && b.staticSized,
+		a.size() == b.size(),
+		"Vectors must have same dimension");
 
 	auto ret = detail::createVector<decltype(a[0] / b[0])>(a);
 	for(auto i = 0u; i < a.size(); ++i)
@@ -387,4 +318,5 @@ constexpr auto divide(const V1& a, const V2& b)
 } // namespace cw
 } // namespace nytl::vec
 
+#undef nytl_assure
 #endif // header guard

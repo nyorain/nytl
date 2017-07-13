@@ -10,6 +10,7 @@
 #define NYTL_INCLUDE_MAT
 
 #include <nytl/fwd/mat.hpp> // nytl::Mat forward declaration
+#include <nytl/assure.hpp> // nytl::assure
 #include <nytl/vec.hpp> // nytl::Vec
 #include <nytl/vecOps.hpp> // nytl::vec::dot
 #include <nytl/matOps.hpp> // nytl::mat::row
@@ -79,8 +80,8 @@ template<size_t C, typename T> struct Mat<0, C, T>;
 template<typename T1, typename T2, size_t R1, size_t C1, size_t R2, size_t C2>
 constexpr auto operator*(const Mat<R1, C1, T1>& a, const Mat<R2, C2, T2>& b)
 {
-	mat::detail::assertMultDimensions(a, b);
-	constexpr auto dyn = !(Mat<R1, C1, T1>::staticSized && Mat<R2, C2, T2>::staticSized);
+	constexpr auto dyn = !Mat<R1, C1, T1>::staticSized || !Mat<R2, C2, T2>::staticSized;
+	nytl_assure(!dyn, a.cols() == b.rows(), "Invalid (mat*mat) dimensions");
 
 	auto ret = Mat<dyn ? 0 : R1, dyn ? 0 : C2, decltype(a[0][0] * b[0][0] + a[0][0] * b[0][0])> {};
 	if constexpr(dyn) ret.resize(a.rows(), b.cols());
@@ -95,8 +96,8 @@ constexpr auto operator*(const Mat<R1, C1, T1>& a, const Mat<R2, C2, T2>& b)
 template<typename T1, typename T2, size_t R, size_t C, size_t VD>
 constexpr auto operator*(const Mat<R, C, T1>& a, const Vec<VD, T2>& b)
 {
-	vec::detail::assertSameDimensions(a[0], b);
-	constexpr auto dyn = !Mat<R, C, T1>::staticSized;
+	constexpr auto dyn = !a.staticSized || !b.staticSized;
+	nytl_assure(!dyn, a.rows() == b.size(), "Invalid (mat*vec) dimensions");
 
 	auto ret = Vec<dyn ? 0 : R, decltype(a[0][0] * b[0] + a[0][0] * b[0])> {};
 	if constexpr(!decltype(ret)::staticSized) ret.resize(a.rows());
@@ -123,7 +124,9 @@ constexpr auto operator*(const F& f, const Mat<R, C, T>& a)
 template<typename T1, typename T2, size_t R, size_t C>
 constexpr auto operator+(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b)
 {
-	mat::detail::assertSameDimensions(a, b);
+	nytl_assure(a.staticSized && b.staticSized,
+		a.rows() == b.rows() && a.cols() == b.cols(),
+		"Invalid (mat+mat) dimensions");
 	auto ret = mat::detail::createMatrix<decltype(a[0][0] + b[0][0])>(a);
 
 	for(auto r = 0u; r < ret.rows(); ++r)
@@ -136,7 +139,9 @@ constexpr auto operator+(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b)
 template<typename T1, typename T2, size_t R, size_t C>
 constexpr auto operator-(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b)
 {
-	mat::detail::assertSameDimensions(a, b);
+	nytl_assure(a.staticSized && b.staticSized,
+		a.rows() == b.rows() && a.cols() == b.cols(),
+		"Invalid (mat-mat) dimensions");
 	auto ret = mat::detail::createMatrix<decltype(a[0][0] - b[0][0])>(a);
 
 	for(auto r = 0u; r < ret.rows(); ++r)
@@ -161,7 +166,9 @@ constexpr auto operator-(const Mat<R, C, T>& a)
 template<typename T1, typename T2, size_t R, size_t C>
 constexpr auto operator==(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b)
 {
-	mat::detail::assertSameDimensions(a, b);
+	nytl_assure(a.staticSized && b.staticSized,
+		a.rows() == b.rows() && a.cols() == b.cols(),
+		"Invalid (mat==mat) dimensions");
 
 	for(auto r = 0u; r < a.rows(); ++r)
 		for(auto c = 0u; c < a.cols(); ++c)
@@ -185,4 +192,5 @@ std::ostream& operator<<(std::ostream& os, const Mat<R, C, T>& a)
 
 } // namespace nytl
 
+#undef nytl_assure
 #endif // header guard

@@ -11,6 +11,7 @@
 
 #include <nytl/fwd/vec.hpp> // nytl::Vec typedefs
 #include <nytl/vecOps.hpp> // nytl::vec::print
+#include <nytl/assure.hpp> // nytl_assure
 
 #include <iterator> // std::reverse_iterator
 #include <array> // std::array
@@ -79,7 +80,9 @@ constexpr Vec<D, T>::operator Vec<OD, OT>() const
 template<size_t D, typename T, size_t OD, typename OT>
 constexpr Vec<D, T>& operator+=(Vec<D, T>& a, const Vec<OD, OT>& b) noexcept
 {
-	vec::detail::assertSameDimensions(a, b);
+	nytl_assure(a.staticSized && b.staticSized,
+		a.size() == b.size(),
+		"vectors must have same dimensions");
 	for(size_t i = 0; i < a.size(); ++i)
 		a[i] += b[i];
 	return a;
@@ -88,7 +91,9 @@ constexpr Vec<D, T>& operator+=(Vec<D, T>& a, const Vec<OD, OT>& b) noexcept
 template<size_t D, typename T, size_t OD, typename OT>
 constexpr Vec<D, T>& operator-=(Vec<D, T>& a, const Vec<OD, OT>& b) noexcept
 {
-	vec::detail::assertSameDimensions(a, b);
+	nytl_assure(a.staticSized && b.staticSized,
+		a.size() == b.size(),
+		"vectors must have same dimensions");
 	for(size_t i = 0; i < a.size(); ++i)
 		a[i] -= b[i];
 	return a;
@@ -105,7 +110,9 @@ constexpr Vec<D, T>& operator*=(Vec<D, T>& vec, OT fac)
 template<size_t D1, size_t D2, typename T1, typename T2>
 constexpr auto operator+(const Vec<D1, T1>& a, const Vec<D2, T2>& b)
 {
-	vec::detail::assertSameDimensions(a, b);
+	nytl_assure(a.staticSized && b.staticSized,
+		a.size() == b.size(),
+		"vectors must have same dimensions");
 	auto ret = Vec<std::min(D1, D2), decltype(a[0] + b[0])>{};
 	if constexpr(!decltype(ret)::staticSized) ret.resize(a.size());
 
@@ -117,7 +124,9 @@ constexpr auto operator+(const Vec<D1, T1>& a, const Vec<D2, T2>& b)
 template<size_t D1, size_t D2, typename T1, typename T2>
 constexpr auto operator-(const Vec<D1, T1>& a, const Vec<D2, T2>& b)
 {
-	vec::detail::assertSameDimensions(a, b);
+	nytl_assure(a.staticSized && b.staticSized,
+		a.size() == b.size(),
+		"vectors must have same dimensions");
 	auto ret = Vec<std::min(D1, D2), decltype(a[0] - b[0])>{};
 	if constexpr(!decltype(ret)::staticSized) ret.resize(a.size());
 
@@ -151,7 +160,9 @@ constexpr auto operator*(const F& f, const Vec<D, T>& a)
 template<size_t D1, size_t D2, typename T1, typename T2>
 constexpr auto operator==(const Vec<D1, T1>& a, const Vec<D2, T2>& b)
 {
-	vec::detail::assertSameDimensions(a, b);
+	nytl_assure(a.staticSized && b.staticSized,
+		a.size() == b.size(),
+		"vectors must have same dimensions");
 	for(auto i = 0u; i < a.size(); ++i)
 		if(a[i] != b[i]) return false;
 	return true;
@@ -171,4 +182,5 @@ std::ostream& operator<<(std::ostream& os, const Vec<D, T>& a)
 
 } // namespace nytl
 
+#undef nytl_assure
 #endif // header guard

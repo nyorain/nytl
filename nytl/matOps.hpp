@@ -23,60 +23,6 @@
 namespace nytl::mat {
 namespace detail {
 
-template<typename... M>
-using ConstexprDims = void_t<decltype(M::rows(), M::cols())...>;
-
-/// \brief Helper that asserts that the given matrices have the same dimensions
-template<typename M1, typename M2>
-struct AssertSameDimensions {
-	static constexpr void call(const M1& a, const M2& b)
-	{
-		if constexpr(validExpression<ConstexprDims, M1, M2>) {
-			static_assert(M1::rows() == M2::rows() && M1::cols() == M2::cols(),
-				"nytl::mat: matrices must have same dimensions");
-		} else {
-			if(a.rows() != b.rows() || a.cols() != b.cols())
-				throw std::invalid_argument("nytl::mat: matrices must have same dimensions");
-		}
-	}
-};
-
-/// \brief Helper that asserts that the given matrices have dimensions that make them
-/// suitable for multiplicating them.
-template<typename M1, typename M2>
-struct AssertMultDimensions {
-	static constexpr void call(const M1& a, const M2& b)
-	{
-		if constexpr(validExpression<ConstexprDims, M1, M2>) {
-			static_assert(M1::cols() == M2::rows(),
-				"nytl::mat: matrices must have multiplicatable dimensions");
-		} else {
-			if(a.cols() != b.rows())
-				throw std::invalid_argument("nytl::mat: matrices must have "
-					"multiplicatable dimensions");
-		}
-	}
-};
-
-/// \brief Asserts that the both given matrices have the same dimension.
-/// Will result in a compile time error if possible, otherwise throws
-/// std::invalid_argument.
-template<typename M1, typename M2>
-constexpr void assertSameDimensions(const M1& a, const M2& b)
-{
-	AssertSameDimensions<M1, M2>::call(a, b);
-}
-
-/// \brief Asserts that the both given Matrix times have dimensions that
-/// make them suited for multiplication.
-/// Will result in a compile time error if possible, otherwise throws
-/// std::invalid_argument.
-template<typename M1, typename M2>
-constexpr void assertMultDimensions(const M1& a, const M2& b)
-{
-	AssertMultDimensions<M1, M2>::call(a, b);
-}
-
 /// \brief Creates a matrix of implementation type 'M' with value type 'T' and
 /// rows/cols 'R'/'C'.
 template<typename M, typename T, std::size_t R, std::size_t C>

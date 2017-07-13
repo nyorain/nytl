@@ -56,11 +56,12 @@ public:
 	static constexpr bool staticSized = ...; // static sized?
 
 	// if static sized:
-	template<typename D>
-	Vector create();
+	template<typename D> static Vector create();
+   static constexpr Size size();
 
 	// if not static sized:
-	Vector create(Size size); // creates a vector with the given size
+	static Vector create(Size size); // creates a vector with the given size
+	Size size() const;
 
 public:
 	Vector();
@@ -68,7 +69,6 @@ public:
 	Vector(const Vector<T>&);
 	Vector& operator=(const Vector<T>&);
 
-	Size size() const;
 
 	Reference operator[](Size);
 	ConstReference operator[](Size) const;

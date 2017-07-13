@@ -12,7 +12,7 @@ public:
 	template<typename T> using Rebind = ...;
 
 	// Whether the matrix is static sized
-	static consetxpr bool staticSized = ...;
+	static constexpr bool staticSized = ...;
 
 	// if static sized:
 	static constexpr Size rows(); // the number of rows

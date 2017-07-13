@@ -53,7 +53,7 @@ TEST(basic) {
 	EXPECT(z * y, nytl::approx(rzy));
 
 	// - should not compile -
-	// a * x;
+	// a * r1;
 	// y * a;
 	// a + nytl::mat::transpose(b);
 	// y * y;
