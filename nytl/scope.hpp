@@ -20,7 +20,7 @@ namespace nytl {
 /// ```cpp
 /// {
 /// 	auto fd = ::open("test.txt");
-/// 	auto fdGuard = nytl::makeScopeGuard([=]{ ::close(fd); });
+/// 	auto fdGuard = nytl::ScopeGuard([=]{ ::close(fd); }};
 ///
 ///		if(condition()) return;
 ///		functionThatMightThrow();
@@ -63,11 +63,6 @@ template<typename F> using ExceptionGuard = ConditionalScopeGuard<F, true>;
 /// Typedef for a ScopeGuard that is only executed when the scope is left normally without throwing.
 /// \module utility
 template<typename F> using SuccessGuard = ConditionalScopeGuard<F, false>;
-
-// TODO: until C++17
-template<typename F> ScopeGuard<F> makeScopeGuard(const F& func) { return {func}; }
-template<typename F> SuccessGuard<F> makeSuccessGuard(const F& f) { return {f}; }
-template<typename F> ExceptionGuard<F> makeExceptionGuard(const F& f) { return {f}; }
 
 // - utility macros for anonymous variable name -
 // Since the NYTL_SCOPE_* macros create a variable, they have to give it a unique name

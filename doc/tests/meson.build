@@ -1,5 +1,5 @@
-add_executable(vec vec.cpp)
-add_test(vec vec)
+tvec = executable('vec', 'vec.cpp', depencencies: nytl_dep)
+test('vec', tvec)
 
 add_executable(dynVec dynVec.cpp)
 add_test(dynVec dynVec)
