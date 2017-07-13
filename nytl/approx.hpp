@@ -11,6 +11,7 @@
 #pragma once
 
 #include <complex> // std::complex
+#include <ostream> // std::ostream
 
 namespace nytl {
 
@@ -82,13 +83,6 @@ template<typename T>
 Approx<T> approx(const T& value, double epsilon)
 {
 	return {value, epsilon};
-}
-
-template<typename T>
-std::ostream& operator<<(std::ostream& os, const Approx<T>& approx)
-{
-	os << "Approx(" << approx.value << ")";
-	return os;
 }
 
 } // namespace nytl
