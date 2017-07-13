@@ -1,4 +1,4 @@
-#include "bugged.hpp"
+#include "test.hpp"
 #include <nytl/connection.hpp>
 #include <nytl/callback.hpp>
 

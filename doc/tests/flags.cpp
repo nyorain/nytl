@@ -1,4 +1,4 @@
-#include "bugged.hpp"
+#include "test.hpp"
 #include <nytl/flags.hpp>
 
 // TODO: static assert invalid expressions (i.e. for enums without ops enabled)
