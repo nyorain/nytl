@@ -32,37 +32,40 @@ namespace nytl {
 template<typename F>
 class ScopeGuard {
 public:
-	ScopeGuard(const F& func) : func_(func) {}
+	ScopeGuard(F&& func) : func_(std::forward<F>(func)) {}
 	~ScopeGuard() { func_(); }
 
 protected:
 	F func_;
 };
 
-/// \brief Can be used to execute code when going out of scope only in a defined way.
-/// \tparam Thrown Whether to execute this scope guard only when the scope was left because
-/// an exception was thrown. If 'Thrown' is true, the function will be executed only when an
-/// exception caused the scope exit and if 'Thrown' is false, it will only be executed
-/// when the scope was left normally.
+/// \brief Can be used to execute code only when going out of scope due to a normal return.
 /// \module utility
-template<typename F, bool Thrown>
-class ConditionalScopeGuard {
+template<typename F>
+class SuccessGuard {
 public:
-	ConditionalScopeGuard(const F& func) : func_(func), exceptions_(std::uncaught_exception()) {}
-	~ConditionalScopeGuard() { if((exceptions_ > std::uncaught_exceptions()) == Thrown) func_(); }
+	SuccessGuard(F&& func)
+		: func_(std::forward<F>(func)), exceptions_(std::uncaught_exception()) {}
+	~SuccessGuard() { if(exceptions_ <= std::uncaught_exceptions()) func_(); }
 
 protected:
 	F func_;
 	int exceptions_;
 };
 
-/// Typedef for a ScopeGuard that is only executed when the scope is left due to a thrown exception.
+/// \brief Can be used to execute code only when going out of scope due to an exception.
 /// \module utility
-template<typename F> using ExceptionGuard = ConditionalScopeGuard<F, true>;
+template<typename F>
+class ExceptionGuard {
+public:
+	ExceptionGuard(F&& func)
+		: func_(std::forward<F>(func)), exceptions_(std::uncaught_exception()) {}
+	~ExceptionGuard() { if(exceptions_ > std::uncaught_exceptions()) func_(); }
 
-/// Typedef for a ScopeGuard that is only executed when the scope is left normally without throwing.
-/// \module utility
-template<typename F> using SuccessGuard = ConditionalScopeGuard<F, false>;
+protected:
+	F func_;
+	int exceptions_;
+};
 
 // - utility macros for anonymous variable name -
 // Since the NYTL_SCOPE_* macros create a variable, they have to give it a unique name
@@ -99,9 +102,9 @@ template<typename F> using SuccessGuard = ConditionalScopeGuard<F, false>;
 /// \file Utilities for handling scope lifetimes, i.e. executing a function at the end of scope.
 /// Examples for the different scope guards:
 /// ```cpp
-/// auto fdGuard = nytl::makeScopeGuard([=]{ ::close(fd); });
-/// auto successGuard = nytl::makeSuccessGuard([=]{ std::cout << "success!\n"; });
-/// auto exceptionGuard = nytl::makeExceptionGuard([=]{ std::cout << "exception!\n"; });
+/// auto fdGuard = nytl::ScopeGuard([=]{ ::close(fd); });
+/// auto successGuard = nytl::SuccessGuard([=]{ std::cout << "success!\n"; });
+/// auto exceptionGuard = nytl::ExceptionGuard([=]{ std::cout << "exception!\n"; });
 ///
 /// // the same as above but used with the nytl macros
 /// NYTL_SCOPE_EXIT([=]{ ::close(fd); });

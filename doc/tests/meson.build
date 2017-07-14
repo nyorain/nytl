@@ -4,46 +4,46 @@ test('vec', tvec)
 tdynVec = executable('dynVec', 'dynVec.cpp', dependencies: nytl_dep)
 test('dynVec', tdynVec)
 
-# executable('mat',  'mat.cpp')
-# test(mat mat)
-#
-# executable(typemap typemap.cpp)
-# test(typemap typemap)
-#
-# executable(referenced referenced.cpp)
-# test(referenced referenced)
-#
-# executable(callback callback.cpp)
-# test(callback callback)
-#
-# executable(clone clone.cpp)
-# test(clone clone)
-#
-# executable(observe observe.cpp)
-# test(observe observe)
-#
-# executable(span span.cpp)
-# test(span span)
-#
-# executable(rect rect.cpp)
-# test(rect rect)
-#
-# executable(connection connection.cpp)
-# test(connection connection)
-#
-# executable(approx approx.cpp)
-# test(approx approx)
-#
-# executable(utf utf.cpp)
-# test(utf utf)
-#
-# executable(flags flags.cpp)
-# test(flags flags)
-#
-# executable(convert convert.cpp)
-# test(convert convert)
-#
-# # compile-time tests only
-# executable(nonCopyable nonCopyable.cpp)
-# executable(tmp tmp.cpp)
-# executable(functionTraits functionTraits.cpp)
+tmat = executable('mat',  'mat.cpp', dependencies: nytl_dep)
+test('mat', tmat)
+
+ttypemap = executable('typemap', 'typemap.cpp', dependencies: nytl_dep)
+test('typemap', ttypemap)
+
+treferenced = executable('referenced', 'referenced.cpp', dependencies: nytl_dep)
+test('referenced', treferenced)
+
+tcallback = executable('callback', 'callback.cpp', dependencies: nytl_dep)
+test('callback', tcallback)
+
+tclone = executable('clone', 'clone.cpp', dependencies: nytl_dep)
+test('clone', tclone)
+
+tobserve = executable('observe', 'observe.cpp', dependencies: nytl_dep)
+test('observe', tobserve)
+
+tspan = executable('span', 'span.cpp', dependencies: nytl_dep)
+test('span', tspan)
+
+trect = executable('rect', 'rect.cpp', dependencies: nytl_dep)
+test('rect', trect)
+
+tconnection = executable('connection', 'connection.cpp', dependencies: nytl_dep)
+test('connection', tconnection)
+
+tapprox = executable('approx', 'approx.cpp', dependencies: nytl_dep)
+test('approx', tapprox)
+
+tutf = executable('utf', 'utf.cpp', dependencies: nytl_dep)
+test('utf', tutf)
+
+tflags = executable('flags', 'flags.cpp', dependencies: nytl_dep)
+test('flags', tflags)
+
+tconvert = executable('convert', 'convert.cpp', dependencies: nytl_dep)
+test('convert', tconvert)
+
+# compile-time tests only
+executable('nonCopyable', 'nonCopyable.cpp', dependencies: nytl_dep)
+executable('tmp', 'tmp.cpp', dependencies: nytl_dep)
+executable('functionTraits', 'functionTraits.cpp', dependencies: nytl_dep)

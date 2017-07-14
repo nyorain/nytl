@@ -25,6 +25,7 @@ public:
 	const char* what() const noexcept override {
 		static std::string string;
 		string.clear();
+		string += "nytl: ";
 		string += func_;
 		string += ": ";
 		string += msg_;

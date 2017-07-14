@@ -60,4 +60,7 @@ nytl_dep = declare_dependency(
 	version: meson.project_version(),
 	include_directories: inc_dir)
 
-subdir('doc/tests')
+test = get_option('test')
+if test
+	subdir('doc/tests')
+endif
