@@ -13,6 +13,8 @@ matrix:
           packages: ['g++-7']
       env:
         - COMPILER=g++-7
+        - CC=gcc-7
+        - CXX=g++-7
         - CXXSTD="-std=c++17"
 
 install:
