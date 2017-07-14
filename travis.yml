@@ -1,0 +1,26 @@
+sudo: false
+language: cpp
+group: beta
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      compiler: gcc
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['g++-7']
+      env:
+        - COMPILER=g++-7
+        - CXXSTD="-std=c++17"
+
+install:
+  - export PATH="`pwd`/build:${PATH}"
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then wget https://github.com/ninja-build/ninja/releases/download/v1.7.2/ninja-linux.zip && unzip -q ninja-linux.zip -d build; fi
+  - pip3 install meson
+
+script:
+  - meson build -Dtest=true
+  - cd build
+  - mesontest
