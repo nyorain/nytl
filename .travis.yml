@@ -13,9 +13,6 @@ matrix:
           packages: ['g++-7']
       env:
         - COMPILER=g++-7
-        - CC=gcc-7
-        - CXX=g++-7
-        - CXXSTD="-std=c++17"
 
 install:
   - export PATH="`pwd`/build:${PATH}"
@@ -23,6 +20,8 @@ install:
   - pip3 install meson
 
 script:
+  - export CC=gcc-7
+  - export CXX=g++-7
   - meson build -Dtest=true
   - cd build
   - mesontest
