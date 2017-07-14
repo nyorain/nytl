@@ -14,7 +14,7 @@
 #include <nytl/scope.hpp> // nytl::ScopeGuard
 
 #include <functional> // std::function
-#include <forward_list> // std::vector
+#include <forward_list> // std::forward_list
 #include <utility> // std::move
 #include <cstdint> // std::uint64_t
 #include <cstddef> // std::size_t
@@ -145,14 +145,14 @@ public:
 
 		// make sure the iteration count and cleanup done if possible
 		// even in the case of an exception.
-		auto successGuard = makeSuccessGuard([&]{
+		auto successGuard = SuccessGuard([&]{
 			if(--iterationCount_ == 0)
 				removeOld();
 		});
 
 		// make sure we catch a potential exception by removeOld if we are leaving
 		// the scope because of an exception.
-		auto exceptionGuard = makeExceptionGuard([&]{
+		auto exceptionGuard = ExceptionGuard([&]{
 			if(--iterationCount_ == 0) {
 				try {
 					removeOld();
@@ -193,7 +193,7 @@ public:
 		{
 			// make sure that the iterator is not invalidated while iterating
 			++iterationCount_;
-			auto scopeGuard = makeScopeGuard([&]{ --iterationCount_; });
+			auto scopeGuard = ScopeGuard([&]{ --iterationCount_; });
 
 			// reset the ids or notify the ids of removal
 			for(auto& sub : subs_) {
@@ -238,7 +238,7 @@ public:
 
 		// make sure that the iterator is not invalidated while iterating
 		++iterationCount_;
-		auto scopeGuard = makeScopeGuard([&]{ --iterationCount_; });
+		auto scopeGuard = ScopeGuard([&]{ --iterationCount_; });
 
 		// iterate through subs, always check the next elem (fwd linked list)
 		// the end condition constructs a copy of it and increases it to check
@@ -303,7 +303,7 @@ protected:
 	{
 		// make sure that the iterator is not invalidated while iterating
 		++iterationCount_;
-		auto scopeGuard = makeScopeGuard([&]{ --iterationCount_; });
+		auto scopeGuard = ScopeGuard([&]{ --iterationCount_; });
 
 		subs_.remove_if([](const auto& sub){
 			auto remove = sub.id.id() <= 0;

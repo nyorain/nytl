@@ -112,7 +112,7 @@ constexpr auto angle(const V1& a, const V2& b)
 	auto la = length(a);
 	auto lb = length(b);
 	nytl_assure(false, la != 0 && lb != 0,
-		"nytl::vec::angle: Invalid operation for nullvector");
+		"Invalid operation for nullvector");
 
 	// We do this check here to output 0 for angle(a, a).
 	// This might produce nan somtimes due to rounding errors.
