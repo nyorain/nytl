@@ -23,7 +23,10 @@ namespace nytl {
 template<typename T>
 class Observer {
 public:
+	virtual ~Observer() = default;
+
 	/// Will be called when an object observed by this observer will be destructed.
+	/// The destructed object will be passed to it.
 	virtual void observeDestruction(T&) = 0;
 };
 
