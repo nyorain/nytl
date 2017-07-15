@@ -209,14 +209,13 @@ char Testing::bottomSeparator = '=';
 	const char* Testing::Escape::source = "\033[36m";
 	const char* Testing::Escape::reset = "\033[0m";
 #else
-	const char* Testing::Escape::testName {};
-	const char* Testing::Escape::checkExpected {};
-	const char* Testing::Escape::checkActual {};
-	const char* Testing::Escape::errorExpected {};
-	const char* Testing::Escape::exception {};
-	const char* Testing::Escape::file {};
-	const char* Testing::Escape::line {};
-	const char* Testing::Escape::reset {};
+	const char* Testing::Escape::testName = "";
+	const char* Testing::Escape::checkExpected = "";
+	const char* Testing::Escape::checkActual = "";
+	const char* Testing::Escape::errorExpected = "";
+	const char* Testing::Escape::exception = "";
+	const char* Testing::Escape::source = "";
+	const char* Testing::Escape::reset = "";
 #endif
 
 
