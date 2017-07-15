@@ -1,7 +1,0 @@
-prefix=@CMAKE_INSTALL_PREFIX@
-includedir=${prefix}/include
-
-Name: nytl
-Description: Lightweight, header-only C++1z utility templates.
-Version: @vmajor@.@vminor@.@vpatch@
-Cflags: -I${includedir} -std=c++1z

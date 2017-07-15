@@ -1,6 +1,6 @@
 project('nytl', 'cpp',
-    license: 'Boost',
-		version: '0.4.0',
+    license: 'BSL-1.0',
+	version: '0.4.0',
     default_options: ['cpp_std=c++1z'])
 
 version = '0.4.0'
@@ -53,8 +53,6 @@ fwd_headers = [
 	'nytl/fwd/vec.hpp',
 ]
 
-install_headers(headers + fwd_headers, subdir: 'nytl')
-
 inc_dir = include_directories('.')
 nytl_dep = declare_dependency(
 	version: meson.project_version(),
@@ -64,3 +62,14 @@ test = get_option('test')
 if test
 	subdir('doc/tests')
 endif
+
+install_headers(headers + fwd_headers, subdir: 'nytl')
+
+pkg = import('pkgconfig')
+pkg_dirs = ['.', 'nytl']
+pkg.generate(
+	name: 'nytl',
+	filebase: 'nytl',
+	subdirs: pkg_dirs,
+	version: meson.project_version(),
+	description: 'C++17 utility headers')
