@@ -2,6 +2,9 @@ sudo: false
 language: cpp
 group: beta
 
+notifications:
+  email: false
+
 matrix:
   include:
     - os: linux
