@@ -1,7 +1,7 @@
 project('nytl', 'cpp',
-    license: 'BSL-1.0',
+	license: 'BSL-1.0',
 	version: '0.4.0',
-    default_options: ['cpp_std=c++1z'])
+	default_options: ['cpp_std=c++1z'])
 
 version = '0.4.0'
 
