@@ -5,7 +5,7 @@ project('nytl', 'cpp',
 
 version = '0.4.0'
 
-add_global_arguments(
+add_project_arguments(
 	'-Wall',
 	'-Wextra',
 	'-Wpedantic',
