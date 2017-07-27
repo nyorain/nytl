@@ -9,7 +9,7 @@ class NytlConan(ConanFile):
     description="Modern C++ generic header-only template library."
     license = "https://github.com/nyorain/nytl/blob/master/LICENSE"
     exports_sources = ["FindNYTL.cmake", os.sep.join(["..", "nytl*"])]
-    exports = [os.sep.join(["..", "nytl", "LICENSE"])
+    exports = os.sep.join(["..", "nytl", "LICENSE"])
 
     def build(self):
         self.output.info("No compilation necessary for nytl")
