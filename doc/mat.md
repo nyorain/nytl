@@ -17,7 +17,7 @@ public:
 	// if static sized:
 	static constexpr Size rows(); // the number of rows
 	static constexpr Size cols(); // the number of columns
-	template<Size R, size C> static Matrix create(); // creates a new matrix with given size
+	template<Size R, Size C> static Matrix create(); // creates a new matrix with given size
 
 	// if not static sized:
 	Size rows(); // the number of rows
@@ -25,9 +25,17 @@ public:
 	static Matrix create(Size rows, Size cols);
 
 public:
-	// matrix[r][c] must return a reference to the value of matrix in row r and column c.
- 	auto operator[](Size); // must return some kind of referencing vector.
- 	const auto operator[](Size) const; // must return some kind of referencing vector.
+	// returns a (const-)reference to [c, r]
+	auto get(Size c, Size r) [const];
+
+	// sets the value in [c, r]
+	// can return void or a reference to the value
+	auto set(Size c, Size r, Value value);
+
+	// Like get, but throw when out of bounds
+	auto at(Size r, Size c); // return value must be convertible to Value
+	const auto at(Size r, Size c) const; // return value must be convertible to Value
+
 };
 
 auto operator*(Value, Matrix);
@@ -39,6 +47,14 @@ auto operator-(Matrix, Matrix);
 bool operator==(Matrix, Matrix);
 bool operator!=(Matrix, Matrix);
 
+```
+
+optional (not used by nytl but should be implemented for consistency):
+
+``` cpp
+// matrix[r][c] returns a reference to the value of matrix in row r and column c.
+auto operator[](Size); // must return some kind of referencing vector.
+const auto operator[](Size) const; // must return some kind of referencing vector.
 ```
 
 __NOTE__: As specified in the Vector concept, vectors are interpreted column vectors.

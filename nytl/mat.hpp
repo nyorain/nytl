@@ -30,6 +30,8 @@ public:
 public:
 	using Value = T;
 	using Size = size_t;
+	using Reference = T&;
+	using ConstReference = const T&;
 	using RowVec = Vec<C, T>;
 	using ColVec = Vec<R, T>;
 
@@ -48,6 +50,12 @@ public:
 	static constexpr auto cols() { return C; }
 
 public:
+	/// As needed by the mat concept.
+	Value& get(Size r, Size c) { return data_[r][c]; }
+	const Value& get(Size r, Size c) const { return data_[r][c]; }
+
+	Value& set(Size r, Size c, const Value& val) { return (data_[r][c] = val); }
+
 	/// Returns the ith row of the matrix.
 	constexpr RowVec& operator[](Size i){ return data_[i]; }
 	constexpr const RowVec& operator[](Size i) const { return data_[i]; }

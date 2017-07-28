@@ -30,7 +30,6 @@ auto createVector()
 {
 	if constexpr(V::staticSized) return V::template Rebind<T>::template create<S>();
 	else return V::template Rebind<T>::create(S);
-
 }
 
 /// \brief Creates a new vector from the same implementation and size as the given vector

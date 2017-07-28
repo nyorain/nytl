@@ -18,7 +18,7 @@
 #include <stdexcept> // std::invalid_argument
 #include <tuple> // std::tuple
 #include <iosfwd> // std::ostream
-#include <cmath> // std::fma
+#include <cmath>
 
 namespace nytl::mat {
 namespace detail {
@@ -51,7 +51,60 @@ auto createMatrix(const M& mat)
 	else return M::template Rebind<T>::create(mat.rows(), mat.cols());
 }
 
-}
+template<typename M, bool Row>
+class MatProxyBase {
+public:
+	using Value = typename M::Value;
+	using Size = typename M::Size;
+	using Reference = typename M::Reference;
+	using ConstReference = typename M::ConstReference;
+
+	using MatVec = std::conditional_t<Row, typename M::RowVec, typename M::ColVec>;
+	template<typename T> using Rebind = typename MatVec::template Rebind<T>;
+
+public:
+	M& m;
+	Size n;
+
+public:
+	constexpr decltype(auto) get(Size i) { return m.get(Row ? n : i, Row ? i : n); }
+	constexpr decltype(auto) get(Size i) const { return m.get(Row ? n : i, Row ? i : n); }
+	constexpr decltype(auto) at(Size i) { return m.at(Row ? n : i, Row ? i : n); }
+	constexpr decltype(auto) set(Size i, ConstReference val) {
+		return m.set(Row ? n : i, Row ? i : n, val);
+	}
+};
+
+
+template<typename M, bool Row, bool staticSized = M::staticSized>
+struct MatProxyVec;
+
+template<typename M, bool Row>
+struct MatProxyVec<M, Row, true> : public MatProxyBase<M, Row> {
+	using typename MatProxyBase<M, Row>::Size;
+	using typename MatProxyBase<M, Row>::MatVec;
+
+	static constexpr auto staticSized = true;
+	static constexpr auto size() { return Row ? M::rows() : M::cols(); }
+
+	template<Size D> static auto create() { return MatVec::template create<D>(); }
+};
+
+template<typename M, bool Row>
+struct MatProxyVec<M, Row, false> : public MatProxyBase<M, Row> {
+	using typename MatProxyBase<M, Row>::Size;
+	using typename MatProxyBase<M, Row>::MatVec;
+
+	static constexpr auto staticSized = false;
+	typename M::Size size() const { return Row ? this->m.rows() : this->m.cols(); }
+
+	auto create(Size size) { return MatVec::create(size); }
+};
+
+template<typename M> using MatRowProxy = MatProxyVec<M, true>;
+template<typename M> using MatColProxy = MatProxyVec<M, false>;
+
+} // namespace detail
 
 /// \brief Prints the given matrix with numerical values to the given ostream.
 /// If this function is used, header <ostream> must be included.
@@ -81,9 +134,9 @@ std::ostream& print(std::ostream& ostream, const M& mat, unsigned int valueWidth
 
 		for(auto c = 0u; c < mat.cols(); c++) {
 			if(valueWidth) os.width(valueWidth);
-			if(valueWidth) os.precision(valueWidth - numberOfDigits(mat[r][c]) - 1);
+			if(valueWidth) os.precision(valueWidth - numberOfDigits(mat.get(r, c)) - 1);
 
-			os << mat[r][c];
+			os << mat.get(r, c);
 			if(c != mat.cols() - 1)
 				os << ", ";
 		}
@@ -103,11 +156,7 @@ std::ostream& print(std::ostream& ostream, const M& mat, unsigned int valueWidth
 template<typename M>
 constexpr auto row(const M& mat, typename M::Size n)
 {
-	typename M::RowVec ret {};
-	for(auto i = 0u; i < mat.cols(); ++i)
-		ret[i] = mat[n][i];
-
-	return ret;
+	return detail::MatRowProxy<const M>{mat, n};
 }
 
 /// \brief Returns the column with index n of the given matrix.
@@ -116,11 +165,7 @@ constexpr auto row(const M& mat, typename M::Size n)
 template<typename M>
 constexpr auto col(const M& mat, typename M::Size n)
 {
-	typename M::ColVec ret {};
-	for(auto i = 0u; i < mat.rows(); ++i)
-		ret[i] = mat[i][n];
-
-	return ret;
+	return detail::MatColProxy<const M>{mat, n};
 }
 
 /// \brief Sets the nth row of the given mutable matrix.
@@ -131,7 +176,7 @@ template<typename M, typename R>
 constexpr void row(M& mat, typename M::Size n, const R& row)
 {
 	for(auto i = 0u; i < mat.cols(); ++i)
-		mat[n][i] = row[i];
+		mat.set(n, i, row.get(i));
 }
 
 /// \brief Sets the column with index n to the given column.
@@ -142,7 +187,7 @@ template<typename M, typename C>
 constexpr void col(M& mat, typename M::Size n, const C& col)
 {
 	for(auto i = 0u; i < mat.rows(); ++i)
-		mat[i][n] = col[i];
+		mat.set(i, n, col.get(i));
 }
 
 /// \brief Swaps the row with index n with the row with index i.
@@ -152,8 +197,11 @@ template<typename M>
 constexpr void swapRow(M& mat, typename M::Size n, typename M::Size i)
 {
 	using std::swap;
-	for(auto c = 0u; c < mat.cols(); ++c)
-		swap(mat[n][c], mat[i][c]);
+	for(auto c = 0u; c < mat.cols(); ++c) {
+		auto tmp = mat.get(n, c);
+		mat.set(n, c, mat.get(i, c));
+		mat.set(i, c, tmp);
+	}
 }
 
 /// \brief Swaps the column with index n with the column with index i.
@@ -163,8 +211,11 @@ template<typename M>
 constexpr void swapCol(M& mat, typename M::Size n, typename M::Size i)
 {
 	using std::swap;
-	for(auto r = 0u; r < mat.rows(); ++r)
-		swap(mat[r][n], mat[r][i]);
+	for(auto r = 0u; r < mat.rows(); ++r) {
+		auto tmp = mat.get(r, n);
+		mat.set(r, n, mat.get(r, i));
+		mat.set(r, i, tmp);
+	}
 }
 
 /// \brief Copies the second matrix into the first one.
@@ -178,7 +229,7 @@ constexpr void copy(M& a, const N& b)
 {
 	for(auto r = 0u; r < a.rows(); ++r)
 		for(auto c = 0u; c < a.cols(); ++c)
-			a[r][c] = b[r][c];
+			a.set(r, c, b.get(r, c));
 }
 
 /// \brief Sets all values of the given matrix to 0 of the underlying field.
@@ -188,7 +239,7 @@ constexpr void zero(M& mat)
 {
 	for(auto r = 0u; r < mat.rows(); ++r)
 		for(auto c = 0u; c < mat.cols(); ++c)
-			mat[r][c] = 0.0;
+			mat.set(r, c, 0.0);
 }
 
 /// \brief Sets all values of the given matrix to 1 of the underlying field.
@@ -198,7 +249,7 @@ constexpr void one(M& mat)
 {
 	for(auto r = 0u; r < mat.rows(); ++r)
 		for(auto c = 0u; c < mat.cols(); ++c)
-			mat[r][c] = 1.0;
+			mat.get(r, c) = 1.0;
 }
 
 /// \brief Returns the trace of a square matrix, i.e. the sum of its diagonal elements
@@ -206,9 +257,9 @@ constexpr void one(M& mat)
 template<typename M>
 constexpr auto trace(const M& mat)
 {
-	auto ret = mat[0][0];
+	auto ret = mat.get(0, 0);
 	for(auto n = 1u; n < mat.rows(); ++n)
-		ret += mat[n][n];
+		ret += mat.get(n, n);
 	return ret;
 }
 
@@ -217,9 +268,9 @@ constexpr auto trace(const M& mat)
 template<typename M>
 constexpr auto multiplyDiagonal(const M& mat)
 {
-	auto ret = mat[0][0];
+	auto ret = mat.get(0, 0);
 	for(auto n = 1u; n < mat.rows(); ++n)
-		ret *= mat[n][n];
+		ret *= mat.get(n, n);
 	return ret;
 }
 
@@ -231,7 +282,7 @@ constexpr void identity(M& mat)
 {
 	zero(mat);
 	for(auto n = 0u; n < mat.rows(); ++n)
-		mat[n][n] = 1.0;
+		mat.set(n, n, 1.0);
 }
 
 /// \brief Transposes the given matrix.
@@ -243,7 +294,7 @@ constexpr auto transpose(const M& mat)
 
 	for(auto r = 0u; r < mat.rows(); ++r)
 		for(auto c = 0u; c < mat.cols(); ++c)
-			ret[c][r] = mat[r][c];
+			ret.set(c, r, mat.get(r, c));
 
 	return ret;
 }
@@ -261,13 +312,13 @@ constexpr auto pivot(M& mat, typename M::Size row, typename M::Size column, bool
 {
 	auto maxRow = row;
 	for(auto r = after ? row + 1 : 0; r < mat.rows(); ++r)
-		if(std::abs(mat[r][column]) > std::abs(mat[maxRow][column]))
+		if(std::abs(mat.get(r, column)) > std::abs(mat.get(maxRow, column)))
 			maxRow = r;
 
 	if(maxRow != row)
 		swapRow(mat, row, maxRow);
 
-	return mat[row][column];
+	return mat.get(row, column);
 }
 
 /// \brief Brings the given matrix into the row echolon form (ref).
@@ -291,15 +342,15 @@ constexpr void rowEcholon(M& mat)
 
 		// Divide all elements in this row by the first element since it should be 1
 		// we already assured that the pivot cannot be zero, so we can divide by it
-		auto factor = mat[r][c];
-		for(auto i = c; i < mat.cols(); ++i) mat[r][i] /= factor;
+		auto factor = mat.get(r, c);
+		for(auto i = c; i < mat.cols(); ++i) mat.set(r, i, mat.get(r, i) / factor);
 
 		// Now add a multiple of the current row to all other rows, so that this column
 		// will be set to 0 everywhere except the current line
 		for(auto i = r + 1; i < mat.rows(); ++i) {
-			auto fac = mat[i][c];
+			auto fac = mat.get(i, c);
 			for(auto j = c; j < mat.cols(); ++j) {
-				mat[i][j] -= fac * mat[r][j];
+				mat.set(i, j, mat.get(i, j) - fac * mat.get(r, j));
 			}
 		}
 
@@ -336,18 +387,18 @@ constexpr void reducedRowEcholon(M& mat)
 	// are in the same c
 	for(auto r = mat.rows(); r-- > 0; ) {
 
-		//find the pivot
+		// find the pivot
 		auto c = 0u;
-		while(c < mat.cols() && mat[r][c] == typename M::Value {}) ++c;
+		while(c < mat.cols() && mat.get(r, c) == typename M::Value {}) ++c;
 
 		// if the pivot is zero continue to the next (above) row
-		if(!mat[r][c]) continue;
+		if(!mat.get(r, c)) continue;
 
 		// eliminate other coefficients in the current column above the current row
 		for(auto p = 0u; p < r; ++p) {
-			auto fac = mat[p][c] / mat[r][c];
+			auto fac = mat.get(p, c) / mat.get(r, c);
 			for(auto q = 0u; q < mat.cols(); ++q) {
-				mat[p][q] -= fac * mat[r][q];
+				mat.set(p, q, mat.get(p, q) - fac * mat.get(r, q));
 			}
 		}
 	}
@@ -397,9 +448,9 @@ constexpr auto luDecomp(const M& mat)
 		// swapping the current row with another row. If we do so, we have to pretend we
 		// swapped the matrix in the beginning and therefore also change the lower matrix and
 		// remember the swap in the permutation matrix
-		if(upper[n][n] == 0.0) {
+		if(upper.get(n, n) == 0) {
 			for(auto r = n + 1; r < mat.rows(); ++r) {
-				if(upper[r][n] != 0.0) {
+				if(upper.get(r, n) != 0) {
 					swapRow(perm, r, n);
 					swapRow(upper, r, n);
 					swapRow(lower, r, n);
@@ -410,23 +461,23 @@ constexpr auto luDecomp(const M& mat)
 
 			// If all coefficients in the column are zero (e.g. a zero matrix), its ok since
 			// we don't have any more coefficients to eliminate.
-			if(upper[n][n] == 0.0) {
-				lower[n][n] = 1.0;
+			if(upper.get(n, n) == 0) {
+				lower.set(n, n, 1);
 				continue;
 			}
 		}
 
-		lower[n][n] = 1.0;
+		lower.set(n, n, 1);
 
 		// erase all coefficients in the nth column below the nth row.
 		// pivoting already assured that mat[n][n] is not zero
 		auto rown = row(upper, n);
 		for(auto i = n + 1; i < mat.rows(); ++i) {
-			auto fac = static_cast<double>(upper[i][n]) / upper[n][n];
+			auto fac = static_cast<double>(upper.get(i, n)) / upper.get(n, n);
 			auto rowi = row(upper, i);
 			auto rowin = rowi - fac * rown;
 			row(upper, i, rowin);
-			lower[i][n] = fac;
+			lower.get(i, n) = fac;
 		}
 	}
 
@@ -444,20 +495,20 @@ constexpr auto luEvaluate(const M& l, const M& u, const V& b)
 
 	// forward substitution
 	for(auto i = 0u; i < d.size(); ++i) {
-		d[i] = b[i];
+		d.set(i, b.get(i));
 		for(auto j = 0u; j < i; ++j)
-			d[i] = std::fma(-l[i][j], d[j], d[i]);
+			d.set(i, std::fma(-l.get(i, j), d[j], d[i]));
 
-		d[i] /= l[i][i];
+		d.set(i, d[i] / l.get(i, i));
 	}
 
 	// back substitution
 	for(auto i = x.size(); i-- > 0; ) {
-		x[i] = d[i];
+		x.set(i, d[i]);
 		for(auto j = i + 1; j < x.size(); ++j)
-			x[i] = std::fma(-u[i][j], x[j], x[i]);
+			x.set(i, std::fma(-u.get(i, j), x[j], x[i]));
 
-		x[i] /= u[i][i];
+		x.set(i, x[i] / u.get(i, i));
 	}
 
 	return x;
@@ -487,7 +538,7 @@ constexpr auto luEvaluate(const M& l, const M& u, const V& b)
 		throw std::invalid_argument("nytl::mat::luEvaluate: invalid lu matrices");
 
 	for(auto n = 0u; n < l.rows(); ++n)
-		if(l[n][n] == 0.0 || u[n][n] == 0.0)
+		if(l.get(n, n) == 0.0 || u.get(n, n) == 0.0)
 			throw std::invalid_argument("nytl::mat::luEvaluate: singular lower or upper matrix");
 
 	return nocheck::luEvaluate(l, u, b);
@@ -630,7 +681,7 @@ constexpr bool invert(M& mat)
 
 	// check for singular matrix
 	for(auto n = 0u; n < l.rows(); ++n)
-		if(u[n][n] == 0.0)
+		if(u.get(n, n) == 0.0)
 			return false;
 
 	mat = nocheck::inverse(l, u, p);
@@ -644,7 +695,7 @@ constexpr bool symmetric(const M& mat)
 {
 	for(auto r = 1u; r < mat.rows(); ++r)
 		for(auto c = 0u; c < r; ++c)
-			if(mat[r][c] != mat[c][r])
+			if(mat.get(r, c) != mat.get(c, r))
 				return false;
 	return true;
 }

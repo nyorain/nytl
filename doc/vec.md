@@ -56,7 +56,7 @@ public:
 	static constexpr bool staticSized = ...; // static sized?
 
 	// if static sized:
-	template<typename D> static Vector create();
+	template<Size D> static Vector create();
    static constexpr Size size();
 
 	// if not static sized:

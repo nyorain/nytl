@@ -1,6 +1,7 @@
 TODO for nytl
 =============
 
+- remove fma?
 - testing !important
 	- left completely untested: template tuple (operations)
 	- improve: scope, more vec/vecOps testing needed
