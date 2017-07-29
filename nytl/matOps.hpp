@@ -26,7 +26,7 @@ namespace detail {
 /// \brief Creates a matrix of implementation type 'M' with value type 'T' and
 /// rows/cols 'R'/'C'.
 template<typename M, typename T, std::size_t R, std::size_t C>
-auto createMatrix()
+constexpr auto createMatrix()
 {
 	if constexpr(M::staticSized) return M::template Rebind<T>::template create<R, C>();
 	else return M::template Rebind<T>::create(R, C);
@@ -35,7 +35,7 @@ auto createMatrix()
 /// \brief Creates a matrix with the transposed dimension as the given one.
 /// Will not copy/set any values.
 template<typename M>
-auto createTransposeMatrix(const M& mat)
+constexpr auto createTransposeMatrix(const M& mat)
 {
 	if constexpr(M::staticSized) return M::template create<M::cols(), M::rows()>();
 	else return M::create(mat.cols(), mat.rows());
@@ -44,13 +44,31 @@ auto createTransposeMatrix(const M& mat)
 /// \brief Creates a matrix with the same implementation and dimension as the given one
 /// but with value type 'T'
 template<typename T, typename M>
-auto createMatrix(const M& mat)
+constexpr auto createMatrix(const M& mat)
 {
 	if constexpr(M::staticSized)
 		return M::template Rebind<T>::template create<M::rows(), M::cols()>();
 	else return M::template Rebind<T>::create(mat.rows(), mat.cols());
 }
 
+/// Creates a vector able to represent a row of the given matrix.
+template<typename M>
+constexpr auto createRowVec(const M& mat)
+{
+	if constexpr(M::staticSized) return M::RowVec::template create<M::cols()>();
+	else return M::RowVec::create(mat.cols());
+}
+
+/// Creates a vector able to represent a column of the given matrix.
+template<typename M>
+constexpr auto createColVec(const M& mat)
+{
+	if constexpr(M::staticSized) return M::ColVec::template create<M::rows()>();
+	else return M::ColVec::create(mat.rows());
+}
+
+// TODO
+/*
 template<typename M, bool Row>
 class MatProxyBase {
 public:
@@ -103,6 +121,7 @@ struct MatProxyVec<M, Row, false> : public MatProxyBase<M, Row> {
 
 template<typename M> using MatRowProxy = MatProxyVec<M, true>;
 template<typename M> using MatColProxy = MatProxyVec<M, false>;
+*/
 
 } // namespace detail
 
@@ -153,10 +172,32 @@ std::ostream& print(std::ostream& ostream, const M& mat, unsigned int valueWidth
 /// \brief Returns the row with index n of the given matrix.
 /// For example: `nytl::mat::row(mat44, 0);` returns the first (index 0) row of a matrix.
 /// \returns A M::RowVec holding the elements from the nth row.
+// template<typename M>
+// constexpr auto row(const M& mat, typename M::Size n)
+// {
+// 	return detail::MatRowProxy<const M>{mat, n};
+// }
+
+/// \brief Returns the column with index n of the given matrix.
+/// For example: `nytl::mat::row(mat44, 1);` returns the second (index 1) column of a matrix.
+/// \returns A M::ColVec holding the elements from the nth column.
+// template<typename M>
+// constexpr auto col(const M& mat, typename M::Size n)
+// {
+// 	return detail::MatColProxy<const M>{mat, n};
+// }
+
+/// \brief Returns the row with index n of the given matrix.
+/// For example: `nytl::mat::row(mat44, 0);` returns the first (index 0) row of a matrix.
+/// \returns A M::RowVec holding the elements from the nth row.
 template<typename M>
 constexpr auto row(const M& mat, typename M::Size n)
 {
-	return detail::MatRowProxy<const M>{mat, n};
+	auto ret = detail::createRowVec(mat);
+	for(auto i = 0u; i < mat.cols(); ++i)
+		ret.set(i, mat.get(n, i));
+
+	return ret;
 }
 
 /// \brief Returns the column with index n of the given matrix.
@@ -165,7 +206,11 @@ constexpr auto row(const M& mat, typename M::Size n)
 template<typename M>
 constexpr auto col(const M& mat, typename M::Size n)
 {
-	return detail::MatColProxy<const M>{mat, n};
+	auto ret = detail::createColVec(mat);
+	for(auto i = 0u; i < mat.rows(); ++i)
+		ret.set(i, mat.get(i, n));
+
+	return ret;
 }
 
 /// \brief Sets the nth row of the given mutable matrix.
@@ -249,7 +294,7 @@ constexpr void one(M& mat)
 {
 	for(auto r = 0u; r < mat.rows(); ++r)
 		for(auto c = 0u; c < mat.cols(); ++c)
-			mat.get(r, c) = 1.0;
+			mat.set(r, c, 1.0);
 }
 
 /// \brief Returns the trace of a square matrix, i.e. the sum of its diagonal elements
@@ -477,7 +522,7 @@ constexpr auto luDecomp(const M& mat)
 			auto rowi = row(upper, i);
 			auto rowin = rowi - fac * rown;
 			row(upper, i, rowin);
-			lower.get(i, n) = fac;
+			lower.set(i, n, fac);
 		}
 	}
 
@@ -490,25 +535,25 @@ namespace nocheck {
 template<typename M, typename V>
 constexpr auto luEvaluate(const M& l, const M& u, const V& b)
 {
-	auto d = vec::detail::createVector<double>(b);
-	auto x = vec::detail::createVector<double>(b);
+	auto d = vec::detail::createVector<V, double>(b);
+	auto x = vec::detail::createVector<V, double>(b);
 
 	// forward substitution
 	for(auto i = 0u; i < d.size(); ++i) {
 		d.set(i, b.get(i));
 		for(auto j = 0u; j < i; ++j)
-			d.set(i, std::fma(-l.get(i, j), d[j], d[i]));
+			d.set(i, std::fma(-l.get(i, j), d.get(j), d.get(i)));
 
-		d.set(i, d[i] / l.get(i, i));
+		d.set(i, d.get(i) / l.get(i, i));
 	}
 
 	// back substitution
 	for(auto i = x.size(); i-- > 0; ) {
-		x.set(i, d[i]);
+		x.set(i, d.get(i));
 		for(auto j = i + 1; j < x.size(); ++j)
-			x.set(i, std::fma(-u.get(i, j), x[j], x[i]));
+			x.set(i, std::fma(-u.get(i, j), x.get(j), x.get(i)));
 
-		x.set(i, x[i] / u.get(i, i));
+		x.set(i, x.get(i) / u.get(i, i));
 	}
 
 	return x;
@@ -523,7 +568,7 @@ constexpr auto luEvaluate(const M& l, const M& u, const V& b)
 /// The given matrix must be a square matrix.
 /// \notes If the lu composition was done with a permutation matrix (PA = LU), the given
 /// vector must be premultiplied with the permutations inverse (tranpose) to get the vector
-/// that solves Ax = b. If PA = LU and Ax = b, so LUx = P * b
+/// that solves Ax = b. If PA = LU and Ax = b, so LUx = inverse(P) * b
 /// \notes Does not check if the given equitation is solvable, i.e. results in undefined behavior
 /// if it is not. The caller should check or assure this somehow. Could be done by
 /// checking whether the given lower or upper matrix is singular, i.e. whether one of its
@@ -622,7 +667,7 @@ constexpr auto inverse(const M& l, const M& u)
 		throw std::invalid_argument("nytl::mat::inverse: non-square matrix");
 
 	for(auto n = 0u; n < l.rows(); ++n)
-		if(u[n][n] == 0.0 || l[n][n] == 0.0)
+		if(u.get(n, n) == 0.0 || l.get(n, n) == 0.0)
 			throw std::invalid_argument("nytl::mat::inverse: singular matrix");
 
 	return nocheck::inverse(l, u);
@@ -637,7 +682,7 @@ constexpr auto inverse(const M& l, const M& u, const M& p)
 		throw std::invalid_argument("nytl::mat::inverse: non-square matrix");
 
 	for(auto n = 0u; n < l.rows(); ++n)
-		if(u[n][n] == 0.0 || l[n][n] == 0.0)
+		if(u.get(n, n) == 0.0 || l.get(n, n) == 0.0)
 			throw std::invalid_argument("nytl::mat::inverse: singular matrix");
 
 	return nocheck::inverse(l, u, p);
@@ -660,7 +705,7 @@ constexpr auto inverse(const M& mat)
 	nytl::unused(s);
 
 	for(auto n = 0u; n < l.rows(); ++n)
-		if(u[n][n] == 0.0)
+		if(u.get(n, n) == 0.0)
 			throw std::invalid_argument("nytl::mat::inverse: singular matrix");
 
 	return nocheck::inverse(l, u, p);

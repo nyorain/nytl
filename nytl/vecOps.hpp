@@ -139,9 +139,9 @@ constexpr auto cross(const V1& a, const V2& b)
 		"Invalid vector dimensions for cross operation");
 
 	auto ret = detail::createVector<R, decltype(a.get(0) * b.get(0) - a.get(0) * b.get(0)), 3>();
-	ret.set(0, a.get(1) * b.get(2)) - (a.get(2) * b.get(1));
-	ret.set(1, a.get(2) * b.get(0)) - (a.get(0) * b.get(2));
-	ret.set(2, a.get(0) * b.get(1)) - (a.get(1) * b.get(0));
+	ret.set(0, a.get(1) * b.get(2) - a.get(2) * b.get(1));
+	ret.set(1, a.get(2) * b.get(0) - a.get(0) * b.get(2));
+	ret.set(2, a.get(0) * b.get(1) - a.get(1) * b.get(0));
 	return ret;
 }
 

@@ -2,6 +2,9 @@ TODO for nytl
 =============
 
 - remove fma?
+- use matOps: row/col proxy instead of always copying the values
+	- only create new (copy) vectors when they are really needed. Provide some extra
+		mechanism for this (create/Rebind interface maybe powerful enough)
 - testing !important
 	- left completely untested: template tuple (operations)
 	- improve: scope, more vec/vecOps testing needed

@@ -49,7 +49,7 @@ public:
 /// Will test it at compile time if static_ is true.
 #define nytl_assure(static_, expr, message) \
 	if constexpr(static_) { \
-		static_assert(expr, message); \
+		static_assert(expr, message ": " #expr); \
 	} else if constexpr(NYTL_RUNTIME_CHECK) { \
 		if(!(expr)) {\
 			throw nytl::AssureError(__FUNCTION__, message "(" #expr ")"); \
