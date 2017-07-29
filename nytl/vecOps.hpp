@@ -166,7 +166,7 @@ std::ostream& print(std::ostream& os, const V& vec)
 	auto it = vec.begin();
 	tos << *it;
 	while(++it != vec.end())
-	tos << ", " << *it;
+		tos << ", " << *it;
 
 	tos << ")";
 	return os;
