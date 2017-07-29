@@ -77,13 +77,10 @@ auto fd = ::open("test.txt"); // open a file descriptor we want to close later o
 // early returns can be added without having to care about the fd.
 auto fdGuard = nytl::makeScopeGuard([&]{ ::close(fd); })
 
-// alternatively one can use the NYTL_SCOPE_GUARD macro
-NYTL_SCOPE_GUARD([&]{ std::cout << "scope left\n"; });
-
 // there are also classes that only execute the passed functions if the scope was left normally
 // or due to an exception
-auto successGuard = nytl::makeScopeGuard([&]{ std::cout << "scope left normally\n"; });
-auto exceptionGuard = nytl::makeExceptionGuard([&]{ std::cout << "exception thrown\n"; });
+auto successGuard = nytl::SuccessGuard([&]{ std::cout << "scope left normally\n"; });
+auto exceptionGuard = nytl::ExceptionGuard([&]{ std::cout << "exception thrown\n"; });
 ```
 
 ### nytl::Typemap
@@ -127,11 +124,12 @@ template<typename T> auto dispatch(const T& obj)
 ### Mathematical operations
 
 There are also multiple headers for generic maths in nytl. For common structurs, such as
-vectors as matrices, nytl strictly seperates structural implementation from operations which
+vectors as matrices, nytl strictly separates structural implementation from operations which
 makes the operations generic and usable for custom structurs (i.e. you can use your own
-vector class as long as it fulfills nytls Vector concept).
-Some interesting ones are [nytl/matOps.hpp](nytl/matOps.hpp) or
-[nytl/simplex.hpp](nytl/simplex.hpp).
+vector class as long as it fulfills nytl's Vector concept).
+Some interesting ones are [nytl/matOps.hpp](nytl/matOps.hpp),
+[nytl/vecOps.hpp](nytl/simplex.hpp) or [nytl/vec.hpp](nytl/vec.hpp).
+Everything is kept as generic as simple as possible.
 
 ```cpp
 nytl::Mat<5, 5, double> a {
@@ -147,16 +145,7 @@ nytl::Mat<5, 5, double> a {
 // for your own Matrix data types if they fulfull the nytl Matrix concept.
 auto det = nytl::mat::determinant(a);
 auto inverse = nytl::mat::inverse(a);
-[auto l, u, p, s] = nytl::mat::luDecomp(a); // lower, upper, permutation, sign (of permutation)
+auto [l, u, p, s] = nytl::mat::luDecomp(a); // lower, upper, permutation, sign (of permutation)
 nytl::mat::reducedRowEcholon(a); // reduced row echolon form
 nytl::mat::identity(a);
-
-// A simplex is the most trivial but unique object in an n-dimensional space, so e.g.
-// a triangle in 2 dimensions or a tetrahedron in 3 dimensions
-// There are various useful operations for simplices like computing its barycentric coordinates
-// which makes interpolation inside a simplex pretty trivial.
-nytl::Simplex<2, double> triangle {{0.0, 0.0}, {1.0, 0.0}, {0.0, 1.0}};
-auto size = nytl::size(triangle); // 0.5
-auto center = nytl::center(triangle); // nytl::Vec2d(1.0/3, 1.0/3);
-auto barycentric = nytl::barycentric(triangle, {0.5, 0.5}); // nytl::Vec3d {0.0, 0.5, 0.5}
 ```
