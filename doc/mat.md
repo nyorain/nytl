@@ -30,6 +30,7 @@ public:
 
 	// sets the value in [c, r]
 	// can return void or a reference to the value
+	// the third parameter may be a (const) reference
 	auto set(Size c, Size r, Value value);
 
 	// Like get, but throw when out of bounds

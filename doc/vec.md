@@ -38,6 +38,7 @@ Concept: Vector<T>
 
 
 For an implementation of the concept see nytl/vec.
+Every vector has at least a dimension of 1, there are no empty vectors.
 Pseudo-codish example:
 
 ```cpp
@@ -69,15 +70,9 @@ public:
 	Vector(const Vector<T>&);
 	Vector& operator=(const Vector<T>&);
 
-
-	Reference operator[](Size);
-	ConstReference operator[](Size) const;
-
-	// Always needed are the begin and end function, i.e. the vector must be iteratable
-	// [c|r]begin, [c|r]end,
-
-	// Optionally all iterator typedefs and functions as in stl containers
-	// data, max_size, at, fill
+	Reference get(Size); // may also return a value
+	ConstReference get(Size) const; // may also return a value
+	<undefined> set(Size, ConstReference); // the second parameter may also be a Value
 };
 
 // The first operations must return a vector with the same dimension and over a similiar field.

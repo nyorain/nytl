@@ -85,9 +85,9 @@ struct MatProxyVec<M, Row, true> : public MatProxyBase<M, Row> {
 	using typename MatProxyBase<M, Row>::MatVec;
 
 	static constexpr auto staticSized = true;
-	static constexpr auto size() { return Row ? M::rows() : M::cols(); }
+	static constexpr auto size() { return Row ? M::cols() : M::rows(); }
 
-	template<Size D> static auto create() { return MatVec::template create<D>(); }
+	template<Size D> static constexpr auto create() { return MatVec::template create<D>(); }
 };
 
 template<typename M, bool Row>
@@ -96,7 +96,7 @@ struct MatProxyVec<M, Row, false> : public MatProxyBase<M, Row> {
 	using typename MatProxyBase<M, Row>::MatVec;
 
 	static constexpr auto staticSized = false;
-	typename M::Size size() const { return Row ? this->m.rows() : this->m.cols(); }
+	typename M::Size size() const { return Row ? this->m.cols() : this->m.rows(); }
 
 	auto create(Size size) { return MatVec::create(size); }
 };

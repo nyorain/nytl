@@ -37,6 +37,11 @@ public:
 public:
 	template<size_t OD, typename OT>
 	constexpr explicit operator Vec<OD, OT>() const;
+
+	/// To fulfill the vec concept
+	decltype(auto) get(Size i) { return (*this)[i]; }
+	decltype(auto) get(Size i) const { return (*this)[i]; }
+	decltype(auto) set(Size i, ConstReference value) { return ((*this)[i] = value); }
 };
 
 // - implementation -

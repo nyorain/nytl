@@ -34,11 +34,11 @@ auto createVector()
 
 /// \brief Creates a new vector from the same implementation and size as the given vector
 /// with value type T.
-template<typename T, typename V>
+template<typename R, typename T, typename V>
 auto createVector(const V& v)
 {
-	if constexpr(V::staticSized) return V::template Rebind<T>::template create<V::size()>();
-	else return V::template Rebind<T>::create(v.size());
+	if constexpr(V::staticSized) return R::template Rebind<T>::template create<V::size()>();
+	else return R::template Rebind<T>::create(v.size());
 }
 
 } // namespace detail
@@ -47,14 +47,20 @@ auto createVector(const V& v)
 template<typename V>
 constexpr auto sum(const V& a)
 {
-	return accumulate(a.begin(), a.end(), typename V::Value{0}, std::plus<>());
+	decltype(a.get(0) + a.get(1)) ret = a.get(0);
+	for(auto i = 1u; i < a.size(); ++i)
+		ret += a.get(i);
+	return ret;
 }
 
 /// \brief Multiplies all values of the given vector using the * operator.
 template<typename V>
 constexpr auto multiply(const V& a)
 {
-	return accumulate(a.begin(), a.end(), typename V::Value {1}, std::multiplies<>());
+	decltype(a.get(0) * a.get(1)) ret = a.get(0);
+	for(auto i = 1u; i < a.size(); ++i)
+		ret *= a.get(i);
+	return ret;
 }
 
 /// \brief Calculates the default dot product for the given vectors.
@@ -68,10 +74,10 @@ constexpr auto dot(const V1& a, const V2& b)
 		a.size() == b.size(),
 		"Invalid vector dimensions for dot operation");
 
-	using RetType = decltype(a[0] * b[0] + a[0] * b[0]);
+	using RetType = decltype(a.get(0) * b.get(0) + a.get(0) * b.get(0));
 	auto ret = RetType {};
 	for(auto i = 0u; i < a.size(); ++i)
-		ret += a[i] * b[i];
+		ret += a.get(i) * b.get(i);
 
 	return ret;
 }
@@ -125,17 +131,17 @@ constexpr auto angle(const V1& a, const V2& b)
 /// \brief Calculates the cross product for two 3-dimensional vectors.
 /// \requires The given vectors shall be in the 3-dimensional space.
 /// \throws std::domain_error if at least on of the input vectors does not have a size of 3.
-template<typename V1, typename V2>
+template<typename V1, typename V2, typename R = V1>
 constexpr auto cross(const V1& a, const V2& b)
 {
 	nytl_assure(a.staticSized && b.staticSized,
 		a.size() == 3 && b.size() == 3,
 		"Invalid vector dimensions for cross operation");
 
-	auto ret = detail::createVector<V1, decltype(a[0] * b[0] - a[0] * b[0]), 3>();
-	ret[0] = (a[1] * b[2]) - (a[2] * b[1]);
-	ret[1] = (a[2] * b[0]) - (a[0] * b[2]);
-	ret[2] = (a[0] * b[1]) - (a[1] * b[0]);
+	auto ret = detail::createVector<R, decltype(a.get(0) * b.get(0) - a.get(0) * b.get(0)), 3>();
+	ret.set(0, a.get(1) * b.get(2)) - (a.get(2) * b.get(1));
+	ret.set(1, a.get(2) * b.get(0)) - (a.get(0) * b.get(2));
+	ret.set(2, a.get(0) * b.get(1)) - (a.get(1) * b.get(0));
 	return ret;
 }
 
@@ -162,10 +168,9 @@ std::ostream& print(std::ostream& os, const V& vec)
 	auto& tos = templatize<V>(os); // we don't want to include ostream
 	tos << "(";
 
-	auto it = vec.begin();
-	tos << *it;
-	while(++it != vec.end())
-	tos << ", " << *it;
+	tos << vec.get(0);
+	for(auto i = 1u; i < vec.size(); ++i)
+		tos << ", " << vec.get(i);
 
 	tos << ")";
 	return os;
@@ -179,7 +184,7 @@ template<typename V, typename F>
 constexpr void apply(V& vec, F&& func)
 {
 	for(auto i = 0u; i < vec.size(); ++i)
-		func(vec[i]);
+		func(vec.get(i));
 }
 
 // Various utility functions.
@@ -262,8 +267,8 @@ constexpr auto max(V a, const V& b)
 		"Vectors must have same dimension");
 
 	for(auto i = 0u; i < a.size(); ++i)
-		if(b[i] > a[i])
-			a[i] = b[i];
+		if(b.get(i) > a.get(i))
+			a.set(i, b.get(i));
 	return a;
 }
 
@@ -278,39 +283,39 @@ constexpr auto min(V a, const V& b)
 		"Vectors must have same dimension");
 
 	for(auto i = 0u; i < a.size(); ++i)
-		if(b[i] < a[i])
-			a[i] = b[i];
+		if(b.get(i) < a.get(i))
+			a.set(i, b.get(i));
 	return a;
 }
 
 /// \brief Multiplies the two vectors component wise
 /// \requires Types 'V1', 'V2' shall be Vector types over the same space.
-template<typename V1, typename V2>
+template<typename V1, typename V2, typename R = V1>
 constexpr auto multiply(const V1& a, const V2& b)
 {
 	nytl_assure(a.staticSized && b.staticSized,
 		a.size() == b.size(),
 		"Vectors must have same dimension");
 
-	auto ret = detail::createVector<decltype(a[0] * b[0])>(a);
+	auto ret = detail::createVector<R, decltype(a.get(0) * b.get(0))>(a);
 	for(auto i = 0u; i < a.size(); ++i)
-		ret[i] = a[i] * b[i];
+		ret.set(i, a.get(i) * b.get(i));
 	return ret;
 }
 
 /// \brief Component-wise divides the first vector by the second one.
 /// Will not perform any zero checks.
 /// \requires Types 'V1', 'V2' shall be Vector types over the same space.
-template<typename V1, typename V2>
+template<typename V1, typename V2, typename R = V1>
 constexpr auto divide(const V1& a, const V2& b)
 {
 	nytl_assure(a.staticSized && b.staticSized,
 		a.size() == b.size(),
 		"Vectors must have same dimension");
 
-	auto ret = detail::createVector<decltype(a[0] / b[0])>(a);
+	auto ret = detail::createVector<R, decltype(a.get(0) / b.get(0))>(a);
 	for(auto i = 0u; i < a.size(); ++i)
-		ret[i] = a[i] / b[i];
+		ret.set(i, a.get(i) / b.get(i));
 	return ret;
 }
 
