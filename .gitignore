@@ -7,3 +7,4 @@ bin/
 .clang_complete
 *.exe
 *.out
+*.S

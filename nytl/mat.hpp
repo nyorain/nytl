@@ -10,10 +10,10 @@
 #define NYTL_INCLUDE_MAT
 
 #include <nytl/fwd/mat.hpp> // nytl::Mat forward declaration
-#include <nytl/assure.hpp> // nytl::assure
 #include <nytl/vec.hpp> // nytl::Vec
 #include <nytl/vecOps.hpp> // nytl::vec::dot
 #include <nytl/matOps.hpp> // nytl::mat::row
+#include <nytl/assure.hpp> // nytl::assure
 
 namespace nytl {
 

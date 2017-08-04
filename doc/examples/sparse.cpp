@@ -1,5 +1,4 @@
 #include <nytl/matOps.hpp>
-#include <nytl/assure.hpp>
 #include <iostream>
 #include <unordered_map>
 #include <cassert>
@@ -124,7 +123,7 @@ constexpr auto operator*(const F& f, SparseVec<T> a)
 template<typename T1, typename T2>
 constexpr auto operator+(const SparseVec<T1>& a, const SparseVec<T2>& b)
 {
-	nytl_assure(false, a.size() == b.size(), "vectors must have same dimension");
+	assert(a.size() == b.size() && "vectors must have same dimension");
 	auto ret = SparseVec<decltype(a.get(0) + b.get(0))>::create(a.size());
 
 	for(auto& e : a.entries())
@@ -139,7 +138,7 @@ constexpr auto operator+(const SparseVec<T1>& a, const SparseVec<T2>& b)
 template<typename T1, typename T2>
 constexpr auto operator-(const SparseVec<T1>& a, const SparseVec<T2>& b)
 {
-	nytl_assure(false, a.size() == b.size(), "vectors must have same dimension");
+	asssert(a.size() == b.size() && "vectors must have same dimension");
 	auto ret = SparseVec<decltype(a.get(0) + b.get(0))>::create(a.size());
 
 	for(auto& e : a.entries())
@@ -156,7 +155,7 @@ template<typename T1, typename T2>
 auto operator*(const SparseMat<T1>& a, const SparseMat<T2>& b)
 {
 	// NOTE: This implementation is not optimized
-	nytl_assure(false, a.cols() == b.rows(), "Invalid dimensions for matrix mult");
+	assert(a.cols() == b.rows() && "Invalid dimensions for matrix mult");
 
 	using Type = decltype(a.get(0, 0) * b.get(0, 0) + a.get(0, 0) * b.get(0, 0));
 	auto ret = SparseMat<Type>::create(a.rows(), b.cols());
@@ -185,6 +184,7 @@ bool operator==(const SparseMat<T1>& a, const SparseMat<T2>& b)
 int main()
 {
 	// just some test/example operations
+	// all nytl operations should work on the sparse classes
 
 	{
 		SparseVec<double> a {5};
@@ -233,5 +233,3 @@ int main()
 		assert(mult == id);
 	}
 }
-
-#undef nytl_assure
