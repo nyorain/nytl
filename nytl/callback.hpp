@@ -137,7 +137,7 @@ public:
 	auto call(Args... a)
 	{
 		// wrap callID_ if needed
-		callID_ = (callID_ == std::numberic_limits<std::int64_t>::max()) ? 0 : ++callID_;
+		callID_ = (callID_ == std::numeric_limits<std::int64_t>::max()) ? 0 : callID_ + 1;
 		std::int64_t callid = callID_; // the actual calling id (to include newly removed)
 		auto last = end_; // the end (to not iterate over newly added subs)
 
