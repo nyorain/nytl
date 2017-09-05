@@ -60,7 +60,7 @@ nytl_dep = declare_dependency(
 
 test = get_option('test')
 if test
-	subdir('doc/tests')
+	subdir('docs/tests')
 endif
 
 install_headers(headers + fwd_headers, subdir: 'nytl')
