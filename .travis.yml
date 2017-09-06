@@ -25,6 +25,6 @@ install:
 script:
   - export CC=gcc-7
   - export CXX=g++-7
-  - meson build -Dtest=true
+  - meson build -Dtests=true
   - cd build
   - mesontest
