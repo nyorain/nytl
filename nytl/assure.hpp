@@ -45,13 +45,16 @@ public:
 // Files that include it should undefine the macro at the end of their file
 // It can be included again.
 
+// TODO: make this a macro
+// constexpr template<bool Static> assure(bool, const char);
+
 /// Utility macro that makes sure expr is fulfilled.
 /// Will test it at compile time if static_ is true.
-#define nytl_assure(static_, expr, message) \
+#define nytl_assure(static_, sexpr, dexpr, message) \
 	if constexpr(static_) { \
-		static_assert(expr, message); \
+		static_assert(sexpr, message); \
 	} else if constexpr(NYTL_RUNTIME_CHECK) { \
-		if(!(expr)) {\
-			throw nytl::AssureError(__FUNCTION__, message "(" #expr ")"); \
+		if(!(dexpr)) {\
+			throw nytl::AssureError(__FUNCTION__, message "(" #dexpr ")"); \
 		} \
 	}
