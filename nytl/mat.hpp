@@ -81,7 +81,8 @@ template<typename T1, typename T2, size_t R1, size_t C1, size_t R2, size_t C2>
 constexpr auto operator*(const Mat<R1, C1, T1>& a, const Mat<R2, C2, T2>& b)
 {
 	constexpr auto dyn = !Mat<R1, C1, T1>::staticSized || !Mat<R2, C2, T2>::staticSized;
-	nytl_assure(!dyn, a.cols() == b.rows(), "Invalid (mat*mat) dimensions");
+	nytl_assure(!dyn, (Mat<R1, C1, T1>::cols() == Mat<R2, C2, T2>::rows()),
+		a.cols() == b.rows(), "Invalid (mat*mat) dimensions");
 
 	auto ret = Mat<dyn ? 0 : R1, dyn ? 0 : C2, decltype(a[0][0] * b[0][0] + a[0][0] * b[0][0])> {};
 	if constexpr(dyn) ret.resize(a.rows(), b.cols());
@@ -97,7 +98,8 @@ template<typename T1, typename T2, size_t R, size_t C, size_t VD>
 constexpr auto operator*(const Mat<R, C, T1>& a, const Vec<VD, T2>& b)
 {
 	constexpr auto dyn = !a.staticSized || !b.staticSized;
-	nytl_assure(!dyn, a.rows() == b.size(), "Invalid (mat*vec) dimensions");
+	nytl_assure(!dyn, (Mat<R, C, T1>::rows() == Vec<VD, T2>::size()),
+		a.rows() == b.size(), "Invalid (mat*vec) dimensions");
 
 	auto ret = Vec<dyn ? 0 : R, decltype(a[0][0] * b[0] + a[0][0] * b[0])> {};
 	if constexpr(!decltype(ret)::staticSized) ret.resize(a.rows());
@@ -167,6 +169,7 @@ template<typename T1, typename T2, size_t R, size_t C>
 constexpr auto operator==(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b)
 {
 	nytl_assure(a.staticSized && b.staticSized,
+		true,
 		a.rows() == b.rows() && a.cols() == b.cols(),
 		"Invalid (mat==mat) dimensions");
 

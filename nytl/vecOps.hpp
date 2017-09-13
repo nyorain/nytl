@@ -23,6 +23,7 @@
 namespace nytl::vec {
 namespace detail {
 
+// TODO: rename to just create()
 /// \brief Creates a new vector from implementation 'V' with value type 'T'
 /// and size 'S'
 template<typename V, typename T, std::size_t S>
@@ -65,8 +66,8 @@ constexpr auto multiply(const V& a)
 template<typename V1, typename V2>
 constexpr auto dot(const V1& a, const V2& b)
 {
-	nytl_assure(a.staticSized && b.staticSized,
-		a.size() == b.size(),
+	nytl_assure(V1::staticSized && V2::staticSized,
+		V1::size() == V2::size(), a.size() == b.size(),
 		"Invalid vector dimensions for dot operation");
 
 	using RetType = decltype(a[0] * b[0] + a[0] * b[0]);
@@ -105,13 +106,14 @@ constexpr auto distance(const V1& a, const V2& b)
 template<typename V1, typename V2>
 constexpr auto angle(const V1& a, const V2& b)
 {
-	nytl_assure(a.staticSized && b.staticSized,
-		a.size() == b.size(),
+	nytl_assure(V1::staticSized && V2::staticSized,
+		V1::size() == V2::size(), a.size() == b.size(),
 		"Invalid vector dimensions for dot operation");
 
 	auto la = length(a);
 	auto lb = length(b);
-	nytl_assure(false, la != 0 && lb != 0,
+	// TODO
+	nytl_assure(false, la != 0 && lb != 0, la != 0 && lb != 0,
 		"Invalid operation for nullvector");
 
 	// We do this check here to output 0 for angle(a, a).
@@ -129,8 +131,8 @@ constexpr auto angle(const V1& a, const V2& b)
 template<typename V1, typename V2>
 constexpr auto cross(const V1& a, const V2& b)
 {
-	nytl_assure(a.staticSized && b.staticSized,
-		a.size() == 3 && b.size() == 3,
+	nytl_assure(V1::staticSized && V2::staticSized,
+		V1::size() == 3 && V2::size() == 3, a.size() == 3 && b.size() == 3,
 		"Invalid vector dimensions for cross operation");
 
 	auto ret = detail::createVector<V1, decltype(a[0] * b[0] - a[0] * b[0]), 3>();
@@ -258,8 +260,8 @@ constexpr void pow(V& vec, const T& e)
 template<typename V>
 constexpr auto max(V a, const V& b)
 {
-	nytl_assure(a.staticSized && b.staticSized,
-		a.size() == b.size(),
+	nytl_assure(V::staticSized,
+		true, a.size() == b.size(),
 		"Vectors must have same dimension");
 
 	for(auto i = 0u; i < a.size(); ++i)
@@ -274,8 +276,8 @@ constexpr auto max(V a, const V& b)
 template<typename V>
 constexpr auto min(V a, const V& b)
 {
-	nytl_assure(a.staticSized && b.staticSized,
-		a.size() == b.size(),
+	nytl_assure(V::staticSized,
+		true, a.size() == b.size(),
 		"Vectors must have same dimension");
 
 	for(auto i = 0u; i < a.size(); ++i)
@@ -289,8 +291,8 @@ constexpr auto min(V a, const V& b)
 template<typename V1, typename V2>
 constexpr auto multiply(const V1& a, const V2& b)
 {
-	nytl_assure(a.staticSized && b.staticSized,
-		a.size() == b.size(),
+	nytl_assure(V1::staticSized && V2::staticSized,
+		true, a.size() == b.size(),
 		"Vectors must have same dimension");
 
 	auto ret = detail::createVector<decltype(a[0] * b[0])>(a);
@@ -305,8 +307,8 @@ constexpr auto multiply(const V1& a, const V2& b)
 template<typename V1, typename V2>
 constexpr auto divide(const V1& a, const V2& b)
 {
-	nytl_assure(a.staticSized && b.staticSized,
-		a.size() == b.size(),
+	nytl_assure(V1::staticSized && V2::staticSized,
+		V1::size() == V2::size(), a.size() == b.size(),
 		"Vectors must have same dimension");
 
 	auto ret = detail::createVector<decltype(a[0] / b[0])>(a);

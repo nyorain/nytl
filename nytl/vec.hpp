@@ -77,22 +77,22 @@ constexpr Vec<D, T>::operator Vec<OD, OT>() const
 }
 
 // - free operators -
-template<size_t D, typename T, size_t OD, typename OT>
-constexpr Vec<D, T>& operator+=(Vec<D, T>& a, const Vec<OD, OT>& b) noexcept
+template<size_t D1, typename T1, size_t D2, typename T2>
+constexpr Vec<D1, T1>& operator+=(Vec<D1, T1>& a, const Vec<D2, T2>& b) noexcept
 {
-	nytl_assure(a.staticSized && b.staticSized,
-		a.size() == b.size(),
+	nytl_assure((Vec<D1, T1>::staticSized && Vec<D2, T2>::staticSized),
+		(Vec<D1, T1>::size() == Vec<D2, T2>::size()), a.size() == b.size(),
 		"vectors must have same dimensions");
 	for(size_t i = 0; i < a.size(); ++i)
 		a[i] += b[i];
 	return a;
 }
 
-template<size_t D, typename T, size_t OD, typename OT>
-constexpr Vec<D, T>& operator-=(Vec<D, T>& a, const Vec<OD, OT>& b) noexcept
+template<size_t D1, typename T1, size_t D2, typename T2>
+constexpr Vec<D1, T1>& operator-=(Vec<D1, T1>& a, const Vec<D2, T2>& b) noexcept
 {
-	nytl_assure(a.staticSized && b.staticSized,
-		a.size() == b.size(),
+	nytl_assure((Vec<D1, T1>::staticSized && Vec<D2, T2>::staticSized),
+		(Vec<D1, T1>::size() == Vec<D2, T2>::size()), a.size() == b.size(),
 		"vectors must have same dimensions");
 	for(size_t i = 0; i < a.size(); ++i)
 		a[i] -= b[i];
@@ -110,8 +110,8 @@ constexpr Vec<D, T>& operator*=(Vec<D, T>& vec, OT fac)
 template<size_t D1, size_t D2, typename T1, typename T2>
 constexpr auto operator+(const Vec<D1, T1>& a, const Vec<D2, T2>& b)
 {
-	nytl_assure(a.staticSized && b.staticSized,
-		a.size() == b.size(),
+	nytl_assure((Vec<D1, T1>::staticSized && Vec<D2, T2>::staticSized),
+		(Vec<D1, T1>::size() == Vec<D2, T2>::size()), a.size() == b.size(),
 		"vectors must have same dimensions");
 	auto ret = Vec<std::min(D1, D2), decltype(a[0] + b[0])>{};
 	if constexpr(!decltype(ret)::staticSized) ret.resize(a.size());
@@ -124,8 +124,8 @@ constexpr auto operator+(const Vec<D1, T1>& a, const Vec<D2, T2>& b)
 template<size_t D1, size_t D2, typename T1, typename T2>
 constexpr auto operator-(const Vec<D1, T1>& a, const Vec<D2, T2>& b)
 {
-	nytl_assure(a.staticSized && b.staticSized,
-		a.size() == b.size(),
+	nytl_assure((Vec<D1, T1>::staticSized && Vec<D2, T2>::staticSized),
+		(Vec<D1, T1>::size() == Vec<D2, T2>::size()), a.size() == b.size(),
 		"vectors must have same dimensions");
 	auto ret = Vec<std::min(D1, D2), decltype(a[0] - b[0])>{};
 	if constexpr(!decltype(ret)::staticSized) ret.resize(a.size());
@@ -160,8 +160,8 @@ constexpr auto operator*(const F& f, const Vec<D, T>& a)
 template<size_t D1, size_t D2, typename T1, typename T2>
 constexpr auto operator==(const Vec<D1, T1>& a, const Vec<D2, T2>& b)
 {
-	nytl_assure(a.staticSized && b.staticSized,
-		a.size() == b.size(),
+	nytl_assure((Vec<D1, T1>::staticSized && Vec<D2, T2>::staticSized),
+		(Vec<D1, T1>::size() == Vec<D2, T2>::size()), a.size() == b.size(),
 		"vectors must have same dimensions");
 	for(auto i = 0u; i < a.size(); ++i)
 		if(a[i] != b[i]) return false;

@@ -56,7 +56,7 @@ template<typename A, typename B> using Add =
 	void_t<decltype(std::declval<A>() + std::declval<B>())>;
 
 static_assert(validExpression<Add, Vec3f, Vec3f>);
-static_assert(!validExpression<Add, Vec3f, Mat4f>);
+static_assert(!validExpression<Add, Vec3f, Mat4f>); // TODO
 
 TEST(basic) {
 	auto cpy = d3a;
