@@ -28,8 +28,8 @@ std::ostream& print(std::ostream& os, const Rect<D, T>& rect)
 {
 	auto& tos = templatize<T>(os); // we don't want to include ostream
 	tos << "{";
-	vec::print(tos, rect.position);
-	vec::print(tos, rect.size);
+	print(tos, rect.position);
+	print(tos, rect.size);
 	tos << "}";
 	return tos;
 }

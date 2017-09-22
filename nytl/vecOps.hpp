@@ -11,7 +11,7 @@
 #ifndef NYTL_INCLUDE_VEC_OPS
 #define NYTL_INCLUDE_VEC_OPS
 
-#include <nytl/assure.hpp> // nytl::assure
+#include <nytl/vec.hpp>
 #include <nytl/tmpUtil.hpp> // nytl::templatize
 #include <nytl/scalar.hpp> // nytl::accumulate
 
@@ -20,67 +20,44 @@
 #include <cmath> // std::acos
 #include <iosfwd> // std::ostream
 
-namespace nytl::vec {
-namespace detail {
-
-// TODO: rename to just create()
-/// \brief Creates a new vector from implementation 'V' with value type 'T'
-/// and size 'S'
-template<typename V, typename T, std::size_t S>
-auto createVector()
-{
-	if constexpr(V::staticSized) return V::template Rebind<T>::template create<S>();
-	else return V::template Rebind<T>::create(S);
-
-}
-
-/// \brief Creates a new vector from the same implementation and size as the given vector
-/// with value type T.
-template<typename T, typename V>
-auto createVector(const V& v)
-{
-	if constexpr(V::staticSized) return V::template Rebind<T>::template create<V::size()>();
-	else return V::template Rebind<T>::create(v.size());
-}
-
-} // namespace detail
+namespace nytl {
 
 /// \brief Sums up all values of the given vector using the + operator.
-template<typename V>
-constexpr auto sum(const V& a)
+template<size_t D, typename T>
+constexpr auto sum(const Vec<D, T>& a)
 {
-	return accumulate(a.begin(), a.end(), typename V::Value{0}, std::plus<>());
+	decltype(a[0] + a[1]) ret {0};
+	for(auto& val : a)
+		ret += val;
+	return ret;
 }
 
 /// \brief Multiplies all values of the given vector using the * operator.
-template<typename V>
-constexpr auto multiply(const V& a)
+template<size_t D, typename T>
+constexpr auto multiply(const Vec<D, T>& a)
 {
-	return accumulate(a.begin(), a.end(), typename V::Value {1}, std::multiplies<>());
+	decltype(a[0] * a[1]) ret {1};
+	for(auto& val : a)
+		ret *= val;
+	return ret;
 }
 
 /// \brief Calculates the default dot product for the given vectors.
 /// Note that this follows the dot definition for real numbers and does
-/// not automatically handle the dot definition for complex numbers.
-/// \expect Both vectors must have the same dimension
-template<typename V1, typename V2>
-constexpr auto dot(const V1& a, const V2& b)
+/// not automatically handle the dot definition for other structures.
+template<size_t D, typename T1, typename T2>
+constexpr auto dot(const Vec<D, T1>& a, const Vec<D, T2>& b)
 {
-	nytl_assure(V1::staticSized && V2::staticSized,
-		V1::size() == V2::size(), a.size() == b.size(),
-		"Invalid vector dimensions for dot operation");
-
-	using RetType = decltype(a[0] * b[0] + a[0] * b[0]);
-	auto ret = RetType {};
-	for(auto i = 0u; i < a.size(); ++i)
+	decltype(a[0] * b[0] + a[0] * b[0]) ret {0};
+	for(auto i = 0u; i < D; ++i)
 		ret += a[i] * b[i];
 
 	return ret;
 }
 
 /// \brief Returns the euclidean norm (or length) of the given vector.
-template<typename V>
-constexpr auto length(const V& a)
+template<size_t D, typename T>
+constexpr auto length(const Vec<D, T>& a)
 {
 	return std::sqrt(dot(a, a));
 }
@@ -88,10 +65,8 @@ constexpr auto length(const V& a)
 /// \brief Returns the euclidean distance between two vectors.
 /// Another way to describe this operation is the length between the
 /// difference of the given vectors.
-/// \requires The both given vectors shall have the same dimension.
-/// Will not check for this and simply subtract them from each other.
-template<typename V1, typename V2>
-constexpr auto distance(const V1& a, const V2& b)
+template<size_t D, typename T1, typename T2>
+constexpr auto distance(const Vec<D, T1>& a, const Vec<D, T2>& b)
 {
 	return length(a - b);
 }
@@ -101,41 +76,26 @@ constexpr auto distance(const V1& a, const V2& b)
 /// plane in which both vectors lay.
 /// For two equal vectors, it will return always 0.0.
 /// Does only work for real numbers and does not handle complex vectors.
-/// \throws std::invalid_argument if the size of the input vectors differs.
 /// \throws std::domain_error if at least one of the given vectors has a length of 0.
-template<typename V1, typename V2>
-constexpr auto angle(const V1& a, const V2& b)
+template<size_t D, typename T1, typename T2>
+constexpr auto angle(const Vec<D, T1>& a, const Vec<D, T2>& b)
 {
-	nytl_assure(V1::staticSized && V2::staticSized,
-		V1::size() == V2::size(), a.size() == b.size(),
-		"Invalid vector dimensions for dot operation");
+	auto l = length(a) * length(b);
+	if(l == 0) {
+		throw std::domain_error("nytl::angle: nullvector given");
+	}
 
-	auto la = length(a);
-	auto lb = length(b);
-	// TODO
-	nytl_assure(false, la != 0 && lb != 0, la != 0 && lb != 0,
-		"Invalid operation for nullvector");
-
-	// We do this check here to output 0 for angle(a, a).
-	// This might produce nan somtimes due to rounding errors.
-	auto div = dot(a, b) / (la * lb);
-	if(div > 1.0)
-		return 0.0;
-
-	return std::acos(div);
+	// we do the clamp to work against rounding errors
+	// (dot(a, b) / l) cannot return anything out of range [-1, 1]
+	auto v = dot(a, b) / l;
+	return std::acos(std::clamp<decltype(v)>(v, -1.0, 1.0));
 }
 
 /// \brief Calculates the cross product for two 3-dimensional vectors.
-/// \requires The given vectors shall be in the 3-dimensional space.
-/// \throws std::domain_error if at least on of the input vectors does not have a size of 3.
-template<typename V1, typename V2>
-constexpr auto cross(const V1& a, const V2& b)
+template<typename T1, typename T2>
+constexpr auto cross(const Vec<3, T1>& a, const Vec<3, T2>& b)
 {
-	nytl_assure(V1::staticSized && V2::staticSized,
-		V1::size() == 3 && V2::size() == 3, a.size() == 3 && b.size() == 3,
-		"Invalid vector dimensions for cross operation");
-
-	auto ret = detail::createVector<V1, decltype(a[0] * b[0] - a[0] * b[0]), 3>();
+	Vec<3, decltype(a[1] * b[2] - a[2] * b[1])> ret {};
 	ret[0] = (a[1] * b[2]) - (a[2] * b[1]);
 	ret[1] = (a[2] * b[0]) - (a[0] * b[2]);
 	ret[2] = (a[0] * b[1]) - (a[1] * b[0]);
@@ -144,14 +104,30 @@ constexpr auto cross(const V1& a, const V2& b)
 
 /// \brief Returns a normalization of the given vector for the euclidean norm.
 /// \throws std::domain_error if the vector has the length 0.
-template<typename V>
-constexpr auto normalize(const V& a)
+template<size_t D, typename T>
+constexpr auto normalized(const Vec<D, T>& a)
 {
-	auto la = length(a);
-	if(la == typename V::Value{0})
-		throw std::domain_error("nytl::vec::normalize: vector has length 0");
+	auto l = length(a);
+	if(l == T {0.0}) {		
+		throw std::domain_error("nytl::normalized: nullvector given");
+	}
 
-	return (typename V::Value {1} / la) * a;
+	return (T {1.0} / l) * a;
+}
+
+/// \brief Normalizes the given vector in place. Note that this may
+/// not work out as expected if its value type does not have the needed
+/// precision (e.g. for an int vector).
+/// \throws std::domain_error if the vector has the length 0.
+template<size_t D, typename T>
+constexpr auto normalize(Vec<D, T>& a) 
+{
+	auto l = length(a);
+	if(l == T {0.0}) {		
+		throw std::domain_error("nytl::normalized: nullvector given");
+	}
+
+	a *= T {1.0} / l;
 }
 
 /// \brief Prints the given vector to the given ostream.
@@ -160,165 +136,173 @@ constexpr auto normalize(const V& a)
 /// for the Vector implementation types.
 /// \requires There must be an implementation of operator<<(std::ostream&, V::Value).
 template<typename V>
-std::ostream& print(std::ostream& os, const V& vec)
+std::ostream& print(std::ostream& os, const V& vec, 
+	const char* start = "(", const char* end = ")", const char* sep = ", ")
 {
 	auto& tos = templatize<V>(os); // we don't want to include ostream
-	tos << "(";
+	tos << start;
 
 	auto it = vec.begin();
 	tos << *it;
 	while(++it != vec.end())
-		tos << ", " << *it;
+		tos << sep << *it;
 
-	tos << ")";
+	tos << end;
 	return os;
 }
 
-namespace cw { // component-wise operations
-namespace ip { // inplace operations
-
-/// \brief Applies the given function to every value in the given vector.
-template<typename V, typename F>
-constexpr void apply(V& vec, F&& func)
+template<size_t D, typename T>
+std::ostream& operator<<(std::ostream& os, const Vec<D, T>& a)
 {
-	for(auto i = 0u; i < vec.size(); ++i)
-		func(vec[i]);
+	return print(os, a);
 }
 
-// Various utility functions.
-// Always modify the given vector in place and simply apply the similar
-// named stl or nytl function on all components.
-template<typename V>
-constexpr void abs(V& vec)
-	{ apply(vec, [](auto& x){ x = std::abs(x); }); }
-
-template<typename V>
-constexpr void degrees(V& vec)
-	{ apply(vec, [](auto& x){ x = nytl::degrees(x); }); }
-
-template<typename V>
-constexpr void radians(V& vec)
-	{ apply(vec, [](auto& x){ x = nytl::radians(x); }); }
-
-template<typename V>
-constexpr void sin(V& vec)
-	{ apply(vec, [](auto& x){ x = std::sin(x); }); }
-
-template<typename V>
-constexpr void cos(V& vec)
-	{ apply(vec, [](auto& x){ x = std::cos(x); }); }
-
-template<typename V>
-constexpr void tan(V& vec)
-	{ apply(vec, [](auto& x){ x = std::cos(x); }); }
-
-template<typename V>
-constexpr void asin(V& vec)
-	{ apply(vec, [](auto& x){ x = std::asin(x); }); }
-
-template<typename V>
-constexpr void acos(V& vec)
-	{ apply(vec, [](auto& x){ x = std::acos(x); }); }
-
-template<typename V>
-constexpr void atan(V& vec)
-	{ apply(vec, [](auto& x){ x = std::atan(x); }); }
-
-template<typename V>
-constexpr void exp(V& vec)
-	{ apply(vec, [](auto& x){ x = std::exp(x); }); }
-
-template<typename V>
-constexpr void log(V& vec)
-	{ apply(vec, [](auto& x){ x = std::log(x); }); }
-
-template<typename V>
-constexpr void sqrt(V& vec)
-	{ apply(vec, [](auto& x){ x = std::sqrt(x); }); }
-
-template<typename V>
-constexpr void exp2(V& vec)
-	{ apply(vec, [](auto& x){ x = std::exp2(x); }); }
-
-template<typename V>
-constexpr void floor(V& vec)
-	{ apply(vec, [](auto& x){ x = std::floor(x); }); }
-
-template<typename V>
-constexpr void ceil(V& vec)
-	{ apply(vec, [](auto& x){ x = std::ceil(x); }); }
-
-template<typename V, typename T>
-constexpr void pow(V& vec, const T& e)
-	{ apply(vec, [&e](auto& x){ x = std::pow(x, e); }); }
-
-} // namespace ip
-
-/// \brief Returns a vector holding the component-wise maximum of the given Vectors.
-/// \requires Type 'V' shall be a Vector type.
-/// \requires The both given vectors shall have the same dimension.
-template<typename V>
-constexpr auto max(V a, const V& b)
+// additional utility operators
+namespace vec {
+namespace operators {
+	
+template<size_t D, typename F, typename T>
+constexpr auto operator*(const Vec<D, T>& a, const F& f)
 {
-	nytl_assure(V::staticSized,
-		true, a.size() == b.size(),
-		"Vectors must have same dimension");
+	auto ret = Vec<D, decltype(a[0] * f)> {};
+	for(auto i = 0u; i < D; ++i)
+		ret[i] = a[i] * f;
+	return ret;
+}
 
-	for(auto i = 0u; i < a.size(); ++i)
+template<size_t D, typename F, typename T>
+constexpr auto operator/(const Vec<D, T>& a, const F& f)
+{
+	auto ret = Vec<D, decltype(a[0] / f)> {};
+	for(auto i = 0u; i < D; ++i)
+		ret[i] = a[i] / f;
+	return ret;
+}
+
+template<size_t D, typename F, typename T>
+constexpr auto operator/(const F& f, const Vec<D, T>& a)
+{
+	auto ret = Vec<D, decltype(f / a[0])> {};
+	for(auto i = 0u; i < D; ++i)
+		ret[i] = f / a[i];
+	return ret;
+}
+
+} // namespace operators
+
+namespace cw { // vec component-wise operations
+
+/// \brief Returns a vector holding the component-wise maximum of the given vectors.
+template<size_t D, typename T>
+constexpr auto max(Vec<D, T> a, const Vec<D, T>& b)
+{
+	for(auto i = 0u; i < D; ++i)
 		if(b[i] > a[i])
 			a[i] = b[i];
 	return a;
 }
 
-/// \brief Returns a vector holding the component-wise maximum of the given Vectors.
-/// \requires Type 'V' shall be a Vector type.
-/// \requires The both given vectors shall have the same dimension.
-template<typename V>
-constexpr auto min(V a, const V& b)
+/// \brief Returns a vector holding the component-wise minimum of the given vectors.
+template<size_t D, typename T>
+constexpr auto min(Vec<D, T> a, const Vec<D, T>& b)
 {
-	nytl_assure(V::staticSized,
-		true, a.size() == b.size(),
-		"Vectors must have same dimension");
-
-	for(auto i = 0u; i < a.size(); ++i)
-		if(b[i] < a[i])
+	for(auto i = 0u; i < D; ++i)
+		if(b[i] > a[i])
 			a[i] = b[i];
 	return a;
 }
 
-/// \brief Multiplies the two vectors component wise
-/// \requires Types 'V1', 'V2' shall be Vector types over the same space.
-template<typename V1, typename V2>
-constexpr auto multiply(const V1& a, const V2& b)
+/// \brief Returns the component-wise product of the given vectors.
+template<size_t D, typename T1, typename T2>
+constexpr auto multiply(const Vec<D, T1>& a, const Vec<D, T2>& b)
 {
-	nytl_assure(V1::staticSized && V2::staticSized,
-		true, a.size() == b.size(),
-		"Vectors must have same dimension");
-
-	auto ret = detail::createVector<decltype(a[0] * b[0])>(a);
-	for(auto i = 0u; i < a.size(); ++i)
+	Vec<D, decltype(a[0] * b[0])> ret {};
+	for(auto i = 0u; i < D; ++i)
 		ret[i] = a[i] * b[i];
 	return ret;
 }
 
-/// \brief Component-wise divides the first vector by the second one.
-/// Will not perform any zero checks.
-/// \requires Types 'V1', 'V2' shall be Vector types over the same space.
-template<typename V1, typename V2>
-constexpr auto divide(const V1& a, const V2& b)
+/// \brief Returns the component-wise quotient of the given vectors.
+template<size_t D, typename T1, typename T2>
+constexpr auto divide(const Vec<D, T1>& a, const Vec<D, T2>& b)
 {
-	nytl_assure(V1::staticSized && V2::staticSized,
-		V1::size() == V2::size(), a.size() == b.size(),
-		"Vectors must have same dimension");
-
-	auto ret = detail::createVector<decltype(a[0] / b[0])>(a);
-	for(auto i = 0u; i < a.size(); ++i)
+	Vec<D, decltype(a[0] / b[0])> ret {};
+	for(auto i = 0u; i < D; ++i)
 		ret[i] = a[i] / b[i];
 	return ret;
 }
 
+namespace operators {
+
+template<size_t D, typename T1, typename T2>
+constexpr Vec<D, T1>& operator*=(Vec<D, T1>& a, const Vec<D, T2>& b) noexcept
+{
+	for(size_t i = 0; i < D; ++i)
+		a[i] *= b[i];
+	return a;
+}
+
+template<size_t D, typename T1, typename T2>
+constexpr Vec<D, T1>& operator/=(Vec<D, T1>& a, const Vec<D, T2>& b) noexcept
+{
+	for(size_t i = 0; i < D; ++i)
+		a[i] /= b[i];
+	return a;
+}
+
+template<size_t D, typename T1, typename T2>
+constexpr auto operator*(const Vec<D, T1>& a, const Vec<D, T2>& b)
+{
+	return multiply(a, b);
+}
+
+template<size_t D, typename T1, typename T2>
+constexpr auto operator/(const Vec<D, T1>& a, const Vec<D, T2>& b)
+{
+	return divide(a, b);
+}
+
+} // namespace operators
+
+namespace ip { // inplace operations
+
+#define NYTL_VEC_IP_UTIL(func) \
+	template<size_t D, typename T> \
+	constexpr void func(Vec<D, T>& vec) { \
+		for(auto& val : vec) \
+			val = std::func(val); \
+	}
+
+// Various utility functions.
+// Always modify the given vector in place and simply apply the similar
+// named stl or nytl function on all components.
+NYTL_VEC_IP_UTIL(abs)
+NYTL_VEC_IP_UTIL(sin)
+NYTL_VEC_IP_UTIL(cos)
+NYTL_VEC_IP_UTIL(tan)
+NYTL_VEC_IP_UTIL(asin)
+NYTL_VEC_IP_UTIL(acos)
+NYTL_VEC_IP_UTIL(atan)
+NYTL_VEC_IP_UTIL(sqrt)
+NYTL_VEC_IP_UTIL(log)
+NYTL_VEC_IP_UTIL(exp)
+NYTL_VEC_IP_UTIL(exp2)
+NYTL_VEC_IP_UTIL(floor)
+NYTL_VEC_IP_UTIL(ceil)
+
+template<size_t D, typename T1, typename T2>
+constexpr void pow(Vec<D, T1>& a, T2 exp)
+{
+	for(auto& val : a)
+		val = std::pow(val, exp);
+}
+
+#undef NYTL_VEC_IP_UTIL
+
+} // namespace ip
 } // namespace cw
-} // namespace nytl::vec
+} // namespace vec
+} // namespace nytl
 
 #undef nytl_assure
 #endif // header guard

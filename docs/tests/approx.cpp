@@ -1,8 +1,10 @@
 #include "test.hpp"
+#include <nytl/mat.hpp>
+#include <nytl/matOps.hpp>
+#include <nytl/vec.hpp>
+#include <nytl/vecOps.hpp>
 #include <nytl/approx.hpp>
 #include <nytl/approxVec.hpp>
-#include <nytl/vec.hpp>
-#include <nytl/mat.hpp>
 
 TEST(basic) {
 	EXPECT(nytl::approx(3.1, 0.2), 3.0);

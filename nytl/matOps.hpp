@@ -12,7 +12,8 @@
 #define NYTL_INCLUDE_MAT_OPS
 
 #include <nytl/tmpUtil.hpp> // nytl::templatize
-#include <nytl/vecOps.hpp>
+#include <nytl/mat.hpp> // nytl::Mat
+#include <nytl/vecOps.hpp> // nytl::dot
 
 #include <utility> // std::swap
 #include <stdexcept> // std::invalid_argument
@@ -20,38 +21,7 @@
 #include <iosfwd> // std::ostream
 #include <cmath> // std::fma
 
-namespace nytl::mat {
-namespace detail {
-
-/// \brief Creates a matrix of implementation type 'M' with value type 'T' and
-/// rows/cols 'R'/'C'.
-template<typename M, typename T, std::size_t R, std::size_t C>
-auto createMatrix()
-{
-	if constexpr(M::staticSized) return M::template Rebind<T>::template create<R, C>();
-	else return M::template Rebind<T>::create(R, C);
-}
-
-/// \brief Creates a matrix with the transposed dimension as the given one.
-/// Will not copy/set any values.
-template<typename M>
-auto createTransposeMatrix(const M& mat)
-{
-	if constexpr(M::staticSized) return M::template create<M::cols(), M::rows()>();
-	else return M::create(mat.cols(), mat.rows());
-}
-
-/// \brief Creates a matrix with the same implementation and dimension as the given one
-/// but with value type 'T'
-template<typename T, typename M>
-auto createMatrix(const M& mat)
-{
-	if constexpr(M::staticSized)
-		return M::template Rebind<T>::template create<M::rows(), M::cols()>();
-	else return M::template Rebind<T>::create(mat.rows(), mat.cols());
-}
-
-}
+namespace nytl {
 
 /// \brief Prints the given matrix with numerical values to the given ostream.
 /// If this function is used, header <ostream> must be included.
@@ -62,11 +32,11 @@ auto createMatrix(const M& mat)
 /// \param rowSpacing The spacing in the beginning of each row.
 /// \param breakAfter Whether to insert a newline after printing the matrix.
 /// \requires There must be an implementation of operator<<(std::ostream&, M::Value).
-template<typename M>
-std::ostream& print(std::ostream& ostream, const M& mat, unsigned int valueWidth = 6,
-	const char* rowSpacing = "    ", bool breakAfter = true)
+template<size_t R, size_t C, typename T>
+std::ostream& print(std::ostream& ostream, const Mat<R, C, T>& mat, 
+	unsigned int valueWidth = 6, const char* rowSpacing = "    ", bool breakAfter = true)
 {
-	auto& os = templatize<M>(ostream);
+	auto& os = templatize<T>(ostream);
 	auto org = os.precision();
 	os << "{" << "\n";
 
@@ -97,152 +67,97 @@ std::ostream& print(std::ostream& ostream, const M& mat, unsigned int valueWidth
 	return os;
 }
 
-/// \brief Returns the row with index n of the given matrix.
-/// For example: `nytl::mat::row(mat44, 0);` returns the first (index 0) row of a matrix.
-/// \returns A M::RowVec holding the elements from the nth row.
-template<typename M>
-constexpr auto row(const M& mat, typename M::Size n)
+template<typename T, size_t R, size_t C>
+std::ostream& operator<<(std::ostream& os, const Mat<R, C, T>& a)
 {
-	typename M::RowVec ret {};
-	for(auto i = 0u; i < mat.cols(); ++i)
-		ret[i] = mat[n][i];
-
-	return ret;
+	return print(os, a);
 }
 
 /// \brief Returns the column with index n of the given matrix.
 /// For example: `nytl::mat::row(mat44, 1);` returns the second (index 1) column of a matrix.
-/// \returns A M::ColVec holding the elements from the nth column.
-template<typename M>
-constexpr auto col(const M& mat, typename M::Size n)
+template<size_t R, size_t C, typename T>
+constexpr auto col(const nytl::Mat<R, C, T>& mat, size_t n)
 {
-	typename M::ColVec ret {};
-	for(auto i = 0u; i < mat.rows(); ++i)
+	Vec<R, T> ret;
+	for(auto i = 0u; i < R; ++i)
 		ret[i] = mat[i][n];
-
 	return ret;
-}
-
-/// \brief Sets the nth row of the given mutable matrix.
-/// For example: `nytl::mat::row(mat44, 0, vec4);` sets the first row of a matrix.
-/// \requires Type 'R' shall be a container that can be accessed using operator[] and
-/// that holds at least as much values as mat has columns which can be converted to M::Value.
-template<typename M, typename R>
-constexpr void row(M& mat, typename M::Size n, const R& row)
-{
-	for(auto i = 0u; i < mat.cols(); ++i)
-		mat[n][i] = row[i];
 }
 
 /// \brief Sets the column with index n to the given column.
 /// For example: `nytl::mat::col(mat44, 2, vec4);` sets the 3rd column of a matrix.
-/// \requires Type 'R' shall be a container that can be accessed using operator[] and
-/// that holds at least as much values as mat has rows which can be converted to M::Value.
-template<typename M, typename C>
-constexpr void col(M& mat, typename M::Size n, const C& col)
+template<size_t R, size_t C, typename T>
+constexpr void col(nytl::Mat<R, C, T>& mat, size_t n, const nytl::Vec<R, T>& col)
 {
-	for(auto i = 0u; i < mat.rows(); ++i)
+	for(auto i = 0u; i < R; ++i)
 		mat[i][n] = col[i];
 }
 
 /// \brief Swaps the row with index n with the row with index i.
 /// For example: `nytl::mat::swapRow(mat44, 2, 3);` swaps the 3rd and 4th row
-/// The given matrix must be mutable.
-template<typename M>
-constexpr void swapRow(M& mat, typename M::Size n, typename M::Size i)
+template<size_t R, size_t C, typename T>
+constexpr void swapRow(nytl::Mat<R, C, T>& mat, size_t n, size_t i)
 {
 	using std::swap;
-	for(auto c = 0u; c < mat.cols(); ++c)
-		swap(mat[n][c], mat[i][c]);
+	swap(mat[n], mat[i]);
 }
 
 /// \brief Swaps the column with index n with the column with index i.
 /// For example: `nytl::mat::swapCol(mat44, 2, 3);` swaps the 3rd and 4th column
-/// The given matrix must be mutable.
-template<typename M>
-constexpr void swapCol(M& mat, typename M::Size n, typename M::Size i)
+template<size_t R, size_t C, typename T>
+constexpr void swapCol(nytl::Mat<R, C, T>& mat, size_t n, size_t i)
 {
 	using std::swap;
-	for(auto r = 0u; r < mat.rows(); ++r)
+	for(auto r = 0u; r < R; ++r)
 		swap(mat[r][n], mat[r][i]);
 }
 
-/// \brief Copies the second matrix into the first one.
-/// Both matrices should have the same size, otherwise calling this functions
-/// results in undefined behavior.
-/// For example: `nytl::mat::copy(mat44f, mat44d);` copies the double matrix into the float one.
-/// The first given matrix must be mutable.
-/// \requires std::is_convertible<N::Value, M::Value>
-template<typename M, typename N>
-constexpr void copy(M& a, const N& b)
+/// \brief Sets all values of the given matrix to 1.
+template<size_t R, size_t C, typename T>
+constexpr void one(nytl::Mat<R, C, T>& mat)
 {
-	for(auto r = 0u; r < a.rows(); ++r)
-		for(auto c = 0u; c < a.cols(); ++c)
-			a[r][c] = b[r][c];
-}
-
-/// \brief Sets all values of the given matrix to 0 of the underlying field.
-/// The given matrix must be mutable.
-template<typename M>
-constexpr void zero(M& mat)
-{
-	for(auto r = 0u; r < mat.rows(); ++r)
-		for(auto c = 0u; c < mat.cols(); ++c)
-			mat[r][c] = 0.0;
-}
-
-/// \brief Sets all values of the given matrix to 1 of the underlying field.
-/// The given matrix must be mutable.
-template<typename M>
-constexpr void one(M& mat)
-{
-	for(auto r = 0u; r < mat.rows(); ++r)
-		for(auto c = 0u; c < mat.cols(); ++c)
-			mat[r][c] = 1.0;
+	for(auto r = 0u; r < R; ++r)
+		for(auto c = 0u; c < C; ++c)
+			mat[r][c] = T{1};
 }
 
 /// \brief Returns the trace of a square matrix, i.e. the sum of its diagonal elements
-/// Undefined behavior for empty or non-square matrices.
-template<typename M>
-constexpr auto trace(const M& mat)
+template<size_t D, typename T>
+constexpr auto trace(const nytl::Mat<D, D, T>& mat)
 {
 	auto ret = mat[0][0];
-	for(auto n = 1u; n < mat.rows(); ++n)
+	for(auto n = 1u; n < D; ++n)
 		ret += mat[n][n];
 	return ret;
 }
 
 /// \brief Multiplies all elements in the diagonal of the given non-empty square matrix.
-/// Undefined behavior for empty or non-square matrices.
-template<typename M>
-constexpr auto multiplyDiagonal(const M& mat)
+template<size_t D, typename T>
+constexpr auto multiplyDiagonal(const nytl::Mat<D, D, T>& mat)
 {
 	auto ret = mat[0][0];
-	for(auto n = 1u; n < mat.rows(); ++n)
+	for(auto n = 1u; n < D; ++n)
 		ret *= mat[n][n];
 	return ret;
 }
 
 /// \brief Sets the given matrix to the identity matrix.
-/// Undefined behavior for non-square matrices.
-/// The given matrix must be mutable.
-template<typename M>
-constexpr void identity(M& mat)
+template<size_t D, typename T>
+constexpr void identity(nytl::Mat<D, D, T>& mat)
 {
-	zero(mat);
-	for(auto n = 0u; n < mat.rows(); ++n)
-		mat[n][n] = 1.0;
+	mat = {};
+	for(auto n = 0u; n < D; ++n)
+		mat[n][n] = T{1};
 }
 
 /// \brief Transposes the given matrix.
 /// \returns A rebound matrix of the same implementation with C rows and R rows.
-template<typename M>
-constexpr auto transpose(const M& mat)
+template<size_t R, size_t C, typename T>
+constexpr auto transpose(const nytl::Mat<R, C, T>& mat)
 {
-	auto ret = detail::createTransposeMatrix(mat);
-
-	for(auto r = 0u; r < mat.rows(); ++r)
-		for(auto c = 0u; c < mat.cols(); ++c)
+	nytl::Mat<C, R, T> ret {};
+	for(auto r = 0u; r < R; ++r)
+		for(auto c = 0u; c < C; ++c)
 			ret[c][r] = mat[r][c];
 
 	return ret;
@@ -251,16 +166,15 @@ constexpr auto transpose(const M& mat)
 /// \brief Performs partial pivoting for the given matrix for given position.
 /// Finds the largest value in the given column and swaps its row with the given row.
 /// Complexity Lies within O(n^2).
-/// The given matrix must be mutable.
 /// \param row The row of the matrix entry to maximize.
 /// \param column The column of the matrix entry to maximize.
-/// \param after If this is true, only rows after the given one are considered for swapping.
+/// \param onlyAfter If this is true, only rows after the given one are considered for swapping.
 /// \returns The new value at the given position.
-template<typename M>
-constexpr auto pivot(M& mat, typename M::Size row, typename M::Size column, bool after = false)
+template<size_t R, size_t C, typename T>
+constexpr auto pivot(nytl::Mat<R, C, T>& mat, size_t row, size_t column, bool onlyAfter = false)
 {
 	auto maxRow = row;
-	for(auto r = after ? row + 1 : 0; r < mat.rows(); ++r)
+	for(auto r = onlyAfter ? row + 1 : 0; r < R; ++r)
 		if(std::abs(mat[r][column]) > std::abs(mat[maxRow][column]))
 			maxRow = r;
 
@@ -276,29 +190,33 @@ constexpr auto pivot(M& mat, typename M::Size row, typename M::Size column, bool
 /// Does directly modify the matrix. For a version that operates on a copy, see
 /// rowEcholonCopy.
 /// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
-/// \notes This operation divides by values from the matrix so it must have a type does
+/// \note This operation divides by values from the matrix so it must have a type does
 /// correctly implement division over the desired field (e.g. integer matrices will result
 /// in quiet rounding errors here).
-template<typename M>
-constexpr void rowEcholon(M& mat)
+template<size_t R, size_t C, typename T>
+constexpr void rowEcholon(nytl::Mat<R, C, T>& mat)
 {
 	// Start with the topleft element and go one right in each step.
 	// We only go one down if we could eliminate the current column with the current row.
-	for(auto r = 0u, c = 0u; r < mat.rows() && c < mat.cols(); ++c) {
+	for(auto r = 0u, c = 0u; r < R && c < C; ++c) {
 		// maximize the current pivot. Only consider rows after the current one.
 		// go to the next column (continue without increasing the row) if the pivot is zero
-		if(pivot(mat, r, c, true) == 0.0) continue;
+		if(pivot(mat, r, c, true) == 0.0) {
+			continue;
+		}
 
 		// Divide all elements in this row by the first element since it should be 1
 		// we already assured that the pivot cannot be zero, so we can divide by it
 		auto factor = mat[r][c];
-		for(auto i = c; i < mat.cols(); ++i) mat[r][i] /= factor;
+		for(auto i = c; i < C; ++i) {
+			mat[r][i] /= factor;
+		}
 
 		// Now add a multiple of the current row to all other rows, so that this column
 		// will be set to 0 everywhere except the current line
-		for(auto i = r + 1; i < mat.rows(); ++i) {
+		for(auto i = r + 1; i < R; ++i) {
 			auto fac = mat[i][c];
-			for(auto j = c; j < mat.cols(); ++j) {
+			for(auto j = c; j < C; ++j) {
 				mat[i][j] -= fac * mat[r][j];
 			}
 		}
@@ -308,12 +226,12 @@ constexpr void rowEcholon(M& mat)
 }
 
 /// \brief Same as [nytl::mat::rowEcholon](), but operates on a copy.
-/// Assures that the given matrix is converted to a matrix will full precision.
-template<typename M>
-constexpr auto rowEcholonCopy(const M& mat)
+/// Gives the new matrix TN (= double) precision type to assure
+/// there will be no rounding issues.
+template<size_t R, size_t C, typename T, typename TN = double>
+constexpr auto rowEcholonCopy(const nytl::Mat<R, C, T>& mat)
 {
-	auto ret = detail::createMatrix<double>(mat);
-	copy(ret, mat);
+	auto ret = static_cast<nytl::Mat<R, C, TN>>(mat);
 	rowEcholon(ret);
 	return ret;
 }
@@ -322,31 +240,34 @@ constexpr auto rowEcholonCopy(const M& mat)
 /// Implements the full Gaussian elimination for a given matrix.
 /// The given matrix can be in any form.
 /// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
-/// The given matrix must be mutable.
-/// \notes This operation divides by values from the matrix so it must have a type does
+/// \note This operation divides by values from the matrix so it must have a type does
 /// correctly implement division over the desired field (e.g. integer matrices will result
 /// in errors here).
-template<typename M>
-constexpr void reducedRowEcholon(M& mat)
+template<size_t R, size_t C, typename T>
+constexpr void reducedRowEcholon(nytl::Mat<R, C, T>& mat)
 {
 	// first bring the matrix into row-echolon form
 	rowEcholon(mat);
 
 	// start with the bottom and eliminate all coefficients above this row that
 	// are in the same c
-	for(auto r = mat.rows(); r-- > 0; ) {
+	for(auto r = R; r-- > 0; ) {
 
 		//find the pivot
 		auto c = 0u;
-		while(c < mat.cols() && mat[r][c] == typename M::Value {}) ++c;
+		while(c < mat.cols() && mat[r][c] == T{0}) {
+			++c;
+		}
 
 		// if the pivot is zero continue to the next (above) row
-		if(!mat[r][c]) continue;
+		if(!mat[r][c]) {
+			continue;
+		}
 
 		// eliminate other coefficients in the current column above the current row
 		for(auto p = 0u; p < r; ++p) {
 			auto fac = mat[p][c] / mat[r][c];
-			for(auto q = 0u; q < mat.cols(); ++q) {
+			for(auto q = 0u; q < C; ++q) {
 				mat[p][q] -= fac * mat[r][q];
 			}
 		}
@@ -354,15 +275,24 @@ constexpr void reducedRowEcholon(M& mat)
 }
 
 /// \brief Same as [nytl::mat::reducedRowEcholon](), but operates on a copy.
-/// Assures that the given matrix is converted to a matrix will full precision.
-template<typename M>
-constexpr auto reducedRowEcholonCopy(const M& mat)
+/// Gives the new matrix TN (= double) precision type to assure
+/// there will be no rounding issues.
+template<size_t R, size_t C, typename T, typename TN = double>
+constexpr auto reducedRowEcholonCopy(const nytl::Mat<R, C, T>& mat)
 {
-	auto ret = detail::createMatrix<double>(mat);
-	copy(ret, mat);
+	auto ret = static_cast<nytl::Mat<R, C, TN>>(mat);
 	reducedRowEcholon(ret);
 	return ret;
 }
+
+/// The return type of a LU decomposition.
+template<size_t D, typename T>
+struct LUDecomposition {
+	nytl::Mat<D, D, T> lower;
+	nytl::Mat<D, D, T> upper;
+	nytl::Mat<D, D, bool> perm; // permutation
+	unsigned int sign = 0;
+};
 
 /// \brief Computes a LU decomposition of a given square matrix.
 /// \returns std::tuple with the lower (0) and upper (1) matrix of the decomposition, as
@@ -377,76 +307,78 @@ constexpr auto reducedRowEcholonCopy(const M& mat)
 /// The returned matrices have the full field precision type, since this operation divides values.
 /// This function cannot fail in any way.
 /// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
-template<typename M>
-constexpr auto luDecomp(const M& mat)
+template<size_t D, typename T>
+constexpr LUDecomposition<D, double> luDecomp(const nytl::Mat<D, D, T>& mat)
 {
-	using RetMat = decltype(detail::createMatrix<double>(mat));
+	LUDecomposition<D, double> ret;
+	identity(ret.perm);
+	ret.upper = static_cast<decltype(ret.upper)>(mat);
 
-	std::tuple<RetMat, RetMat, RetMat, int> ret {};
-	auto& lower = (std::get<0>(ret) = detail::createMatrix<double>(mat));
-	auto& upper = (std::get<1>(ret) = detail::createMatrix<double>(mat));
-	auto& perm = (std::get<2>(ret) = detail::createMatrix<double>(mat));
-	auto& sign = (std::get<3>(ret) = 1.0);
-
-	identity(perm);
-	copy(upper, mat);
-
-	for(auto n = 0u; n < mat.cols(); ++n) {
+	for(auto n = 0u; n < D; ++n) {
 
 		// since we divide by upper[n][n] later on we should try to make it non-zero by
 		// swapping the current row with another row. If we do so, we have to pretend we
 		// swapped the matrix in the beginning and therefore also change the lower matrix and
 		// remember the swap in the permutation matrix
-		if(upper[n][n] == 0.0) {
-			for(auto r = n + 1; r < mat.rows(); ++r) {
-				if(upper[r][n] != 0.0) {
-					swapRow(perm, r, n);
-					swapRow(upper, r, n);
-					swapRow(lower, r, n);
-					sign *= -1;
+		if(ret.upper[n][n] == 0.0) {
+			for(auto r = n + 1; r < D; ++r) {
+				if(ret.upper[r][n] != 0.0) {
+					swapRow(ret.perm, r, n);
+					swapRow(ret.upper, r, n);
+					swapRow(ret.lower, r, n);
+					ret.sign *= -1;
 					break;
 				}
 			}
 
 			// If all coefficients in the column are zero (e.g. a zero matrix), its ok since
 			// we don't have any more coefficients to eliminate.
-			if(upper[n][n] == 0.0) {
-				lower[n][n] = 1.0;
+			if(ret.upper[n][n] == 0.0) {
+				ret.lower[n][n] = 1.0;
 				continue;
 			}
 		}
 
-		lower[n][n] = 1.0;
+		ret.lower[n][n] = 1.0;
 
 		// erase all coefficients in the nth column below the nth row.
 		// pivoting already assured that mat[n][n] is not zero
-		auto rown = row(upper, n);
-		for(auto i = n + 1; i < mat.rows(); ++i) {
-			auto fac = static_cast<double>(upper[i][n]) / upper[n][n];
-			auto rowi = row(upper, i);
+		auto rown = row(ret.upper, n);
+		for(auto i = n + 1; i < D; ++i) {
+			auto fac = ret.upper[i][n] / ret.upper[n][n];
+			auto rowi = row(ret.upper, i);
 			auto rowin = rowi - fac * rown;
-			row(upper, i, rowin);
-			lower[i][n] = fac;
+			row(ret.upper, i, rowin);
+			ret.lower[i][n] = fac;
 		}
 	}
 
 	return ret;
 }
 
-namespace nocheck {
-
-/// \brief Same as [nytl::mat::luEvaluate]() but does not perform any matrix checks.
-template<typename M, typename V>
+/*
+/// \brief Returns the vector x so that LUx = b.
+/// Can be used to more efficiently solve multiple linear equitation systems for the
+/// same matrix by first decomposing it and then use this function instead of the default
+/// Gaussian elimination implementation.
+/// The given matrix must be a square matrix.
+/// \notes If the lu composition was done with a permutation matrix (PA = LU), the given
+/// vector must be premultiplied with the permutations inverse (tranpose) to get the vector
+/// that solves Ax = b. If PA = LU and Ax = b, so LUx = P * b
+/// \notes Does not check if the given equitation is solvable, i.e. results in undefined behavior
+/// if it is not. The caller should check or assure this. Could be done by
+/// checking whether the given lower or upper matrix is singular, i.e. whether one of its
+/// diagonal elements is zero.
+/// The returned vector has a full field precision type, since this operation divides values.
+/// Complexity Lies within O(n^2) where n is the number of rows/cols of the given matrix.
+template<size_t R, size_t D, 
 constexpr auto luEvaluate(const M& l, const M& u, const V& b)
 {
-	auto d = vec::detail::createVector<double>(b);
-	auto x = vec::detail::createVector<double>(b);
-
 	// forward substitution
 	for(auto i = 0u; i < d.size(); ++i) {
 		d[i] = b[i];
 		for(auto j = 0u; j < i; ++j)
-			d[i] = std::fma(-l[i][j], d[j], d[i]);
+			d[i] -= -l[i][j] * d[j];
 
 		d[i] /= l[i][i];
 	}
@@ -455,7 +387,7 @@ constexpr auto luEvaluate(const M& l, const M& u, const V& b)
 	for(auto i = x.size(); i-- > 0; ) {
 		x[i] = d[i];
 		for(auto j = i + 1; j < x.size(); ++j)
-			x[i] = std::fma(-u[i][j], x[j], x[i]);
+			x[i] -= -u[i][j] * x[j];
 
 		x[i] /= u[i][i];
 	}
@@ -463,7 +395,6 @@ constexpr auto luEvaluate(const M& l, const M& u, const V& b)
 	return x;
 }
 
-} // namespace nocheck
 
 /// \brief Returns the vector x so that LUx = b.
 /// Can be used to more efficiently solve multiple linear equitation systems for the
@@ -636,14 +567,14 @@ constexpr bool invert(M& mat)
 	mat = nocheck::inverse(l, u, p);
 	return true;
 }
+*/
 
-/// \brief Returns whether the given Matrix is symmetric.
-/// Uses the == operator over M::Value to check for equality.
-template<typename M>
-constexpr bool symmetric(const M& mat)
+/// \brief Returns whether the given quadratic matrix is symmetric.
+template<size_t D, typename T>
+constexpr bool symmetric(const nytl::Mat<D, D, T>& mat)
 {
-	for(auto r = 1u; r < mat.rows(); ++r)
-		for(auto c = 0u; c < r; ++c)
+	for(auto r = 0u; r < D; ++r)
+		for(auto c = r + 1; c < D; ++c)
 			if(mat[r][c] != mat[c][r])
 				return false;
 	return true;
