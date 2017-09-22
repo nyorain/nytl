@@ -1,9 +1,6 @@
 tvec = executable('vec', 'vec.cpp', dependencies: nytl_dep)
 test('vec', tvec)
 
-tdynVec = executable('dynVec', 'dynVec.cpp', dependencies: nytl_dep)
-test('dynVec', tdynVec)
-
 tmat = executable('mat',  'mat.cpp', dependencies: nytl_dep)
 test('mat', tmat)
 

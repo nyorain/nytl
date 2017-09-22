@@ -7,11 +7,10 @@
 #ifndef NYTL_INCLUDE_FWD_SPAN
 #define NYTL_INCLUDE_FWD_SPAN
 
-#include <nytl/scalar.hpp> // nytl::constants::dynamicSize
 #include <cstdlib> // std::size_t
 
 namespace nytl {
-	template<typename T, std::size_t N = constants::dynamicSize> class Span;
+	template<typename T, std::size_t N = 0> class Span;
 }
 
 #endif //header guard

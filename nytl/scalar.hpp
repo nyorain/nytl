@@ -14,19 +14,7 @@ namespace constants {
 	constexpr const auto pi = 3.14159265359;
 	constexpr const auto degree = pi / 180.0; // one degree as radian
 	constexpr const auto e = 2.71828182845;
-
-	constexpr const auto dynamicSize = 0u; // make vec/span dynamic sized
 } // namespace constants
-
-/// \brief simply constexpr implementation of std::accumulate.
-/// \requires Type 'InputIt' must be a InputIterator
-/// \requiers T must be CopyAssignable and CopyConstructible
-template<typename InputIt, typename T, typename BinaryOp>
-constexpr auto accumulate(InputIt begin, InputIt last, T init, BinaryOp op)
-{
-	while(begin != last) init = op(init, *(begin++));
-	return init;
-}
 
 /// \brief Converts the given angle in radians to degrees.
 /// \requires P must represent a mathematical field.

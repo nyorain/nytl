@@ -45,7 +45,7 @@ public:
 // Files that include it should undefine the macro at the end of their file
 // It can be included again.
 
-// TODO: make this a macro
+// TODO: make this a macro?
 // constexpr template<bool Static> assure(bool, const char);
 
 /// Utility macro that makes sure expr is fulfilled.

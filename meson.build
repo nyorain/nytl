@@ -1,26 +1,17 @@
 project('nytl', 'cpp',
 	license: 'BSL-1.0',
 	version: '0.4.0',
-	default_options: ['cpp_std=c++1z'])
+	default_options: ['cpp_std=c++1z', 'warning_level=4'])
 
-version = '0.4.0'
-
-add_project_arguments(
-	'-Wall',
-	'-Wextra',
-	'-Wpedantic',
-	'-Wno-missing-braces',
-	language: 'cpp')
+add_project_arguments('-Wno-missing-braces', language: 'cpp')
 
 headers = [
 	'nytl/approx.hpp',
 	'nytl/approxVec.hpp',
-	'nytl/assure.hpp',
 	'nytl/callback.hpp',
 	'nytl/clone.hpp',
 	'nytl/connection.hpp',
 	'nytl/convert.hpp',
-	'nytl/dynVec.hpp',
 	'nytl/flags.hpp',
 	'nytl/functionTraits.hpp',
 	'nytl/fwd.hpp',
