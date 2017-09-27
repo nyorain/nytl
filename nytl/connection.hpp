@@ -56,7 +56,7 @@ public:
 	/// Note that depending on the connection id and callable type and if
 	/// the callback was destroyed before the connection, this may
 	/// not represent the status of the connection.
-	bool connected() const noexcept { return connectable_ && id_.id() > 0; }
+	bool connected() const noexcept { return connectable_ && id_.get() > 0; }
 
 	/// The associated connectable object.
 	C* connectable() const { return connectable_; }
@@ -142,7 +142,7 @@ public:
 	/// Note that depending on the connection id and callable type and if
 	/// the callback was destroyed before the connection, this may
 	/// not represent the status of the connection.
-	bool connected() const noexcept { return connectable_ && id_.id() > 0; }
+	bool connected() const noexcept { return connectable_ && id_.get() > 0; }
 
 	/// Releases ownership of the associated connection and returns a non-owned
 	/// connection object.
@@ -164,9 +164,9 @@ protected:
 struct ConnectionID {
 	std::int64_t value;
 
-	constexpr void reset(std::int64_t val) noexcept { value = val; }
-	constexpr std::int64_t id() const noexcept { return value; }
-	constexpr void remove() const noexcept {}
+	void set(std::int64_t val) noexcept { value = val; }
+	auto get() const noexcept { return value; }
+	void removed() const noexcept {}
 };
 
 /// Shares the id value between all connections so that disconnections from
@@ -177,9 +177,9 @@ struct TrackedConnectionID {
 	TrackedConnectionID() = default;
 	TrackedConnectionID(std::int64_t val) : value(std::make_shared<std::int64_t>(val)) {}
 
-	void reset(std::int64_t val) noexcept { if(value) *value = val; }
-	std::int64_t id() const noexcept { return (value) ? *value : 0; }
-	void remove() noexcept { if(value) *value = 0; value.reset(); }
+	void set(std::int64_t val) noexcept { if(value) *value = val; }
+	auto get() const noexcept { return (value) ? *value : 0; }
+	void removed() noexcept { if(value) *value = 0; value.reset(); }
 };
 
 using Connectable = ConnectableT<ConnectionID>;
@@ -190,6 +190,8 @@ using TrackedConnectable = ConnectableT<TrackedConnectionID>;
 using TrackedConnection = ConnectionT<TrackedConnectable, TrackedConnectionID>;
 using TrackedUniqueConnection = UniqueConnectionT<TrackedConnectable, TrackedConnectionID>;
 
+// TODO: remove
+/*
 constexpr inline bool operator==(ConnectionID a, ConnectionID b)
 	{ return a.value == b.value; }
 constexpr inline bool operator!=(ConnectionID a, ConnectionID b)
@@ -198,6 +200,7 @@ bool inline operator==(const TrackedConnectionID& a, const TrackedConnectionID& 
 	{ return a.value == b.value; }
 bool inline operator!=(const TrackedConnectionID& a, const TrackedConnectionID& b)
 	{ return a.value != b.value; }
+*/
 
 } // namespace nytl
 

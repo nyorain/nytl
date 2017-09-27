@@ -77,7 +77,6 @@ TEST(echolon) {
 	EXPECT(a, nytl::approx(reduced));
 }
 
-/*
 // tests the lu decomposition operations
 TEST(lu_decomp_1) {
 	nytl::Mat<3, 3, double> a {
@@ -86,18 +85,20 @@ TEST(lu_decomp_1) {
 		1.0, 0.0, 2.0,
 	};
 
-	auto lups = nytl::mat::luDecomp(a);
-	const auto& l = std::get<0>(lups);
-	const auto& u = std::get<1>(lups);
-	const auto& p = std::get<2>(lups);
+	auto lups = nytl::luDecomp(a);
+	const auto& l = lups.lower;
+	const auto& u = lups.upper;
+	const auto& p = lups.perm;
 
 	EXPECT(l * u, nytl::approx(p * a));
 
-	auto lups2 = nytl::mat::luDecomp(p * a);
-	const auto& l2 = std::get<0>(lups2);
-	const auto& u2 = std::get<1>(lups2);
+	auto lups2 = nytl::luDecomp(p * a);
+	const auto& l2 = lups2.lower;
+	const auto& u2 = lups2.upper;
+	const auto& p2 = lups2.perm;
 
 	EXPECT(l2 * u2, nytl::approx(p * a));
+	EXPECT(p2, (nytl::identity<3, double>()));
 }
 
 TEST(lu_decomp_2) {
@@ -108,15 +109,20 @@ TEST(lu_decomp_2) {
 	};
 
 	nytl::Vec<3, double> b {7.85, -19.3, 71.4};
-	nytl::Vec<3, double> x {3.0, -2.5, 7.0};
 
-	auto lups = nytl::mat::luDecomp(a);
-	const auto& l = std::get<0>(lups);
-	const auto& u = std::get<1>(lups);
-	const auto& p = std::get<2>(lups);
+	auto lups = nytl::luDecomp(a);
+	const auto& l = lups.lower;
+	const auto& u = lups.upper;
+	const auto& p = lups.perm;
 
 	EXPECT(l * u, nytl::approx(p * a));
-	EXPECT(nytl::mat::luEvaluate(l, u, b), nytl::approx(p * x));
+
+	auto x2 = nytl::luEvaluate(l, u, b);
+	EXPECT(a * x2, nytl::approx(p * b));
+
+	// the manually (right) computed solution
+	nytl::Vec<3, double> x {3.0, -2.5, 7.0};
+	EXPECT(a * x, nytl::approx(p * b));
 }
 
 // tests the inverse and determinant operations
@@ -130,24 +136,25 @@ TEST(inverse) {
 			1, 3, 0, 4, -1
 		};
 
-		auto lups = nytl::mat::luDecomp(a);
-		const auto& l = std::get<0>(lups);
-		const auto& u = std::get<1>(lups);
-		const auto& p = std::get<2>(lups);
+		auto lups = nytl::luDecomp(a);
+		const auto& l = lups.lower;
+		const auto& u = lups.upper;
+		const auto& p = lups.perm;
 		EXPECT(l * u, nytl::approx(p * a));
 
-		EXPECT(nytl::mat::determinant(a), nytl::approx(-135.0));
-		EXPECT(nytl::mat::invertible(a), true);
+		EXPECT(nytl::determinant(a), nytl::approx(-135.0));
+		EXPECT(nytl::invertible(a), true);
 
-		auto inv = nytl::mat::inverse(a);
-		auto inv1 = nytl::mat::inverse(l, u, p);
+		auto inv = nytl::inverse(a);
+		auto inv1 = nytl::inverse(lups);
 		EXPECT(inv, nytl::approx(inv1));
 
-		nytl::Mat<5, 5, double> identity;
-		nytl::mat::identity(identity);
+		auto iinv = nytl::inverse(inv);
+		EXPECT(a, nytl::approx(iinv));
 
-		EXPECT(a * inv, nytl::approx(identity));
-		EXPECT(inv * a, nytl::approx(identity));
+		auto id = nytl::identity<5, double>();
+		EXPECT(a * inv, nytl::approx(id));
+		EXPECT(inv * a, nytl::approx(id));
 	}
 
 	{
@@ -159,17 +166,17 @@ TEST(inverse) {
 			{1, 3, 0, 5, -1}
 		}};
 
-		auto lups = nytl::mat::luDecomp(a);
-		const auto& l = std::get<0>(lups);
-		const auto& u = std::get<1>(lups);
-		const auto& p = std::get<2>(lups);
+		auto lups = nytl::luDecomp(a);
+		const auto& l = lups.lower;
+		const auto& u = lups.upper;
+		const auto& p = lups.perm;
 		EXPECT(l * u, nytl::approx(p * a));
 
-		EXPECT(nytl::mat::determinant(a), nytl::approx(0.0));
-		EXPECT(nytl::mat::invertible(a), false);
+		EXPECT(nytl::determinant(a), nytl::approx(0.0));
+		EXPECT(nytl::invertible(a), false);
 
-		ERROR(nytl::mat::inverse(a), std::invalid_argument);
-		ERROR(nytl::mat::inverse(l, u), std::invalid_argument);
+		// undefined behvaiour now
+		// ERROR(nytl::inverse(a), std::invalid_argument);
+		// ERROR(nytl::inverse(lups), std::invalid_argument);
 	}
 }
-*/

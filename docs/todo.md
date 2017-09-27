@@ -30,6 +30,7 @@ TODO for nytl
 	- submatrix and subvector functions (possible as generic? otherwise only for Vec/Mat)
 	- more lu decomp algorithms (like e.g. crout)
 	- various matrix checks: (positive/negative/in-) definite?
+- fix callback connection id spec, see callback.md
 
 Not to important
 ===============

@@ -13,6 +13,9 @@ test('referenced', treferenced)
 tcallback = executable('callback', 'callback.cpp', dependencies: nytl_dep)
 test('callback', tcallback)
 
+trcallback = executable('rcallback', 'rcallback.cpp', dependencies: nytl_dep)
+test('rcallback', trcallback)
+
 tclone = executable('clone', 'clone.cpp', dependencies: nytl_dep)
 test('clone', tclone)
 

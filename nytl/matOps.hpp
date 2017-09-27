@@ -23,6 +23,18 @@
 
 namespace nytl {
 
+/// The return type of a LU decomposition.
+/// Can then be used by other operations that don't have to decompose
+/// the matrix again, like determinant, inverse or luEvaluate (solve
+/// an equation).
+template<size_t D, typename T>
+struct LUDecomposition {
+	nytl::Mat<D, D, T> lower;
+	nytl::Mat<D, D, T> upper;
+	nytl::Mat<D, D, bool> perm; // permutation
+	unsigned int sign = 1;
+};
+
 /// \brief Prints the given matrix with numerical values to the given ostream.
 /// If this function is used, header <ostream> must be included.
 /// This function does not implement operator<< since this operator should only implemented
@@ -46,15 +58,15 @@ std::ostream& print(std::ostream& ostream, const Mat<R, C, T>& mat,
 			(i > 0) ? std::log10(i) + 1 : std::log10(-i) + 2;
 	};
 
-	for(auto r = 0u; r < mat.rows(); ++r) {
+	for(auto r = 0u; r < R; ++r) {
 		os << rowSpacing << "(";
 
-		for(auto c = 0u; c < mat.cols(); c++) {
+		for(auto c = 0u; c < C; c++) {
 			if(valueWidth) os.width(valueWidth);
 			if(valueWidth) os.precision(valueWidth - numberOfDigits(mat[r][c]) - 1);
 
 			os << mat[r][c];
-			if(c != mat.cols() - 1)
+			if(c != C - 1)
 				os << ", ";
 		}
 
@@ -78,7 +90,7 @@ std::ostream& operator<<(std::ostream& os, const Mat<R, C, T>& a)
 template<size_t R, size_t C, typename T>
 constexpr auto col(const nytl::Mat<R, C, T>& mat, size_t n)
 {
-	Vec<R, T> ret;
+	Vec<R, T> ret {};
 	for(auto i = 0u; i < R; ++i)
 		ret[i] = mat[i][n];
 	return ret;
@@ -148,6 +160,15 @@ constexpr void identity(nytl::Mat<D, D, T>& mat)
 	mat = {};
 	for(auto n = 0u; n < D; ++n)
 		mat[n][n] = T{1};
+}
+
+/// \brief Returns the identity for the given size and precision
+template<size_t D, typename T>
+constexpr auto identity()
+{
+	Mat<D, D, T> ret {};
+	identity(ret);
+	return ret;
 }
 
 /// \brief Transposes the given matrix.
@@ -285,15 +306,6 @@ constexpr auto reducedRowEcholonCopy(const nytl::Mat<R, C, T>& mat)
 	return ret;
 }
 
-/// The return type of a LU decomposition.
-template<size_t D, typename T>
-struct LUDecomposition {
-	nytl::Mat<D, D, T> lower;
-	nytl::Mat<D, D, T> upper;
-	nytl::Mat<D, D, bool> perm; // permutation
-	unsigned int sign = 0;
-};
-
 /// \brief Computes a LU decomposition of a given square matrix.
 /// \returns std::tuple with the lower (0) and upper (1) matrix of the decomposition, as
 /// well as the used permutation matrix (2) and the sign of the permutation (3).
@@ -310,7 +322,7 @@ struct LUDecomposition {
 template<size_t D, typename T>
 constexpr LUDecomposition<D, double> luDecomp(const nytl::Mat<D, D, T>& mat)
 {
-	LUDecomposition<D, double> ret;
+	LUDecomposition<D, double> ret {};
 	identity(ret.perm);
 	ret.upper = static_cast<decltype(ret.upper)>(mat);
 
@@ -343,12 +355,9 @@ constexpr LUDecomposition<D, double> luDecomp(const nytl::Mat<D, D, T>& mat)
 
 		// erase all coefficients in the nth column below the nth row.
 		// pivoting already assured that mat[n][n] is not zero
-		auto rown = row(ret.upper, n);
 		for(auto i = n + 1; i < D; ++i) {
 			auto fac = ret.upper[i][n] / ret.upper[n][n];
-			auto rowi = row(ret.upper, i);
-			auto rowin = rowi - fac * rown;
-			row(ret.upper, i, rowin);
+			ret.upper[i] = ret.upper[i] - fac * ret.upper[n];
 			ret.lower[i][n] = fac;
 		}
 	}
@@ -356,38 +365,38 @@ constexpr LUDecomposition<D, double> luDecomp(const nytl::Mat<D, D, T>& mat)
 	return ret;
 }
 
-/*
 /// \brief Returns the vector x so that LUx = b.
-/// Can be used to more efficiently solve multiple linear equitation systems for the
+/// Can be used to more efficiently solve multiple linear equation systems for the
 /// same matrix by first decomposing it and then use this function instead of the default
 /// Gaussian elimination implementation.
 /// The given matrix must be a square matrix.
 /// \notes If the lu composition was done with a permutation matrix (PA = LU), the given
-/// vector must be premultiplied with the permutations inverse (tranpose) to get the vector
-/// that solves Ax = b. If PA = LU and Ax = b, so LUx = P * b
-/// \notes Does not check if the given equitation is solvable, i.e. results in undefined behavior
-/// if it is not. The caller should check or assure this. Could be done by
-/// checking whether the given lower or upper matrix is singular, i.e. whether one of its
-/// diagonal elements is zero.
+/// vector must be premultiplied with the permutations inverse (tranpose sine symmetrical) to 
+/// get the vector that solves Ax = b. If PA = LU and Ax = b, so LUx = P * b
+/// \notes If the lower or upper matrix are singular, the equation does not have
+/// a unique solution and this function results in undefined behvaiour. So
+/// if the lower or upper matrix might be singular, check first manually.
 /// The returned vector has a full field precision type, since this operation divides values.
-/// Complexity Lies within O(n^2) where n is the number of rows/cols of the given matrix.
-template<size_t R, size_t D, 
-constexpr auto luEvaluate(const M& l, const M& u, const V& b)
+/// Complexity Lies within O(n^2) where n is the number of rows/cols of the given matrices.
+template<size_t D, typename T1, typename T2>
+constexpr auto luEvaluate(const Mat<D, D, T1>& l, const Mat<D, D, T1>& u, const Vec<D, T2>& b)
 {
 	// forward substitution
-	for(auto i = 0u; i < d.size(); ++i) {
+	Vec<D, double> d {};
+	for(auto i = 0u; i < D; ++i) {
 		d[i] = b[i];
 		for(auto j = 0u; j < i; ++j)
-			d[i] -= -l[i][j] * d[j];
+			d[i] -= l[i][j] * d[j];
 
 		d[i] /= l[i][i];
 	}
 
 	// back substitution
-	for(auto i = x.size(); i-- > 0; ) {
+	Vec<D, double> x {};
+	for(auto i = D; i-- > 0; ) {
 		x[i] = d[i];
-		for(auto j = i + 1; j < x.size(); ++j)
-			x[i] -= -u[i][j] * x[j];
+		for(auto j = i + 1; j < D; ++j)
+			x[i] -= u[i][j] * x[j];
 
 		x[i] /= u[i][i];
 	}
@@ -395,179 +404,71 @@ constexpr auto luEvaluate(const M& l, const M& u, const V& b)
 	return x;
 }
 
-
-/// \brief Returns the vector x so that LUx = b.
-/// Can be used to more efficiently solve multiple linear equitation systems for the
-/// same matrix by first decomposing it and then use this function instead of the default
-/// Gaussian elimination implementation.
-/// The given matrix must be a square matrix.
-/// \notes If the lu composition was done with a permutation matrix (PA = LU), the given
-/// vector must be premultiplied with the permutations inverse (tranpose) to get the vector
-/// that solves Ax = b. If PA = LU and Ax = b, so LUx = P * b
-/// \notes Does not check if the given equitation is solvable, i.e. results in undefined behavior
-/// if it is not. The caller should check or assure this somehow. Could be done by
-/// checking whether the given lower or upper matrix is singular, i.e. whether one of its
-/// diagonal elements is zero.
-/// The returned vector has a full field precision type, since this operation divides values.
-/// Complexity Lies within O(n^2) where n is the number of rows/cols of the given matrix.
-/// \requires Type 'V' shall be a vector that has as many elements as l and u have rows/columns.
-template<typename M, typename V>
-constexpr auto luEvaluate(const M& l, const M& u, const V& b)
+/// \brief Overload of luEvaluate that returns the vector x so that
+/// the decomposed matrix A times x results in b.
+/// See the first luEvaluate overload for more details, especially the
+/// undefined behvaiour when A (and therefore the decomposition) is singular.
+/// The sign of the decomposition will not be used.
+template<size_t D, typename T1, typename T2>
+constexpr auto luEvaluate(const LUDecomposition<D, T1>& lu, const Vec<D, T2>& b) 
 {
-	if(l.rows() != l.cols() || u.rows() != u.cols() || l.rows() != u.rows())
-		throw std::invalid_argument("nytl::mat::luEvaluate: invalid lu matrices");
-
-	for(auto n = 0u; n < l.rows(); ++n)
-		if(l[n][n] == 0.0 || u[n][n] == 0.0)
-			throw std::invalid_argument("nytl::mat::luEvaluate: singular lower or upper matrix");
-
-	return nocheck::luEvaluate(l, u, b);
+	return luEvaluate(lu.lower, lu.upper, transpose(lu.perm) * b);
 }
 
 /// \brief Returns the determinant of the given square matrix.
 /// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
-template<typename M>
-constexpr auto determinant(const M& mat)
+/// If you already have a lu-decomposition, see the next overload of this function.
+template<size_t D, typename T>
+constexpr auto determinant(const Mat<D, D, T>& mat)
 {
 	auto [l, u, p, s] = luDecomp(mat);
-	nytl::unused(l, p);
-	return s * static_cast<typename M::Value>(multiplyDiagonal(u));
+	unused(l, p);
+	return s * static_cast<T>(multiplyDiagonal(u));
 }
 
 /// \brief Returns the determinant for the lu decomposition of a matrix.
-/// \param l The lower matrix of the lu decomposition.
-/// \param lu The upper matrix of the lu decomposition.
-/// \param sign The sign of the permutation matrix used on the original matrix.
-template<typename M>
-constexpr auto determinant(const M& l, const M& u, int sign = 1)
+/// The permutation matrix of the decomposition will not be used.
+template<size_t D, typename T>
+constexpr auto determinant(const LUDecomposition<D, T>& lu)
 {
-	return sign * multiplyDiagonal(l) * multiplyDiagonal(u);
+	return lu.sign * multiplyDiagonal(lu.upper) * multiplyDiagonal(lu.lower);
 }
 
-/// \brief Returns whether the given matrix can be inverted.
+/// \brief Returns whether the given square matrix can be inverted.
 /// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
-/// \returns false for non-square matrices.
-template<typename M>
-constexpr bool invertible(const M& mat)
+/// If you already know the lu decomposition of this matrix it is much more efficient
+/// to calculate the determinant using the decomposition.
+template<size_t D, typename T>
+constexpr bool invertible(const Mat<D, D, T>& mat)
 {
 	if(mat.rows() != mat.cols()) return false;
 	return (determinant(mat) != 0);
 }
 
-namespace nocheck {
-
-/// \brief Returns the inverse of a matrix A with PA = LU.
-/// \notes Does not perform any sanity checks of the given matrix.
-/// The matrix must be square-sized and invertible.
-template<typename M>
-constexpr auto inverse(const M& l, const M& u, const M& p)
+/// \brief Returns the inverse of the given matrix.
+/// If you already know its lu decomposition, see the overload below.
+/// Undefined behvaiour if the given function is not invertible.
+template<size_t D, typename T>
+constexpr auto inverse(const Mat<D, D, T>& mat)
 {
-	auto ret = detail::createMatrix<double>(l);
-	for(auto i = 0u; i < ret.cols(); ++i)
-		col(ret, i, nocheck::luEvaluate(l, u, col(p, i)));
+	auto lu = luDecomp(mat);
+	return inverse(lu);
+}
+
+/// \brief Returns the inverse of the matrix that is represented by the
+/// given lu decomposition. 
+/// Undefined behvaiour if the given function is not invertible, check
+/// this by simply calculating its determinant from the lower and upper matrices.
+template<size_t D, typename T>
+constexpr auto inverse(const LUDecomposition<D, T>& lu)
+{
+	Mat<D, D, T> ret {};
+	for(auto i = 0u; i < D; ++i) {
+		col(ret, i, luEvaluate(lu.lower, lu.upper, col(lu.perm, i)));
+	}
 
 	return ret;
 }
-
-/// \brief Returns the inverse of the Matrix A with A = LU.
-/// \notes Does not perform any sanity checks of the given matrix.
-/// The given matrices must be square-sized and invertible.
-template<typename M>
-constexpr auto inverse(const M& l, const M& u)
-{
-	auto p = detail::createMatrix<typename M::Value>(l);
-	identity(p);
-	return inverse(l, u, p);
-}
-
-/// \brief Same as [nytl::mat::inverse(const M& mat)]() but does not check for errors.
-/// \notes Does not perform any sanity checks of the given matrix.
-/// The matrix must be square-sized and invertible.
-template<typename M>
-constexpr auto inverse(const M& mat)
-{
-	auto [l, u, p, s] = luDecomp(mat);
-	nytl::unused(s);
-	return inverse(l, u, p);
-}
-
-} // namespace nocheck
-
-/// \brief Returns the inverse of the matrix A with A = LU.
-/// \throws std::invalid_argument For a non-square or singular matrix
-template<typename M>
-constexpr auto inverse(const M& l, const M& u)
-{
-	if(l.rows() != l.cols() || u.rows() != u.cols() || l.rows() != u.rows())
-		throw std::invalid_argument("nytl::mat::inverse: non-square matrix");
-
-	for(auto n = 0u; n < l.rows(); ++n)
-		if(u[n][n] == 0.0 || l[n][n] == 0.0)
-			throw std::invalid_argument("nytl::mat::inverse: singular matrix");
-
-	return nocheck::inverse(l, u);
-}
-
-/// \brief Returns the inverse of the matrix A with PA = LU.
-/// \throws std::invalid_argument For a non-square or singular matrix
-template<typename M>
-constexpr auto inverse(const M& l, const M& u, const M& p)
-{
-	if(l.rows() != l.cols() || u.rows() != u.cols() || l.rows() != u.rows())
-		throw std::invalid_argument("nytl::mat::inverse: non-square matrix");
-
-	for(auto n = 0u; n < l.rows(); ++n)
-		if(u[n][n] == 0.0 || l[n][n] == 0.0)
-			throw std::invalid_argument("nytl::mat::inverse: singular matrix");
-
-	return nocheck::inverse(l, u, p);
-}
-
-/// \brief Returns the inverse of the given square matrix.
-/// \throws std::invalid_argument for non-square or singular matrices.
-/// Either catch the exception or check if the invertible matrix using
-/// [nytl::mat::invertible](). One can also use [nytl::mat::invert(const M&)]()
-/// to check if a matrix is invertible and calculate the inverse if so. This will
-/// be way more efficient then first checking and then calculating it.
-/// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
-template<typename M>
-constexpr auto inverse(const M& mat)
-{
-	if(mat.rows() != mat.cols())
-		throw std::invalid_argument("nytl::mat::inverse: non-square matrix");
-
-	auto [l, u, p, s] = luDecomp(mat);
-	nytl::unused(s);
-
-	for(auto n = 0u; n < l.rows(); ++n)
-		if(u[n][n] == 0.0)
-			throw std::invalid_argument("nytl::mat::inverse: singular matrix");
-
-	return nocheck::inverse(l, u, p);
-}
-
-/// \brief Checks if the given matrix is invertible and inverts it if so.
-/// \returns Whether the given matrix could be inverted, i.e. if the matrix
-/// is an invertible square matrix.
-/// If the matrix could not be inverted, false is returned and the matrix is left unchanged.
-/// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
-/// The given matrix must be mutable.
-template<typename M>
-constexpr bool invert(M& mat)
-{
-	if(mat.rows() != mat.cols()) return false;
-
-	auto [l, u, p, s] = luDecomp(mat); //TODO C++17
-
-	// check for singular matrix
-	for(auto n = 0u; n < l.rows(); ++n)
-		if(u[n][n] == 0.0)
-			return false;
-
-	mat = nocheck::inverse(l, u, p);
-	return true;
-}
-*/
 
 /// \brief Returns whether the given quadratic matrix is symmetric.
 template<size_t D, typename T>
