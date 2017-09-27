@@ -1,30 +1,23 @@
-sudo: false
+sudo: required
+
 language: cpp
-group: beta
 
 notifications:
   email: false
 
-matrix:
-  include:
-    - os: linux
-      dist: trusty
-      compiler: gcc
-      addons:
-        apt:
-          sources: ['ubuntu-toolchain-r-test']
-          packages: ['g++-7']
-      env:
-        - COMPILER=g++-7
+compiler:
+  - gcc
+  - clang
 
-install:
-  - export PATH="`pwd`/build:${PATH}"
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then wget https://github.com/ninja-build/ninja/releases/download/v1.7.2/ninja-linux.zip && unzip -q ninja-linux.zip -d build; fi
-  - pip3 install meson
+arch:
+  packages:
+    - meson
+    - ninja
+    - valgrind
+  script: 
+    - meson build -Dtests=true
+    - ninja -C build
+    - meson test -C build --wrapper 'valgrind --leak-check=full --error-exitcode=1' --print-errorlogs
 
 script:
-  - export CC=gcc-7
-  - export CXX=g++-7
-  - meson build -Dtests=true
-  - cd build
-  - mesontest
+  - "curl -s https://raw.githubusercontent.com/mikkeloscar/arch-travis/master/arch-travis.sh | bash"
