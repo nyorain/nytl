@@ -11,6 +11,9 @@
 
 namespace nytl {
 
+// TODO: try/catch guards for called functions?
+// In the case of ExceptionGuard they would result in std::terminate 100%
+
 /// \brief Can be used to execute code when going out of the current scope.
 /// This enables to handle non-RAII resources in a pseudo-RAII manner without having to
 /// define own wrapper functions.

@@ -207,7 +207,7 @@ template<size_t D, typename T>
 constexpr auto min(Vec<D, T> a, const Vec<D, T>& b)
 {
 	for(auto i = 0u; i < D; ++i)
-		if(b[i] > a[i])
+		if(b[i] < a[i])
 			a[i] = b[i];
 	return a;
 }
@@ -266,29 +266,31 @@ constexpr auto operator/(const Vec<D, T1>& a, const Vec<D, T2>& b)
 
 namespace ip { // inplace operations
 
-#define NYTL_VEC_IP_UTIL(func) \
+// Various utility functions.
+// Always modify the given vector in place and simply apply the similar
+// named stl or nytl function on all components.
+#define NYTL_VEC_IP_UTIL_FUNC(func) \
 	template<size_t D, typename T> \
 	constexpr void func(Vec<D, T>& vec) { \
 		for(auto& val : vec) \
 			val = std::func(val); \
 	}
 
-// Various utility functions.
-// Always modify the given vector in place and simply apply the similar
-// named stl or nytl function on all components.
-NYTL_VEC_IP_UTIL(abs)
-NYTL_VEC_IP_UTIL(sin)
-NYTL_VEC_IP_UTIL(cos)
-NYTL_VEC_IP_UTIL(tan)
-NYTL_VEC_IP_UTIL(asin)
-NYTL_VEC_IP_UTIL(acos)
-NYTL_VEC_IP_UTIL(atan)
-NYTL_VEC_IP_UTIL(sqrt)
-NYTL_VEC_IP_UTIL(log)
-NYTL_VEC_IP_UTIL(exp)
-NYTL_VEC_IP_UTIL(exp2)
-NYTL_VEC_IP_UTIL(floor)
-NYTL_VEC_IP_UTIL(ceil)
+NYTL_VEC_IP_UTIL_FUNC(abs)
+NYTL_VEC_IP_UTIL_FUNC(sin)
+NYTL_VEC_IP_UTIL_FUNC(cos)
+NYTL_VEC_IP_UTIL_FUNC(tan)
+NYTL_VEC_IP_UTIL_FUNC(asin)
+NYTL_VEC_IP_UTIL_FUNC(acos)
+NYTL_VEC_IP_UTIL_FUNC(atan)
+NYTL_VEC_IP_UTIL_FUNC(sqrt)
+NYTL_VEC_IP_UTIL_FUNC(log)
+NYTL_VEC_IP_UTIL_FUNC(exp)
+NYTL_VEC_IP_UTIL_FUNC(exp2)
+NYTL_VEC_IP_UTIL_FUNC(floor)
+NYTL_VEC_IP_UTIL_FUNC(ceil)
+
+#undef NYTL_VEC_IP_UTIL
 
 template<size_t D, typename T1, typename T2>
 constexpr void pow(Vec<D, T1>& a, T2 exp)
@@ -297,9 +299,39 @@ constexpr void pow(Vec<D, T1>& a, T2 exp)
 		val = std::pow(val, exp);
 }
 
-#undef NYTL_VEC_IP_UTIL
 
 } // namespace ip
+
+#define NYTL_VEC_UTIL_FUNC(func) \
+	template<size_t D, typename T> \
+	constexpr void func(Vec<D, T> vec) { \
+		ip::func(vec); \
+		return vec; \
+	}
+
+NYTL_VEC_UTIL_FUNC(abs)
+NYTL_VEC_UTIL_FUNC(sin)
+NYTL_VEC_UTIL_FUNC(cos)
+NYTL_VEC_UTIL_FUNC(tan)
+NYTL_VEC_UTIL_FUNC(asin)
+NYTL_VEC_UTIL_FUNC(acos)
+NYTL_VEC_UTIL_FUNC(atan)
+NYTL_VEC_UTIL_FUNC(sqrt)
+NYTL_VEC_UTIL_FUNC(log)
+NYTL_VEC_UTIL_FUNC(exp)
+NYTL_VEC_UTIL_FUNC(exp2)
+NYTL_VEC_UTIL_FUNC(floor)
+NYTL_VEC_UTIL_FUNC(ceil)
+
+#undef NYTL_VEC_UTIL_FUNC
+
+template<size_t D, typename T1, typename T2>
+constexpr void pow(Vec<D, T1> a, T2 exp)
+{
+	ip::pow(a, exp);
+	return a;
+}
+
 } // namespace cw
 } // namespace vec
 } // namespace nytl

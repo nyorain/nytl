@@ -1,11 +1,11 @@
 # nytl
 
 A lightweight and generic header-only template library for C++17.
-Includes various features of all kind:
+Includes various utility of all kind:
 
-- Headers for generic [vector](nytl/vecOps.hpp) and [matrix](nytl/matOps.hpp) operations
-- Example [vector](nytl/vec.hpp) and [matrix](nytl/mat.hpp) implementation
-- [Simplex](nytl/simplex.hpp) implementation and [various operations](nytl/simplexOps.hpp).
+- Extremely lightweight [vector](nytl/vec.hpp) and [matrix](nytl/mat.hpp) templates
+	- Basically just std::array with mathematical vector/matrix semantics
+	- Additionally various useful operations ([mat](nytl/matOps.hpp) | [vec](nytl/vecOps.hpp))
 - Small utf conversion and utf8 parsing helpers: [nytl/utf.hpp](nytl/utf.hpp)
 - A [Callback](nytl/callback.hpp) implementation for high-level and fast function callbacks.
 - Intrusive reference counted helpers: [nytl/referenced.hpp](nytl/referenced.hpp)

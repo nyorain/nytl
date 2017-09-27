@@ -14,7 +14,6 @@
 #include <nytl/scope.hpp> // nytl::ScopeGuard
 
 #include <functional> // std::function
-#include <forward_list> // std::forward_list
 #include <utility> // std::move
 #include <cstdint> // std::uint64_t
 #include <cstddef> // std::size_t
@@ -28,307 +27,195 @@ namespace nytl {
 
 // TODO (C++17): use std::pmr for more efficient memory allocations (?)
 
-/// List of callback functions.
-/// Everyone can register their functions in a callback object and
-/// then all registered functions together might be called.
-/// The special part about Callback is that it is written for
-/// recursive scenarios, e.g. where the callback is called inside a
-/// function that was called because the callback was called.
-/// So the callback might be accessed from inside such a function.
+/// A Callback is a collection of functions with the given signature.
+/// Everyone can add functions or remove his registered function using
+/// the id returned from registering it.
+/// All callbacks can then be called with the required arguments
+/// This callback class does not allow ANY recursive operations on it,
+/// so e.g. removing a registered function or register a new function
+/// from within a callback call will lead to
+/// undefined behvaiour. If you need this recursive functionality (in any way,
+/// even if from the connectionID class), see nytl/recursiveCallback.
+/// The public interface of this class is mostly identical with RecursiveCallback 
+/// so they can be used interchangeably (exceptions documented).
 /// The class is not thread-safe in any way.
-/// Exceptions are usually propagated.
-/// The class can not be copied and moving it naturally invalidates all
-/// Connection objects referencing it (while the connection id objects stay valid).
+/// All exceptions from calls are just propagated.
+/// The class can not be copied or moved.
 ///
-/// \tparam ID A type that fulfills the CallbackConnectionID concept (see docs/callback.md).
-/// Examples are ConnectionID or TrackedConnectionID (in nytl/connection.hpp).
-template<typename Signature, typename ID = ConnectionID> class Callback;
+/// \tparam Signature The signature of the registered functions.
+/// Uses the same syntax and semantics as std::function.
+/// \tparam ID A connectionID class, see nytl/connection.hpp for examples.
+/// See docs/callback.md for specification.
+template<typename Signature, typename ID = ConnectionID> 
+class Callback;
 
-/// Callback class typedef using TrackedConnectionID, that enables connection to see
-/// when the function is unregistered by another connection of because the callback is destroyed.
-template<typename Signature> using TrackedCallback = Callback<Signature, TrackedConnectionID>;
+/// Callback class typedef using TrackedConnectionID. Enables connections
+/// to see when their associated function is unregistered by another 
+/// connection or because the callback was destroyed.
+template<typename Signature> using TrackedCallback = 
+	Callback<Signature, TrackedConnectionID>;
+
+// TODO: use a concept for ID to make sure we can use it.
 
 // Callback specialization to enable the Ret(Args...) Signature format.
 template<typename Ret, typename... Args, typename ID>
-class Callback<Ret(Args...), ID> : public ConnectableT<ID>, public NonCopyable {
+class Callback<Ret(Args...), ID> 
+	: public ConnectableT<ID>, public NonCopyable {
 public:
-	using Signature = Ret(Args...);
-	using Connection = ConnectionT<ConnectableT<ID>, ID>;
-
-	Callback() = default;
-
-	~Callback()
-	{
-		// Output warnings in bad cases.
-		if(iterationCount_)
-			std::cerr << "nytl::~Callback: iterationCount_ != 0\n";
-
-		// We clear manually instead of calling clear so we can at least
-		// try to reset every id in the case of exceptions.
-		++iterationCount_;
-		for(auto& sub : subs_) {
-			try {
-				sub.id.remove();
-			} catch(const std::exception& err) {
-				std::cerr << "nytl::~Callback: id.reset() failed: " << err.what() << "\n";
-			}
-		}
-	}
-
-	/// \brief Registers a new function in the same way add does.
-	/// \returns A unique connection id for the registered function which can be used to
-	/// unregister it.
-	/// \throws std::logic_error If an empty function target is registered.
-	template<typename F>
-	Connection operator+=(F&& func)
-	{
-		return add(std::forward<F>(func));
-	}
-
-	/// \brief Resets all registered function and sets the given one as only Callback function.
-	/// \returns A unique connection id for the registered function which can be used to
-	/// unregister it.
-	/// \throws std::logic_error If an empty function target is registered.
-	/// Propagates exceptions from ID::reset().
-	template<typename F>
-	Connection operator=(F&& func)
-	{
-		clear();
-		return add(std::forward<F>(func));
-	}
-
-	/// \brief Registers a new Callback function.
-	/// \returns A unique connection id for the registered function which can be used to
-	/// unregister it.
-	/// \throws std::logic_error If an empty function target is registered.
-	Connection add(std::function<Ret(Args...)> func)
-	{
-		if(!func)
-			throw std::logic_error("nytl::Callback::add: empty function");
-
-		auto& sub = emplace();
-		sub.func = std::move(func);
-		return {*this, sub.id};
-	}
-
-	/// \brief Registers a new Callback function with additional connection parameter.
-	/// \returns A unique connection id for the registered function which can be used to
-	/// unregister it.
-	/// \throws std::logic_error If an empty function target is registered.
-	Connection add(std::function<Ret(Connection, Args...)> func)
-	{
-		if(!func)
-			throw std::logic_error("nytl::Callback::add: empty function");
-
-		auto& sub = emplace();
-		Connection conn {*this, sub.id};
-		sub.func = [conn, f = std::move(func)](Args... args) {
-			return f(conn, std::forward<Args>(args)...);
-		};
-
-		return conn;
-	}
-
-	/// Calls all registered functions and returns a vector with the returned objects,
-	/// or void when this is a void callback.
-	/// Will call all the functions registered at the moment of calling, i.e. additional
-	/// functions added from within are not called.
-	/// Propagates all upcoming exceptions untouched.
-	auto call(Args... a)
-	{
-		// wrap callID_ if needed
-		callID_ = (callID_ == std::numeric_limits<std::int64_t>::max()) ? 0 : callID_ + 1;
-		std::int64_t callid = callID_; // the actual calling id (to include newly removed)
-		auto last = end_; // the end (to not iterate over newly added subs)
-
-		// make sure the no list iterators are invalidated while iterating
-		++iterationCount_;
-
-		// make sure the iteration count and cleanup done if possible
-		// even in the case of an exception.
-		auto successGuard = SuccessGuard([&]{
-			if(--iterationCount_ == 0)
-				removeOld();
-		});
-
-		// make sure we catch a potential exception by removeOld if we are leaving
-		// the scope because of an exception.
-		auto exceptionGuard = ExceptionGuard([&]{
-			if(--iterationCount_ == 0) {
-				try {
-					removeOld();
-				} catch(const std::exception& err) {
-					std::cerr << "nytl::Callback::call removeOld: " << err.what() << "\n";
-				}
-			}
-		});
-
-		// the first continue check is needed to not call functions that were
-		// removed before this call started but call functions that were removed
-		// only by some other callback function
-		if constexpr(std::is_same<Ret, void>::value) {
-			for(auto it = subs_.begin(); it != subs_.end(); ++it) {
-				if(it->id.id() <= 0 && -it->id.id() < callid) continue;
-				it->func(std::forward<Args>(a)...);
-				if(it == last) break;
-			}
-
-		} else {
-			std::vector<Ret> ret;
-			ret.reserve(size());
-
-			for(auto it = subs_.begin(); it != subs_.end(); ++it) {
-				if(it->id.id() <= 0 && it->id.id() > callid) continue;
-				ret.push_back(it->func(std::forward<Args>(a)...));
-				if(it == last) break;
-			}
-
-			return ret;
-		}
-	}
-
-	/// Clears all registered functions.
-	/// Will propagate exceptions from ID::reset() or ID::remove().
-	void clear()
-	{
-		{
-			// make sure that the iterator is not invalidated while iterating
-			++iterationCount_;
-			auto scopeGuard = ScopeGuard([&]{ --iterationCount_; });
-
-			// reset the ids or notify the ids of removal
-			for(auto& sub : subs_) {
-				if(iterationCount_ == 1) sub.id.remove();
-				else sub.id.reset(-callID_);
-			}
-		}
-
-		// clear/remove only if no one is currently iterating
-		// we only reset end_ (not really needed, cleanup for easier debugging)
-		if(iterationCount_ == 0) {
-			subs_.clear();
-			end_ = subs_.end();
-		}
-	}
-
-	/// Operator version of call.
-	auto operator() (Args... a)
-	{
-		return call(std::forward<Args>(a)...);
-	}
-
-	/// Removes the callback function registered with the given id.
-	/// Returns whether the function could be found. If the id is invalid or the
-	/// associated function was already removed, returns false.
-	/// Propagates exceptions from ID::reset().
-	bool disconnect(const ID& id) override
-	{
-		if(subs_.empty()) return false;
-
-		// check for first one
-		if(subs_.begin()->id == id) {
-			if(iterationCount_ == 0) {
-				subs_.pop_front();
-				subs_.begin()->id.remove();
-			} else {
-				subs_.begin()->id.reset(-callID_);
-			}
-
-			return true;
-		}
-
-		// make sure that the iterator is not invalidated while iterating
-		++iterationCount_;
-		auto scopeGuard = ScopeGuard([&]{ --iterationCount_; });
-
-		// iterate through subs, always check the next elem (fwd linked list)
-		// the end condition constructs a copy of it and increases it to check
-		for(auto it = subs_.begin(); true; ++it) {
-			auto next = it;
-			if(++next == subs_.end())
-				break;
-
-			if(next->id == id) {
-				if(iterationCount_ == 1) {
-					next->id.remove();
-					subs_.erase_after(it);
-				} else {
-					next->id.reset(-callID_);
-				}
-
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-protected:
-	// Represents one callback subscription entry.
-	// Invalid (formally removed) when id is not valid.
-	// Note that these means that alternative ID classes can
-	// remove subscriptions from the outside without actively
-	// calling disconnect.
-	// We cannot touch func while any iteration is active.
-	// If the
+	/// ! Definition not present in RecursiveCallback
+	/// Represents one callback subscription entry.
+	/// Invalid (formally removed) when id is not valid.
+	/// Note that these means that alternative ID classes can
+	/// remove subscriptions from the outside without actively
+	/// calling disconnect.
 	struct Subscription {
 		std::function<Ret(Args...)> func;
 		ID id;
 	};
 
-	// Emplaces a new subscription for the given function.
-	Subscription& emplace()
-	{
-		// emplace at the last position
-		if(subs_.empty()) {
-			subs_.emplace_front();
-			end_ = subs_.begin();
-		} else {
-			end_ = subs_.emplace_after(end_);
-		}
+	using Signature = Ret(Args...);
+	using Connection = ConnectionT<ConnectableT<ID>, ID>;
 
-		// output at least a warning when subID_ has to be wrapped
-		// Usually this should not happen. Bad things can happend then.
-		if(subID_ == std::numeric_limits<std::int64_t>::max()) {
-			std::cerr << "nytl::Callback::emplace: WARNING wrapping subID_ at maximum\n";
-			subID_ = 0;
-		}
+public:
+	Callback() = default;
+	~Callback();
 
-		end_->id = {static_cast<std::int64_t>(++subID_)};
-		return *end_;
+	/// \brief Registers a new Callback function.
+	/// \returns A connection id for the registered function which can be used to
+	/// unregister it.
+	/// \throws std::invalid_argument If an empty function target is registered.
+	Connection add(std::function<Ret(Args...)>);
+
+	/// Calls all registered functions and returns a vector with the returned objects,
+	/// or void when this is a void callback.
+	/// Will call all the functions registered at the moment of calling, i.e. additional
+	/// functions added from within are not called.
+	/// If a registered function throws, the exception is not caught, i.e. the following
+	/// handlers will not be called.
+	auto call(Args...);
+
+	/// Clears all registered functions.
+	void clear() noexcept;
+
+	/// Removes the callback function registered with the given id.
+	/// Returns whether the function could be found. If the id is invalid or the
+	/// associated function was already removed, returns false.
+	/// Prefer to use this indirectly using some Connection object.
+	/// Propagates exceptions from ID::removed() but always removes the associated
+	/// function. Passing an invalid id or an id that was not returned from this
+	/// callback is undefined behvaiour.
+	bool disconnect(const ID&) noexcept override;
+
+	/// Operator version of add
+	template<typename F>
+	Connection operator+=(F&& func) {
+		return add(std::forward<F>(func));
 	}
 
-	// Removes all old functions that could previously
-	// not be removed because of an active iteration.
-	void removeOld()
-	{
-		// make sure that the iterator is not invalidated while iterating
-		++iterationCount_;
-		auto scopeGuard = ScopeGuard([&]{ --iterationCount_; });
-
-		subs_.remove_if([](const auto& sub){
-			auto remove = sub.id.id() <= 0;
-			if(remove) sub.id.remove(); // notify the id
-			return remove;
-		});
+	/// Operator version of add that previously calls clear.
+	template<typename F>
+	Connection operator=(F&& func) {
+		clear();
+		return add(std::forward<F>(func));
 	}
 
-	// Upper approximation of the current size.
-	// May be larger than the actual size.
-	std::size_t size() const
-	{
-		std::size_t ret = 0u;
-		for(auto it = subs_.begin(); it != subs_.end(); ++it)
-			++ret;
+	/// Operator version of call.
+	auto operator() (Args... a) {
+		return call(std::forward<Args>(a)...);
+	}
+
+	/// ! Not present in RecursiveCallback
+	/// Returns the internal vector of registered subscriptions
+	/// Can be used to e.g. call it more efficiently (without creating a vector) or
+	/// with custom exception handling.
+	const auto& subscriptions() const { 
+		return subs_; 
+	}
+
+protected:
+	std::vector<Subscription> subs_ {}; // all registered subscriptions
+	std::int64_t subID_ {}; // the highest subscription id given
+};
+
+// - implementation
+template<typename Ret, typename... Args, typename ID>
+Callback<Ret(Args...), ID>::~Callback()
+{
+	for(auto& sub : subs_) {
+		sub.id.removed();
+	}
+}
+
+template<typename Ret, typename... Args, typename ID>
+ConnectionT<ConnectableT<ID>, ID> Callback<Ret(Args...), ID>::
+add(std::function<Ret(Args...)> func) {
+	if(!func) {
+		throw std::invalid_argument("nytl::Callback::add: empty function");
+	}
+
+	// output at least a warning when subID_ has to be wrapped
+	// Usually this should not happen. Bad things can happen then.
+	if(subID_ == std::numeric_limits<std::int64_t>::max()) {
+		std::cerr << "nytl::Callback::emplace: <warning> wrapping subID_\n";
+		subID_ = 0;
+	}
+
+	// this expression might throw. In this case we have not changed
+	// our own state in any bad way
+	ID id = {subID_ + 1};
+
+	++subID_;
+	subs_.emplace_back();
+	subs_.back().id = id;
+	subs_.back().func = std::move(func);
+	return {*this, id};
+}
+
+template<typename Ret, typename... Args, typename ID>
+auto Callback<Ret(Args...), ID>::call(Args... a)
+{
+	// the first continue check is needed to not call functions that were
+	// removed before this call started but call functions that were removed
+	// only by some other callback function
+	if constexpr(std::is_same<Ret, void>::value) {
+		for(auto& func : subs_)
+			func.func(std::forward<Args>(a)...);
+	} else {
+		std::vector<Ret> ret;
+		ret.reserve(subs_.size());
+
+		for(auto& func : subs_) {
+			ret.push_back(func.func(std::forward<Args>(a)...));
+		}
+
 		return ret;
 	}
+}
 
-	std::forward_list<Subscription> subs_ {}; // all registered subscriptions
-	typename decltype(subs_)::iterator end_ {}; // the last entry in subs
-	unsigned int iterationCount_ {}; // the number of active iterations (in call)
-	std::uint64_t subID_ {}; // the highest subscription id given
-	std::uint64_t callID_ {}; // the highest call id given (see the call function)
-};
+template<typename Ret, typename... Args, typename ID>
+void Callback<Ret(Args...), ID>::clear() noexcept
+{
+	// notify the ids of removal
+	for(auto& sub : subs_) {
+		sub.id.removed();
+	}
+	subs_.clear();
+}
+
+template<typename Ret, typename... Args, typename ID>
+bool Callback<Ret(Args...), ID>::disconnect(const ID& id) noexcept
+{
+	// not using std::find_if for noexcept
+	for(auto it = subs_.begin(); it < subs_.end(); ++it) {
+		if(it->id.get() == id.get()) {
+			it->id.removed();
+			subs_.erase(it);
+			return true;
+		}
+	}
+
+	return false;
+}
 
 } // namespace nytl
 

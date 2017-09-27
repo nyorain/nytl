@@ -131,8 +131,11 @@ constexpr Rect<D, T> intersection(const Rect<D, T>& a, const Rect<D, T>& b)
 	auto end = vec::cw::min(a.position + a.size, b.position + b.size);
 
 	// check if there is no intersection
-	for(auto i = 0u; i < pos.size(); ++i)
-		if(pos[i] > end[i]) return {{}, {}};
+	for(auto i = 0u; i < pos.size(); ++i) {
+		if(pos[i] > end[i]) {
+			return {{}, {}};
+		}
+	}
 
 	return {pos, end - pos};
 }

@@ -184,7 +184,10 @@ constexpr auto operator-(Mat<R, C, T> a)
 template<typename T1, typename T2, size_t R, size_t C>
 constexpr auto operator==(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b)
 {
-	return a.rows_ == b.rows_;
+	for(auto i = 0u; i < R; ++i)
+		if(a.rows_[i] != b.rows_[i])
+			return false;
+	return true;
 }
 
 template<typename T1, typename T2, size_t R, size_t C>
