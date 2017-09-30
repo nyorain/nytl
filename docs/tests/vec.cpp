@@ -9,7 +9,7 @@
 // testing both, vec and vecOps
 #include <nytl/vec.hpp>
 #include <nytl/vecOps.hpp>
-#include <nytl/scalar.hpp>
+#include <nytl/math.hpp>
 
 // TODO: test component-wise (nytl::vcw) operations
 // TODO: more testvectors, use other sizes and types
@@ -53,11 +53,11 @@ constexpr nytl::Vec<7, int> i7a {1, 2, 3, 4, 5, 6, 7};
 constexpr nytl::Vec<7, int> i7b {-1, 0, 0, 0, 1, 4, 5};
 
 template<typename A, typename B> using AddT =
-	void_t<decltype(std::declval<A>() + std::declval<B>())>;
+	std::void_t<decltype(std::declval<A>() + std::declval<B>())>;
 template<typename A, typename B> using DotT =
-	void_t<decltype(nytl::dot(std::declval<A>(), std::declval<B>()))>;
+	std::void_t<decltype(nytl::dot(std::declval<A>(), std::declval<B>()))>;
 template<typename A, typename B> using CrossT =
-	void_t<decltype(nytl::dot(std::declval<A>(), std::declval<B>()))>;
+	std::void_t<decltype(nytl::dot(std::declval<A>(), std::declval<B>()))>;
 
 static_assert(validExpression<AddT, Vec3f, Vec3f>);
 // static_assert(!validExpression<AddT, Vec3f, Mat4f>); // TODO

@@ -11,7 +11,6 @@
 
 #include <nytl/fwd/simplex.hpp> // nytl::Simplex default template parameter
 #include <nytl/vec.hpp> // nytl::Vec
-#include <nytl/convert.hpp> // nytl::arrayCast
 
 #include <type_traits> // std::enable_if
 #include <cstdint> // std::size_t
@@ -35,7 +34,7 @@ namespace nytl {
 template<std::size_t D, typename P, std::size_t A>
 class Simplex {
 public:
-	static_assert(D >= A, "The Dimension of the Simplex cannot exceed the rooms dimension");
+	static_assert(D >= A, "The Dimension of the Simplex cannot exceed the room dimension");
 
 	static constexpr auto spaceDim = D; // dimensions of the space the simplex is in
 	static constexpr auto simplexDim = A; // dimensions of the simplex itself
@@ -73,8 +72,13 @@ public:
 	/// Works only if the new D is still greater equal A.
 	/// Should be implemented by specializations.
 	template<Size OD, typename OP>
-	constexpr explicit operator Simplex<OD, OP, A>() const noexcept
-		{ return {arrayCast<Vec<OD, OP>>(points_)}; }
+	constexpr explicit operator Simplex<OD, OP, A>() const noexcept {
+		Simplex<OD, OP, A> ret {};
+		for(auto i = 0u; i < points_.size(); ++i) {
+			ret[i] = static_cast<Vec<OD, OP>>(points_[i]);
+		}
+		return ret;
+	}
 };
 
 } // namespace nytl

@@ -12,6 +12,9 @@
 #include <utility> // std::forward
 
 namespace nytl {
+namespace detail {
+	template<typename...> using void_t = void; // to not include type_traits
+} // namespace detail
 
 /// \brief Useful typedef for expanding the use of variadic template arguments.
 /// In C++17, most of the Expand shortcuts can be done with fold expressions.
@@ -29,16 +32,6 @@ using Expand = int[];
 /// ```
 /// \module utility
 template<typename...> struct DeriveDummy {};
-
-// TODO C++17: remove this (std::void_t)
-/// C++17 alias template for void, used to detect ill-formed types in a SFINAE-context.
-/// ```
-/// // Function foo must be callable with a value of type A.
-/// template<typename A, typename = void_t<decltype(foo(std::declval<A>()))>>
-/// void bar();
-/// ```
-/// \module utility
-template<typename...> using void_t = void;
 
 /// Utility template function that can be used to hide unused compiler warnings.
 /// Has usually no additional cost. Is meant as placeholder for future code.
@@ -107,7 +100,7 @@ template<template<class...> typename E, typename C, typename... T> struct ValidE
 };
 
 template<template<class...> typename E, typename... T>
-struct ValidExpressionT<E, void_t<E<T...>>, T...> {
+struct ValidExpressionT<E, detail::void_t<E<T...>>, T...> {
 	static constexpr auto value = true;
 };
 

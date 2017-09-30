@@ -40,9 +40,6 @@ test('utf', tutf)
 tflags = executable('flags', 'flags.cpp', dependencies: nytl_dep)
 test('flags', tflags)
 
-tconvert = executable('convert', 'convert.cpp', dependencies: nytl_dep)
-test('convert', tconvert)
-
 # compile-time tests only
 executable('nonCopyable', 'nonCopyable.cpp', dependencies: nytl_dep)
 executable('tmp', 'tmp.cpp', dependencies: nytl_dep)

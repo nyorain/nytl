@@ -10,6 +10,9 @@
 
 #pragma once
 
+#ifndef NYTL_INCLUDE_APPROX_APPROX
+#define NYTL_INCLUDE_APPROX_APPROX
+
 #include <complex> // std::complex
 #include <ostream> // std::ostream
 
@@ -86,3 +89,5 @@ Approx<T> approx(const T& value, double epsilon)
 }
 
 } // namespace nytl
+
+#endif // header guard

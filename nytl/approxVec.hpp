@@ -7,7 +7,10 @@
 
 #pragma once
 
-#include "approx.hpp" // nytl::Approx
+#ifndef NYTL_INCLUDE_APPROX_VEC
+#define NYTL_INCLUDE_APPROX_VEC
+
+#include <nytl/approx.hpp> // nytl::Approx
 #include <nytl/vec.hpp> // nytl::Vec
 #include <nytl/mat.hpp> // nytl::Mat
 
@@ -82,3 +85,5 @@ public:
 };
 
 } // namesapce nytl
+
+#endif // header guard

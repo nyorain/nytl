@@ -40,13 +40,19 @@ std::unique_ptr<T> cloneMove(T& obj)
 /// Usually used together with [nytl::CloneMovable]() or [nytl::AbstractCloneMovable]()
 /// in some class Derived is derived from (i.e. Base or ancestors).
 /// \module utility
-template<typename Base, typename Derived>
-struct DeriveCloneMovable : public Base {
+template<typename Derived, typename... Bases>
+class DeriveCloneMovable : public Bases... {
 protected:
-	Base* doCloneMove() override; // Base return type since CRTP
+	void* doCloneMove() override; // Base return type since CRTP
 	template<typename O> friend std::unique_ptr<O> cloneMove(O&);
+};
 
+template<typename Derived, typename Base>
+class DeriveCloneMovable<Derived, Base> : public Base {
+protected:
 	using Base::Base;
+	void* doCloneMove() override; // Base return type since CRTP
+	template<typename O> friend std::unique_ptr<O> cloneMove(O&);
 };
 
 /// \brief Can be derived from to implement the clone/cloneMove member functions for 'Derived'.
@@ -55,13 +61,12 @@ protected:
 /// its interface. Usually used together with [nytl::Cloneable]() or [nytl::AbstractCloneable]()
 /// in some class Derived is derived from (i.e. Base or ancestors).
 /// \module utility
-template<typename Base, typename Derived>
-class DeriveCloneable : public DeriveCloneMovable<Base, Derived> {
+template<typename Derived, typename... Bases>
+class DeriveCloneable : public DeriveCloneMovable<Derived, Bases...> {
 protected:
-	Base* doClone() const override; // Base return type since CRTP
+	using DeriveCloneMovable<Derived, Bases...>::DeriveCloneMovable;
+	void* doClone() const override; // Base return type since CRTP
 	template<typename O> friend std::unique_ptr<O> clone(const O&);
-
-	using DeriveCloneMovable<Base, Derived>::DeriveCloneMovable;
 };
 
 /// \brief Can be derived from to make clone-moving for interfaces possible.
@@ -75,10 +80,9 @@ protected:
 template<typename T>
 class AbstractCloneMovable {
 protected:
-	virtual T* doCloneMove() = 0;
-	template<typename O> friend std::unique_ptr<O> cloneMove(O&);
-
+	virtual void* doCloneMove() = 0;
 	virtual ~AbstractCloneMovable() = default;
+	template<typename O> friend std::unique_ptr<O> cloneMove(O&);
 };
 
 /// \brief Can be derived from to make cloning for abstract classes possible.
@@ -92,7 +96,7 @@ protected:
 template<typename T>
 class AbstractCloneable : public AbstractCloneMovable<T> {
 protected:
-	virtual T* doClone() const = 0;
+	virtual void* doClone() const = 0;
 	template<typename O> friend std::unique_ptr<O> clone(const O&);
 };
 
@@ -100,8 +104,9 @@ protected:
 /// \brief Can be used to add the clone-move interface to a class as well as already implement it.
 /// \module utility
 template<typename T>
-struct CloneMovable : public AbstractCloneMovable<T> {
-	T* doCloneMove() override { return new T(std::move(static_cast<T&>(*this))); }
+class CloneMovable : public AbstractCloneMovable<T> {
+protected:
+	void* doCloneMove() override { return new T(std::move(static_cast<T&>(*this))); }
 	template<typename O> friend std::unique_ptr<O> cloneMove(O&);
 };
 
@@ -109,20 +114,24 @@ struct CloneMovable : public AbstractCloneMovable<T> {
 /// \module utility
 template<typename T>
 class Cloneable : public AbstractCloneable<T> {
-	T* doCloneMove() override { return new T(std::move(static_cast<T&>(*this))); }
-	T* doClone() const override { return new T(static_cast<const T&>(*this)); }
-
+protected:
+	void* doCloneMove() override { return new T(std::move(static_cast<T&>(*this))); }
+	void* doClone() const override { return new T(static_cast<const T&>(*this)); }
 	template<typename O> friend std::unique_ptr<O> clone(const O&);
 	template<typename O> friend std::unique_ptr<O> cloneMove(const O&);
 };
 
 // - derive class implementation -
-template<typename Base, typename Derived>
-Base* DeriveCloneMovable<Base, Derived>::doCloneMove()
+template<typename Derived, typename... Bases>
+void* DeriveCloneMovable<Derived, Bases...>::doCloneMove()
 	{ return new Derived(std::move(static_cast<Derived&>(*this))); }
 
-template<typename Base, typename Derived>
-Base* DeriveCloneable<Base, Derived>::doClone() const
+template<typename Derived, typename Base>
+void* DeriveCloneMovable<Derived, Base>::doCloneMove()
+	{ return new Derived(std::move(static_cast<Derived&>(*this))); }
+
+template<typename Derived, typename... Bases>
+void* DeriveCloneable<Derived, Bases...>::doClone() const
 	{ return new Derived(static_cast<const Derived&>(*this)); }
 
 }
@@ -134,11 +143,15 @@ Base* DeriveCloneable<Base, Derived>::doClone() const
 /// \details Small (full copyable) example for using this header:
 ///
 /// ```cpp
+/// // We have to use nytl::AbstractCloneable sine Base is already abstract.
+/// // Otherwise, just use nytl::Cloneable<T>. If you only want to nytl::cloneMove
+/// // and don't care about nytl::clone, use AbstractCloneMovable/CloneMovable
+/// // and the associated derivation helpers.
 /// struct Base : public nytl::AbstractCloneable<Base> {
 /// 	virtual int value() const = 0;
 /// };
 ///
-/// struct Derived : public nytl::DeriveCloneable<Base, Derived> {
+/// struct Derived : public nytl::DeriveCloneable<Derived, Base> {
 /// 	int value_;
 /// 	int value() const override { return value_; }
 /// };
@@ -154,12 +167,17 @@ Base* DeriveCloneable<Base, Derived>::doClone() const
 /// 	auto moved = nytl::cloneMove(*ptr); // we move from ptr (-> derived) into moved
 ///
 /// 	// copy and moved are both objects of type Derived (wrapped in a unique_ptr) that were
-/// 	//copied from derived, so both have the value 42. We could copy this value
+/// 	// copied from derived, so both have the value 42. We could copy this value
 /// 	// by just having a Base pointer.
 ///		std::cout << copy->value() << "\n"; // will output 42
 ///		std::cout << moved->value() << "\n"; // will output 42
 /// }
 /// ```
+/// 
+/// Instead of `Base` you could also pass multiple bases from which to derive.
+/// If you only derive from one type you can still use its constructor, it is
+/// also used by DeriveCloneable/DeriveCloneMovable.
 
-// NOTE: The rather complex doClone/doCloneMove virtual implementation is needed since
-// one cannot return covariant return types from virtual functions when using CRTP.
+// implementation notes: The rather complex doClone/doCloneMove virtual implementation 
+// is needed since one cannot return covariant return types from virtual functions when using CRTP.
+// we have to use void* since we allow multiple base classes.

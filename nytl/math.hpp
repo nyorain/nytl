@@ -9,6 +9,8 @@
 #ifndef NYTL_INCLUDE_SCALAR
 #define NYTL_INCLUDE_SCALAR
 
+#include <algorithm> // std::clamp
+
 namespace nytl {
 namespace constants {
 	constexpr const auto pi = 3.14159265359;
@@ -32,15 +34,6 @@ constexpr auto radians(P deg)
 	return deg * constants::degree;
 }
 
-// TODO: C++17
-/// \brief Clamps the given value between min and max.
-/// \requires P must represent a mathematical field.
-template<typename P>
-constexpr auto clamp(P x, P min, P max)
-{
-	return (x > max) ? max : ((x < min) ? min : x);
-}
-
 /// \brief Returns the linear mix of x and y with factor a.
 /// \requires P must represent a mathematical field.
 template<typename P>
@@ -54,7 +47,7 @@ constexpr auto mix(P x, P y, P a)
 template<typename P>
 constexpr auto smoothstep(P min, P max, P x)
 {
-	auto t = clamp((x - min) / (max - min), P {0}, P {1});
+	auto t = std::clamp((x - min) / (max - min), P {0}, P {1});
 	return t * t * (3 - 2 * t);
 }
 

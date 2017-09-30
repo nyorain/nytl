@@ -26,6 +26,7 @@
 namespace nytl {
 
 // TODO (C++17): use std::pmr for more efficient memory allocations (?)
+// TODO: use a concept for ID.
 
 /// A Callback is a collection of functions with the given signature.
 /// Everyone can add functions or remove his registered function using
@@ -54,8 +55,6 @@ class Callback;
 /// connection or because the callback was destroyed.
 template<typename Signature> using TrackedCallback = 
 	Callback<Signature, TrackedConnectionID>;
-
-// TODO: use a concept for ID to make sure we can use it.
 
 // Callback specialization to enable the Ret(Args...) Signature format.
 template<typename Ret, typename... Args, typename ID>

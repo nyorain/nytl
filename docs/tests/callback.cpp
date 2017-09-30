@@ -4,7 +4,7 @@
 
 
 // TODO: more testing with custom id type and stuff
-// - e.g. throw in constructor
+// - e.g. throw in id constructor
 
 // basic connection and callback functionality
 TEST(basic) {
@@ -83,4 +83,25 @@ TEST(retval) {
 	EXPECT(vec.size(), 2u);
 	EXPECT(vec[0], 1);
 	EXPECT(vec[1], 2);
+}
+
+TEST(tracked) {
+	// checking the tracked connection
+	nytl::TrackedConnection conn;
+
+	{
+		nytl::TrackedCallback<void()> cb;
+		auto c1 = cb.add([]{});
+		EXPECT(c1.connected(), true);
+		auto c2 = c1;
+		EXPECT(c2.connected(), true);
+		EXPECT(c1.id().get(), c2.id().get());
+		c2.disconnect();
+		EXPECT(c1.connected(), false);
+
+		conn = cb.add([]{});
+		EXPECT(conn.connected(), true);
+	}
+
+	EXPECT(conn.connected(), false);
 }

@@ -70,34 +70,6 @@ protected:
 	int exceptions_;
 };
 
-// - utility macros for anonymous variable name -
-// Since the NYTL_SCOPE_* macros create a variable, they have to give it a unique name
-// and therefore use the CAT macro to join a prefix to the current line number.
-#define CAT_IMPL(A, B) A ## B
-#define CAT(A, B) CAT_IMPL(A, B)
-
-/// \brief Utility macro for creating a scope guard.
-/// `NYTL_SCOPE_EXIT(x)` is the same as `auto ... = nytl::ScopeGuard(x)` but reasonably
-/// shorter and does not require a variable name.
-/// \module utility
-#define NYTL_SCOPE_EXIT(x) auto CAT(nytl_scopeGuard, __LINE__) = makeScopeGuard(x)
-
-/// \brief Utility macro for creating a success scope guard.
-/// `NYTL_SCOPE_SUCCESS(x)` is the same as `auto ... = nytl::SuccessGuard(x)` but reasonably
-/// shorter and does not require a variable name.
-/// \module utility
-#define NYTL_SCOPE_SUCCESS(x) auto CAT(nytl_scopeGuard, __LINE__) = makeSuccessScopeGuard(x)
-
-/// \brief Utility macro for creating an exception scope guard.
-/// `NYTL_SCOPE_SUCCESS(x)` is the same as `auto ... = nytl::ExceptionGuard(x)` but reasonably
-/// shorter and does not require a variable name.
-/// \module utility
-#define NYTL_SCOPE_EXCEPTION(x) auto CAT(nytl_scopeGuard, __LINE__) = makeExceptionScopeGuard(x)
-
-// - undefine the utility macros -
-#undef CAT
-#undef CAT_IMPL
-
 } // namespace nytl
 
 #endif // header guard

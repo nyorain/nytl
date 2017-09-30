@@ -13,7 +13,7 @@
 
 #include <nytl/vec.hpp>
 #include <nytl/tmpUtil.hpp> // nytl::templatize
-#include <nytl/scalar.hpp> // nytl::accumulate
+#include <nytl/math.hpp> // nytl::accumulate
 
 #include <functional> // std::plus, std::multiplies
 #include <stdexcept> // std::invalid_argument
@@ -42,7 +42,7 @@ constexpr auto multiply(const Vec<D, T>& a)
 	return ret;
 }
 
-/// \brief Calculates the default dot product for the given vectors.
+/// \brief Calculates the default (real) dot product for the given vectors.
 /// Note that this follows the dot definition for real numbers and does
 /// not automatically handle the dot definition for other structures.
 template<size_t D, typename T1, typename T2>
