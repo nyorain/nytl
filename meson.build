@@ -1,6 +1,6 @@
 project('nytl', 'cpp',
 	license: 'BSL-1.0',
-	version: '0.4.0',
+	version: '0.5.0',
 	default_options: ['cpp_std=c++1z', 'warning_level=3'])
 
 add_project_arguments('-Wno-missing-braces', language: 'cpp')
@@ -53,7 +53,8 @@ if test
 	subdir('docs/tests')
 endif
 
-install_headers(headers + fwd_headers, subdir: 'nytl')
+install_headers(headers, subdir: 'nytl')
+install_headers(fwd_headers, subdir: 'nytl/fwd')
 
 pkg = import('pkgconfig')
 pkg_dirs = ['.', 'nytl']
