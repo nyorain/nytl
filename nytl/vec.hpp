@@ -35,6 +35,9 @@ public:
 	constexpr explicit operator Vec<OD, OT>() const;
 };
 
+template<typename... Args>
+Vec(Args&&... args) -> 
+	Vec<sizeof...(Args), std::common_type_t<Args...>>;
 
 // - implementation/operators -
 template<size_t D, typename T>

@@ -13,6 +13,9 @@ TEST(basic) {
 
 	EXPECT(nytl::approx(1.0 + nytl::defaultApproxEpsilon), 1.0);
 	EXPECT(nytl::approx(1.0 - nytl::defaultApproxEpsilon), 1.0);
+
+	// NOTE: should result in descriptive error
+	// auto a = nytl::approx(1);
 }
 
 TEST(complex) {

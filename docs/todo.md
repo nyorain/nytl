@@ -18,8 +18,10 @@ TODO for nytl
 	- more lu decomp algorithms (like e.g. crout)
 		- non-square lu decomp?
 	- various matrix checks: (positive/negative/in-) definite?
+- make sure Referenced static_asserts correct crtp use
+	- easy to get wrong: Referenced<int> will not work in any way
 
-Not to important
+Not too important
 ===============
 
 - noexcept fixes

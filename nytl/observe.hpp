@@ -33,7 +33,7 @@ public:
 /// \brief Utility class to make the objects lifetime observable.
 /// \details Base class that can be derived from if the lifetime of objects of this class should be
 /// observable by others.
-/// Note that this class is not thread-safe, and calls to move/add/remove Observer must interfere
+/// Note that this class is not thread-safe, and calls to move/add/remove Observer must not interfer
 /// in any way. Adding the same Observer for one Observable object more than once is undefined
 /// behavior. Adding an Observer for an Observable during its destruction callback is
 /// undefined behavior.
@@ -49,8 +49,9 @@ public:
 	{
 		// needed if a Observer implementation removes itself during observeDestruction.
 		auto cpy = std::move(observer_);
-		for(auto& obs : cpy)
+		for(auto& obs : cpy) {
 			obs->observeDestruction(*reinterpret_cast<T*>(this));
+		}
 	}
 
 	/// \brief Adds the given observer to the list of observers.

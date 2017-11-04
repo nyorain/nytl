@@ -44,6 +44,9 @@ public:
 		{ return Rect<OD, OP>{static_cast<Vec<OD, OP>>(position), static_cast<Vec<OD, OP>>(size)}; }
 };
 
+template<std::size_t D, typename T1, typename T2>
+Rect(const nytl::Vec<D, T1>&, const nytl::Vec<D, T2>&)
+	-> Rect<D, std::common_type_t<T1, T2>>;
 
 } // namespace nytl
 

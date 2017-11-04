@@ -62,6 +62,17 @@ template<typename A, typename B> using CrossT =
 static_assert(validExpression<AddT, Vec3f, Vec3f>);
 // static_assert(!validExpression<AddT, Vec3f, Mat4f>); // TODO
 
+TEST(deduction) {
+	auto a = nytl::Vec {1.f, 2, 3, 4.};
+	static_assert(std::is_same_v<decltype(a), nytl::Vec4d>);
+
+	auto b = nytl::Vec {1, 2};
+	static_assert(std::is_same_v<decltype(b), nytl::Vec2i>);
+
+	auto c = nytl::Vec {1u, 2u};
+	static_assert(std::is_same_v<decltype(c), nytl::Vec2ui>);
+}
+
 TEST(basic) {
 	auto cpy = d3a;
 	cpy += d3c;
@@ -87,7 +98,7 @@ TEST(vec_addition) {
 	EXPECT(d3b, nytl::approx(-d3b));
 	EXPECT(d2a + i2a, nytl::approx(Vec2d{2.0, 4.0}));
 	EXPECT(d3b - i3a, nytl::approx(Vec3d{1.0, 0.0, -2.0}));
-	EXPECT(i5a + i5b, nytl::approx(Vec<5, int>{11, 22, -7, -16, 5}));
+	EXPECT(i5a + i5b, (Vec<5, int>{11, 22, -7, -16, 5}));
 
 	// - should not compile -
 	static_assert(!validExpression<AddT, decltype(d2a), decltype(d3a)>);
@@ -103,7 +114,7 @@ TEST(scalar_mult) {
 	EXPECT(0.5 * d3h, nytl::approx(Vec3f{2.0, -1.5, 1.0}));
 	EXPECT(0.2 * d3i, nytl::approx(d3i - 0.8 * d3i));
 	EXPECT(2 * d3g + d3h, nytl::approx(Vec3f{8.0, 3.0, 12.0}));
-	EXPECT(2 * i5a, nytl::approx(Vec<5, int>{2, 4, 6, 8, 10}));
+	EXPECT(2 * i5a, (Vec<5, int>{2, 4, 6, 8, 10}));
 }
 
 TEST(multiplies) {

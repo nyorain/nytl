@@ -36,4 +36,7 @@ TEST(referenced) {
 	ptr->unref();
 	EXPECT(ptr->referenceCount(), 0u);
 	EXPECT(deleted, true);
+
+	// TODO: should probably result in compile time error
+	// nytl::Referenced<int> a;
 }

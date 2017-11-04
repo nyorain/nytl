@@ -5,10 +5,16 @@
 
 // TODO: many more tests needed
 
-namespace nytl {
+TEST(deduction) {
+	auto a = nytl::Rect {nytl::Vec{1, 2, 3}, nytl::Vec{4, 5, 6}};
+	static_assert(std::is_same_v<decltype(a), nytl::Rect3i>);
 
+	auto b = nytl::Rect {nytl::Vec{1.f, 2.f}, nytl::Vec{1.f, 1.f}};
+	static_assert(std::is_same_v<decltype(b), nytl::Rect2f>);
 
-} // namespace nytl
+	auto c = nytl::Rect {nytl::Vec{1., 2.}, nytl::Vec{1., 1.}};
+	static_assert(std::is_same_v<decltype(c), nytl::Rect2d>);
+}
 
 // The interface of difference(rect, rect) does not say anything about
 // the order of the returend rectangles. Therefore we have to test all

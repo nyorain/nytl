@@ -38,15 +38,23 @@ Approx<T> approx(const T& value, double epsilon = defaultApproxEpsilon);
 template<typename T>
 class Approx {
 public:
-	friend bool operator==(T lhs, const Approx& rhs)
-	{
+	static_assert(std::is_floating_point_v<T>,
+		"Default template only works for floating point types");
+
+	friend bool operator==(T lhs, const Approx& rhs) {
 		auto max = std::max(std::abs(lhs), std::abs(rhs.value));
 		return std::abs(lhs - rhs.value) < rhs.epsilon * (1 + max);
 	}
 
-	friend bool operator==(const Approx& lhs, double rhs) { return operator==(rhs, lhs); }
-	friend bool operator!=(double lhs, const Approx& rhs) { return !operator==(lhs, rhs); }
-	friend bool operator!=(const Approx& lhs, double rhs) { return !operator==(lhs, rhs); }
+	friend bool operator==(const Approx& lhs, double rhs) { 
+		return operator==(rhs, lhs); 
+	}
+	friend bool operator!=(double lhs, const Approx& rhs) { 
+		return !operator==(lhs, rhs); 
+	}
+	friend bool operator!=(const Approx& lhs, double rhs) { 
+		return !operator==(lhs, rhs); 
+	}
 
 public:
 	T value {};
@@ -59,23 +67,25 @@ template<typename T>
 class Approx<std::complex<T>> {
 public:
 	template<typename OT>
-	friend bool operator==(std::complex<OT> lhs, const Approx& rhs)
-	{
+	friend bool operator==(std::complex<OT> lhs, const Approx& rhs) {
 		return lhs.real() == approx(rhs.value.real(), rhs.epsilon)
 			&& lhs.imag() == approx(rhs.value.imag(), rhs.epsilon);
 	}
 
 	template<typename OT>
-	friend bool operator==(const Approx& lhs, std::complex<OT> rhs)
-		{ return operator==(rhs, lhs); }
+	friend bool operator==(const Approx& lhs, std::complex<OT> rhs) { 
+		return operator==(rhs, lhs); 
+	}
 
 	template<typename OT>
-	friend bool operator!=(std::complex<OT> lhs, const Approx& rhs)
-		{ return !operator==(lhs, rhs); }
+	friend bool operator!=(std::complex<OT> lhs, const Approx& rhs) { 
+		return !operator==(lhs, rhs); 
+	}
 
 	template<typename OT>
-	friend bool operator!=(const Approx& lhs, std::complex<OT> rhs)
-		{ return !operator==(lhs, rhs); }
+	friend bool operator!=(const Approx& lhs, std::complex<OT> rhs) { 
+		return !operator==(lhs, rhs); 
+	}
 
 public:
 	std::complex<T> value {};
@@ -88,6 +98,17 @@ Approx<T> approx(const T& value, double epsilon)
 	return {value, epsilon};
 }
 
+/// Use this namespace to enable approx printing.
+namespace approxOps {
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const Approx<T>& approx)
+{
+	os << "Approx(" << approx.value << ")";
+	return os;
+}
+
+} // namespace approxOps
 } // namespace nytl
 
 #endif // header guard

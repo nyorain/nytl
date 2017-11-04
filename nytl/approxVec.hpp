@@ -21,29 +21,34 @@ template<size_t D, typename T>
 class Approx<nytl::Vec<D, T>> {
 public:
 	template<size_t D2, typename T2>
-	friend bool operator==(const nytl::Vec<D2, T2>& lhs, const Approx& rhs)
-	{
-		if(lhs.size() != rhs.value.size())
+	friend bool operator==(const nytl::Vec<D2, T2>& lhs, const Approx& rhs) {
+		if(lhs.size() != rhs.value.size()) {
 			return false;
+		}
 
-		for(auto i = 0u; i < lhs.size(); ++i)
-			if(lhs[i] != approx(rhs.value[i], rhs.epsilon))
+		for(auto i = 0u; i < lhs.size(); ++i) {
+			if(lhs[i] != approx(rhs.value[i], rhs.epsilon)) {
 				return false;
+			}
+		}
 
 		return true;
 	}
 
 	template<size_t D2, typename T2>
-	friend bool operator==(const Approx& lhs, const nytl::Vec<D2, T2>& rhs)
-		{ return operator==(rhs, lhs); }
+	friend bool operator==(const Approx& lhs, const nytl::Vec<D2, T2>& rhs) { 
+		return operator==(rhs, lhs); 
+	}
 
 	template<size_t D2, typename T2>
-	friend bool operator!=(const nytl::Vec<D2, T2>& lhs, const Approx& rhs)
-		{ return !operator==(lhs, rhs); }
+	friend bool operator!=(const nytl::Vec<D2, T2>& lhs, const Approx& rhs) { 
+		return !operator==(lhs, rhs); 
+	}
 
 	template<size_t D2, typename T2>
-	friend bool operator!=(const Approx& lhs, const nytl::Vec<D2, T2>& rhs)
-		{ return !operator==(lhs, rhs); }
+	friend bool operator!=(const Approx& lhs, const nytl::Vec<D2, T2>& rhs) { 
+		return !operator==(lhs, rhs); 
+	}
 
 public:
 	nytl::Vec<D, T> value {};
@@ -55,29 +60,34 @@ template<size_t R, size_t C, typename T>
 class Approx<nytl::Mat<R, C, T>> {
 public:
 	template<typename T2>
-	friend bool operator==(const nytl::Mat<R, C, T2>& lhs, const Approx& rhs)
-	{
-		if(lhs.rows() != rhs.value.rows())
+	friend bool operator==(const nytl::Mat<R, C, T2>& lhs, const Approx& rhs) {
+		if(lhs.rows() != rhs.value.rows()) {
 			return false;
+		}
 
-		for(auto i = 0u; i < lhs.rows(); ++i)
-			if(lhs[i] != approx(rhs.value[i], rhs.epsilon))
+		for(auto i = 0u; i < lhs.rows(); ++i) {
+			if(lhs[i] != approx(rhs.value[i], rhs.epsilon)) {
 				return false;
+			}
+		}
 
 		return true;
 	}
 
 	template<typename T2>
-	friend bool operator==(const Approx& lhs, const nytl::Mat<R, C, T2>& rhs)
-		{ return operator==(rhs, lhs); }
+	friend bool operator==(const Approx& lhs, const nytl::Mat<R, C, T2>& rhs) { 
+		return operator==(rhs, lhs); 
+	}
 
 	template<typename T2>
-	friend bool operator!=(const nytl::Mat<R, C, T2>& lhs, const Approx& rhs)
-		{ return !operator==(lhs, rhs); }
+	friend bool operator!=(const nytl::Mat<R, C, T2>& lhs, const Approx& rhs) { 
+		return !operator==(lhs, rhs); 
+	}
 
 	template<typename T2>
-	friend bool operator!=(const Approx& lhs, const nytl::Mat<R, C, T2>& rhs)
-		{ return !operator==(lhs, rhs); }
+	friend bool operator!=(const Approx& lhs, const nytl::Mat<R, C, T2>& rhs) { 
+		return !operator==(lhs, rhs); 
+	}
 
 public:
 	nytl::Mat<R, C, T> value {};

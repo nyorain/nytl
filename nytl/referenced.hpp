@@ -9,15 +9,24 @@
 #ifndef NYTL_INCLUDE_REFERENCED
 #define NYTL_INCLUDE_REFERENCED
 
+#include <nytl/tmpUtil.hpp>
 #include <atomic> // std::atomic
 #include <tuple> // std::tuple
 #include <utility> // std::swap
 #include <memory> // std::default_delete
+#include <type_traits> // std::is_base_of
 
 namespace nytl {
 
+template<typename T, 
+	typename Deleter = std::default_delete<T>, 
+	bool Threadsafe = true>
+class Referenced;
+
+template <typename T, typename O> 
+using CastExprT = decltype(static_cast<const T&>(&std::declval<O&>()));
+
 /// Base class for reference counted objects.
-/// The reference count and its operations are atomic and thread-safe.
 /// \requires 'T' must be derived from this class using the CRTP idiom
 /// \tparam T The derived class.
 /// \tparam Deleter The deleter type for objects of this type. Makes it possible
@@ -26,11 +35,15 @@ namespace nytl {
 /// with the this pointer (casted to a const T* pointer) as soon as the reference count is
 /// decreased to zero and the object should be deleted. By default, std::default_delete<T>
 /// will be used that will just call delete on the object.
+/// \tparam Thredsafe Whether to use an atomic reference count
 /// \requires Deleter must implement operator() for a T* parameter, but it is not allowed to
 /// change the T* object.
 /// \module utility
-template<typename T, typename Deleter = std::default_delete<T>>
+template<typename T, typename Deleter, bool Threadsafe>
 class Referenced {
+	using Counter = std::conditional_t<
+		Threadsafe, std::atomic<unsigned int>, unsigned int>;
+
 public:
 	Referenced(const Deleter& deleter = {}, unsigned int count = 0) : members_(count, deleter) {}
 	~Referenced() = default;
@@ -72,7 +85,7 @@ public:
 
 protected:
 	// tuple for empty class optimization, since Deleter might be stateless
-	mutable std::tuple<std::atomic<unsigned int>, Deleter> members_ {};
+	mutable std::tuple<Counter, Deleter> members_ {};
 };
 
 /// \brief Smart pointer class for objects with built-in reference counter.
@@ -142,7 +155,10 @@ protected:
 /// \brief Can be used to allocate a new object of referenced type 'T' into an IntrusivePtr.
 /// \module utility
 template<typename T, typename... Args>
-IntrusivePtr<T> makeIntrusive(Args&&... args) { return {new T(std::forward<Args>(args)...)}; }
+IntrusivePtr<T> makeIntrusive(Args&&... args)
+{
+	return {new T(std::forward<Args>(args)...)};
+}
 
 } // namespace nytl
 
