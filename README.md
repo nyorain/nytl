@@ -44,7 +44,7 @@ Below some basic code examples for (only a) few nytl features to give you an ide
 
 Callbacks mirror the signal/slot principle in modern c++ with many useful features.
 For the full documentation, see [nytl/callback.hpp](nytl/callback.hpp).
-If you want to modify (call/register/disconnect) the callback form
+If you want to modify (call/register/disconnect) the callback from
 within a handler, see [nytl/recursiveCallback.hpp](nytl/recursiveCallback.hpp).
 
 ```cpp
