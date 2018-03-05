@@ -25,9 +25,6 @@
 
 namespace nytl {
 
-// TODO (C++17): use std::pmr for more efficient memory allocations (?)
-// TODO: use a concept for ID.
-
 /// A Callback is a collection of functions with the given signature.
 /// Everyone can add functions or remove his registered function using
 /// the id returned from registering it.
@@ -37,7 +34,7 @@ namespace nytl {
 /// from within a callback call will lead to
 /// undefined behvaiour. If you need this recursive functionality (in any way,
 /// even if from the connectionID class), see nytl/recursiveCallback.
-/// The public interface of this class is mostly identical with RecursiveCallback 
+/// The public interface of this class is mostly identical with RecursiveCallback
 /// so they can be used interchangeably (exceptions documented).
 /// The class is not thread-safe in any way.
 /// All exceptions from calls are just propagated.
@@ -47,18 +44,18 @@ namespace nytl {
 /// Uses the same syntax and semantics as std::function.
 /// \tparam ID A connectionID class, see nytl/connection.hpp for examples.
 /// See docs/callback.md for specification.
-template<typename Signature, typename ID = ConnectionID> 
+template<typename Signature, typename ID = ConnectionID>
 class Callback;
 
 /// Callback class typedef using TrackedConnectionID. Enables connections
-/// to see when their associated function is unregistered by another 
+/// to see when their associated function is unregistered by another
 /// connection or because the callback was destroyed.
-template<typename Signature> using TrackedCallback = 
+template<typename Signature> using TrackedCallback =
 	Callback<Signature, TrackedConnectionID>;
 
 // Callback specialization to enable the Ret(Args...) Signature format.
 template<typename Ret, typename... Args, typename ID>
-class Callback<Ret(Args...), ID> 
+class Callback<Ret(Args...), ID>
 	: public ConnectableT<ID>, public NonCopyable {
 public:
 	/// ! Definition not present in RecursiveCallback
@@ -127,12 +124,12 @@ public:
 	/// Returns the internal vector of registered subscriptions
 	/// Can be used to e.g. call it more efficiently (without creating a vector) or
 	/// with custom exception handling.
-	const auto& subscriptions() const { 
-		return subs_; 
+	const auto& subscriptions() const {
+		return subs_;
 	}
 
 protected:
-	std::vector<Subscription> subs_ {}; // all registered subscriptions
+	std::vector<Subscription> subs_ {}; // all subscriptions, ordered by id
 	std::int64_t subID_ {}; // the highest subscription id given
 };
 
@@ -204,16 +201,21 @@ void Callback<Ret(Args...), ID>::clear() noexcept
 template<typename Ret, typename... Args, typename ID>
 bool Callback<Ret(Args...), ID>::disconnect(const ID& id) noexcept
 {
-	// not using std::find_if for noexcept
-	for(auto it = subs_.begin(); it < subs_.end(); ++it) {
-		if(it->id.get() == id.get()) {
-			it->id.removed();
-			subs_.erase(it);
-			return true;
-		}
+	constexpr auto pred = [](const auto& s1, const auto& s2) {
+		return s1.id.get() < s2.id.get();
+	};
+
+	// we know that id's are ordered
+	auto ds = Subscription{{}, id}; // dummy
+	auto range = std::equal_range(subs_.begin(), subs_.end(), ds, pred);
+	if(range.first == range.second) {
+		return false;
 	}
 
-	return false;
+	// we can assume that there is only one item in the range
+	range.first->id.removed();
+	subs_.erase(range.first);
+	return true;
 }
 
 } // namespace nytl
