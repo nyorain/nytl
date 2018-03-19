@@ -24,3 +24,5 @@ public:
 };
 
 } // namespace nytl
+
+#endif // header guard
