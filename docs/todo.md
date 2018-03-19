@@ -13,17 +13,21 @@ TODO for nytl
 - rect improvements
 	- further rectOps
 	- rectOps tests!
+- Rework/delete referenced & observer?
+	- make sure Referenced static_asserts correct crtp use
+		- easy to get wrong: Referenced<int> will not work in any way
+		- rework referenced? is it needed at all?
+
+Not too important
+===============
+
+- Vec specilizations stl-like utility functions
+- Vec4 specialization? Use x,y,z,w?
 - more/better vecOps/matrixOps
 	- submatrix and subvector functions (possible as generic? otherwise only for Vec/Mat)
 	- more lu decomp algorithms (like e.g. crout)
 		- non-square lu decomp?
 	- various matrix checks: (positive/negative/in-) definite?
-- make sure Referenced static_asserts correct crtp use
-	- easy to get wrong: Referenced<int> will not work in any way
-
-Not too important
-===============
-
 - noexcept fixes
 - seperation interface/implemetation where neeeded (callback/connection/typemap)
 - ? (to be potentially reintroduced (with rework) later on)

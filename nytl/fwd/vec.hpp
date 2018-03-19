@@ -16,6 +16,9 @@ using std::size_t;
 
 template<size_t D, typename T> class Vec;
 
+template<typename T> class Vec<2, T>; // nytl/vec2.hpp
+template<typename T> class Vec<3, T>; // nytl/vec3.hpp
+
 template<typename T> using Vec2 = Vec<2, T>;
 template<typename T> using Vec3 = Vec<3, T>;
 template<typename T> using Vec4 = Vec<4, T>;

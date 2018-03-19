@@ -14,7 +14,8 @@
 #define NYTL_INCLUDE_APPROX_APPROX
 
 #include <complex> // std::complex
-#include <ostream> // std::ostream
+#include <iosfwd> // std::ostream
+#include <nytl/tmpUtil.hpp> // nytl::templatize
 
 namespace nytl {
 
@@ -39,21 +40,21 @@ template<typename T>
 class Approx {
 public:
 	static_assert(std::is_floating_point_v<T>,
-		"Default template only works for floating point types");
+		"nytl::Approx only works for floating point types");
 
 	friend bool operator==(T lhs, const Approx& rhs) {
 		auto max = std::max(std::abs(lhs), std::abs(rhs.value));
 		return std::abs(lhs - rhs.value) < rhs.epsilon * (1 + max);
 	}
 
-	friend bool operator==(const Approx& lhs, double rhs) { 
-		return operator==(rhs, lhs); 
+	friend bool operator==(const Approx& lhs, double rhs) {
+		return operator==(rhs, lhs);
 	}
-	friend bool operator!=(double lhs, const Approx& rhs) { 
-		return !operator==(lhs, rhs); 
+	friend bool operator!=(double lhs, const Approx& rhs) {
+		return !operator==(lhs, rhs);
 	}
-	friend bool operator!=(const Approx& lhs, double rhs) { 
-		return !operator==(lhs, rhs); 
+	friend bool operator!=(const Approx& lhs, double rhs) {
+		return !operator==(lhs, rhs);
 	}
 
 public:
@@ -73,18 +74,18 @@ public:
 	}
 
 	template<typename OT>
-	friend bool operator==(const Approx& lhs, std::complex<OT> rhs) { 
-		return operator==(rhs, lhs); 
+	friend bool operator==(const Approx& lhs, std::complex<OT> rhs) {
+		return operator==(rhs, lhs);
 	}
 
 	template<typename OT>
-	friend bool operator!=(std::complex<OT> lhs, const Approx& rhs) { 
-		return !operator==(lhs, rhs); 
+	friend bool operator!=(std::complex<OT> lhs, const Approx& rhs) {
+		return !operator==(lhs, rhs);
 	}
 
 	template<typename OT>
-	friend bool operator!=(const Approx& lhs, std::complex<OT> rhs) { 
-		return !operator==(lhs, rhs); 
+	friend bool operator!=(const Approx& lhs, std::complex<OT> rhs) {
+		return !operator==(lhs, rhs);
 	}
 
 public:
@@ -104,7 +105,7 @@ namespace approxOps {
 template<typename T>
 std::ostream& operator<<(std::ostream& os, const Approx<T>& approx)
 {
-	os << "Approx(" << approx.value << ")";
+	templatize<T>(os) << "Approx(" << approx.value << ")";
 	return os;
 }
 

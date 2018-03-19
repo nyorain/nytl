@@ -1,7 +1,7 @@
 # nytl
 
 A lightweight and generic header-only template library for C++17.
-Includes various utility of all kind:
+Includes various utility of all kind that i needed across multiple projects:
 
 - Extremely lightweight [vector](nytl/vec.hpp) and [matrix](nytl/mat.hpp) templates
 	- Basically just std::array with mathematical vector/matrix semantics
@@ -11,11 +11,12 @@ Includes various utility of all kind:
 	- Also a more functional [RecursiveCallback](nytl/recursiveCallback.hpp)
 - Intrusive reference counted helpers: [nytl/referenced.hpp](nytl/referenced.hpp)
 - Observers and observable helpers: [nytl/observe.hpp](nytl/observe.hpp)
-- Make classes cloneable: [nytl/clone.hpp](nytl/clone.hpp)
+- Easily make virtual classes cloneable: [nytl/clone.hpp](nytl/clone.hpp)
 - Pseudo-RAII handling with scope guards: [nytl/scope.hpp](nytl/scope.hpp)
 - Lightweight and independent span template: [nytl/span.hpp](nytl/span.hpp)
 
-All headers were written as modular, independent and generic as possible. The only required
+All headers were written as modular, independent and generic as possible. Most
+utilities can be used indenpendently from each other. The only required
 dependency is a compiler supporting full C++17 and its stl (this means no suppport
 for msvc at the moment).
 All files are licensed under the Boost License.
@@ -34,7 +35,8 @@ Just start a pull request or an issue on [github](https://github.com/nyorain/nyt
 There are multiple ways to use nytl. Either install all of its headers on your system and make
 sure the install path can be found by the compiler.
 If you need just a few header files (or even just a few functions), just copy those files into
-your project folder and (if needed) adjust the includes of nytl headers.
+your project folder.
+It can also be used as meson subproject.
 
 Remember that nytl requires a solid C++17 compiler, only development builds of gcc and clang
 are supported.
@@ -79,7 +81,7 @@ auto fd = ::open("test.txt"); // open a file descriptor we want to close later o
 // create a scope guard that will execute the passed functions as soon as this scope is left,
 // no matter in which way. Makes closing the fd description safe and also more maintainable since
 // early returns can be added without having to care about the fd.
-auto fdGuard = nytl::makeScopeGuard([&]{ ::close(fd); })
+auto fdGuard = nytl::ScopeGuard([&]{ ::close(fd); })
 
 // there are also classes that only execute the passed functions if the scope was left normally
 // or due to an exception

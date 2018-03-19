@@ -24,8 +24,7 @@ namespace nytl {
 
 /// \brief Sums up all values of the given vector using the + operator.
 template<size_t D, typename T>
-constexpr auto sum(const Vec<D, T>& a)
-{
+constexpr auto sum(const Vec<D, T>& a) {
 	decltype(a[0] + a[1]) ret {0};
 	for(auto& val : a)
 		ret += val;
@@ -34,8 +33,7 @@ constexpr auto sum(const Vec<D, T>& a)
 
 /// \brief Multiplies all values of the given vector using the * operator.
 template<size_t D, typename T>
-constexpr auto multiply(const Vec<D, T>& a)
-{
+constexpr auto multiply(const Vec<D, T>& a) {
 	decltype(a[0] * a[1]) ret {1};
 	for(auto& val : a)
 		ret *= val;
@@ -46,8 +44,7 @@ constexpr auto multiply(const Vec<D, T>& a)
 /// Note that this follows the dot definition for real numbers and does
 /// not automatically handle the dot definition for other structures.
 template<size_t D, typename T1, typename T2>
-constexpr auto dot(const Vec<D, T1>& a, const Vec<D, T2>& b)
-{
+constexpr auto dot(const Vec<D, T1>& a, const Vec<D, T2>& b) {
 	decltype(a[0] * b[0] + a[0] * b[0]) ret {0};
 	for(auto i = 0u; i < D; ++i)
 		ret += a[i] * b[i];
@@ -57,8 +54,7 @@ constexpr auto dot(const Vec<D, T1>& a, const Vec<D, T2>& b)
 
 /// \brief Returns the euclidean norm (or length) of the given vector.
 template<size_t D, typename T>
-constexpr auto length(const Vec<D, T>& a)
-{
+constexpr auto length(const Vec<D, T>& a) {
 	return std::sqrt(dot(a, a));
 }
 
@@ -66,8 +62,7 @@ constexpr auto length(const Vec<D, T>& a)
 /// Another way to describe this operation is the length between the
 /// difference of the given vectors.
 template<size_t D, typename T1, typename T2>
-constexpr auto distance(const Vec<D, T1>& a, const Vec<D, T2>& b)
-{
+constexpr auto distance(const Vec<D, T1>& a, const Vec<D, T2>& b) {
 	return length(a - b);
 }
 
@@ -78,8 +73,7 @@ constexpr auto distance(const Vec<D, T1>& a, const Vec<D, T2>& b)
 /// Does only work for real numbers and does not handle complex vectors.
 /// \throws std::domain_error if at least one of the given vectors has a length of 0.
 template<size_t D, typename T1, typename T2>
-constexpr auto angle(const Vec<D, T1>& a, const Vec<D, T2>& b)
-{
+constexpr auto angle(const Vec<D, T1>& a, const Vec<D, T2>& b) {
 	auto l = length(a) * length(b);
 	if(l == 0) {
 		throw std::domain_error("nytl::angle: nullvector given");
@@ -93,8 +87,7 @@ constexpr auto angle(const Vec<D, T1>& a, const Vec<D, T2>& b)
 
 /// \brief Calculates the cross product for two 3-dimensional vectors.
 template<typename T1, typename T2>
-constexpr auto cross(const Vec<3, T1>& a, const Vec<3, T2>& b)
-{
+constexpr auto cross(const Vec<3, T1>& a, const Vec<3, T2>& b) {
 	Vec<3, decltype(a[1] * b[2] - a[2] * b[1])> ret {};
 	ret[0] = (a[1] * b[2]) - (a[2] * b[1]);
 	ret[1] = (a[2] * b[0]) - (a[0] * b[2]);
@@ -105,10 +98,9 @@ constexpr auto cross(const Vec<3, T1>& a, const Vec<3, T2>& b)
 /// \brief Returns a normalization of the given vector for the euclidean norm.
 /// \throws std::domain_error if the vector has the length 0.
 template<size_t D, typename T>
-constexpr auto normalized(const Vec<D, T>& a)
-{
+constexpr auto normalized(const Vec<D, T>& a) {
 	auto l = length(a);
-	if(l == T {0.0}) {		
+	if(l == T {0.0}) {
 		throw std::domain_error("nytl::normalized: nullvector given");
 	}
 
@@ -120,10 +112,9 @@ constexpr auto normalized(const Vec<D, T>& a)
 /// precision (e.g. for an int vector).
 /// \throws std::domain_error if the vector has the length 0.
 template<size_t D, typename T>
-constexpr auto normalize(Vec<D, T>& a) 
-{
+constexpr auto normalize(Vec<D, T>& a) {
 	auto l = length(a);
-	if(l == T {0.0}) {		
+	if(l == T {0.0}) {
 		throw std::domain_error("nytl::normalized: nullvector given");
 	}
 
@@ -136,9 +127,9 @@ constexpr auto normalize(Vec<D, T>& a)
 /// for the Vector implementation types.
 /// \requires There must be an implementation of operator<<(std::ostream&, V::Value).
 template<typename V>
-std::ostream& print(std::ostream& os, const V& vec, 
-	const char* start = "(", const char* end = ")", const char* sep = ", ")
-{
+std::ostream& print(std::ostream& os, const V& vec,
+	const char* start = "(", const char* end = ")", const char* sep = ", ") {
+
 	auto& tos = templatize<V>(os); // we don't want to include ostream
 	tos << start;
 
@@ -152,18 +143,16 @@ std::ostream& print(std::ostream& os, const V& vec,
 }
 
 template<size_t D, typename T>
-std::ostream& operator<<(std::ostream& os, const Vec<D, T>& a)
-{
+std::ostream& operator<<(std::ostream& os, const Vec<D, T>& a) {
 	return print(os, a);
 }
 
 // additional utility operators
 namespace vec {
 namespace operators {
-	
+
 template<size_t D, typename F, typename T>
-constexpr auto operator*(const Vec<D, T>& a, const F& f)
-{
+constexpr auto operator*(const Vec<D, T>& a, const F& f) {
 	auto ret = Vec<D, decltype(a[0] * f)> {};
 	for(auto i = 0u; i < D; ++i)
 		ret[i] = a[i] * f;
@@ -171,8 +160,7 @@ constexpr auto operator*(const Vec<D, T>& a, const F& f)
 }
 
 template<size_t D, typename F, typename T>
-constexpr auto operator/(const Vec<D, T>& a, const F& f)
-{
+constexpr auto operator/(const Vec<D, T>& a, const F& f) {
 	auto ret = Vec<D, decltype(a[0] / f)> {};
 	for(auto i = 0u; i < D; ++i)
 		ret[i] = a[i] / f;
@@ -180,8 +168,7 @@ constexpr auto operator/(const Vec<D, T>& a, const F& f)
 }
 
 template<size_t D, typename F, typename T>
-constexpr auto operator/(const F& f, const Vec<D, T>& a)
-{
+constexpr auto operator/(const F& f, const Vec<D, T>& a) {
 	auto ret = Vec<D, decltype(f / a[0])> {};
 	for(auto i = 0u; i < D; ++i)
 		ret[i] = f / a[i];
@@ -194,8 +181,7 @@ namespace cw { // vec component-wise operations
 
 /// \brief Returns a vector holding the component-wise maximum of the given vectors.
 template<size_t D, typename T>
-constexpr auto max(Vec<D, T> a, const Vec<D, T>& b)
-{
+constexpr auto max(Vec<D, T> a, const Vec<D, T>& b) {
 	for(auto i = 0u; i < D; ++i)
 		if(b[i] > a[i])
 			a[i] = b[i];
@@ -204,8 +190,7 @@ constexpr auto max(Vec<D, T> a, const Vec<D, T>& b)
 
 /// \brief Returns a vector holding the component-wise minimum of the given vectors.
 template<size_t D, typename T>
-constexpr auto min(Vec<D, T> a, const Vec<D, T>& b)
-{
+constexpr auto min(Vec<D, T> a, const Vec<D, T>& b) {
 	for(auto i = 0u; i < D; ++i)
 		if(b[i] < a[i])
 			a[i] = b[i];
@@ -214,8 +199,7 @@ constexpr auto min(Vec<D, T> a, const Vec<D, T>& b)
 
 /// \brief Returns the component-wise product of the given vectors.
 template<size_t D, typename T1, typename T2>
-constexpr auto multiply(const Vec<D, T1>& a, const Vec<D, T2>& b)
-{
+constexpr auto multiply(const Vec<D, T1>& a, const Vec<D, T2>& b) {
 	Vec<D, decltype(a[0] * b[0])> ret {};
 	for(auto i = 0u; i < D; ++i)
 		ret[i] = a[i] * b[i];
@@ -224,8 +208,7 @@ constexpr auto multiply(const Vec<D, T1>& a, const Vec<D, T2>& b)
 
 /// \brief Returns the component-wise quotient of the given vectors.
 template<size_t D, typename T1, typename T2>
-constexpr auto divide(const Vec<D, T1>& a, const Vec<D, T2>& b)
-{
+constexpr auto divide(const Vec<D, T1>& a, const Vec<D, T2>& b) {
 	Vec<D, decltype(a[0] / b[0])> ret {};
 	for(auto i = 0u; i < D; ++i)
 		ret[i] = a[i] / b[i];
@@ -235,30 +218,26 @@ constexpr auto divide(const Vec<D, T1>& a, const Vec<D, T2>& b)
 namespace operators {
 
 template<size_t D, typename T1, typename T2>
-constexpr Vec<D, T1>& operator*=(Vec<D, T1>& a, const Vec<D, T2>& b) noexcept
-{
+constexpr Vec<D, T1>& operator*=(Vec<D, T1>& a, const Vec<D, T2>& b) noexcept {
 	for(size_t i = 0; i < D; ++i)
 		a[i] *= b[i];
 	return a;
 }
 
 template<size_t D, typename T1, typename T2>
-constexpr Vec<D, T1>& operator/=(Vec<D, T1>& a, const Vec<D, T2>& b) noexcept
-{
+constexpr Vec<D, T1>& operator/=(Vec<D, T1>& a, const Vec<D, T2>& b) noexcept {
 	for(size_t i = 0; i < D; ++i)
 		a[i] /= b[i];
 	return a;
 }
 
 template<size_t D, typename T1, typename T2>
-constexpr auto operator*(const Vec<D, T1>& a, const Vec<D, T2>& b)
-{
+constexpr auto operator*(const Vec<D, T1>& a, const Vec<D, T2>& b) {
 	return multiply(a, b);
 }
 
 template<size_t D, typename T1, typename T2>
-constexpr auto operator/(const Vec<D, T1>& a, const Vec<D, T2>& b)
-{
+constexpr auto operator/(const Vec<D, T1>& a, const Vec<D, T2>& b) {
 	return divide(a, b);
 }
 
@@ -293,8 +272,7 @@ NYTL_VEC_IP_UTIL_FUNC(ceil)
 #undef NYTL_VEC_IP_UTIL
 
 template<size_t D, typename T1, typename T2>
-constexpr void pow(Vec<D, T1>& a, T2 exp)
-{
+constexpr void pow(Vec<D, T1>& a, T2 exp) {
 	for(auto& val : a)
 		val = std::pow(val, exp);
 }
@@ -326,8 +304,7 @@ NYTL_VEC_UTIL_FUNC(ceil)
 #undef NYTL_VEC_UTIL_FUNC
 
 template<size_t D, typename T1, typename T2>
-constexpr void pow(Vec<D, T1> a, T2 exp)
-{
+constexpr void pow(Vec<D, T1> a, T2 exp) {
 	ip::pow(a, exp);
 	return a;
 }
@@ -336,5 +313,4 @@ constexpr void pow(Vec<D, T1> a, T2 exp)
 } // namespace vec
 } // namespace nytl
 
-#undef nytl_assure
 #endif // header guard

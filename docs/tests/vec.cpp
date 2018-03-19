@@ -52,15 +52,22 @@ constexpr nytl::Vec<5, int> i5b {10, 20, -10, -20, 0};
 constexpr nytl::Vec<7, int> i7a {1, 2, 3, 4, 5, 6, 7};
 constexpr nytl::Vec<7, int> i7b {-1, 0, 0, 0, 1, 4, 5};
 
+constexpr auto c1 = static_cast<nytl::Vec2f>(nytl::Vec2u64{1243u, 432u});
+constexpr auto c2 = static_cast<nytl::Vec4f>(nytl::Vec4u64{1243u, 432u, 1u, 2u});
+
 template<typename A, typename B> using AddT =
 	std::void_t<decltype(std::declval<A>() + std::declval<B>())>;
 template<typename A, typename B> using DotT =
 	std::void_t<decltype(nytl::dot(std::declval<A>(), std::declval<B>()))>;
 template<typename A, typename B> using CrossT =
-	std::void_t<decltype(nytl::dot(std::declval<A>(), std::declval<B>()))>;
+	std::void_t<decltype(nytl::cross(std::declval<A>(), std::declval<B>()))>;
 
 static_assert(validExpression<AddT, Vec3f, Vec3f>);
-// static_assert(!validExpression<AddT, Vec3f, Mat4f>); // TODO
+static_assert(!validExpression<AddT, Vec3f, Mat4f>);
+static_assert(!validExpression<DotT, Vec3f, Mat4f>);
+static_assert(!validExpression<CrossT, Vec3f, Vec2f>);
+static_assert(!validExpression<CrossT, Vec4f, Vec3f>);
+static_assert(!validExpression<CrossT, Vec2f, Vec2f>);
 
 TEST(deduction) {
 	auto a = nytl::Vec {1.f, 2, 3, 4.};

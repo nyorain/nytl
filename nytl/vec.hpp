@@ -11,8 +11,13 @@
 
 #include <nytl/fwd/vec.hpp> // nytl::Vec typedefs
 
+// specializations
+#include <nytl/vec2.hpp> // nytl::Vec<2, T>
+#include <nytl/vec3.hpp> // nytl::Vec<3, T>
+
 #include <iterator> // std::reverse_iterator
 #include <array> // std::array
+#include <algorithm> // std::min
 
 namespace nytl {
 
@@ -32,52 +37,43 @@ public:
 	/// out the last values when the size of vector is shrinked (e.g.
 	/// {1, 2, 3} -> {1, 2}).
 	template<size_t OD, typename OT>
-	constexpr explicit operator Vec<OD, OT>() const;
+	constexpr explicit operator Vec<OD, OT>() const {
+		auto ret = Vec<OD, OT> {};
+		for(auto i = 0u; i < std::min(D, OD); ++i)
+			ret[i] = (*this)[i];
+		return ret;
+	}
 };
 
 template<typename... Args>
-Vec(Args&&... args) -> 
+Vec(Args&&... args) ->
 	Vec<sizeof...(Args), std::common_type_t<Args...>>;
 
 // - implementation/operators -
-template<size_t D, typename T>
-template<size_t OD, typename OT>
-constexpr Vec<D, T>::operator Vec<OD, OT>() const
-{
-	auto ret = Vec<OD, OT> {};
-	for(auto i = 0u; i < std::min(D, OD); ++i)
-		ret[i] = (*this)[i];
-	return ret;
-}
-
 // - free operators -
 template<size_t D, typename T1, typename T2>
-constexpr Vec<D, T1>& operator+=(Vec<D, T1>& a, const Vec<D, T2>& b) noexcept
-{
+constexpr Vec<D, T1>& operator+=(Vec<D, T1>& a, const Vec<D, T2>& b) noexcept {
 	for(size_t i = 0; i < D; ++i)
 		a[i] += b[i];
 	return a;
 }
 
 template<size_t D, typename T1, typename T2>
-constexpr Vec<D, T1>& operator-=(Vec<D, T1>& a, const Vec<D, T2>& b) noexcept
-{
+constexpr Vec<D, T1>& operator-=(Vec<D, T1>& a, const Vec<D, T2>& b) noexcept {
 	for(size_t i = 0; i < D; ++i)
 		a[i] -= b[i];
 	return a;
 }
 
 template<size_t D, typename T, typename OT>
-constexpr Vec<D, T>& operator*=(Vec<D, T>& vec, OT fac)
-{
+constexpr Vec<D, T>& operator*=(Vec<D, T>& vec, OT fac) {
 	for(auto& val : vec)
 		val *= fac;
 	return vec;
 }
 
 template<size_t D, typename T1, typename T2>
-constexpr auto operator+(const Vec<D, T1>& a, const Vec<D, T2>& b)
-{
+constexpr auto operator+(const Vec<D, T1>& a, const Vec<D, T2>& b) {
 	Vec<D, decltype(a[0] + b[0])> ret {};
 	for(auto i = 0u; i < D; ++i)
 		ret[i] = a[i] + b[i];
@@ -85,8 +81,7 @@ constexpr auto operator+(const Vec<D, T1>& a, const Vec<D, T2>& b)
 }
 
 template<size_t D, typename T1, typename T2>
-constexpr auto operator-(const Vec<D, T1>& a, const Vec<D, T2>& b)
-{
+constexpr auto operator-(const Vec<D, T1>& a, const Vec<D, T2>& b) {
 	Vec<D, decltype(a[0] - b[0])> ret {};
 	for(auto i = 0u; i < D; ++i)
 		ret[i] = a[i] - b[i];
@@ -94,16 +89,14 @@ constexpr auto operator-(const Vec<D, T1>& a, const Vec<D, T2>& b)
 }
 
 template<size_t D, typename T>
-constexpr auto operator-(Vec<D, T> a)
-{
+constexpr auto operator-(Vec<D, T> a) {
 	for(auto& val : a)
 		val = -val;
 	return a;
 }
 
 template<size_t D, typename F, typename T>
-constexpr auto operator*(const F& f, const Vec<D, T>& a)
-{
+constexpr auto operator*(const F& f, const Vec<D, T>& a) {
 	Vec<D, decltype(f * a[0])> ret {};
 	for(auto i = 0u; i < D; ++i)
 		ret[i] = f * a[i];
@@ -111,8 +104,7 @@ constexpr auto operator*(const F& f, const Vec<D, T>& a)
 }
 
 template<size_t D, typename T1, typename T2>
-constexpr auto operator==(const Vec<D, T1>& a, const Vec<D, T2>& b)
-{
+constexpr auto operator==(const Vec<D, T1>& a, const Vec<D, T2>& b) {
 	for(auto i = 0u; i < D; ++i)
 		if(a[i] != b[i])
 			return false;
@@ -120,8 +112,7 @@ constexpr auto operator==(const Vec<D, T1>& a, const Vec<D, T2>& b)
 }
 
 template<size_t D1, size_t D2, typename T1, typename T2>
-constexpr auto operator!=(const Vec<D1, T1>& a, const Vec<D2, T2>& b)
-{
+constexpr auto operator!=(const Vec<D1, T1>& a, const Vec<D2, T2>& b) {
 	return !(a == b);
 }
 
