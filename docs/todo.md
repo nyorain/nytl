@@ -1,18 +1,17 @@
 TODO for nytl
 =============
 
-- testing !important
-	- improve: scope, more vec/vecOps testing needed
+- more testing !important
+	- improve: scope, more vec/vecOps, rectOps testing needed
 	- fix todos at the top of unit tests
 	- test more rectOps/flags (basic ops)
+	- utf stress test
+		- https://stackoverflow.com/questions/1319022/really-good-bad-utf-8-example-test-data
 	- test more matrix operations
 		- simplify them?
 	- practical field tests for already unit tested interfaces
 		- optimize performance (if possible) (?)
 - check correct header includes (nytl itself, stl)
-- rect improvements
-	- further rectOps
-	- rectOps tests!
 - Rework/delete referenced & observer?
 	- make sure Referenced static_asserts correct crtp use
 		- easy to get wrong: Referenced<int> will not work in any way
@@ -21,6 +20,7 @@ TODO for nytl
 Not too important
 ===============
 
+- add more rectOps and vecOps (port utility from other projects)
 - Vec specilizations stl-like utility functions
 - Vec4 specialization? Use x,y,z,w?
 - more/better vecOps/matrixOps

@@ -11,6 +11,7 @@
 
 #include <nytl/fwd/vec.hpp> // nytl::Vec declaration
 #include <algorithm> // std::min
+#include <stdexcept> // std::out_of_range
 
 namespace nytl {
 
@@ -47,7 +48,7 @@ public:
 			case 0: return x;
 			case 1: return y;
 			case 2: return z;
-			default: return *static_cast<T*>(nullptr);
+			default: throw std::out_of_range("Vec3[]");
 		}
 	}
 
@@ -56,7 +57,7 @@ public:
 			case 0: return x;
 			case 1: return y;
 			case 2: return z;
-			default: return *static_cast<const T*>(nullptr);
+			default: throw std::out_of_range("Vec3[]");
 		}
 	}
 

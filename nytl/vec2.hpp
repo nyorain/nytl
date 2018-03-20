@@ -11,6 +11,7 @@
 
 #include <nytl/fwd/vec.hpp> // nytl::Vec declaration
 #include <algorithm> // std::min
+#include <stdexcept> // std::out_of_range
 
 namespace nytl {
 
@@ -43,13 +44,13 @@ public:
 	// We could use (data()[i]) but this conflicts constexpr (gcc 7).
 	// Stl convention is not to check bounds and therefore never throw
 	// from operator[] (and so does the default Vec implementation).
-	// Although we implicitly check bounds, we don't throw to stay
-	// consistent. But we return nullptr for easier debugging.
+	// But we implicitly have to check bounds here and all other alternatives
+	// are worse so we throw in the case of out-of-range. It's almost free.
 	constexpr T& operator[](size_t i) {
 		switch(i) {
 			case 0: return x;
 			case 1: return y;
-			default: return *static_cast<T*>(nullptr);
+			default: throw std::out_of_range("Vec2[]");
 		}
 	}
 
@@ -57,7 +58,7 @@ public:
 		switch(i) {
 			case 0: return x;
 			case 1: return y;
-			default: return *static_cast<const T*>(nullptr);
+			default: throw std::out_of_range("Vec2[]");
 		}
 	}
 
