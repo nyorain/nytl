@@ -4,12 +4,6 @@ test('vec', tvec)
 tmat = executable('mat',  'mat.cpp', dependencies: nytl_dep)
 test('mat', tmat)
 
-ttypemap = executable('typemap', 'typemap.cpp', dependencies: nytl_dep)
-test('typemap', ttypemap)
-
-treferenced = executable('referenced', 'referenced.cpp', dependencies: nytl_dep)
-test('referenced', treferenced)
-
 tcallback = executable('callback', 'callback.cpp', dependencies: nytl_dep)
 test('callback', tcallback)
 
@@ -18,9 +12,6 @@ test('rcallback', trcallback)
 
 tclone = executable('clone', 'clone.cpp', dependencies: nytl_dep)
 test('clone', tclone)
-
-tobserve = executable('observe', 'observe.cpp', dependencies: nytl_dep)
-test('observe', tobserve)
 
 tspan = executable('span', 'span.cpp', dependencies: nytl_dep)
 test('span', tspan)

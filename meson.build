@@ -18,28 +18,24 @@ headers = [
 	'nytl/matOps.hpp',
 	'nytl/math.hpp',
 	'nytl/nonCopyable.hpp',
-	'nytl/observe.hpp',
 	'nytl/rect.hpp',
 	'nytl/rectOps.hpp',
 	'nytl/recursiveCallback.hpp',
-	'nytl/referenced.hpp',
 	'nytl/scope.hpp',
 	'nytl/simplex.hpp',
 	'nytl/span.hpp',
 	'nytl/tmpUtil.hpp',
-	'nytl/typemap.hpp',
 	'nytl/utf.hpp',
 	'nytl/vec.hpp',
-	'nytl/vecOps.hpp']
+	'nytl/vecOps.hpp'
+]
 
 fwd_headers = [
 	'nytl/fwd/flags.hpp',
 	'nytl/fwd/mat.hpp',
 	'nytl/fwd/rect.hpp',
-	'nytl/fwd/referenced.hpp',
 	'nytl/fwd/simplex.hpp',
 	'nytl/fwd/span.hpp',
-	'nytl/fwd/typemap.hpp',
 	'nytl/fwd/vec.hpp',
 ]
 
