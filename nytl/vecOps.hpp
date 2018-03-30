@@ -85,16 +85,6 @@ constexpr auto angle(const Vec<D, T1>& a, const Vec<D, T2>& b) {
 	return std::acos(std::clamp<decltype(v)>(v, -1.0, 1.0));
 }
 
-/// \brief Calculates the cross product for two 3-dimensional vectors.
-template<typename T1, typename T2>
-constexpr auto cross(const Vec<3, T1>& a, const Vec<3, T2>& b) {
-	Vec<3, decltype(a[1] * b[2] - a[2] * b[1])> ret {};
-	ret[0] = (a[1] * b[2]) - (a[2] * b[1]);
-	ret[1] = (a[2] * b[0]) - (a[0] * b[2]);
-	ret[2] = (a[0] * b[1]) - (a[1] * b[0]);
-	return ret;
-}
-
 /// \brief Returns a normalization of the given vector for the euclidean norm.
 /// \throws std::domain_error if the vector has the length 0.
 template<size_t D, typename T>
@@ -119,6 +109,12 @@ constexpr auto normalize(Vec<D, T>& a) {
 	}
 
 	a *= T {1.0} / l;
+}
+
+/// \brief Mirrors the given point on the given mirror.
+template<size_t D, typename T>
+constexpr Vec<D, T> mirror(const Vec<D, T>& mirror, const Vec<D, T>& point) {
+	return mirror + (mirror - point);
 }
 
 /// \brief Prints the given vector to the given ostream.
@@ -146,6 +142,58 @@ template<size_t D, typename T>
 std::ostream& operator<<(std::ostream& os, const Vec<D, T>& a) {
 	return print(os, a);
 }
+
+// - dimension specific -
+/// \brief Calculates the cross product for two 3-dimensional vectors.
+template<typename T1, typename T2>
+constexpr auto cross(const Vec<3, T1>& a, const Vec<3, T2>& b) {
+	Vec<3, decltype(a[1] * b[2] - a[2] * b[1])> ret {};
+	ret[0] = (a[1] * b[2]) - (a[2] * b[1]);
+	ret[1] = (a[2] * b[0]) - (a[0] * b[2]);
+	ret[2] = (a[0] * b[1]) - (a[1] * b[0]);
+	return ret;
+}
+
+/// \brief 2-dimensional cross product (aka normal-dot).
+/// Is the same as the dot of a with the normal of b.
+template<typename T1, typename T2>
+constexpr auto cross(const Vec<2, T1>& a, const Vec<2, T2>& b) {
+    return a[0] * b[1] - a[1] * b[0];
+}
+
+/// Operations that assume a right-hand orientad coordinate system.
+namespace rho {
+
+/// Returns the left normal of a 2 dimensional vector.
+template<typename T>
+Vec2<T> lnormal(Vec2<T> vec) {
+	return {-vec[1], vec[0]};
+}
+
+/// Returns the right normal of a 2 dimensional vector.
+template<typename T>
+Vec2<T> rnormal(Vec2<T> vec) {
+	return {vec[1], -vec[0]};
+}
+
+} // namespace rho
+
+/// Operations that assume a left-hand orientad coordinate system.
+namespace lho {
+
+/// Returns the left normal of a 2 dimensional vector.
+template<typename T>
+Vec2<T> lnormal(Vec2<T> vec) {
+	return {vec[1], -vec[0]};
+}
+
+/// Returns the right normal of a 2 dimensional vector.
+template<typename T>
+Vec2<T> rnormal(Vec2<T> vec) {
+	return {-vec[1], vec[0]};
+}
+
+} // namespace rho
 
 // additional utility operators
 namespace vec {
@@ -282,7 +330,7 @@ constexpr void pow(Vec<D, T1>& a, T2 exp) {
 
 #define NYTL_VEC_UTIL_FUNC(func) \
 	template<size_t D, typename T> \
-	constexpr void func(Vec<D, T> vec) { \
+	constexpr auto func(Vec<D, T> vec) { \
 		ip::func(vec); \
 		return vec; \
 	}

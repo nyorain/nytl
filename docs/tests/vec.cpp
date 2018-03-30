@@ -63,11 +63,11 @@ template<typename A, typename B> using CrossT =
 	std::void_t<decltype(nytl::cross(std::declval<A>(), std::declval<B>()))>;
 
 static_assert(validExpression<AddT, Vec3f, Vec3f>);
+static_assert(validExpression<CrossT, Vec2f, Vec2f>);
 static_assert(!validExpression<AddT, Vec3f, Mat4f>);
 static_assert(!validExpression<DotT, Vec3f, Mat4f>);
 static_assert(!validExpression<CrossT, Vec3f, Vec2f>);
 static_assert(!validExpression<CrossT, Vec4f, Vec3f>);
-static_assert(!validExpression<CrossT, Vec2f, Vec2f>);
 
 TEST(deduction) {
 	auto a = nytl::Vec {1.f, 2, 3, 4.};
