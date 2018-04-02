@@ -14,18 +14,11 @@
 
 #include <nytl/fwd/flags.hpp>
 #include <nytl/fwd/simplex.hpp>
-#include <nytl/fwd/typemap.hpp>
-#include <nytl/fwd/referenced.hpp>
 #include <nytl/fwd/span.hpp>
 #include <nytl/fwd/vec.hpp>
 #include <nytl/fwd/mat.hpp>
 
 namespace nytl {
-
-// observe.hpp
-template<typename T> class Observable;
-template<typename T> class Observer;
-template<typename T> class ObservingPtr;
 
 // connection.hpp
 template <typename ID> class ConnectableT;
