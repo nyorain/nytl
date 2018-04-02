@@ -14,14 +14,23 @@ namespace nytl {
 
 /// Like std::string_view but guaranteed to be null-terminated.
 /// Makes it actually useful as string type parameter.
-class StringParam : public std::string_view {
+template<typename Char>
+class BasicStringParam : public std::basic_string_view<Char> {
 public:
-	constexpr StringParam() = default;
-	constexpr StringParam(const char* cstr) : std::string_view(cstr) {}
-	StringParam(const std::string& str) : std::string_view(str.c_str()) {}
+	using string_view = std::basic_string_view<Char>;
+	using string = std::basic_string<Char>;
 
-	const char* c_str() const { return data(); }
+public:
+	constexpr BasicStringParam() = default;
+	constexpr BasicStringParam(const Char* cstr) : string_view(cstr) {}
+	BasicStringParam(const string& str) : string_view(str.c_str()) {}
+
+	const Char* c_str() const { return this->data(); }
 };
+
+using StringParam = BasicStringParam<char>;
+using StringParam32 = BasicStringParam<char32_t>;
+using StringParam16 = BasicStringParam<char16_t>;
 
 } // namespace nytl
 

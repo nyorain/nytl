@@ -10,6 +10,7 @@
 #define NYTL_INCLUDE_UTF
 
 #include <string> // std::string
+#include <string_view> // std::string_view
 #include <array> // std::array
 #include <locale> // std::wstring_convert
 #include <codecvt> // std::codecvt_utf8
@@ -23,9 +24,7 @@ namespace nytl {
 /// \brief Returns the number of characters in a utf8-encoded unicode string.
 /// This differs from std::string::size because it does not return the bytes in the
 /// string, but the count of utf8-encoded characters.
-/// \module utf
-inline std::size_t charCount(const std::string& utf8)
-{
+inline std::size_t charCount(std::string_view utf8) {
 	std::size_t count = 0u;
 	auto it = utf8.begin();
 
@@ -57,9 +56,7 @@ inline std::size_t charCount(const std::string& utf8)
 /// i.e. {0xc3, 0xbc ,0, 0} since u8"ü"[0] == 0xc3 and u8"ü"[1] == 0xbc.
 /// \note Indexing starts at zero! `nth(utf8, 1)` returns actually the second char.
 /// \throws std::out_of_range if n > charCount(utf8)
-/// \module utf
-inline std::array<char, 5> nth(const std::string& utf8, std::size_t n)
-{
+inline std::array<char, 5> nth(std::string_view utf8, std::size_t n) {
 	std::size_t count = 0u;
 	auto it = utf8.begin();
 
@@ -94,9 +91,7 @@ inline std::array<char, 5> nth(const std::string& utf8, std::size_t n)
 /// Will be not greater than 4 for a valid utf8 string.
 /// \note Indexing starts at zero! `nth(utf8, 1)` returns actually the second char.
 /// \throws std::out_of_range if n > charCount(utf8)
-/// \module utf
-inline const char& nth(const std::string& utf8, std::size_t n, std::uint8_t& size)
-{
+inline const char& nth(std::string_view utf8, std::size_t n, std::uint8_t& size) {
 	auto count = 0u;
 	auto it = utf8.begin();
 
@@ -131,9 +126,7 @@ inline const char& nth(const std::string& utf8, std::size_t n, std::uint8_t& siz
 /// Will be not greater than 4.
 /// \note Indexing starts at zero! `nth(utf8, 1)` returns actually the second char.
 /// \throws std::out_of_range if n > charCount(utf8)
-/// \module utf
-inline char& nth(std::string& utf8, std::size_t n, std::uint8_t& size)
-{
+inline char& nth(std::string& utf8, std::size_t n, std::uint8_t& size) {
 	auto count = 0u;
 	auto it = utf8.begin();
 
@@ -162,48 +155,36 @@ inline char& nth(std::string& utf8, std::size_t n, std::uint8_t& size)
 }
 
 /// \brief Converts the given utf16 string to a utf8 string.
-/// \module utf
-inline std::string toUtf8(const std::u16string& utf16)
-{
+inline std::string toUtf8(std::u16string_view utf16) {
 	std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> converter;
-	return converter.to_bytes(utf16);
+	return converter.to_bytes(utf16.begin(), utf16.end());
 }
 
 /// \brief Converts the given utf32 string to a utf8 string.
-/// \module utf
-inline std::string toUtf8(const std::u32string& utf32)
-{
+inline std::string toUtf8(std::u32string_view utf32) {
 	std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> converter;
-	return converter.to_bytes(utf32);
+	return converter.to_bytes(utf32.begin(), utf32.end());
 }
 
 /// \brief Converts the given utf8 string to a utf16 string.
-/// \module utf
-inline std::u16string toUtf16(const std::string& utf8)
-{
+inline std::u16string toUtf16(std::string_view utf8) {
 	std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> converter;
-	return converter.from_bytes(utf8);
+	return converter.from_bytes(utf8.begin(), utf8.end());
 }
 
 /// \brief Converts the given utf32 string to a utf16 string.
-/// \module utf
-inline std::u16string toUtf16(const std::u32string& utf32)
-{
+inline std::u16string toUtf16(std::u32string_view utf32) {
 	return toUtf16(toUtf8(utf32));
 }
 
 /// \brief Converts the given utf8 string to a utf32 string.
-/// \module utf
-inline std::u32string toUtf32(const std::string& utf8)
-{
+inline std::u32string toUtf32(std::string_view utf8) {
 	std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> converter;
-	return converter.from_bytes(utf8);
+	return converter.from_bytes(utf8.begin(), utf8.end());
 }
 
 /// \brief Converts the given utf16 string to a utf32 string.
-/// \module utf
-inline std::u32string toUtf32(const std::u16string& utf16)
-{
+inline std::u32string toUtf32(std::u16string_view utf16) {
 	return toUtf32(toUtf8(utf16));
 }
 
