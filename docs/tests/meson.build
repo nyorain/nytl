@@ -31,6 +31,9 @@ test('utf', tutf)
 tflags = executable('flags', 'flags.cpp', dependencies: nytl_dep)
 test('flags', tflags)
 
+tscope = executable('scope', 'scope.cpp', dependencies: nytl_dep)
+test('scope', tscope)
+
 # compile-time tests only
 executable('nonCopyable', 'nonCopyable.cpp', dependencies: nytl_dep)
 executable('tmp', 'tmp.cpp', dependencies: nytl_dep)

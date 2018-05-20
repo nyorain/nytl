@@ -7,19 +7,20 @@
 #ifndef NYTL_INCLUDE_SCOPE
 #define NYTL_INCLUDE_SCOPE
 
+#include <nytl/nonCopyable.hpp> // nytl::NonMovable
 #include <exception> // std::uncaught_exceptions
+#include <iostream> // std::cerr
 
 namespace nytl {
 
-// TODO: try/catch guards for called functions?
-// In the case of ExceptionGuard they would result in std::terminate 100%
-
 /// \brief Can be used to execute code when going out of the current scope.
-/// This enables to handle non-RAII resources in a pseudo-RAII manner without having to
-/// define own wrapper functions.
-/// Example for how this could be useful for e.g. file descriptors. Note that no matter
-/// which way we take out of the shown scope (exception, early return or just coming to the
-/// scopes end) the given scope guard will be executed and the fd closed.
+/// This enables to handle non-RAII resources in a pseudo-RAII manner without
+/// having to define own wrapper functions.
+/// Example for how this could be useful for e.g. file descriptors.
+/// Note that no matter which way we take out of the shown scope
+/// (exception, early return or just coming to the scopes end) the given scope
+/// guard will be executed and the fd closed.
+/// All exceptions will always be caught and outputted to cerr.
 /// ```cpp
 /// {
 /// 	auto fd = ::open("test.txt");
@@ -29,60 +30,53 @@ namespace nytl {
 ///		functionThatMightThrow();
 /// }
 /// ```
-/// Alternatively, nytl defines the [NYTL_SCOPE_EXIT]() macro that can be used to easier
-/// define scope guards.
-/// \module utility
-template<typename F>
-class ScopeGuard {
+template<typename F, bool OnSuccess = true, bool OnException = true>
+class ScopeGuard : public nytl::NonMovable {
 public:
-	ScopeGuard(F&& func) : func_(std::forward<F>(func)) {}
-	~ScopeGuard() { func_(); }
+	static_assert(OnSuccess || OnException);
 
-protected:
-	F func_;
-};
-
-/// \brief Can be used to execute code only when going out of scope due to a normal return.
-/// \module utility
-template<typename F>
-class SuccessGuard {
 public:
-	SuccessGuard(F&& func)
-		: func_(std::forward<F>(func)), exceptions_(std::uncaught_exception()) {}
-	~SuccessGuard() { if(exceptions_ <= std::uncaught_exceptions()) func_(); }
+	ScopeGuard(F&& func) :
+		func_(std::forward<F>(func)),
+		exceptions_(std::uncaught_exceptions()) {}
 
-protected:
-	F func_;
-	int exceptions_;
-};
-
-/// \brief Can be used to execute code only when going out of scope due to an exception.
-/// \module utility
-template<typename F>
-class ExceptionGuard {
-public:
-	ExceptionGuard(F&& func)
-		: func_(std::forward<F>(func)), exceptions_(std::uncaught_exception()) {}
-	~ExceptionGuard() { if(exceptions_ > std::uncaught_exceptions()) func_(); }
+	~ScopeGuard() noexcept {
+		try {
+			auto ne = exceptions_ < std::uncaught_exceptions();
+			if((OnSuccess && !ne) || (OnException && ne)) {
+				func_();
+			}
+		} catch(const std::exception& err) {
+			std::cerr << "~nytl::ScopeGuard: exception while unwinding: ";
+			std::cerr << err.what() << std::endl;
+		} catch(...) {
+			std::cerr << "~nytl::ScopeGuard: caught non-exception while ";
+			std::cerr << "unwinding" << std::endl;
+		}
+	}
 
 protected:
 	F func_;
 	int exceptions_;
 };
+
+/// Utility shortcuts to only execute a function when the scope is left
+/// with/without exceptions. See ScopeGuard for details.
+template<typename F>
+class SuccessGuard : public ScopeGuard<F, true, false> {
+public:
+	using ScopeGuard<F, true, false>::ScopeGuard;
+};
+
+template<typename F>
+class ExceptionGuard : public ScopeGuard<F, false, true> {
+public:
+	using ScopeGuard<F, false, true>::ScopeGuard;
+};
+
+template<typename F> SuccessGuard(F&&) -> SuccessGuard<F>;
+template<typename F> ExceptionGuard(F&&) -> ExceptionGuard<F>;
 
 } // namespace nytl
 
 #endif // header guard
-
-/// \file Utilities for handling scope lifetimes, i.e. executing a function at the end of scope.
-/// Examples for the different scope guards:
-/// ```cpp
-/// auto fdGuard = nytl::ScopeGuard([=]{ ::close(fd); });
-/// auto successGuard = nytl::SuccessGuard([=]{ std::cout << "success!\n"; });
-/// auto exceptionGuard = nytl::ExceptionGuard([=]{ std::cout << "exception!\n"; });
-///
-/// // the same as above but used with the nytl macros
-/// NYTL_SCOPE_EXIT([=]{ ::close(fd); });
-/// NYTL_SCOPE_SUCCESS([=]{ std::cout << "scope exited succesful!\n"; });
-/// NYTL_SCOPE_EXCEPTION([=]{ std::cout << "scope exited due to an exception!\n"; });
-/// ```

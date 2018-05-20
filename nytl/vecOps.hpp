@@ -352,7 +352,7 @@ NYTL_VEC_UTIL_FUNC(ceil)
 #undef NYTL_VEC_UTIL_FUNC
 
 template<size_t D, typename T1, typename T2>
-constexpr void pow(Vec<D, T1> a, T2 exp) {
+constexpr auto pow(Vec<D, T1> a, T2 exp) {
 	ip::pow(a, exp);
 	return a;
 }
