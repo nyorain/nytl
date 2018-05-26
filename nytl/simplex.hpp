@@ -34,7 +34,8 @@ namespace nytl {
 template<std::size_t D, typename P, std::size_t A>
 class Simplex {
 public:
-	static_assert(D >= A, "The Dimension of the Simplex cannot exceed the room dimension");
+	static_assert(D >= A,
+		"The Dimension of the Simplex cannot exceed the room dimension");
 
 	static constexpr auto spaceDim = D; // dimensions of the space the simplex is in
 	static constexpr auto simplexDim = A; // dimensions of the simplex itself

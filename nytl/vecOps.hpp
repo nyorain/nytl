@@ -19,6 +19,7 @@
 #include <stdexcept> // std::invalid_argument
 #include <cmath> // std::acos
 #include <iosfwd> // std::ostream
+#include <algorithm> // std::clamp
 
 namespace nytl {
 
@@ -321,10 +322,31 @@ NYTL_VEC_IP_UTIL_FUNC(ceil)
 
 template<size_t D, typename T1, typename T2>
 constexpr void pow(Vec<D, T1>& a, T2 exp) {
-	for(auto& val : a)
+	for(auto& val : a) {
 		val = std::pow(val, exp);
+	}
 }
 
+template<size_t D, typename T1, typename T2>
+constexpr void pow(Vec<D, T1>& a, const Vec<D, T2>& b) {
+	for(auto i = 0u; i < D; ++i) {
+		a[i] = std::pow(a[i], b[i]);
+	}
+}
+
+template<size_t D, typename T>
+constexpr void clamp(Vec<D, T>& a, T low, T high) {
+	for(auto& val : a) {
+		val = std::clamp(val, low, high);
+	}
+}
+
+template<size_t D, typename T>
+constexpr void clamp(Vec<D, T>& a, const Vec<D, T>& low, const Vec<D, T>& high) {
+	for(auto i = 0u; i < D; ++i) {
+		a[i] = std::clamp(a[i], low[i], high[i]);
+	}
+}
 
 } // namespace ip
 
@@ -354,6 +376,24 @@ NYTL_VEC_UTIL_FUNC(ceil)
 template<size_t D, typename T1, typename T2>
 constexpr auto pow(Vec<D, T1> a, T2 exp) {
 	ip::pow(a, exp);
+	return a;
+}
+
+template<size_t D, typename T1, typename T2>
+constexpr auto pow(Vec<D, T1> a, const Vec<D, T2>& exp) {
+	ip::pow(a, exp);
+	return a;
+}
+
+template<size_t D, typename T>
+constexpr auto clamp(Vec<D, T> a, T low, T high) {
+	ip::clamp(a, low, high);
+	return a;
+}
+
+template<size_t D, typename T>
+constexpr auto clamp(Vec<D, T> a, const Vec<D, T>& low, const Vec<D, T>& high) {
+	ip::clamp(a, low, high);
 	return a;
 }
 

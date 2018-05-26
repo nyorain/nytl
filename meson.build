@@ -1,7 +1,7 @@
 project('nytl', 'cpp',
 	license: 'BSL-1.0',
 	version: '0.5.0',
-	default_options: ['cpp_std=c++1z', 'warning_level=3'])
+	default_options: ['cpp_std=c++1z', 'warning_level=3', 'werror=true'])
 
 add_project_arguments('-Wno-missing-braces', language: 'cpp')
 
@@ -27,6 +27,8 @@ headers = [
 	'nytl/tmpUtil.hpp',
 	'nytl/utf.hpp',
 	'nytl/vec.hpp',
+	'nytl/vec2.hpp',
+	'nytl/vec3.hpp',
 	'nytl/vecOps.hpp'
 ]
 

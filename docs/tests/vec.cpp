@@ -229,8 +229,23 @@ TEST(cross_product) {
 	// nytl::cross(Vec4d{1.0, 2.0, 3.0, 4.0}, d3b);
 }
 
-TEST(cw1) {
-	auto copy = d3a;
-	nytl::vec::cw::ip::abs(copy);
-	EXPECT(copy, nytl::approx(d3a));
+TEST(component_wise) {
+	using namespace nytl::vec::cw;
+
+	// abs
+	EXPECT(abs(d3a), nytl::approx(d3a));
+	EXPECT(abs(-d3a), nytl::approx(d3a));
+
+	auto v1 = nytl::Vec {-2.f, -10000.f};
+	EXPECT(abs(v1), nytl::approx(-v1));
+	EXPECT(abs(-v1), nytl::approx(-v1));
+
+	// clamp
+	EXPECT(clamp(v1, -1.f, 1.f), (nytl::Vec {-1.f, -1.f}));
+	EXPECT(clamp(d3a, 1., 1.), (nytl::Vec {1.f, 1.f, 1.f}));
+	EXPECT(clamp(d2a, d2a, d2a), d2a);
+	EXPECT(clamp(i5b, i5b, i5b), i5b);
+
+	// pow
+	EXPECT(pow(d3f, 1), d3f);
 }

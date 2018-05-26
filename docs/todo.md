@@ -2,7 +2,7 @@ TODO for nytl
 =============
 
 - more testing !important
-	- improve: scope, more vec/vecOps, rectOps testing needed
+	- improve: more vec/vecOps, rectOps testing needed
 	- fix todos at the top of unit tests
 	- test more rectOps/flags (basic ops)
 	- utf stress test
@@ -11,11 +11,6 @@ TODO for nytl
 		- simplify them?
 	- practical field tests for already unit tested interfaces
 		- optimize performance (if possible) (?)
-- check correct header includes (nytl itself, stl)
-- Rework/delete referenced & observer?
-	- make sure Referenced static_asserts correct crtp use
-		- easy to get wrong: Referenced<int> will not work in any way
-		- rework referenced? is it needed at all?
 
 Not too important
 ===============
@@ -56,4 +51,3 @@ Not too important
 - extend/improve vecOps cw/ip
 	- test!
 	- for scalar functions
-- typemap with std::any really useful?

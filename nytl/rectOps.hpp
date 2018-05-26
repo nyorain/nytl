@@ -24,8 +24,7 @@ namespace nytl {
 /// Simply outputs the position and size of the Rect.
 /// \module rectOps
 template<std::size_t D, typename T>
-std::ostream& print(std::ostream& os, const Rect<D, T>& rect)
-{
+std::ostream& print(std::ostream& os, const Rect<D, T>& rect) {
 	auto& tos = templatize<T>(os); // we don't want to include ostream
 	tos << "{";
 	print(tos, rect.position);
@@ -38,8 +37,7 @@ std::ostream& print(std::ostream& os, const Rect<D, T>& rect)
 /// Simply uses nytl::print(os, rect).
 /// \module rectOps
 template<std::size_t D, typename T>
-std::ostream& operator<<(std::ostream& os, const Rect<D, T>& rect)
-{
+std::ostream& operator<<(std::ostream& os, const Rect<D, T>& rect) {
 	return print(os, rect);
 }
 
@@ -47,16 +45,14 @@ std::ostream& operator<<(std::ostream& os, const Rect<D, T>& rect)
 /// They are equal when their position and size vectors are equal.
 /// \module rectOps
 template<typename T1, typename T2, std::size_t D>
-bool operator==(const Rect<D, T1>& a, const Rect<D, T2>& b)
-{
+bool operator==(const Rect<D, T1>& a, const Rect<D, T2>& b) {
 	return a.position == b.position && a.size == b.size;
 }
 
 /// \brief Returns the total size of a given Rect.
 /// \module rectOps
 template<std::size_t D, typename T>
-constexpr auto size(const Rect<D, T>& rect)
-{
+constexpr auto size(const Rect<D, T>& rect) {
 	return multiply(rect.size);
 }
 
@@ -64,8 +60,7 @@ constexpr auto size(const Rect<D, T>& rect)
 /// Returns a vector in the same space of position and size of the rect.
 /// \module rectOps
 template<std::size_t D, typename T>
-constexpr auto center(const Rect<D, T>& rect)
-{
+constexpr auto center(const Rect<D, T>& rect) {
 	return rect.position + (0.5 * rect.size);
 }
 
@@ -74,8 +69,7 @@ constexpr auto center(const Rect<D, T>& rect)
 /// \requires Types 'T1' and 'T2' must describe the same field and be comparable.
 /// \module rectOps
 template<std::size_t D, typename T1, typename T2>
-constexpr bool contains(const Rect<D, T1>& rect, const Vec<D, T2>& point)
-{
+constexpr bool contains(const Rect<D, T1>& rect, const Vec<D, T2>& point) {
 	for(auto i = 0u; i < point.size(); ++i) {
 		if(rect.position[i] > point[i]) return false;
 		if(rect.position[i] + rect.size[i] < point[i]) return false;
@@ -89,8 +83,7 @@ constexpr bool contains(const Rect<D, T1>& rect, const Vec<D, T2>& point)
 /// \requires Types 'T1' and 'T2' must describe the same field and be comparable.
 /// \module rectOps
 template<std::size_t D, typename T1, typename T2>
-constexpr bool containsReal(const Rect<D, T1>& rect, const Vec<D, T2>& point)
-{
+constexpr bool containsReal(const Rect<D, T1>& rect, const Vec<D, T2>& point) {
 	for(auto i = 0u; i < point.size(); ++i) {
 		if(rect.position[i] >= point[i]) return false;
 		if(rect.position[i] + rect.size[i] <= point[i]) return false;
@@ -104,8 +97,7 @@ constexpr bool containsReal(const Rect<D, T1>& rect, const Vec<D, T2>& point)
 /// \requires Types 'T1' and 'T2' must describe the same field and be comparable.
 /// \module rectOps
 template<std::size_t D, typename T1, typename T2>
-constexpr bool intersects(const Rect<D, T1>& a, const Rect<D, T2>& b)
-{
+constexpr bool intersects(const Rect<D, T1>& a, const Rect<D, T2>& b) {
 	return contains(a, b.position) || contains(a, b.position + b.size) ||
 		contains(b, a.position) || contains(b, a.position + a.size);
 }
@@ -115,8 +107,7 @@ constexpr bool intersects(const Rect<D, T1>& a, const Rect<D, T2>& b)
 /// \requires Types 'T1' and 'T2' must describe the same field and be comparable.
 /// \module rectOps
 template<std::size_t D, typename T1, typename T2>
-constexpr bool intersectsReal(const Rect<D, T1>& a, const Rect<D, T2>& b)
-{
+constexpr bool intersectsReal(const Rect<D, T1>& a, const Rect<D, T2>& b) {
 	return containsReal(a, b.position) || containsReal(a, b.position + b.size) ||
 		containsReal(b, a.position) || containsReal(b, a.position + a.size);
 }
@@ -125,8 +116,7 @@ constexpr bool intersectsReal(const Rect<D, T1>& a, const Rect<D, T2>& b)
 /// Note that two Rects in any dimensions can only interset in another Rect.
 /// \module rectOps
 template<std::size_t D, typename T>
-constexpr Rect<D, T> intersection(const Rect<D, T>& a, const Rect<D, T>& b)
-{
+constexpr Rect<D, T> intersection(const Rect<D, T>& a, const Rect<D, T>& b) {
 	auto pos = vec::cw::max(a.position, b.position);
 	auto end = vec::cw::min(a.position + a.size, b.position + b.size);
 
@@ -150,8 +140,7 @@ constexpr Rect<D, T> intersection(const Rect<D, T>& a, const Rect<D, T>& b)
 /// In general is symmetricDifference(a, b) = difference(a, b) | difference(b, a);
 /// \module rectOps
 template<std::size_t D, class T>
-std::vector<Rect<D, T>> difference(const Rect<D, T>& a, const Rect<D, T>& b)
-{
+std::vector<Rect<D, T>> difference(const Rect<D, T>& a, const Rect<D, T>& b) {
 	static constexpr auto inRange = [](T start, T size, T value) {
 		return (start < value && value < start + size);
 	};
