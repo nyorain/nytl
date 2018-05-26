@@ -11,6 +11,9 @@
 #include <nytl/vecOps.hpp>
 #include <nytl/math.hpp>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-const-variable"
+
 // TODO: test component-wise (nytl::vcw) operations
 // TODO: more testvectors, use other sizes and types
 
