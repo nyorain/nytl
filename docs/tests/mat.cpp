@@ -175,7 +175,7 @@ TEST(inverse) {
 		EXPECT(nytl::determinant(a), nytl::approx(0.0));
 		EXPECT(nytl::invertible(a), false);
 
-		// undefined behvaiour now
+		// undefined behavior now
 		// ERROR(nytl::inverse(a), std::invalid_argument);
 		// ERROR(nytl::inverse(lups), std::invalid_argument);
 	}
