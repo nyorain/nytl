@@ -52,9 +52,9 @@ public:
 
 	/// Utility function that throws std::out_of_range if the matrix does not have
 	/// the given row.
-	constexpr void checkRow(size_t r) { 
-		if(r >= rows()) 
-			throw std::out_of_range("nytl::Mat::at"); 
+	constexpr void checkRow(size_t r) {
+		if(r >= rows())
+			throw std::out_of_range("nytl::Mat::at");
 	}
 
 public:
@@ -133,7 +133,7 @@ constexpr auto& operator*=(Mat<R, C, T> a, const F& f)
 template<typename T1, typename T2, size_t R, size_t C>
 constexpr auto operator+(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b)
 {
-	Mat<R, C, decltype(a[0] + b[0])> ret {};
+	Mat<R, C, decltype(a[0][0] + b[0][0])> ret {};
 	for(auto r = 0u; r < R; ++r)
 		for(auto c = 0u; c < C; ++c)
 			ret[r][c] = a[r][c] + b[r][c];
@@ -154,7 +154,7 @@ constexpr auto& operator+=(Mat<R, C, T1>& a, const Mat<R, C, T2>& b)
 template<typename T1, typename T2, size_t R, size_t C>
 constexpr auto operator-(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b)
 {
-	Mat<R, C, decltype(a[0] - b[0])> ret {};
+	Mat<R, C, decltype(a[0][0] - b[0][0])> ret {};
 	for(auto r = 0u; r < R; ++r)
 		for(auto c = 0u; c < C; ++c)
 			ret[r][c] = a[r][c] - b[r][c];

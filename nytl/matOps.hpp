@@ -44,7 +44,7 @@ struct LUDecomposition {
 /// \requires There must be an implementation of operator<<(std::ostream&, M::Value).
 template<size_t R, size_t C, typename T>
 std::ostream& print(std::ostream& ostream, const Mat<R, C, T>& mat,
-		unsigned int valueWidth = 6, const char* rowSpacing = "    ",
+		unsigned int valueWidth = 8, const char* rowSpacing = "    ",
 		bool breakAfter = true) {
 
 	auto& os = templatize<T>(ostream);
