@@ -1,7 +1,7 @@
 project('nytl', 'cpp',
 	license: 'BSL-1.0',
 	version: '0.6.0',
-	meson_version: '>=0.37',
+	meson_version: '>=0.43',
 	default_options: [
 	  'cpp_std=c++1z',
 	  'warning_level=3',
