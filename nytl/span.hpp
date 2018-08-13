@@ -111,9 +111,6 @@ public:
 	template<typename C, typename = detail::ValidContainer<T, C>>
 	constexpr Span(C& c) : Span(c.data(), c.size()) {}
 
-	template<typename C, typename = detail::ValidContainer<T, C>, std::size_t S = C::size()>
-	constexpr Span(C& c) : Span(c.data()) {}
-
 	constexpr Pointer data() const noexcept { return this->data_; }
 	constexpr Size size() const noexcept { return this->size_; }
 	constexpr bool empty() const noexcept { return size() == 0; }
@@ -131,6 +128,7 @@ public:
 	constexpr Reference back() const noexcept { return *(data() + size() - 1); }
 
 	constexpr Span<T> slice(Size pos, Size size) const { return {data() + pos, size}; }
+	constexpr Span<T> slice(Size pos) const { return {data() + pos, size() - pos}; }
 	template<Size S> constexpr Span<T, S> slice(Size pos) const { return {data() + pos}; }
 
 protected:
@@ -159,6 +157,7 @@ struct SpanStorage<T, 0> {
 	constexpr SpanStorage() noexcept = default;
 	constexpr SpanStorage(T& ref, std::size_t size) : SpanStorage(&ref, size) {}
 	template<std::size_t S> constexpr SpanStorage(T (&arr)[S]) : SpanStorage(arr, S) {}
+	template<std::size_t S> constexpr SpanStorage(Span<T, S> s) : SpanStorage(s.data(), S) {}
 	constexpr SpanStorage(T* pointer, std::size_t size) : data_(pointer), size_(size) {
 		if(!pointer && size != 0) throw std::logic_error("nytl::Span:: invalid data");
 	}
@@ -174,6 +173,7 @@ struct SpanStorage<const T, 0> {
 	constexpr SpanStorage() noexcept = default;
 	constexpr SpanStorage(const T& ref, std::size_t size) : SpanStorage(&ref, size) {}
 	template<std::size_t S> constexpr SpanStorage(const T (&arr)[S]) : SpanStorage(arr, S) {}
+	template<std::size_t S> constexpr SpanStorage(Span<const T, S> s) : SpanStorage(s.data(), S) {}
 	constexpr SpanStorage(const std::initializer_list<T>& l) : SpanStorage(l.begin(), l.size()) {}
 	constexpr SpanStorage(const T* pointer, std::size_t size) : data_(pointer), size_(size) {
 		if(!pointer && size != 0) throw std::logic_error("nytl::Span:: invalid data");
@@ -182,6 +182,21 @@ struct SpanStorage<const T, 0> {
 	const T* data_ {};
 	std::size_t size_ {};
 };
+
+
+/// Deduction guides
+template<typename C,
+	typename T = std::remove_reference_t<decltype(*std::declval<C>().data())>,
+	typename = detail::ValidContainer<T, C>
+> Span(C& c) -> Span<T, 0>;
+
+template<typename C,
+	typename T = std::remove_reference_t<decltype(*std::declval<C>().data())>,
+	std::size_t S = C::size()
+> Span(C& c) -> Span<T, S>;
+
+template<typename T> Span(T& ref, std::size_t size) -> Span<T, 0>;
+template<typename T> Span(T* ref, std::size_t size) -> Span<T, 0>;
 
 namespace detail {
 

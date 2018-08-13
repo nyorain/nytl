@@ -35,6 +35,29 @@ TEST(span) {
 	ERROR(baz(namesArray), std::exception);
 
 	std::vector<std::string> namesVector {"foo", "bar", "baz", "abz", "bla"};
+	bar({namesVector.data(), 3});
+
+	auto slice = nytl::Span(namesVector).slice(3);
+	EXPECT(slice[0], "abz");
+	EXPECT(slice[1], "bla");
+	ERROR(slice.at(3), std::out_of_range);
+
+	const std::vector<int> cnv {1, 2, 3};
+	EXPECT(nytl::Span(cnv)[0], 1);
+
+	auto ded1 = nytl::Span(namesVector.data(), 2);
+	EXPECT(ded1[0], "foo");
+	EXPECT(ded1.size(), 2u);
+
+	std::array<int, 2> arr {5, 6};
+	auto ded2 = nytl::Span(arr);
+	EXPECT(ded2.size(), 2u);
+	EXPECT(ded2[0], 5);
+
+	auto span4 = nytl::Span<const int, 2>(arr);
+	auto ded3 = nytl::Span<const int>(span4);
+	EXPECT(ded3.size(), 2u);
+
 
 	count = 0;
 	foo(namesVector, count);
@@ -44,8 +67,6 @@ TEST(span) {
 
 	baz(namesVector);
 	ERROR(bar(namesVector), std::exception);
-
-	bar({namesVector.data(), 3});
 
 	count = 0;
 	foo({*namesVector.data(), 4}, count);
