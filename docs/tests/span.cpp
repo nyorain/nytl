@@ -2,20 +2,20 @@
 #include <nytl/span.hpp>
 #include <nytl/tmpUtil.hpp>
 #include <string>
+#include <array>
 
-void foo(nytl::Span<std::string> names, int& count)
-{
+void foo(nytl::Span<std::string> names, int& count) {
 	for(auto& name : names) count += name.size();
 
 	if(!names.empty()) {
-		names.front() = "first name";
-		names.back() = "last name";
+		*names.begin() = "first name";
+		*names.rbegin() = "last name";
 	}
 
 	if(names.size() <= 2) return;
 
-	for(auto& name : names.slice(2, names.size() - 2)) ++count, nytl::unused(name);
-	for(auto& name : names.slice<2>(0)) ++count, nytl::unused(name);
+	for(auto& name : names.subspan(2)) ++count, nytl::unused(name);
+	for(auto& name : names.subspan<0, 2>()) ++count, nytl::unused(name);
 }
 
 void bar(nytl::Span<const std::string, 3>) {}
@@ -37,25 +37,25 @@ TEST(span) {
 	std::vector<std::string> namesVector {"foo", "bar", "baz", "abz", "bla"};
 	bar({namesVector.data(), 3});
 
-	auto slice = nytl::Span(namesVector).slice(3);
+	auto slice = nytl::span(namesVector).subspan(3);
 	EXPECT(slice[0], "abz");
 	EXPECT(slice[1], "bla");
 	ERROR(slice.at(3), std::out_of_range);
 
 	const std::vector<int> cnv {1, 2, 3};
-	EXPECT(nytl::Span(cnv)[0], 1);
+	EXPECT(nytl::span(cnv)[0], 1);
 
-	auto ded1 = nytl::Span(namesVector.data(), 2);
+	auto ded1 = nytl::span(namesVector.data(), 2);
 	EXPECT(ded1[0], "foo");
 	EXPECT(ded1.size(), 2u);
 
 	std::array<int, 2> arr {5, 6};
-	auto ded2 = nytl::Span(arr);
+	auto ded2 = nytl::span(arr);
 	EXPECT(ded2.size(), 2u);
 	EXPECT(ded2[0], 5);
 
 	auto span4 = nytl::Span<const int, 2>(arr);
-	auto ded3 = nytl::Span<const int>(span4);
+	auto ded3 = nytl::span<const int>(span4);
 	EXPECT(ded3.size(), 2u);
 
 
@@ -69,6 +69,6 @@ TEST(span) {
 	ERROR(bar(namesVector), std::exception);
 
 	count = 0;
-	foo({*namesVector.data(), 4}, count);
-	foo({namesVector.data(), namesVector.size()}, count);
+	foo({namesVector.data(), 4}, count);
+	foo({namesVector.data(), (int) namesVector.size()}, count);
 }

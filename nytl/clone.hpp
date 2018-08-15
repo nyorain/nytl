@@ -17,8 +17,7 @@ namespace nytl {
 /// nytl::AbstractCloneable class using nytl::DeriveCloneable).
 /// \module utility
 template<typename T>
-std::unique_ptr<T> clone(const T& obj)
-{
+std::unique_ptr<T> clone(const T& obj) {
 	return std::unique_ptr<T>(static_cast<T*>(obj.doClone()));
 }
 
@@ -29,8 +28,7 @@ std::unique_ptr<T> clone(const T& obj)
 /// nytl::AbstractCloneMovable class using nytl::DeriveCloneMovable.
 /// \module utility
 template<typename T>
-std::unique_ptr<T> cloneMove(T& obj)
-{
+std::unique_ptr<T> cloneMove(T& obj) {
 	return std::unique_ptr<T>(static_cast<T*>(obj.doCloneMove()));
 }
 
@@ -156,8 +154,7 @@ void* DeriveCloneable<Derived, Bases...>::doClone() const
 /// 	int value() const override { return value_; }
 /// };
 ///
-/// int main()
-/// {
+/// int main() / {
 /// 	auto derived = Derived {}; // some dummy object with value 42
 ///		derived.value_ = 42;
 ///
@@ -173,11 +170,11 @@ void* DeriveCloneable<Derived, Bases...>::doClone() const
 ///		std::cout << moved->value() << "\n"; // will output 42
 /// }
 /// ```
-/// 
+///
 /// Instead of `Base` you could also pass multiple bases from which to derive.
 /// If you only derive from one type you can still use its constructor, it is
 /// also used by DeriveCloneable/DeriveCloneMovable.
 
-// implementation notes: The rather complex doClone/doCloneMove virtual implementation 
+// implementation notes: The rather complex doClone/doCloneMove virtual implementation
 // is needed since one cannot return covariant return types from virtual functions when using CRTP.
 // we have to use void* since we allow multiple base classes.

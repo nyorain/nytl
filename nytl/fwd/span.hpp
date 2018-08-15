@@ -10,7 +10,19 @@
 #include <cstdlib> // std::size_t
 
 namespace nytl {
-	template<typename T, std::size_t N = 0> class Span;
+	constexpr const std::ptrdiff_t dynamic_extent = -1;
+	template<typename T, std::ptrdiff_t N = dynamic_extent> class span;
+	template<typename T, std::ptrdiff_t N = dynamic_extent>
+	using Span = span<T, N>;
 }
 
-#endif //header guard
+#ifndef NYTL_SPAN_STD
+
+	// undefined behavior
+	// span will be removed with c++20 anyways
+	namespace std {
+		using nytl::span;
+	}
+
+#endif // NYTL_SPAN_STD
+#endif // header guard

@@ -1,221 +1,422 @@
-// Copyright (c) 2017-2018 nyorain
-// Distributed under the Boost Software License, Version 1.0.
-// See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
+// Copyright (c) 2015 Microsoft Corporation. All rights reserved.
+//
+// This code is licensed under the MIT License (MIT).
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
-/// \file Contains the Span template class for not-owned contiguous ranges.
+// Taken (and modified) from https://github.com/Microsoft/GSL
+// Main changes: stripped lots of stuff, older compiler support, msvc
+// workarounds. More lightweight like this but won't give you as much
+// debug messages.
+// Will be in the C++20 standard like this
 
 #pragma once
 
 #ifndef NYTL_INCLUDE_SPAN
 #define NYTL_INCLUDE_SPAN
 
-#include <nytl/fwd/span.hpp> // nytl::Span default template parameter
-
-#include <cstdlib> // std::size_t
-#include <stdexcept> // std::out_of_range
-#include <initializer_list> // std::initializer_list
-#include <array> // std::array
+#include <nytl/fwd/span.hpp>
+#include <algorithm> // for lexicographical_compare
+#include <array>     // for array
+#include <cstddef>   // for ptrdiff_t, size_t, nullptr_t
+#include <iterator>  // for reverse_iterator, distance, random_access_...
+#include <limits>
+#include <stdexcept>
+#include <type_traits> // for enable_if_t, declval, is_convertible, inte...
+#include <utility>
 
 namespace nytl {
-namespace detail {
-	template<typename T, typename C, typename = void> struct ValidContainerT;
-	template<typename T, typename C> using ValidContainer = typename ValidContainerT<T, C>::type;
-} // namespace nytl::detail
 
-/// The underlaying storage type of spans that is specialized for dyanmic size.
-template<typename T, std::size_t N> struct SpanStorage;
+// TODO: can be used for debug output
+// makes more sense as macro (so we get line/file)
+inline void Expects(bool) {}
 
-/// \brief Describes a contiguous, non-owned range of elements of type 'T'.
-/// \details Spans can be used to pass sequences of elements around in a lightweight manner.
-/// Its main use are function parameters sine instead of a std::vector it will not allocate
-/// any memory or copy any elements but instead just reference them.
-/// \tparam T The type the range is defined over. Use const types for non-mutable ranges.
-/// \tparam N The size of the range. If not known at compile
-/// time, use 0.
-///
-/// Some examples below. Note that Spans must be used carefully outside of temporary
-/// expressions since they are only valid as long the object they reference is valid.
-/// ```cpp
-/// void foo(nytl::Span<std::string> names); // takes dyanmic amount of strings, might modify it
-/// void bar(nytl::Span<const std::string, 3> names); // takes exactly 3 const strings
-/// void baz(nytl::Span<const std::string, 5> names); // takes exactly 5 const strings
-///
-/// int main()
-/// {
-///		std::array<std::string, 3> namesArray {"foo", "bar", "baz"};
-///		foo(namesArray); // works
-/// 	bar(namesArray); // works
-///		baz(namesArray); // will throw std::logic_error since baz requires exactly 5 strings
-///
-///		std::vector<std::string> namesVector {"foo", "bar", "baz", "abz", "bla"};
-///		foo(namesVector); // works
-///		bar(namesVector); // will throw std::logic_error since bar requires exactly 3 strings
-///		baz(namesVector); // works
-///
-/// 	// If we only want the first 3 elements from namesVector as range we can do it like this
-///		bar({namesVector.data(), 3}); // works, takes the first 3 elements
-///		foo({*namesVector.data(), 4}); // we can also use references
-///
-///		// careful when using span outside of temporary expressions
-///		auto span = nytl::Span<int>(std::vector<int>{4, 1, 2, 0});
-/// 	// std::cout << span[0] << "\n"; // would be undefined behavior!
-/// }
-///
-/// void foo(nytl::Span<std::string> names)
-/// {
-///		// Some usage possibilities for span.
-////	// The main usage is iterating over it:
-///		for(auto& name : names)
-///			std::cout << name << "\n";
-///
-///		// We might alternatively do this with a traditional for loop
-///		for(auto i = 0u; i < names.size(); ++i)
-///			std::cout << name << "\n";
-///
-///		// In this case we have a span of std::string, not const std::string,
-///		// therefore we might also change it. This will change the names in the actual
-///		// sequence this span references. Usually nytl::Span<const T> is used when the
-///		// span is only read
-///		if(!names.empty()) {
-///			names.front() = "first name";
-///			names.back() = "last name";
-///		}
-///
-///		// A span can additionally be sliced into a subspan. This can either be
-///		// done with a size known at compile time (which will result in a fixed-size span)
-///		// or dynamically for a dynamic-sized span.
-///		if(names.size() <= 2) return;
-///		for(auto& name : names.slice(2, names.size() - 2)) // output everything but the first two
-///			std::cout << name << "\n";
-///
-///		for(auto& name : names.slice<2>(0)) // output only the first two names
-///			std::cout << name << "\n";
-/// }
-/// ```
-template<typename T, std::size_t N>
-class Span : public SpanStorage<T, N> {
+// implementation details
+namespace details {
+
+template <class T> struct is_span_oracle : std::false_type {};
+
+template <class ElementType, std::ptrdiff_t Extent>
+struct is_span_oracle<span<ElementType, Extent>> : std::true_type {};
+
+template <class T>
+struct is_span : public is_span_oracle<std::remove_cv_t<T>> {};
+
+template <class T>
+struct is_std_array_oracle : std::false_type {};
+
+template <class ElementType, std::size_t Extent>
+struct is_std_array_oracle<std::array<ElementType, Extent>> : std::true_type {};
+
+template <class T>
+struct is_std_array : public is_std_array_oracle<std::remove_cv_t<T>> {};
+
+template <std::ptrdiff_t From, std::ptrdiff_t To>
+struct is_allowed_extent_conversion
+	: public std::integral_constant<bool,
+		From == To || From == dynamic_extent || To == dynamic_extent> {};
+
+template <class From, class To>
+struct is_allowed_element_type_conversion
+	: public std::integral_constant<bool,
+		std::is_convertible<From (*)[], To (*)[]>::value> {};
+
+
+template <std::ptrdiff_t Ext>
+class extent_type {
 public:
-	using Value = T;
-	using Iterator = T*;
-	using ReverseIterator = std::reverse_iterator<T*>;
-	using Reference = T&;
-	using Pointer = T*;
-	using Difference = std::ptrdiff_t;
-	using Size = std::size_t;
+	using index_type = std::ptrdiff_t;
+	static_assert(Ext >= 0, "A fixed-size span must be >= 0 in size.");
 
+	constexpr extent_type() noexcept {}
+
+	template <index_type Other>
+	constexpr extent_type(extent_type<Other> ext) {
+		static_assert(Other == Ext || Other == dynamic_extent,
+			"Mismatch between fixed-size extent and size of initializing data.");
+		Expects(ext.size() == Ext);
+	}
+
+	constexpr extent_type(index_type size) { Expects(size == Ext); }
+	constexpr index_type size() const noexcept { return Ext; }
+};
+
+template <>
+class extent_type<dynamic_extent> {
 public:
-	using SpanStorage<T, N>::SpanStorage;
-	constexpr Span() noexcept = default;
-	constexpr Span(std::nullptr_t) noexcept : Span(nullptr, 0) {}
+	using index_type = std::ptrdiff_t;
 
-	template<typename C, typename = detail::ValidContainer<T, C>>
-	constexpr Span(C& c) : Span(c.data(), c.size()) {}
+	template <index_type Other>
+	explicit constexpr extent_type(extent_type<Other> ext)
+		: size_(ext.size()) {}
 
-	constexpr Pointer data() const noexcept { return this->data_; }
-	constexpr Size size() const noexcept { return this->size_; }
-	constexpr bool empty() const noexcept { return size() == 0; }
+	explicit constexpr extent_type(index_type size)
+		: size_(size) { Expects(size >= 0); }
+	constexpr index_type size() const noexcept { return size_; }
 
-	constexpr Iterator begin() const noexcept { return data(); }
-	constexpr Iterator end() const noexcept { return data() + size(); }
-
-	constexpr ReverseIterator rbegin() const noexcept { return {end()}; }
-	constexpr ReverseIterator rend() const noexcept { return {begin()}; }
-
-	constexpr Reference operator[](Size i) const noexcept { return *(data() + i); }
-	constexpr Reference at(Size i) const { check(i); return data()[i]; }
-
-	constexpr Reference front() const noexcept { return *data(); }
-	constexpr Reference back() const noexcept { return *(data() + size() - 1); }
-
-	constexpr Span<T> slice(Size pos, Size size) const { return {data() + pos, size}; }
-	constexpr Span<T> slice(Size pos) const { return {data() + pos, size() - pos}; }
-	template<Size S> constexpr Span<T, S> slice(Size pos) const { return {data() + pos}; }
-
-protected:
-	constexpr void check(Size i) const { if(i >= size()) throw std::out_of_range("nytl::Span"); }
+private:
+	index_type size_;
 };
 
-// Default SpanStorage implementation for compile-time size
-template<typename T, std::size_t N>
-struct SpanStorage {
-	constexpr SpanStorage() noexcept = default;
-	constexpr SpanStorage(T* pointer, std::size_t size = N) : data_(pointer)
-	{
-		if(size != N) throw std::logic_error("nytl::Span:: invalid size");
-		if(!pointer && size != 0) throw std::logic_error("nytl::Span:: invalid data");
-	}
-	constexpr SpanStorage(T& ref, std::size_t size = N) : SpanStorage(&ref, size) {}
-	constexpr SpanStorage(T (&arr)[N]) : SpanStorage(arr, N) {}
-
-	T* data_ {};
-	constexpr static auto size_ = N;
+template <class ElementType, std::ptrdiff_t Extent, std::ptrdiff_t Offset, std::ptrdiff_t Count>
+struct calculate_subspan_type {
+	using type = span<ElementType, Count != dynamic_extent
+	   ? Count
+	   : (Extent != dynamic_extent ? Extent - Offset : Extent)>;
 };
 
-// SpanStorage specialization for runtime size. Stored an extra size value.
-template<typename T>
-struct SpanStorage<T, 0> {
-	constexpr SpanStorage() noexcept = default;
-	constexpr SpanStorage(T& ref, std::size_t size) : SpanStorage(&ref, size) {}
-	template<std::size_t S> constexpr SpanStorage(T (&arr)[S]) : SpanStorage(arr, S) {}
-	template<std::size_t S> constexpr SpanStorage(Span<T, S> s) : SpanStorage(s.data(), S) {}
-	constexpr SpanStorage(T* pointer, std::size_t size) : data_(pointer), size_(size) {
-		if(!pointer && size != 0) throw std::logic_error("nytl::Span:: invalid data");
-	}
+} // namespace details
 
-	T* data_ {};
-	std::size_t size_ {};
+template <class ElementType, std::ptrdiff_t Extent>
+class span {
+public:
+    // constants and types
+    using element_type = ElementType;
+    using value_type = std::remove_cv_t<ElementType>;
+    using index_type = std::ptrdiff_t;
+    using pointer = element_type*;
+    using reference = element_type&;
+
+    using iterator = ElementType*;
+    using const_iterator = const ElementType*;
+    using reverse_iterator = std::reverse_iterator<iterator>;
+    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+
+    using size_type = index_type;
+
+    static constexpr index_type extent{Extent};
+
+    template <bool Dependent = false,
+        class = std::enable_if_t<(Dependent || Extent <= 0)>>
+    constexpr span() noexcept : storage_(nullptr, details::extent_type<0>()) {
+    }
+
+    constexpr span(pointer ptr, index_type count) : storage_(ptr, count) {}
+
+    constexpr span(pointer firstElem, pointer lastElem)
+        : storage_(firstElem, std::distance(firstElem, lastElem)) {
+    }
+
+    template <std::size_t N>
+    constexpr span(element_type (&arr)[N]) noexcept
+        : storage_(KnownNotNull{&arr[0]}, details::extent_type<N>()) {}
+
+    template <std::size_t N, class ArrayElementType = std::remove_const_t<element_type>>
+    constexpr span(std::array<ArrayElementType, N>& arr) noexcept
+        : storage_(&arr[0], details::extent_type<N>()) {}
+
+    template <std::size_t N>
+    constexpr span(const std::array<std::remove_const_t<element_type>, N>& arr) noexcept
+        : storage_(&arr[0], details::extent_type<N>()) {}
+
+    template <class Container,
+              class = std::enable_if_t<
+                  !details::is_span<Container>::value && !details::is_std_array<Container>::value &&
+                  std::is_convertible<typename Container::pointer, pointer>::value &&
+                  std::is_convertible<typename Container::pointer,
+                                      decltype(std::declval<Container>().data())>::value>>
+    constexpr span(Container& cont) : span(cont.data(), static_cast<index_type>(cont.size())) {}
+
+    template <class Container,
+              class = std::enable_if_t<
+                  std::is_const<element_type>::value && !details::is_span<Container>::value &&
+                  std::is_convertible<typename Container::pointer, pointer>::value &&
+                  std::is_convertible<typename Container::pointer,
+                                      decltype(std::declval<Container>().data())>::value>>
+    constexpr span(const Container& cont) : span(cont.data(), static_cast<index_type>(cont.size())) {}
+    constexpr span(const span& other) noexcept = default;
+
+    template <
+        class OtherElementType, std::ptrdiff_t OtherExtent,
+        class = std::enable_if_t<
+            details::is_allowed_extent_conversion<OtherExtent, Extent>::value &&
+            details::is_allowed_element_type_conversion<OtherElementType, element_type>::value>>
+    constexpr span(const span<OtherElementType, OtherExtent>& other)
+        : storage_(other.data(), details::extent_type<OtherExtent>(other.size())) {}
+
+    ~span() noexcept = default;
+    constexpr span& operator=(const span& other) noexcept = default;
+
+    // [span.sub], span subviews
+    template <std::ptrdiff_t Count>
+    constexpr span<element_type, Count> first() const {
+        Expects(Count >= 0 && Count <= size());
+        return {data(), Count};
+    }
+
+    template <std::ptrdiff_t Count>
+    constexpr span<element_type, Count> last() const {
+        Expects(Count >= 0 && size() - Count >= 0);
+        return {data() + (size() - Count), Count};
+    }
+
+    template <std::ptrdiff_t Offset, std::ptrdiff_t Count = dynamic_extent>
+    constexpr auto subspan() const -> typename details::calculate_subspan_type<ElementType, Extent, Offset, Count>::type {
+        Expects((Offset >= 0 && size() - Offset >= 0) &&
+                (Count == dynamic_extent || (Count >= 0 && Offset + Count <= size())));
+        return {data() + Offset, Count == dynamic_extent ? size() - Offset : Count};
+    }
+
+    constexpr span<element_type, dynamic_extent> first(index_type count) const {
+        Expects(count >= 0 && count <= size());
+        return {data(), count};
+    }
+
+    constexpr span<element_type, dynamic_extent> last(index_type count) const {
+        return make_subspan(size() - count, dynamic_extent, subspan_selector<Extent>{});
+    }
+
+    constexpr span<element_type, dynamic_extent> subspan(index_type offset,
+            index_type count = dynamic_extent) const {
+        return make_subspan(offset, count, subspan_selector<Extent>{});
+    }
+
+    // [span.obs], span observers
+    constexpr index_type size() const noexcept { return storage_.size(); }
+    constexpr index_type size_bytes() const noexcept {
+        return size() * static_cast<index_type>(sizeof(element_type));
+    }
+    constexpr bool empty() const noexcept { return size() == 0; }
+    constexpr reference operator[](index_type idx) const {
+        Expects(idx >= 0 && idx < storage_.size());
+        return data()[idx];
+    }
+
+    constexpr reference at(index_type idx) const { return this->operator[](idx); }
+    constexpr reference operator()(index_type idx) const { return this->operator[](idx); }
+    constexpr pointer data() const noexcept { return storage_.data(); }
+
+    // [span.iter], span iterator support
+    constexpr iterator begin() const noexcept { return data(); }
+    constexpr iterator end() const noexcept { return data() + size(); }
+
+    constexpr const_iterator cbegin() const noexcept { return data(); }
+    constexpr const_iterator cend() const noexcept { return data() + size(); }
+
+    constexpr reverse_iterator rbegin() const noexcept { return reverse_iterator{end()}; }
+    constexpr reverse_iterator rend() const noexcept { return reverse_iterator{begin()}; }
+
+    constexpr const_reverse_iterator crbegin() const noexcept {
+        return const_reverse_iterator{cend()};
+    }
+    constexpr const_reverse_iterator crend() const noexcept {
+        return const_reverse_iterator{cbegin()};
+    }
+
+private:
+    // Needed to remove unnecessary null check in subspans
+    struct KnownNotNull {
+        pointer p;
+    };
+
+    // this implementation detail class lets us take advantage of the
+    // empty base class optimization to pay for only storage of a single
+    // pointer in the case of fixed-size spans
+    template <class ExtentType>
+    class storage_type : public ExtentType {
+    public:
+        // KnownNotNull parameter is needed to remove unnecessary null check
+        // in subspans and constructors from arrays
+        template <class OtherExtentType>
+        constexpr storage_type(KnownNotNull data, OtherExtentType ext)
+            	: ExtentType(ext), data_(data.p) {
+            Expects(ExtentType::size() >= 0);
+        }
+
+        template <class OtherExtentType>
+        constexpr storage_type(pointer data, OtherExtentType ext)
+				: ExtentType(ext), data_(data) {
+            Expects(ExtentType::size() >= 0);
+            Expects(data || ExtentType::size() == 0);
+        }
+
+        constexpr pointer data() const noexcept { return data_; }
+
+    private:
+        pointer data_;
+    };
+
+    storage_type<details::extent_type<Extent>> storage_;
+
+    // The rest is needed to remove unnecessary null check
+    // in subspans and constructors from arrays
+    constexpr span(KnownNotNull ptr, index_type count) : storage_(ptr, count) {}
+
+    template <std::ptrdiff_t CallerExtent>
+    class subspan_selector { };
+
+    template <std::ptrdiff_t CallerExtent>
+    span<element_type, dynamic_extent> make_subspan(index_type offset, index_type count,
+            subspan_selector<CallerExtent>) const {
+        const span<element_type, dynamic_extent> tmp(*this);
+        return tmp.subspan(offset, count);
+    }
+
+    span<element_type, dynamic_extent> make_subspan(index_type offset, index_type count,
+            subspan_selector<dynamic_extent>) const {
+        Expects(offset >= 0 && size() - offset >= 0);
+        if (count == dynamic_extent) { return {KnownNotNull{data() + offset}, size() - offset}; }
+        Expects(count >= 0 && size() - offset >= count);
+        return {KnownNotNull{data() + offset}, count};
+    }
 };
 
-// SpanStorage specialization for runtime size with const parameter.
-// Allows constrsuction from initializer_list.
-template<typename T>
-struct SpanStorage<const T, 0> {
-	constexpr SpanStorage() noexcept = default;
-	constexpr SpanStorage(const T& ref, std::size_t size) : SpanStorage(&ref, size) {}
-	template<std::size_t S> constexpr SpanStorage(const T (&arr)[S]) : SpanStorage(arr, S) {}
-	template<std::size_t S> constexpr SpanStorage(Span<const T, S> s) : SpanStorage(s.data(), S) {}
-	constexpr SpanStorage(const std::initializer_list<T>& l) : SpanStorage(l.begin(), l.size()) {}
-	constexpr SpanStorage(const T* pointer, std::size_t size) : data_(pointer), size_(size) {
-		if(!pointer && size != 0) throw std::logic_error("nytl::Span:: invalid data");
-	}
+template <class ElementType, std::ptrdiff_t FirstExtent, std::ptrdiff_t SecondExtent>
+constexpr bool operator==(span<ElementType, FirstExtent> l, span<ElementType, SecondExtent> r) {
+    return std::equal(l.begin(), l.end(), r.begin(), r.end());
+}
 
-	const T* data_ {};
-	std::size_t size_ {};
+template <class ElementType, std::ptrdiff_t Extent>
+constexpr bool operator!=(span<ElementType, Extent> l, span<ElementType, Extent> r) {
+    return !(l == r);
+}
+
+template <class ElementType, std::ptrdiff_t Extent>
+constexpr bool operator<(span<ElementType, Extent> l, span<ElementType, Extent> r) {
+    return std::lexicographical_compare(l.begin(), l.end(), r.begin(), r.end());
+}
+
+template <class ElementType, std::ptrdiff_t Extent>
+constexpr bool operator<=(span<ElementType, Extent> l, span<ElementType, Extent> r) {
+    return !(l > r);
+}
+
+template <class ElementType, std::ptrdiff_t Extent>
+constexpr bool operator>(span<ElementType, Extent> l, span<ElementType, Extent> r) {
+    return r < l;
+}
+
+template <class ElementType, std::ptrdiff_t Extent>
+constexpr bool operator>=(span<ElementType, Extent> l, span<ElementType, Extent> r) {
+    return !(l < r);
+}
+
+namespace details {
+
+// if we only supported compilers with good constexpr support then
+// this pair of classes could collapse down to a constexpr function
+
+// we should use a narrow_cast<> to go to std::size_t, but older compilers may not see it as
+// constexpr
+// and so will fail compilation of the template
+template <class ElementType, std::ptrdiff_t Extent>
+struct calculate_byte_size : std::integral_constant<std::ptrdiff_t,
+	static_cast<std::ptrdiff_t>(sizeof(ElementType) * static_cast<std::size_t>(Extent))> {
 };
 
+template <class ElementType>
+struct calculate_byte_size<ElementType, dynamic_extent>
+	: std::integral_constant<std::ptrdiff_t, dynamic_extent> {
+};
 
-/// Deduction guides
-template<typename C,
-	typename T = std::remove_reference_t<decltype(*std::declval<C>().data())>,
-	typename = detail::ValidContainer<T, C>
-> Span(C& c) -> Span<T, 0>;
+} // namespace details
 
-template<typename C,
-	typename T = std::remove_reference_t<decltype(*std::declval<C>().data())>,
-	std::size_t S = C::size()
-> Span(C& c) -> Span<T, S>;
+template <class ElementType, std::ptrdiff_t Extent>
+span<const std::byte, details::calculate_byte_size<ElementType, Extent>::value>
+as_bytes(span<ElementType, Extent> s) noexcept {
+    return {reinterpret_cast<const std::byte*>(s.data()), s.size_bytes()};
+}
 
-template<typename T> Span(T& ref, std::size_t size) -> Span<T, 0>;
-template<typename T> Span(T* ref, std::size_t size) -> Span<T, 0>;
+template <class ElementType, std::ptrdiff_t Extent,
+          class = std::enable_if_t<!std::is_const<ElementType>::value>>
+span<std::byte, details::calculate_byte_size<ElementType, Extent>::value>
+as_writeable_bytes(span<ElementType, Extent> s) noexcept {
+    return {reinterpret_cast<std::byte*>(s.data()), s.size_bytes()};
+}
 
-namespace detail {
+//
+// make_span() - Utility functions for creating spans
+//
+template <class ElementType>
+constexpr span<ElementType> make_span(ElementType* ptr,
+        typename span<ElementType>::index_type count) {
+    return span<ElementType>(ptr, count);
+}
 
-// Returns whether 'C' is a valid container to construct a Span<T> from
-template<typename T, typename C>
-struct ValidContainerT<T, C,
-	typename std::enable_if<
-		std::is_convertible<
-			decltype(std::declval<C>().data()),
-			T*
-		>::value &&
-		std::is_convertible<
-			decltype(std::declval<C>().size()),
-			std::size_t
-		>::value
-	>::type
-> { using type = void; };
+template <class ElementType>
+constexpr span<ElementType> make_span(ElementType* firstElem, ElementType* lastElem) {
+    return span<ElementType>(firstElem, lastElem);
+}
 
-} // namespace detail
+template <class ElementType, std::size_t N>
+constexpr span<ElementType, N> make_span(ElementType (&arr)[N]) noexcept {
+    return span<ElementType, N>(arr);
+}
+
+template <class Container>
+constexpr span<typename Container::value_type> make_span(Container& cont) {
+    return span<typename Container::value_type>(cont);
+}
+
+template <class Container>
+constexpr span<const typename Container::value_type> make_span(const Container& cont) {
+    return span<const typename Container::value_type>(cont);
+}
+
+template <class Ptr>
+constexpr span<typename Ptr::element_type> make_span(Ptr& cont, std::ptrdiff_t count) {
+    return span<typename Ptr::element_type>(cont, count);
+}
+
+template <class Ptr>
+constexpr span<typename Ptr::element_type> make_span(Ptr& cont) {
+    return span<typename Ptr::element_type>(cont);
+}
+
+// taken directly from the standard
+// http://eel.is/c++draft/span.overview
+template<class T, size_t N> span(T (&)[N]) -> span<T, N>;
+template<class T, size_t N> span(std::array<T, N>&) -> span<T, N>;
+template<class T, size_t N> span(const std::array<T, N>&) -> span<const T, N>;
+template<class Container> span(Container&) -> span<typename Container::value_type>;
+template<class Container> span(const Container&) -> span<const typename Container::value_type>;
+
 } // namespace nytl
 
 #endif // header guard
