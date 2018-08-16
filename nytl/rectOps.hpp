@@ -49,6 +49,11 @@ bool operator==(const Rect<D, T1>& a, const Rect<D, T2>& b) {
 	return a.position == b.position && a.size == b.size;
 }
 
+template<typename T1, typename T2, std::size_t D>
+bool operator!=(const Rect<D, T1>& a, const Rect<D, T2>& b) {
+	return a.position != b.position || a.size != b.size;
+}
+
 /// \brief Returns the total size of a given Rect.
 /// \module rectOps
 template<std::size_t D, typename T>
