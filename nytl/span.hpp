@@ -13,8 +13,8 @@
 // Taken (and modified) from https://github.com/Microsoft/GSL
 // Main changes: stripped lots of stuff, older compiler support, msvc
 // workarounds. More lightweight like this but won't give you as much
-// debug messages.
-// Will be in the C++20 standard like this
+// debug messages (or support shitty compilers).
+// Changed to match C++20 standard more closely (especially initialization).
 
 #pragma once
 
@@ -155,21 +155,33 @@ public:
     constexpr span(const std::array<std::remove_const_t<element_type>, N>& arr) noexcept
         : storage_(&arr[0], details::extent_type<N>()) {}
 
-    template <class Container,
-              class = std::enable_if_t<
-                  !details::is_span<Container>::value && !details::is_std_array<Container>::value &&
-                  std::is_convertible<typename Container::pointer, pointer>::value &&
-                  std::is_convertible<typename Container::pointer,
-                                      decltype(std::declval<Container>().data())>::value>>
-    constexpr span(Container& cont) : span(cont.data(), static_cast<index_type>(cont.size())) {}
+	// Allows direct initialization as in `f({1, 2, 3})`
+	// Otherwise `f({{1, 2, 3}})` is needed
+	// With this enabled, the constructor below should probably be disabled
+	// for initializer_list containers
+	// constexpr span(const std::initializer_list<ElementType>& l) : span(std::data(l), std::size(l)) {}
+
+	template <class Container,
+		class = std::enable_if_t<
+			!details::is_span<Container>::value && !details::is_std_array<Container>::value &&
+			std::is_convertible_v<
+				std::remove_pointer_t<decltype(std::data(std::declval<Container&>()))>(*)[],
+	  			element_type(*)[]> &&
+		  	std::is_convertible_v<
+				decltype(std::size(std::declval<Container&>())),
+				std::ptrdiff_t>>>
+    constexpr span(Container& cont) : span(std::data(cont), static_cast<index_type>(std::size(cont))) {}
 
     template <class Container,
-              class = std::enable_if_t<
-                  std::is_const<element_type>::value && !details::is_span<Container>::value &&
-                  std::is_convertible<typename Container::pointer, pointer>::value &&
-                  std::is_convertible<typename Container::pointer,
-                                      decltype(std::declval<Container>().data())>::value>>
-    constexpr span(const Container& cont) : span(cont.data(), static_cast<index_type>(cont.size())) {}
+	  class = std::enable_if_t<
+			!details::is_span<Container>::value && !details::is_std_array<Container>::value &&
+			std::is_convertible_v<
+				std::remove_pointer_t<decltype(std::data(std::declval<Container&>()))>(*)[],
+	  			element_type(*)[]> &&
+		  	std::is_convertible_v<
+				decltype(std::size(std::declval<Container&>())),
+				std::ptrdiff_t>>>
+	constexpr span(const Container& cont) : span(std::data(cont), static_cast<index_type>(std::size(cont))) {}
     constexpr span(const span& other) noexcept = default;
 
     template <
@@ -228,7 +240,6 @@ public:
         return data()[idx];
     }
 
-    constexpr reference at(index_type idx) const { return this->operator[](idx); }
     constexpr reference operator()(index_type idx) const { return this->operator[](idx); }
     constexpr pointer data() const noexcept { return storage_.data(); }
 

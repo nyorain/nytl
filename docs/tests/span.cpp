@@ -32,7 +32,7 @@ TEST(span) {
 	EXPECT(count, 3 * 3 + 1 + 2);
 
 	bar(namesArray);
-	ERROR(baz(namesArray), std::exception);
+	// baz(namesArray) // NOTE: should trigger compile time error
 
 	std::vector<std::string> namesVector {"foo", "bar", "baz", "abz", "bla"};
 	bar({namesVector.data(), 3});
@@ -40,7 +40,6 @@ TEST(span) {
 	auto slice = nytl::span(namesVector).subspan(3);
 	EXPECT(slice[0], "abz");
 	EXPECT(slice[1], "bla");
-	ERROR(slice.at(3), std::out_of_range);
 
 	const std::vector<int> cnv {1, 2, 3};
 	EXPECT(nytl::span(cnv)[0], 1);
@@ -66,7 +65,9 @@ TEST(span) {
 	EXPECT(count, 5 * 3 + 3 + 2);
 
 	baz(namesVector);
-	ERROR(bar(namesVector), std::exception);
+	// NOTE: per c++20 this is undefined behavior. So we no longer
+	// check it
+	// ERROR(bar(namesVector), std::exception);
 
 	count = 0;
 	foo({namesVector.data(), 4}, count);

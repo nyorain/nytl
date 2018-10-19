@@ -16,10 +16,10 @@ namespace nytl {
 	using Span = span<T, N>;
 }
 
-#ifndef NYTL_SPAN_STD
+#ifdef NYTL_SPAN_STD
 
 	// undefined behavior
-	// span will be removed with c++20 anyways
+	// span will be removed here with c++20 anyways
 	namespace std {
 		using nytl::span;
 	}
