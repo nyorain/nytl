@@ -74,6 +74,17 @@ public:
 	using ScopeGuard<F, false, true>::ScopeGuard;
 };
 
+
+// While the deduction guides are only needed for the derived classes,
+// they also make sure that ScopeGuard can be constructed with
+// an lvalue, which will result in storing the passed function by reference:
+// ```cpp
+// std::function f = []{ std::cout << "foo\n"; };
+// ScopeGuard fooOrBar(f); // this captures by reference
+// f = []{ std::cout << "bar\n"; };
+// // the ScopeGuard will output bar when leaving the scope
+// ```
+template<typename F> ScopeGuard(F&&) -> ScopeGuard<F>;
 template<typename F> SuccessGuard(F&&) -> SuccessGuard<F>;
 template<typename F> ExceptionGuard(F&&) -> ExceptionGuard<F>;
 

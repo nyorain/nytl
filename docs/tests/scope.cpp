@@ -1,5 +1,6 @@
 #include "test.hpp"
 #include <nytl/scope.hpp>
+#include <functional>
 
 TEST(general) {
 	auto i = 0u;
@@ -87,4 +88,47 @@ TEST(nested) {
 	}
 
 	EXPECT(i, 11u);
+}
+
+TEST(lvalue_scopeguard) {
+	auto foo = false;
+	auto bar = false;
+
+	{
+		std::function f = [&]{ foo = true; };
+		nytl::ScopeGuard fooOrBar(f);
+		f = [&]{ bar = true; };
+	}
+
+	EXPECT(foo, false);
+	EXPECT(bar, true);
+}
+
+TEST(lvalue_successguard) {
+	auto foo = false;
+	auto bar = false;
+
+	{
+		std::function f = [&]{ foo = true; };
+		nytl::SuccessGuard fooOrBar(f);
+		f = [&]{ bar = true; };
+	}
+
+	EXPECT(foo, false);
+	EXPECT(bar, true);
+}
+
+TEST(lvalue_exceptionguard) {
+	auto foo = false;
+	auto bar = false;
+
+	try {
+		std::function f = [&]{ foo = true; };
+		nytl::ExceptionGuard fooOrBar(f);
+		f = [&]{ bar = true; };
+		throw "nope";
+	} catch(...) {}
+
+	EXPECT(foo, false);
+	EXPECT(bar, true);
 }
