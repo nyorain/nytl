@@ -15,8 +15,6 @@
 #include <nytl/tmpUtil.hpp> // nytl::templatize
 #include <nytl/math.hpp> // nytl::accumulate
 
-#include <functional> // std::plus, std::multiplies
-#include <stdexcept> // std::invalid_argument
 #include <cmath> // std::acos
 #include <iosfwd> // std::ostream
 #include <algorithm> // std::clamp
@@ -68,17 +66,14 @@ constexpr auto distance(const Vec<D, T1>& a, const Vec<D, T2>& b) {
 }
 
 /// \brief Calculates the angle in radians between two vectors using the dot product.
-/// Therefore it will always return the smaller between the both vectors on a
-/// plane in which both vectors lay.
-/// For two equal vectors, it will return always 0.0.
+/// Therefore it will always return the smaller angle between the both vectors
+/// on a plane in which both vectors lay.
+/// For two equal vectors, it will return always 0.
 /// Does only work for real numbers and does not handle complex vectors.
-/// \throws std::domain_error if at least one of the given vectors has a length of 0.
+/// Undefined if either vector is the nullvector.
 template<size_t D, typename T1, typename T2>
 constexpr auto angle(const Vec<D, T1>& a, const Vec<D, T2>& b) {
 	auto l = length(a) * length(b);
-	if(l == 0) {
-		throw std::domain_error("nytl::angle: nullvector given");
-	}
 
 	// we do the clamp to work against rounding errors
 	// (dot(a, b) / l) cannot return anything out of range [-1, 1]
@@ -87,28 +82,20 @@ constexpr auto angle(const Vec<D, T1>& a, const Vec<D, T2>& b) {
 }
 
 /// \brief Returns a normalization of the given vector for the euclidean norm.
-/// \throws std::domain_error if the vector has the length 0.
+/// Undefined if the given vector is the nullvector.
 template<size_t D, typename T>
 constexpr auto normalized(const Vec<D, T>& a) {
 	auto l = length(a);
-	if(l == T {0.0}) {
-		throw std::domain_error("nytl::normalized: nullvector given");
-	}
-
 	return (T {1.0} / l) * a;
 }
 
 /// \brief Normalizes the given vector in place. Note that this may
 /// not work out as expected if its value type does not have the needed
 /// precision (e.g. for an int vector).
-/// \throws std::domain_error if the vector has the length 0.
+/// Undefined if the given vector is the nullvector.
 template<size_t D, typename T>
 constexpr auto normalize(Vec<D, T>& a) {
 	auto l = length(a);
-	if(l == T {0.0}) {
-		throw std::domain_error("nytl::normalized: nullvector given");
-	}
-
 	a *= T {1.0} / l;
 }
 

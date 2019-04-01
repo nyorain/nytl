@@ -198,9 +198,6 @@ TEST(angles) {
 	EXPECT(nytl::angle(f, e), nytl::approx(nytl::radians(90.0)));
 	EXPECT(nytl::angle(e, f), nytl::approx(nytl::constants::pi / 2));
 
-	ERROR(nytl::angle(d3a, d3b), std::domain_error);
-	ERROR(nytl::angle(d3b, d3b), std::domain_error);
-
 	EXPECT(nytl::angle(d3g, d3g), nytl::approx(0.0));
 	EXPECT(nytl::angle(d3g, d3h), nytl::approx(1.296246288593885243));
 	EXPECT(nytl::angle(d2a, d2b), nytl::approx(0.46364760900080614903));
