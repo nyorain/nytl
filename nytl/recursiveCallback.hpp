@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018 nyorain
+// Copyright (c) 2017-2019 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
@@ -46,18 +46,18 @@ namespace nytl {
 /// Uses the same syntax and semantics as std::function.
 /// \tparam ID A connectionID class, see nytl/connection.hpp for examples.
 /// See docs/callback.md for specification.
-template<typename Signature, typename ID = ConnectionID> 
+template<typename Signature, typename ID = ConnectionID>
 class RecursiveCallback;
 
 /// Callback class typedef using TrackedConnectionID. Enables connections
-/// to see when their associated function is unregistered by another 
+/// to see when their associated function is unregistered by another
 /// connection or because the callback was destroyed.
-template<typename Signature> using TrackedRecursiveCallback = 
+template<typename Signature> using TrackedRecursiveCallback =
 	RecursiveCallback<Signature, TrackedConnectionID>;
 
 // Callback specialization to enable the Ret(Args...) Signature format.
 template<typename Ret, typename... Args, typename ID>
-class RecursiveCallback<Ret(Args...), ID> 
+class RecursiveCallback<Ret(Args...), ID>
 	: public ConnectableT<ID>, public NonCopyable {
 public:
 	using Signature = Ret(Args...);
@@ -355,7 +355,7 @@ bool RecursiveCallback<Ret(Args...), ID>::disconnect(const ID& id) noexcept
 			if(remove) {
 				// set this before id.removed might change stuff
 				if(++next == subs_.end()) {
-					last_ = it;	
+					last_ = it;
 				}
 				next->id.removed();
 				subs_.erase_after(it);

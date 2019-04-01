@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018 nyorain
+// Copyright (c) 2017-2019 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
@@ -36,18 +36,18 @@ public:
 	}
 
 	template<size_t D2, typename T2>
-	friend bool operator==(const Approx& lhs, const nytl::Vec<D2, T2>& rhs) { 
-		return operator==(rhs, lhs); 
+	friend bool operator==(const Approx& lhs, const nytl::Vec<D2, T2>& rhs) {
+		return operator==(rhs, lhs);
 	}
 
 	template<size_t D2, typename T2>
-	friend bool operator!=(const nytl::Vec<D2, T2>& lhs, const Approx& rhs) { 
-		return !operator==(lhs, rhs); 
+	friend bool operator!=(const nytl::Vec<D2, T2>& lhs, const Approx& rhs) {
+		return !operator==(lhs, rhs);
 	}
 
 	template<size_t D2, typename T2>
-	friend bool operator!=(const Approx& lhs, const nytl::Vec<D2, T2>& rhs) { 
-		return !operator==(lhs, rhs); 
+	friend bool operator!=(const Approx& lhs, const nytl::Vec<D2, T2>& rhs) {
+		return !operator==(lhs, rhs);
 	}
 
 public:
@@ -75,18 +75,18 @@ public:
 	}
 
 	template<typename T2>
-	friend bool operator==(const Approx& lhs, const nytl::Mat<R, C, T2>& rhs) { 
-		return operator==(rhs, lhs); 
+	friend bool operator==(const Approx& lhs, const nytl::Mat<R, C, T2>& rhs) {
+		return operator==(rhs, lhs);
 	}
 
 	template<typename T2>
-	friend bool operator!=(const nytl::Mat<R, C, T2>& lhs, const Approx& rhs) { 
-		return !operator==(lhs, rhs); 
+	friend bool operator!=(const nytl::Mat<R, C, T2>& lhs, const Approx& rhs) {
+		return !operator==(lhs, rhs);
 	}
 
 	template<typename T2>
-	friend bool operator!=(const Approx& lhs, const nytl::Mat<R, C, T2>& rhs) { 
-		return !operator==(lhs, rhs); 
+	friend bool operator!=(const Approx& lhs, const nytl::Mat<R, C, T2>& rhs) {
+		return !operator==(lhs, rhs);
 	}
 
 public:
