@@ -36,7 +36,6 @@ public:
 	constexpr Flags(InvertFlags, T bit) noexcept : value_(~static_cast<U>(bit)) {}
 	~Flags() noexcept = default;
 
-	constexpr Flags& operator=(const Flags& r) noexcept { value_ = r.value(); return *this; }
 	constexpr Flags& operator|=(const Flags& r) noexcept { value_ |= r.value(); return *this; }
 	constexpr Flags& operator&=(const Flags& r) noexcept { value_ &= r.value_; return *this; }
 	constexpr Flags& operator^=(const Flags& r) noexcept { value_ ^= r.value(); return *this; }
