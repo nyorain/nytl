@@ -156,9 +156,11 @@ public:
         : storage_(&arr[0], details::extent_type<N>()) {}
 
 	// Allows direct initialization as in `f({1, 2, 3})`
-	// Otherwise `f({{1, 2, 3}})` is needed
+	// Otherwise `f({{1, 2, 3}})` is needed (at least with clang?)
 	// With this enabled, the constructor below should probably be disabled
 	// for initializer_list containers
+	// Note that c++20 doesn't have this constructor (sadly) so it's not
+	// enabled here either
 	// constexpr span(const std::initializer_list<ElementType>& l) : span(std::data(l), std::size(l)) {}
 
 	template <class Container,
@@ -260,6 +262,9 @@ public:
         return const_reverse_iterator{cbegin()};
     }
 
+	constexpr reference front() const noexcept { return *begin(); }
+	constexpr reference back() const noexcept { return *(end() - 1); }
+
 private:
     // Needed to remove unnecessary null check in subspans
     struct KnownNotNull {
@@ -354,8 +359,7 @@ namespace details {
 // this pair of classes could collapse down to a constexpr function
 
 // we should use a narrow_cast<> to go to std::size_t, but older compilers may not see it as
-// constexpr
-// and so will fail compilation of the template
+// constexpr and so will fail compilation of the template
 template <class ElementType, std::ptrdiff_t Extent>
 struct calculate_byte_size : std::integral_constant<std::ptrdiff_t,
 	static_cast<std::ptrdiff_t>(sizeof(ElementType) * static_cast<std::size_t>(Extent))> {
@@ -381,9 +385,7 @@ as_writeable_bytes(span<ElementType, Extent> s) noexcept {
     return {reinterpret_cast<std::byte*>(s.data()), s.size_bytes()};
 }
 
-//
 // make_span() - Utility functions for creating spans
-//
 template <class ElementType>
 constexpr span<ElementType> make_span(ElementType* ptr,
         typename span<ElementType>::index_type count) {
