@@ -34,8 +34,8 @@ If you need just a few header files (or even just a few functions), just copy th
 your project folder.
 It can also be used as meson subproject.
 
-Remember that nytl requires a solid C++17 compiler, only development builds of gcc and clang
-are supported.
+Remember that nytl requires a solid C++17 compiler, only recent versions of gcc and clang
+are tested.
 Below some basic code examples for (only a) few nytl features to give you an idea.
 
 ### nytl::Callback and nytl::RecursiveCallback
