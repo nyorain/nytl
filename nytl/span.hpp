@@ -132,7 +132,7 @@ public:
     static constexpr index_type extent{Extent};
 
     template <bool Dependent = false,
-        class = std::enable_if_t<(Dependent || Extent <= 0)>>
+        class = std::enable_if_t<(Dependent || Extent == dynamic_extent)>>
     constexpr span() noexcept : storage_(nullptr, details::extent_type<0>()) {
     }
 

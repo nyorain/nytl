@@ -22,6 +22,9 @@ void bar(nytl::Span<const std::string, 3>) {}
 void baz(nytl::Span<const std::string, 5>) {}
 
 TEST(span) {
+	auto emptySpan = nytl::Span<int>();
+	emptySpan = {};
+
 	int count {};
 
 	std::array<std::string, 3> namesArray {{"foo", "bar", "baz"}};
