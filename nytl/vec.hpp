@@ -15,7 +15,6 @@
 #include <nytl/vec2.hpp> // nytl::Vec<2, T>
 #include <nytl/vec3.hpp> // nytl::Vec<3, T>
 
-#include <iterator> // std::reverse_iterator
 #include <array> // std::array
 #include <algorithm> // std::min
 

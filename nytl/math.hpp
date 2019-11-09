@@ -34,8 +34,8 @@ constexpr auto radians(P deg) {
 
 /// \brief Returns the linear mix of x and y with factor a.
 /// \requires P must represent a mathematical field.
-template<typename P>
-constexpr auto mix(P x, P y, P a) {
+template<typename P, typename T>
+constexpr auto mix(P x, P y, T a) {
 	return x * (1 - a) + y * a;
 }
 
