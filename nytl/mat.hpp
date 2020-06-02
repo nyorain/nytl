@@ -64,8 +64,7 @@ public:
 // - implementation/operators -
 template<size_t R, size_t C, typename T>
 template<size_t OR, size_t OC, typename OT>
-constexpr Mat<R, C, T>::operator Mat<OR, OC, OT>() const
-{
+constexpr Mat<R, C, T>::operator Mat<OR, OC, OT>() const {
 	Mat<OR, OC, OT> ret {};
 	for(auto r = 0u; r < std::min(R, OR); ++r)
 		for(auto c = 0u; c < std::min(C, OC); ++c)
@@ -75,8 +74,7 @@ constexpr Mat<R, C, T>::operator Mat<OR, OC, OT>() const
 
 // mat * mat
 template<typename T1, typename T2, size_t R, size_t M, size_t C>
-constexpr auto operator*(const Mat<R, M, T1>& a, const Mat<M, C, T2>& b)
-{
+constexpr auto operator*(const Mat<R, M, T1>& a, const Mat<M, C, T2>& b) {
 	Mat<R, C, decltype(a[0][0] * b[0][0] + a[0][0] * b[0][0])> ret {};
 	for(auto r = 0u; r < R; ++r) // ret: rows
 		for(auto c = 0u; c < C; ++c) // ret: cols
@@ -87,8 +85,7 @@ constexpr auto operator*(const Mat<R, M, T1>& a, const Mat<M, C, T2>& b)
 
 // mat * vec
 template<typename T1, typename T2, size_t R, size_t C>
-constexpr auto operator*(const Mat<R, C, T1>& a, const Vec<C, T2>& b)
-{
+constexpr auto operator*(const Mat<R, C, T1>& a, const Vec<C, T2>& b) {
 	Vec<R, decltype(a[0][0] * b[0] + a[0][0] * b[0])> ret {};
 	for(auto r = 0u; r < R; ++r)
 		ret[r] = dot(a[r], b);
@@ -97,8 +94,7 @@ constexpr auto operator*(const Mat<R, C, T1>& a, const Vec<C, T2>& b)
 
 // mat *= mat (quadratic)
 template<typename T1, typename T2, size_t D>
-constexpr auto& operator*=(Mat<D, D, T1>& a, const Mat<D, D, T2>& b)
-{
+constexpr auto& operator*=(Mat<D, D, T1>& a, const Mat<D, D, T2>& b) {
 	auto tmp = a; // needed since we write to a
 	a = {};
 	for(auto r = 0u; r < D; ++r) // ret: rows
@@ -110,8 +106,7 @@ constexpr auto& operator*=(Mat<D, D, T1>& a, const Mat<D, D, T2>& b)
 
 // fac * mat
 template<typename F, typename T, size_t R, size_t C>
-constexpr auto operator*(const F& f, const Mat<R, C, T>& a)
-{
+constexpr auto operator*(const F& f, const Mat<R, C, T>& a) {
 	Mat<R, C, decltype(f * a[0][0])> ret {};
 	for(auto r = 0u; r < R; ++r)
 		for(auto c = 0u; c < C; ++c)
@@ -121,8 +116,7 @@ constexpr auto operator*(const F& f, const Mat<R, C, T>& a)
 
 // mat *= fac
 template<typename F, typename T, size_t R, size_t C>
-constexpr auto& operator*=(Mat<R, C, T> a, const F& f)
-{
+constexpr auto& operator*=(Mat<R, C, T> a, const F& f) {
 	for(auto r = 0u; r < R; ++r)
 		for(auto c = 0u; c < C; ++c)
 			a[r][c] *= f;
@@ -131,8 +125,7 @@ constexpr auto& operator*=(Mat<R, C, T> a, const F& f)
 
 // mat + mat
 template<typename T1, typename T2, size_t R, size_t C>
-constexpr auto operator+(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b)
-{
+constexpr auto operator+(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b) {
 	Mat<R, C, decltype(a[0][0] + b[0][0])> ret {};
 	for(auto r = 0u; r < R; ++r)
 		for(auto c = 0u; c < C; ++c)
@@ -142,8 +135,7 @@ constexpr auto operator+(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b)
 
 // mat += mat
 template<typename T1, typename T2, size_t R, size_t C>
-constexpr auto& operator+=(Mat<R, C, T1>& a, const Mat<R, C, T2>& b)
-{
+constexpr auto& operator+=(Mat<R, C, T1>& a, const Mat<R, C, T2>& b) {
 	for(auto r = 0u; r < R; ++r)
 		for(auto c = 0u; c < C; ++c)
 			a[r][c] += b[r][c];
@@ -152,8 +144,7 @@ constexpr auto& operator+=(Mat<R, C, T1>& a, const Mat<R, C, T2>& b)
 
 // mat - mat
 template<typename T1, typename T2, size_t R, size_t C>
-constexpr auto operator-(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b)
-{
+constexpr auto operator-(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b) {
 	Mat<R, C, decltype(a[0][0] - b[0][0])> ret {};
 	for(auto r = 0u; r < R; ++r)
 		for(auto c = 0u; c < C; ++c)
@@ -163,8 +154,7 @@ constexpr auto operator-(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b)
 
 // mat -= mat
 template<typename T1, typename T2, size_t R, size_t C>
-constexpr auto& operator-=(Mat<R, C, T1>& a, const Mat<R, C, T2>& b)
-{
+constexpr auto& operator-=(Mat<R, C, T1>& a, const Mat<R, C, T2>& b) {
 	for(auto r = 0u; r < R; ++r)
 		for(auto c = 0u; c < C; ++c)
 			a[r][c] -= b[r][c];
@@ -173,8 +163,7 @@ constexpr auto& operator-=(Mat<R, C, T1>& a, const Mat<R, C, T2>& b)
 
 // -mat
 template<typename T, size_t R, size_t C>
-constexpr auto operator-(Mat<R, C, T> a)
-{
+constexpr auto operator-(Mat<R, C, T> a) {
 	for(auto r = 0u; r < R; ++r)
 		for(auto c = 0u; c < C; ++c)
 			a[r][c] = -a[r][c];
@@ -182,8 +171,7 @@ constexpr auto operator-(Mat<R, C, T> a)
 }
 
 template<typename T1, typename T2, size_t R, size_t C>
-constexpr auto operator==(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b)
-{
+constexpr auto operator==(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b) {
 	for(auto i = 0u; i < R; ++i)
 		if(a.rows_[i] != b.rows_[i])
 			return false;
@@ -191,8 +179,7 @@ constexpr auto operator==(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b)
 }
 
 template<typename T1, typename T2, size_t R, size_t C>
-constexpr auto operator!=(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b)
-{
+constexpr auto operator!=(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b) {
 	return !(a == b);
 }
 

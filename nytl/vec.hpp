@@ -66,8 +66,8 @@ constexpr Vec<D, T1>& operator-=(Vec<D, T1>& a, const Vec<D, T2>& b) noexcept {
 
 template<size_t D, typename T, typename OT>
 constexpr Vec<D, T>& operator*=(Vec<D, T>& vec, OT fac) {
-	for(auto& val : vec)
-		val *= fac;
+	for(auto i = 0u; i < D; ++i)
+		vec[i] *= fac;
 	return vec;
 }
 
@@ -89,8 +89,13 @@ constexpr auto operator-(const Vec<D, T1>& a, const Vec<D, T2>& b) {
 
 template<size_t D, typename T>
 constexpr auto operator-(Vec<D, T> a) {
-	for(auto& val : a)
-		val = -val;
+	for(auto i = 0u; i < D; ++i)
+		a[i] = -a[i];
+	return a;
+}
+
+template<size_t D, typename T>
+constexpr auto operator+(const Vec<D, T>& a) {
 	return a;
 }
 

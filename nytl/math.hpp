@@ -36,7 +36,7 @@ constexpr auto radians(P deg) {
 /// \requires P must represent a mathematical field.
 template<typename P, typename T>
 constexpr auto mix(P x, P y, T a) {
-	return x * (1 - a) + y * a;
+	return (1 - a) * x + a * y;
 }
 
 /// \brief Returns a smooth interpolation between 0 and 1 depending on value

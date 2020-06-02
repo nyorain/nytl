@@ -21,25 +21,25 @@
 
 namespace nytl {
 
-/// \brief Sums up all values of the given vector using the + operator.
+/// Sums up all values of the given vector using the + operator.
 template<size_t D, typename T>
 constexpr auto sum(const Vec<D, T>& a) {
 	decltype(a[0] + a[1]) ret {0};
-	for(auto& val : a)
-		ret += val;
+	for(auto i = 0u; i < D; ++i)
+		ret += a[i];
 	return ret;
 }
 
-/// \brief Multiplies all values of the given vector using the * operator.
+/// Multiplies all values of the given vector using the * operator.
 template<size_t D, typename T>
 constexpr auto multiply(const Vec<D, T>& a) {
 	decltype(a[0] * a[1]) ret {1};
-	for(auto& val : a)
-		ret *= val;
+	for(auto i = 0u; i < D; ++i)
+		ret *= a[i];
 	return ret;
 }
 
-/// \brief Calculates the default (real) dot product for the given vectors.
+/// Calculates the default (real) dot product for the given vectors.
 /// Note that this follows the dot definition for real numbers and does
 /// not automatically handle the dot definition for other structures.
 template<size_t D, typename T1, typename T2>
@@ -51,13 +51,13 @@ constexpr auto dot(const Vec<D, T1>& a, const Vec<D, T2>& b) {
 	return ret;
 }
 
-/// \brief Returns the euclidean norm (or length) of the given vector.
+/// Returns the euclidean norm (or length) of the given vector.
 template<size_t D, typename T>
 constexpr auto length(const Vec<D, T>& a) {
 	return std::sqrt(dot(a, a));
 }
 
-/// \brief Returns the euclidean distance between two vectors.
+/// Returns the euclidean distance between two vectors.
 /// Another way to describe this operation is the length between the
 /// difference of the given vectors.
 template<size_t D, typename T1, typename T2>
@@ -65,7 +65,7 @@ constexpr auto distance(const Vec<D, T1>& a, const Vec<D, T2>& b) {
 	return length(a - b);
 }
 
-/// \brief Calculates the angle in radians between two vectors using the dot product.
+/// Calculates the angle in radians between two vectors using the dot product.
 /// Therefore it will always return the smaller angle between the both vectors
 /// on a plane in which both vectors lay.
 /// For two equal vectors, it will return always 0.
@@ -81,31 +81,38 @@ constexpr auto angle(const Vec<D, T1>& a, const Vec<D, T2>& b) {
 	return std::acos(std::clamp<decltype(v)>(v, -1.0, 1.0));
 }
 
-/// \brief Returns a normalization of the given vector for the euclidean norm.
+/// Computes the angle between two normalized vectors.
+template<size_t D, typename T1, typename T2>
+constexpr auto angleNormed(const Vec<D, T1>& a, const Vec<D, T2>& b) {
+	auto v = dot(a, b);
+	return std::acos(std::clamp<decltype(v)>(v, -1.0, 1.0));
+}
+
+/// Returns a normalization of the given vector for the euclidean norm.
 /// Undefined if the given vector is the nullvector.
 template<size_t D, typename T>
 constexpr auto normalized(const Vec<D, T>& a) {
 	auto l = length(a);
-	return (T {1.0} / l) * a;
+	return (T{1.0} / l) * a;
 }
 
-/// \brief Normalizes the given vector in place. Note that this may
+/// Normalizes the given vector in place. Note that this may
 /// not work out as expected if its value type does not have the needed
 /// precision (e.g. for an int vector).
 /// Undefined if the given vector is the nullvector.
 template<size_t D, typename T>
 constexpr auto normalize(Vec<D, T>& a) {
 	auto l = length(a);
-	a *= T {1.0} / l;
+	a *= T{1.0} / l;
 }
 
-/// \brief Mirrors the given point on the given mirror.
+/// Mirrors the given point on the given mirror.
 template<size_t D, typename T>
 constexpr Vec<D, T> mirror(const Vec<D, T>& mirror, const Vec<D, T>& point) {
 	return mirror + (mirror - point);
 }
 
-/// \brief Prints the given vector to the given ostream.
+/// Prints the given vector to the given ostream.
 /// If this function is used, header <ostream> must be included.
 /// This function does not implement operator<< since this operator should only implemented
 /// for the Vector implementation types.
@@ -132,7 +139,7 @@ std::ostream& operator<<(std::ostream& os, const Vec<D, T>& a) {
 }
 
 // - dimension specific -
-/// \brief Calculates the cross product for two 3-dimensional vectors.
+/// Calculates the cross product for two 3-dimensional vectors.
 template<typename T1, typename T2>
 constexpr auto cross(const Vec<3, T1>& a, const Vec<3, T2>& b) {
 	Vec<3, decltype(a[1] * b[2] - a[2] * b[1])> ret {};
@@ -142,7 +149,7 @@ constexpr auto cross(const Vec<3, T1>& a, const Vec<3, T2>& b) {
 	return ret;
 }
 
-/// \brief 2-dimensional cross product (aka normal-dot).
+/// 2-dimensional cross product (aka normal-dot).
 /// Is the same as the dot of a with the normal of b.
 template<typename T1, typename T2>
 constexpr auto cross(const Vec<2, T1>& a, const Vec<2, T2>& b) {
@@ -215,7 +222,7 @@ constexpr auto operator/(const F& f, const Vec<D, T>& a) {
 
 namespace cw { // vec component-wise operations
 
-/// \brief Returns a vector holding the component-wise maximum of the given vectors.
+/// Returns a vector holding the component-wise maximum of the given vectors.
 template<size_t D, typename T>
 constexpr auto max(Vec<D, T> a, const Vec<D, T>& b) {
 	for(auto i = 0u; i < D; ++i)
@@ -224,7 +231,7 @@ constexpr auto max(Vec<D, T> a, const Vec<D, T>& b) {
 	return a;
 }
 
-/// \brief Returns a vector holding the component-wise minimum of the given vectors.
+/// Returns a vector holding the component-wise minimum of the given vectors.
 template<size_t D, typename T>
 constexpr auto min(Vec<D, T> a, const Vec<D, T>& b) {
 	for(auto i = 0u; i < D; ++i)
@@ -233,7 +240,7 @@ constexpr auto min(Vec<D, T> a, const Vec<D, T>& b) {
 	return a;
 }
 
-/// \brief Returns the component-wise product of the given vectors.
+/// Returns the component-wise product of the given vectors.
 template<size_t D, typename T1, typename T2>
 constexpr auto multiply(const Vec<D, T1>& a, const Vec<D, T2>& b) {
 	Vec<D, decltype(a[0] * b[0])> ret {};
@@ -242,7 +249,7 @@ constexpr auto multiply(const Vec<D, T1>& a, const Vec<D, T2>& b) {
 	return ret;
 }
 
-/// \brief Returns the component-wise quotient of the given vectors.
+/// Returns the component-wise quotient of the given vectors.
 template<size_t D, typename T1, typename T2>
 constexpr auto divide(const Vec<D, T1>& a, const Vec<D, T2>& b) {
 	Vec<D, decltype(a[0] / b[0])> ret {};
@@ -287,8 +294,8 @@ namespace ip { // inplace operations
 #define NYTL_VEC_IP_UTIL_FUNC(func) \
 	template<size_t D, typename T> \
 	constexpr void func(Vec<D, T>& vec) { \
-		for(auto& val : vec) \
-			val = std::func(val); \
+		for(auto i = 0u; i < D; ++i) \
+			vec[i] = std::func(vec[i]); \
 	}
 
 NYTL_VEC_IP_UTIL_FUNC(abs)
@@ -309,8 +316,8 @@ NYTL_VEC_IP_UTIL_FUNC(ceil)
 
 template<size_t D, typename T1, typename T2>
 constexpr void pow(Vec<D, T1>& a, T2 exp) {
-	for(auto& val : a) {
-		val = std::pow(val, exp);
+	for(auto i = 0u; i < D; ++i) {
+		a[i] = std::pow(a[i], exp);
 	}
 }
 
@@ -323,8 +330,8 @@ constexpr void pow(Vec<D, T1>& a, const Vec<D, T2>& b) {
 
 template<size_t D, typename T>
 constexpr void clamp(Vec<D, T>& a, T low, T high) {
-	for(auto& val : a) {
-		val = std::clamp(val, low, high);
+	for(auto i = 0u; i < D; ++i) {
+		a[i] = std::clamp(a[i], low, high);
 	}
 }
 
