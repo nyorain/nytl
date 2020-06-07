@@ -4,8 +4,7 @@ project('nytl', 'cpp',
 	meson_version: '>=0.43',
 	default_options: [
 	  'cpp_std=c++17',
-	  'warning_level=3',
-	  'werror=true'])
+	  'warning_level=3'])
 
 warnings = [
 	# extra
