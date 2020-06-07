@@ -7,7 +7,6 @@
 #ifndef NYTL_INCLUDE_SCOPE
 #define NYTL_INCLUDE_SCOPE
 
-#include <nytl/nonCopyable.hpp> // nytl::NonMovable
 #include <exception> // std::uncaught_exceptions
 #include <iostream> // std::cerr
 
@@ -31,7 +30,7 @@ namespace nytl {
 /// }
 /// ```
 template<typename F, bool OnSuccess = true, bool OnException = true>
-class ScopeGuard : public nytl::NonMovable {
+class ScopeGuard {
 public:
 	static_assert(OnSuccess || OnException);
 
@@ -39,6 +38,9 @@ public:
 	ScopeGuard(F&& func) :
 		func_(std::forward<F>(func)),
 		exceptions_(std::uncaught_exceptions()) {}
+
+	ScopeGuard(ScopeGuard&&) = delete;
+	ScopeGuard& operator =(ScopeGuard&&) = delete;
 
 	~ScopeGuard() noexcept {
 		try {

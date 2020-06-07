@@ -3,15 +3,11 @@ project('nytl', 'cpp',
 	version: '0.6.0',
 	meson_version: '>=0.43',
 	default_options: [
-	  'cpp_std=c++1z',
+	  'cpp_std=c++17',
 	  'warning_level=3',
 	  'werror=true'])
 
 warnings = [
-	'-Wall',
-	'-Wextra',
-	'-Wpedantic',
-
 	# extra
 	'-Wduplicated-cond',
 	'-Wrestrict',

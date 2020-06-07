@@ -231,12 +231,28 @@ constexpr auto max(Vec<D, T> a, const Vec<D, T>& b) {
 	return a;
 }
 
+template<size_t D, typename T>
+constexpr auto max(Vec<D, T> a, const T& b) {
+	for(auto i = 0u; i < D; ++i)
+		if(b > a[i])
+			a[i] = b;
+	return a;
+}
+
 /// Returns a vector holding the component-wise minimum of the given vectors.
 template<size_t D, typename T>
 constexpr auto min(Vec<D, T> a, const Vec<D, T>& b) {
 	for(auto i = 0u; i < D; ++i)
 		if(b[i] < a[i])
 			a[i] = b[i];
+	return a;
+}
+
+template<size_t D, typename T>
+constexpr auto min(Vec<D, T> a, const T& b) {
+	for(auto i = 0u; i < D; ++i)
+		if(b < a[i])
+			a[i] = b;
 	return a;
 }
 

@@ -50,7 +50,7 @@ public:
 	constexpr const U& value() const noexcept { return value_; }
 	constexpr operator U() const noexcept { return value_; }
 
-protected:
+public: // public to make it a standard layout type
 	U value_ {};
 };
 
