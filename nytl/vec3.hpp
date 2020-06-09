@@ -28,6 +28,10 @@ public:
 public:
 	static constexpr size_t size() { return 3; }
 
+	// constexpr Vec() = default;
+	// constexpr explicit Vec(const T& all) : x(all), y(all), z(all) {}
+	// constexpr Vec(const T& x_, const T& y_, const T& z_) : x(x_), y(y_), z(z_) {}
+
 	constexpr const T* begin() const { return &x; }
 	constexpr const T* end() const { return &z + 1; }
 	constexpr T* begin() { return &x; }

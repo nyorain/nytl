@@ -43,9 +43,13 @@ public:
 	ScopeGuard& operator =(ScopeGuard&&) = delete;
 
 	~ScopeGuard() noexcept {
+		if(exceptions_ == -1) {
+			return;
+		}
+
 		try {
-			auto ne = exceptions_ < std::uncaught_exceptions();
-			if((OnSuccess && !ne) || (OnException && ne)) {
+			auto thrown = exceptions_ < std::uncaught_exceptions();
+			if((OnSuccess && !thrown) || (OnException && thrown)) {
 				func_();
 			}
 		} catch(const std::exception& err) {
@@ -56,6 +60,8 @@ public:
 			std::cerr << "unwinding" << std::endl;
 		}
 	}
+
+	void unset() { exceptions_ = -1; }
 
 protected:
 	F func_;

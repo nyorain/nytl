@@ -27,6 +27,10 @@ public:
 public:
 	static constexpr size_t size() { return 2; }
 
+	// constexpr Vec() = default;
+	// constexpr explicit Vec(const T& all) : x(all), y(all) {}
+	// constexpr Vec(const T& x_, const T& y_) : x(x_), y(y_) {}
+
 	constexpr const T* begin() const { return &x; }
 	constexpr const T* end() const { return &y + 1; }
 	constexpr T* begin() { return &x; }

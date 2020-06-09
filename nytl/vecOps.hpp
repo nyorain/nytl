@@ -300,6 +300,38 @@ constexpr auto operator/(const Vec<D, T1>& a, const Vec<D, T2>& b) {
 	return divide(a, b);
 }
 
+template<size_t D, typename T1, typename T2>
+constexpr auto operator+(const Vec<D, T1>& a, const T2& b) {
+	Vec<D, decltype(a[0] + b)> res;
+	for(size_t i = 0u; i < D; ++i) {
+		res[i] = a[i] + b;
+	}
+	return res;
+}
+
+template<size_t D, typename T1, typename T2>
+constexpr auto operator+(const T2& a, const Vec<D, T1>& b) {
+	return b + a;
+}
+
+template<size_t D, typename T1, typename T2>
+constexpr auto operator-(const Vec<D, T1>& a, const T2& b) {
+	Vec<D, decltype(a[0] - b)> res;
+	for(size_t i = 0u; i < D; ++i) {
+		res[i] = a[i] - b;
+	}
+	return res;
+}
+
+template<size_t D, typename T1, typename T2>
+constexpr auto operator-(const T2& a, const Vec<D, T1>& b) {
+	Vec<D, decltype(b - a[0])> res;
+	for(size_t i = 0u; i < D; ++i) {
+		res[i] = b - a[i];
+	}
+	return res;
+}
+
 } // namespace operators
 
 namespace ip { // inplace operations
