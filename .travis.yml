@@ -1,23 +1,17 @@
-sudo: required
+os: linux
+dist: bionic
+language: python
 
-language: cpp
+matrix:
+  include:
+    - env: CC=gcc
+    - env: CC=clang
 
-notifications:
-  email: false
-
-compiler:
-  - gcc
-  - clang
-
-arch:
-  packages:
-    - meson
-    - ninja
-    - valgrind
-  script: 
-    - meson build -Dtests=true
-    - ninja -C build
-    - meson test -C build --wrapper 'valgrind --leak-check=full --error-exitcode=1' --print-errorlogs
+install:
+  - pip3 install meson ninja
+  - sudo apt-get -y install valgrind
 
 script:
-  - "curl -s https://raw.githubusercontent.com/mikkeloscar/arch-travis/master/arch-travis.sh | bash"
+  - meson build -Dtests=true
+  - ninja -C build
+  - meson test -C build --wrapper 'valgrind --leak-check=full --error-exitcode=1' --print-errorlogs
