@@ -51,21 +51,21 @@ Vec(Args&&... args) ->
 // - implementation/operators -
 // - free operators -
 template<size_t D, typename T1, typename T2>
-constexpr Vec<D, T1>& operator+=(Vec<D, T1>& a, const Vec<D, T2>& b) noexcept {
+constexpr Vec<D, T1>& operator+=(Vec<D, T1>& a, const Vec<D, T2>& b) {
 	for(size_t i = 0; i < D; ++i)
 		a[i] += b[i];
 	return a;
 }
 
 template<size_t D, typename T1, typename T2>
-constexpr Vec<D, T1>& operator-=(Vec<D, T1>& a, const Vec<D, T2>& b) noexcept {
+constexpr Vec<D, T1>& operator-=(Vec<D, T1>& a, const Vec<D, T2>& b) {
 	for(size_t i = 0; i < D; ++i)
 		a[i] -= b[i];
 	return a;
 }
 
-template<size_t D, typename T, typename OT>
-constexpr Vec<D, T>& operator*=(Vec<D, T>& vec, OT fac) {
+template<size_t D, typename T, typename F>
+constexpr Vec<D, T>& operator*=(Vec<D, T>& vec, const F& fac) {
 	for(auto i = 0u; i < D; ++i)
 		vec[i] *= fac;
 	return vec;
@@ -100,7 +100,8 @@ constexpr auto operator+(const Vec<D, T>& a) {
 }
 
 template<size_t D, typename F, typename T>
-constexpr auto operator*(const F& f, const Vec<D, T>& a) {
+constexpr auto operator*(const F& f, const Vec<D, T>& a)
+		-> Vec<D, decltype(f * a[0])> {
 	Vec<D, decltype(f * a[0])> ret {};
 	for(auto i = 0u; i < D; ++i)
 		ret[i] = f * a[i];

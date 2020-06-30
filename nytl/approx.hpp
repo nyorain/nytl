@@ -94,8 +94,7 @@ public:
 };
 
 template<typename T>
-Approx<T> approx(const T& value, double epsilon)
-{
+Approx<T> approx(const T& value, double epsilon) {
 	return {value, epsilon};
 }
 
@@ -103,8 +102,7 @@ Approx<T> approx(const T& value, double epsilon)
 namespace approxOps {
 
 template<typename T>
-std::ostream& operator<<(std::ostream& os, const Approx<T>& approx)
-{
+std::ostream& operator<<(std::ostream& os, const Approx<T>& approx) {
 	templatize<T>(os) << "Approx(" << approx.value << ")";
 	return os;
 }

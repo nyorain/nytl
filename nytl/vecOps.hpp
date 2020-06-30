@@ -195,7 +195,8 @@ namespace vec {
 namespace operators {
 
 template<size_t D, typename F, typename T>
-constexpr auto operator*(const Vec<D, T>& a, const F& f) {
+constexpr auto operator*(const Vec<D, T>& a, const F& f)
+		-> Vec<D, decltype(a[0] * f)> {
 	auto ret = Vec<D, decltype(a[0] * f)> {};
 	for(auto i = 0u; i < D; ++i)
 		ret[i] = a[i] * f;
@@ -203,7 +204,8 @@ constexpr auto operator*(const Vec<D, T>& a, const F& f) {
 }
 
 template<size_t D, typename F, typename T>
-constexpr auto operator/(const Vec<D, T>& a, const F& f) {
+constexpr auto operator/(const Vec<D, T>& a, const F& f)
+		-> Vec<D, decltype(a[0] / f)> {
 	auto ret = Vec<D, decltype(a[0] / f)> {};
 	for(auto i = 0u; i < D; ++i)
 		ret[i] = a[i] / f;
@@ -211,7 +213,8 @@ constexpr auto operator/(const Vec<D, T>& a, const F& f) {
 }
 
 template<size_t D, typename F, typename T>
-constexpr auto operator/(const F& f, const Vec<D, T>& a) {
+constexpr auto operator/(const F& f, const Vec<D, T>& a)
+		-> Vec<D, decltype(f / a[0])> {
 	auto ret = Vec<D, decltype(f / a[0])> {};
 	for(auto i = 0u; i < D; ++i)
 		ret[i] = f / a[i];
@@ -277,14 +280,14 @@ constexpr auto divide(const Vec<D, T1>& a, const Vec<D, T2>& b) {
 namespace operators {
 
 template<size_t D, typename T1, typename T2>
-constexpr Vec<D, T1>& operator*=(Vec<D, T1>& a, const Vec<D, T2>& b) noexcept {
+constexpr Vec<D, T1>& operator*=(Vec<D, T1>& a, const Vec<D, T2>& b) {
 	for(size_t i = 0; i < D; ++i)
 		a[i] *= b[i];
 	return a;
 }
 
 template<size_t D, typename T1, typename T2>
-constexpr Vec<D, T1>& operator/=(Vec<D, T1>& a, const Vec<D, T2>& b) noexcept {
+constexpr Vec<D, T1>& operator/=(Vec<D, T1>& a, const Vec<D, T2>& b) {
 	for(size_t i = 0; i < D; ++i)
 		a[i] /= b[i];
 	return a;
@@ -311,7 +314,11 @@ constexpr auto operator+(const Vec<D, T1>& a, const T2& b) {
 
 template<size_t D, typename T1, typename T2>
 constexpr auto operator+(const T2& a, const Vec<D, T1>& b) {
-	return b + a;
+	Vec<D, decltype(a + b[0])> res;
+	for(size_t i = 0u; i < D; ++i) {
+		res[i] = b[i] + a;
+	}
+	return res;
 }
 
 template<size_t D, typename T1, typename T2>
@@ -325,9 +332,9 @@ constexpr auto operator-(const Vec<D, T1>& a, const T2& b) {
 
 template<size_t D, typename T1, typename T2>
 constexpr auto operator-(const T2& a, const Vec<D, T1>& b) {
-	Vec<D, decltype(b - a[0])> res;
+	Vec<D, decltype(a - b[0])> res;
 	for(size_t i = 0u; i < D; ++i) {
-		res[i] = b - a[i];
+		res[i] = a - b[i];
 	}
 	return res;
 }

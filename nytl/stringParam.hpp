@@ -12,6 +12,7 @@
 
 namespace nytl {
 
+/// A null-terminated not-owned string.
 /// Like std::string_view but guaranteed to be null-terminated.
 /// Makes it actually useful as string type parameter.
 template<typename Char>

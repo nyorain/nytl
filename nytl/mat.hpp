@@ -2,7 +2,7 @@
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
-/// \file Defines the nytl::Mat Matrix template class.
+/// Defines the nytl::Mat Matrix template class.
 
 #pragma once
 
@@ -15,11 +15,11 @@
 
 namespace nytl {
 
-/// \brief A Matrix that with 'R' rows and 'C' columns over type 'T' on the stack.
+/// A Matrix with 'R' rows and 'C' columns over type 'T' on the stack.
 /// Data is stored (and accessed) with row-major semantics.
-/// \tparam T The value type of the matrix.
-/// \tparam R The rows of the matrix.
-/// \tparam C The columns of the matrix.
+/// - T: The value type of the matrix.
+/// - R: The rows of the matrix.
+/// - C: The columns of the matrix.
 template<size_t R, size_t C, typename T>
 struct Mat {
 	/// The (static/fixed) dimensions of the matrix
@@ -116,7 +116,7 @@ constexpr auto operator*(const F& f, const Mat<R, C, T>& a) {
 
 // mat *= fac
 template<typename F, typename T, size_t R, size_t C>
-constexpr auto& operator*=(Mat<R, C, T> a, const F& f) {
+constexpr auto& operator*=(Mat<R, C, T>& a, const F& f) {
 	for(auto r = 0u; r < R; ++r)
 		for(auto c = 0u; c < C; ++c)
 			a[r][c] *= f;
