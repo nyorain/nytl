@@ -14,8 +14,8 @@
 
 namespace nytl {
 namespace detail {
-	template<typename T, typename = void>
-	struct IsCallableImpl;
+	template<typename T, typename = void> struct IsCallableImpl;
+	template<bool ConstSig, typename Ret, typename... Args> struct FunctionTraitsBase;
 } // namespace detail
 
 /// Meta-programming template to check if a type can be called.
@@ -30,34 +30,19 @@ template<typename F> struct FunctionTraits;
 /// Default FunctionTraits specializations for a raw signature.
 /// All other (valid) FunctionTraits will inherit from this type.
 template<typename Ret, typename... Args>
-struct FunctionTraits<Ret(Args...)> {
-	/// A tuple containing all arguments the function takes with all its qualifiers.
-	using ArgTuple = std::tuple<Args...>;
-
-	/// The type the function returns
-	using ReturnType = Ret;
-
-	/// The whole signature of the function.
-	/// For e.g. `int foo(const int&, std::string)` this would be `int(const int&, std::string)`
-	using Signature = Ret(Args...);
-
-	/// The number of arguments this function takes
-	constexpr static auto ArgSize = std::tuple_size<ArgTuple>::value;
-
-	/// Can be used to retrieve the ith function parameter type.
-	/// Example: `typename nytl::FunctionTraits<std::memcpy>::template ArgType<1>` is an
-	/// alias for `const void*` since this is the second std::memcpy parameter
-	/// \note Indexing of parameters starts (as usual) with 0, so ArgType<1> refers to the
-	/// second argument.
-	template<std::size_t I>
-	using ArgType = typename std::tuple_element_t<I, ArgTuple>;
+struct FunctionTraits<Ret(Args...)> :
+	public detail::FunctionTraitsBase<false, Ret, Args...> {
 };
 
+template<typename Ret, typename... Args>
+struct FunctionTraits<Ret(Args...) const> :
+	public detail::FunctionTraitsBase<true, Ret, Args...> {
+};
 
 // - implementation -
 // Function pointer
 template<typename Ret, typename... Args>
-struct FunctionTraits<Ret(*)(Args...)> : public FunctionTraits<Ret(Args...)> {};
+struct FunctionTraits<Ret(*)(Args...)> : public FunctionTraits<Ret(Args...) const> {};
 
 // Member function pointer
 template<typename C, typename Ret, typename... Args>
@@ -67,7 +52,7 @@ struct FunctionTraits<Ret(C::*)(Args...)> : public FunctionTraits<Ret(Args...)> 
 
 // Const member function pointer
 template<typename C, typename Ret, typename... Args>
-struct FunctionTraits<Ret(C::*)(Args...) const> : public FunctionTraits<Ret(Args...)> {
+struct FunctionTraits<Ret(C::*)(Args...) const> : public FunctionTraits<Ret(Args...) const> {
 	using Class = const C;
 };
 
@@ -117,6 +102,35 @@ struct IsCallableImpl<R(&)(Args...)> : public std::true_type {};
 // treated as callable
 template<typename R, typename... Args>
 struct IsCallableImpl<R(Args...)> : public std::true_type {};
+
+// FunctionTraitsBase
+template<bool ConstSig, typename Ret, typename... Args>
+struct FunctionTraitsBase {
+	/// A tuple containing all arguments the function takes with all its qualifiers.
+	using ArgTuple = std::tuple<Args...>;
+
+	/// The type the function returns
+	using ReturnType = Ret;
+
+	/// The whole signature of the function.
+	/// For e.g. `int foo(const int&, std::string)` this would be
+	/// `int(const int&, std::string) const`
+	using Signature = std::conditional_t<ConstSig, Ret(Args...) const, Ret(Args...)>;
+
+	/// The number of arguments this function takes
+	constexpr static auto NumArgs = std::tuple_size<ArgTuple>::value;
+
+	/// Whether the signature is const, i.e. the function const-callable.
+	constexpr static auto IsConst = ConstSig;
+
+	/// Can be used to retrieve the ith function parameter type.
+	/// Example: `typename nytl::FunctionTraits<std::memcpy>::template ArgType<1>` is an
+	/// alias for `const void*` since this is the second std::memcpy parameter
+	/// \note Indexing of parameters starts (as usual) with 0, so ArgType<1> refers to the
+	/// second argument.
+	template<std::size_t I>
+	using ArgType = typename std::tuple_element_t<I, ArgTuple>;
+};
 
 } // namespace detail
 } // namespace nytl
