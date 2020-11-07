@@ -33,10 +33,6 @@
 
 namespace nytl {
 
-// TODO: can be used for debug output
-// makes more sense as macro (so we get line/file)
-inline void Expects(bool) {}
-
 // implementation details
 namespace details {
 
@@ -80,10 +76,9 @@ public:
 	constexpr extent_type(extent_type<Other> ext) {
 		static_assert(Other == Ext || Other == dynamic_extent,
 			"Mismatch between fixed-size extent and size of initializing data.");
-		Expects(ext.size() == Ext);
 	}
 
-	constexpr extent_type(index_type size) { Expects(size == Ext); }
+	constexpr extent_type(index_type size) { }
 	constexpr index_type size() const noexcept { return Ext; }
 };
 
@@ -199,25 +194,20 @@ public:
     // [span.sub], span subviews
     template <std::size_t Count>
     constexpr span<element_type, Count> first() const {
-        Expects(Count >= 0 && Count <= size());
         return {data(), Count};
     }
 
     template <std::size_t Count>
     constexpr span<element_type, Count> last() const {
-        Expects(Count >= 0 && size() - Count >= 0);
         return {data() + (size() - Count), Count};
     }
 
     template <std::size_t Offset, std::size_t Count = dynamic_extent>
     constexpr auto subspan() const -> typename details::calculate_subspan_type<ElementType, Extent, Offset, Count>::type {
-        Expects((Offset >= 0 && size() - Offset >= 0) &&
-                (Count == dynamic_extent || (Count >= 0 && Offset + Count <= size())));
         return {data() + Offset, Count == dynamic_extent ? size() - Offset : Count};
     }
 
     constexpr span<element_type, dynamic_extent> first(index_type count) const {
-        Expects(count >= 0 && count <= size());
         return {data(), count};
     }
 
@@ -237,7 +227,6 @@ public:
     }
     constexpr bool empty() const noexcept { return size() == 0; }
     constexpr reference operator[](index_type idx) const {
-        Expects(idx >= 0 && idx < storage_.size());
         return data()[idx];
     }
 
@@ -281,14 +270,11 @@ private:
         template <class OtherExtentType>
         constexpr storage_type(KnownNotNull data, OtherExtentType ext)
             	: ExtentType(ext), data_(data.p) {
-            Expects(ExtentType::size() >= 0);
         }
 
         template <class OtherExtentType>
         constexpr storage_type(pointer data, OtherExtentType ext)
 				: ExtentType(ext), data_(data) {
-            Expects(ExtentType::size() >= 0);
-            Expects(data || ExtentType::size() == 0);
         }
 
         constexpr pointer data() const noexcept { return data_; }
@@ -315,9 +301,7 @@ private:
 
     span<element_type, dynamic_extent> make_subspan(index_type offset, index_type count,
             subspan_selector<dynamic_extent>) const {
-        Expects(offset >= 0 && size() - offset >= 0);
         if (count == dynamic_extent) { return {KnownNotNull{data() + offset}, size() - offset}; }
-        Expects(count >= 0 && size() - offset >= count);
         return {KnownNotNull{data() + offset}, count};
     }
 };

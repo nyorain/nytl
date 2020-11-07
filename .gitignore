@@ -8,3 +8,5 @@ bin/
 *.exe
 *.out
 *.sublime*
+compile_commands.json
+.clangd

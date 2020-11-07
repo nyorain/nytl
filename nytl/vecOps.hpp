@@ -161,13 +161,13 @@ namespace rho {
 
 /// Returns the left normal of a 2 dimensional vector.
 template<typename T>
-Vec2<T> lnormal(Vec2<T> vec) {
+[[deprecated]] Vec2<T> lnormal(Vec2<T> vec) {
 	return {-vec[1], vec[0]};
 }
 
 /// Returns the right normal of a 2 dimensional vector.
 template<typename T>
-Vec2<T> rnormal(Vec2<T> vec) {
+[[deprecated]] Vec2<T> rnormal(Vec2<T> vec) {
 	return {vec[1], -vec[0]};
 }
 
@@ -178,13 +178,13 @@ namespace lho {
 
 /// Returns the left normal of a 2 dimensional vector.
 template<typename T>
-Vec2<T> lnormal(Vec2<T> vec) {
+[[deprecated]] Vec2<T> lnormal(Vec2<T> vec) {
 	return {vec[1], -vec[0]};
 }
 
 /// Returns the right normal of a 2 dimensional vector.
 template<typename T>
-Vec2<T> rnormal(Vec2<T> vec) {
+[[deprecated]] Vec2<T> rnormal(Vec2<T> vec) {
 	return {-vec[1], vec[0]};
 }
 

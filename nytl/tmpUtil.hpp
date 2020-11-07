@@ -14,7 +14,22 @@
 namespace nytl {
 namespace detail {
 	template<typename...> using void_t = void; // to not include type_traits
+
+	template<typename First, typename... Rest>
+	struct LastTypeT {
+		using type = typename LastTypeT<Rest...>::type;
+	};
+
+	template<typename First>
+	struct LastTypeT<First> {
+		using type = First;
+	};
 } // namespace detail
+
+/// Useful typedef for the last type in the template parameter list.
+/// Can be used to trigger SFINAE on the first types, i.e. just pass
+/// types to check whether they are valid.
+template<typename... Args> using LastType = typename detail::LastTypeT<Args...>::type;
 
 /// \brief Useful typedef for expanding the use of variadic template arguments.
 /// In C++17, most of the Expand shortcuts can be done with fold expressions.
