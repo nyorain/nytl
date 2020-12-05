@@ -101,7 +101,7 @@ constexpr auto normalized(const Vec<D, T>& a) {
 /// precision (e.g. for an int vector).
 /// Undefined if the given vector is the nullvector.
 template<size_t D, typename T>
-constexpr auto normalize(Vec<D, T>& a) {
+constexpr void normalize(Vec<D, T>& a) {
 	auto l = length(a);
 	a *= T{1.0} / l;
 }
