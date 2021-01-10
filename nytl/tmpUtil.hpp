@@ -75,7 +75,7 @@ template<typename A, typename> using Variadic = A;
 /// have to be included by a template functions if a function is not used.
 /// \module utility
 template<typename V, typename T>
-decltype(auto) templatize(T&& value) { return std::forward<T>(value); }
+decltype(auto) constexpr templatize(T&& value) { return std::forward<T>(value); }
 
 
 namespace detail {
