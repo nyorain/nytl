@@ -1,8 +1,8 @@
-// Copyright (c) 2017-2019 nyorain
+// Copyright (c) 2017-2020 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
-/// \file Various matrix related operations.
+/// Various matrix related operations.
 
 #pragma once
 
@@ -33,15 +33,15 @@ struct LUDecomposition {
 	unsigned int sign = 1;
 };
 
-/// \brief Prints the given matrix with numerical values to the given ostream.
+/// Prints the given matrix with numerical values to the given ostream.
 /// If this function is used, header <ostream> must be included.
 /// This function does not implement operator<< since this operator should only implemented
 /// for the Vector implementation types. Can be used to implement such an operator (as
-/// [nytl::Mat]() does).
-/// \param valueWidth The number of characters per matrix value. Can be 0 to not care for it.
-/// \param rowSpacing The spacing in the beginning of each row.
-/// \param breakAfter Whether to insert a newline after printing the matrix.
-/// \requires There must be an implementation of operator<<(std::ostream&, M::Value).
+/// nytl::Mat does).
+/// - valueWidth: The number of characters per matrix value. Can be 0 to not care for it.
+/// - rowSpacing The spacing in the beginning of each row.
+/// - breakAfter Whether to insert a newline after printing the matrix.
+/// There must be an implementation of operator<<(std::ostream&, M::Value).
 template<size_t R, size_t C, typename T>
 std::ostream& print(std::ostream& ostream, const Mat<R, C, T>& mat,
 		unsigned int valueWidth = 8, const char* rowSpacing = "    ",
@@ -83,7 +83,7 @@ std::ostream& operator<<(std::ostream& os, const Mat<R, C, T>& a) {
 	return print(os, a);
 }
 
-/// \brief Returns the column with index n of the given matrix.
+/// Returns the column with index n of the given matrix.
 /// For example: `nytl::mat::row(mat44, 1);` returns the second (index 1) column of a matrix.
 template<size_t R, size_t C, typename T>
 constexpr auto col(const nytl::Mat<R, C, T>& mat, size_t n) {
@@ -95,7 +95,7 @@ constexpr auto col(const nytl::Mat<R, C, T>& mat, size_t n) {
 	return ret;
 }
 
-/// \brief Sets the column with index n to the given column.
+/// Sets the column with index n to the given column.
 /// For example: `nytl::mat::col(mat44, 2, vec4);` sets the 3rd column of a matrix.
 template<size_t R, size_t C, typename T>
 constexpr void col(nytl::Mat<R, C, T>& mat, size_t n, const nytl::Vec<R, T>& col) {
@@ -104,7 +104,7 @@ constexpr void col(nytl::Mat<R, C, T>& mat, size_t n, const nytl::Vec<R, T>& col
 	}
 }
 
-/// \brief Swaps the row with index n with the row with index i.
+/// Swaps the row with index n with the row with index i.
 /// For example: `nytl::mat::swapRow(mat44, 2, 3);` swaps the 3rd and 4th row
 template<size_t R, size_t C, typename T>
 constexpr void swapRow(nytl::Mat<R, C, T>& mat, size_t n, size_t i) {
@@ -112,7 +112,7 @@ constexpr void swapRow(nytl::Mat<R, C, T>& mat, size_t n, size_t i) {
 	swap(mat[n], mat[i]);
 }
 
-/// \brief Swaps the column with index n with the column with index i.
+/// Swaps the column with index n with the column with index i.
 /// For example: `nytl::mat::swapCol(mat44, 2, 3);` swaps the 3rd and 4th column
 template<size_t R, size_t C, typename T>
 constexpr void swapCol(nytl::Mat<R, C, T>& mat, size_t n, size_t i) {
@@ -122,7 +122,7 @@ constexpr void swapCol(nytl::Mat<R, C, T>& mat, size_t n, size_t i) {
 	}
 }
 
-/// \brief Sets all values of the given matrix to 1.
+/// Sets all values of the given matrix to 1.
 template<size_t R, size_t C, typename T>
 constexpr void one(nytl::Mat<R, C, T>& mat) {
 	for(auto r = 0u; r < R; ++r)
@@ -130,7 +130,7 @@ constexpr void one(nytl::Mat<R, C, T>& mat) {
 			mat[r][c] = T{1};
 }
 
-/// \brief Returns the trace of a square matrix, i.e. the sum of its diagonal elements
+/// Returns the trace of a square matrix, i.e. the sum of its diagonal elements
 template<size_t D, typename T>
 constexpr auto trace(const nytl::Mat<D, D, T>& mat) {
 	auto ret = mat[0][0];
@@ -141,7 +141,7 @@ constexpr auto trace(const nytl::Mat<D, D, T>& mat) {
 	return ret;
 }
 
-/// \brief Multiplies all elements in the diagonal of the given non-empty square matrix.
+/// Multiplies all elements in the diagonal of the given non-empty square matrix.
 template<size_t D, typename T>
 constexpr auto multiplyDiagonal(const nytl::Mat<D, D, T>& mat) {
 	auto ret = mat[0][0];
@@ -152,7 +152,7 @@ constexpr auto multiplyDiagonal(const nytl::Mat<D, D, T>& mat) {
 	return ret;
 }
 
-/// \brief Sets the given matrix to the identity matrix.
+/// Sets the given matrix to the identity matrix.
 template<size_t D, typename T>
 constexpr void identity(nytl::Mat<D, D, T>& mat) {
 	mat = {};
@@ -161,7 +161,7 @@ constexpr void identity(nytl::Mat<D, D, T>& mat) {
 	}
 }
 
-/// \brief Returns the identity for the given size and precision
+/// Returns the identity for the given size and precision
 template<size_t D, typename T>
 constexpr auto identity() {
 	Mat<D, D, T> ret {};
@@ -169,8 +169,7 @@ constexpr auto identity() {
 	return ret;
 }
 
-/// \brief Transposes the given matrix.
-/// \returns A rebound matrix of the same implementation with C rows and R rows.
+/// Transposes the given matrix.
 template<size_t R, size_t C, typename T>
 constexpr auto transpose(const nytl::Mat<R, C, T>& mat) {
 	nytl::Mat<C, R, T> ret {};
@@ -183,13 +182,13 @@ constexpr auto transpose(const nytl::Mat<R, C, T>& mat) {
 	return ret;
 }
 
-/// \brief Performs partial pivoting for the given matrix for given position.
+/// Performs partial pivoting for the given matrix for given position.
 /// Finds the largest value in the given column and swaps its row with the given row.
-/// Complexity Lies within O(n^2).
-/// \param row The row of the matrix entry to maximize.
-/// \param column The column of the matrix entry to maximize.
-/// \param onlyAfter If this is true, only rows after the given one are considered for swapping.
-/// \returns The new value at the given position.
+/// Complexity lies within O(n).
+/// - row The row of the matrix entry to maximize.
+/// - column The column of the matrix entry to maximize.
+/// - onlyAfter If this is true, only rows after the given one are considered for swapping.
+/// Returns the new value at the given position.
 template<size_t R, size_t C, typename T>
 constexpr auto pivot(nytl::Mat<R, C, T>& mat, size_t row, size_t column, bool onlyAfter = false) {
 	auto maxRow = row;
@@ -206,13 +205,13 @@ constexpr auto pivot(nytl::Mat<R, C, T>& mat, size_t row, size_t column, bool on
 	return mat[row][column];
 }
 
-/// \brief Brings the given matrix into the row echolon form (ref).
+/// Brings the given matrix into the row echolon form (ref).
 /// Implements the first step of the Gaussian elimination algorithm for a given matrix.
 /// The given matrix does not have to fulfill any requirements.
 /// Does directly modify the matrix. For a version that operates on a copy, see
 /// rowEcholonCopy.
 /// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
-/// \note This operation divides by values from the matrix so it must have a type does
+/// NOTE: This operation divides by values from the matrix so it must have a type does
 /// correctly implement division over the desired field (e.g. integer matrices will result
 /// in quiet rounding errors here).
 template<size_t R, size_t C, typename T>
@@ -247,7 +246,7 @@ constexpr void rowEcholon(nytl::Mat<R, C, T>& mat) {
 	}
 }
 
-/// \brief Same as [nytl::mat::rowEcholon](), but operates on a copy.
+/// Same as nytl::mat::rowEcholon, but operates on a copy.
 /// Gives the new matrix TN (= double) precision type to assure
 /// there will be no rounding issues.
 template<size_t R, size_t C, typename T, typename TN = double>
@@ -257,11 +256,11 @@ constexpr auto rowEcholonCopy(const nytl::Mat<R, C, T>& mat) {
 	return ret;
 }
 
-/// \brief Brings the given matrix into the reduced row echolon form (rref).
+/// Brings the given matrix into the reduced row echolon form (rref).
 /// Implements the full Gaussian elimination for a given matrix.
 /// The given matrix can be in any form.
 /// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
-/// \note This operation divides by values from the matrix so it must have a type does
+/// NOTE: This operation divides by values from the matrix so it must have a type does
 /// correctly implement division over the desired field (e.g. integer matrices will result
 /// in errors here).
 template<size_t R, size_t C, typename T>
@@ -294,7 +293,7 @@ constexpr void reducedRowEcholon(nytl::Mat<R, C, T>& mat) {
 	}
 }
 
-/// \brief Same as [nytl::mat::reducedRowEcholon](), but operates on a copy.
+/// Same as nytl::mat::reducedRowEcholon, but operates on a copy.
 /// Gives the new matrix TN (= double) precision type to assure
 /// there will be no rounding issues.
 template<size_t R, size_t C, typename T, typename TN = double>
@@ -304,8 +303,8 @@ constexpr auto reducedRowEcholonCopy(const nytl::Mat<R, C, T>& mat) {
 	return ret;
 }
 
-/// \brief Computes a LU decomposition of a given square matrix.
-/// \returns std::tuple with the lower (0) and upper (1) matrix of the decomposition, as
+/// Computes a LU decomposition of a given square matrix.
+/// Returns a struct with the lower (0) and upper (1) matrix of the decomposition, as
 /// well as the used permutation matrix (2) and the sign of the permutation (3).
 /// The sign is a value of the field the matrix is defined over. It's 1 if an even number
 /// of permutation were performed, or -1 if an uneven number of permutations were performed.
@@ -313,13 +312,13 @@ constexpr auto reducedRowEcholonCopy(const nytl::Mat<R, C, T>& mat) {
 /// Works for every square matrix, even singular ones like the zero matrix.
 /// The returned matrices always fulfill the equation: PA = LU, where P is the permutation
 /// matrix, A the given matrix, L the lower and U the upper matrix.
-/// Read more about lu decomposition at [https://en.wikipedia.org/wiki/LU_decomposition]().
+/// Read more about lu decomposition at https://en.wikipedia.org/wiki/LU_decomposition.
 /// The returned matrices have the full field precision type, since this operation divides values.
 /// This function cannot fail in any way.
-/// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
-template<size_t D, typename T>
-constexpr LUDecomposition<D, double> luDecomp(const nytl::Mat<D, D, T>& mat) {
-	LUDecomposition<D, double> ret {};
+/// Complexity lies within O(n^3) where n is the number of rows/cols of the given matrix.
+template<size_t D, typename T, typename R = double>
+constexpr LUDecomposition<D, R> luDecomp(const nytl::Mat<D, D, T>& mat) {
+	LUDecomposition<D, R> ret {};
 	identity(ret.perm);
 	ret.upper = static_cast<decltype(ret.upper)>(mat);
 
@@ -362,26 +361,27 @@ constexpr LUDecomposition<D, double> luDecomp(const nytl::Mat<D, D, T>& mat) {
 	return ret;
 }
 
-/// \brief Returns the vector x so that LUx = b.
+/// Returns the vector x so that LUx = b.
 /// Can be used to more efficiently solve multiple linear equation systems for the
 /// same matrix by first decomposing it and then use this function instead of the default
 /// Gaussian elimination implementation.
 /// The given matrix must be a square matrix.
-/// \notes If the lu composition was done with a permutation matrix (PA = LU), the given
-/// vector must be premultiplied with the permutations inverse (tranpose sine symmetrical) to
-/// get the vector that solves Ax = b. If PA = LU and Ax = b, so LUx = P * b
-/// \notes If the lower or upper matrix are singular, the equation does not have
-/// a unique solution and this function results in undefined behvaiour. So
-/// if the lower or upper matrix might be singular, check first manually.
-/// The returned vector has a full field precision type, since this operation divides values.
-/// Complexity Lies within O(n^2) where n is the number of rows/cols of the given matrices.
-template<size_t D, typename T1, typename T2>
+/// - If the lu composition was done with a permutation matrix (PA = LU), the given
+///   vector must be premultiplied with the permutations inverse (tranpose since symmetrical) to
+///   get the vector that solves Ax = b. If PA = LU and Ax = b, so LUx = P * b
+/// - If the lower or upper matrix are singular, the equation does not have
+///   a unique solution and this function results in undefined behvaiour. So
+///   if the lower or upper matrix might be singular, check first manually.
+/// - The returned vector has a R precision type (defaulted to double), since
+///   this operation divides values.
+/// - Complexity Lies within O(n^2) where n is the number of rows/cols of the given matrices.
+template<size_t D, typename T1, typename T2, typename R = double>
 constexpr auto luEvaluate(const Mat<D, D, T1>& l,
 		const Mat<D, D, T1>& u,
 		const Vec<D, T2>& b) {
 
 	// forward substitution
-	Vec<D, double> d {};
+	Vec<D, R> d {};
 	for(auto i = 0u; i < D; ++i) {
 		d[i] = b[i];
 		for(auto j = 0u; j < i; ++j)
@@ -391,7 +391,7 @@ constexpr auto luEvaluate(const Mat<D, D, T1>& l,
 	}
 
 	// back substitution
-	Vec<D, double> x {};
+	Vec<D, R> x {};
 	for(auto i = D; i-- > 0; ) {
 		x[i] = d[i];
 		for(auto j = i + 1; j < D; ++j)
@@ -403,17 +403,17 @@ constexpr auto luEvaluate(const Mat<D, D, T1>& l,
 	return x;
 }
 
-/// \brief Overload of luEvaluate that returns the vector x so that
+/// Overload of luEvaluate that returns the vector x so that
 /// the decomposed matrix A times x results in b.
 /// See the first luEvaluate overload for more details, especially the
-/// undefined behvaiour when A (and therefore the decomposition) is singular.
+/// undefined behavior when A (and therefore the decomposition) is singular.
 /// The sign of the decomposition will not be used.
 template<size_t D, typename T1, typename T2>
 constexpr auto luEvaluate(const LUDecomposition<D, T1>& lu, const Vec<D, T2>& b) {
 	return luEvaluate(lu.lower, lu.upper, transpose(lu.perm) * b);
 }
 
-/// \brief Returns the determinant of the given square matrix.
+/// Returns the determinant of the given square matrix.
 /// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
 /// If you already have a lu-decomposition, see the next overload of this function.
 template<size_t D, typename T>
@@ -423,14 +423,14 @@ constexpr auto determinant(const Mat<D, D, T>& mat) {
 	return s * static_cast<T>(multiplyDiagonal(u));
 }
 
-/// \brief Returns the determinant for the lu decomposition of a matrix.
+/// Returns the determinant for the lu decomposition of a matrix.
 /// The permutation matrix of the decomposition will not be used.
 template<size_t D, typename T>
 constexpr auto determinant(const LUDecomposition<D, T>& lu) {
 	return lu.sign * multiplyDiagonal(lu.upper) * multiplyDiagonal(lu.lower);
 }
 
-/// \brief Returns whether the given square matrix can be inverted.
+/// Returns whether the given square matrix can be inverted.
 /// Complexity Lies within O(n^3) where n is the number of rows/cols of the given matrix.
 /// If you already know the lu decomposition of this matrix it is much more efficient
 /// to calculate the determinant using the decomposition.
@@ -439,16 +439,17 @@ constexpr bool invertible(const SquareMat<D, T>& mat) {
 	return (determinant(mat) != 0);
 }
 
-/// \brief Returns the inverse of the given matrix.
+/// Returns the inverse of the given matrix.
 /// If you already know its lu decomposition, see the overload below.
 /// Undefined behvaiour if the given function is not invertible.
+/// For small matrices (i.e. D <= 4) there are more optimized versions.
 template<size_t D, typename T>
 constexpr auto inverse(const Mat<D, D, T>& mat) {
 	auto lu = luDecomp(mat);
 	return inverse(lu);
 }
 
-/// \brief Returns the inverse of the matrix that is represented by the
+/// Returns the inverse of the matrix that is represented by the
 /// given lu decomposition.
 /// Undefined behvaiour if the given function is not invertible, check
 /// this by simply calculating its determinant from the lower and upper matrices.
@@ -462,7 +463,7 @@ constexpr auto inverse(const LUDecomposition<D, T>& lu) {
 	return ret;
 }
 
-/// \brief Returns whether the given quadratic matrix is symmetric.
+/// Returns whether the given quadratic matrix is symmetric.
 template<size_t D, typename T>
 constexpr bool symmetric(const nytl::Mat<D, D, T>& mat) {
 	for(auto r = 0u; r < D; ++r) {

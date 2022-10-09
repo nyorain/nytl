@@ -51,3 +51,8 @@ Not too important
 - extend/improve vecOps cw/ip
 	- test!
 	- for scalar functions
+- Callback: add possibility for called functions to remove themselves.
+  Should be doable without significant overhead (optionally pass additional
+  parameter).
+  `Connection addSelfRemoving(std::function<Ret(bool& removeSelf, Args...)>)`
+- Make UniqueConnection unique_ptr?

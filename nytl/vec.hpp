@@ -1,8 +1,8 @@
-// Copyright (c) 2017-2019 nyorain
+// Copyright (c) 2017-2020 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
-/// \file A Vector implementation class.
+/// Defines a lightweight POD Vector class, std::array-like.
 
 #pragma once
 
@@ -20,10 +20,9 @@
 
 namespace nytl {
 
-/// \brief Basic Vector template class.
+/// Basic Vector template class.
 /// Basically a std::array with vector semantics. There are various operators
 /// and utility provided for dealing with it.
-/// \module vec
 template<size_t D, typename T>
 class Vec : public std::array<T, D> {
 public:

@@ -35,6 +35,5 @@ tscope = executable('scope', 'scope.cpp', dependencies: nytl_dep)
 test('scope', tscope)
 
 # compile-time tests only
-executable('nonCopyable', 'nonCopyable.cpp', dependencies: nytl_dep)
 executable('tmp', 'tmp.cpp', dependencies: nytl_dep)
 executable('functionTraits', 'functionTraits.cpp', dependencies: nytl_dep)

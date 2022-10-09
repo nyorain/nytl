@@ -1,10 +1,8 @@
-// Copyright (c) 2017-2019 nyorain
+// Copyright (c) 2017-2020 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
-/// \file Various operations for real vectors.
-/// Over the whole files, template types names V or V* must fulfil the
-/// vector concept specified in doc/vec.md
+/// Various operations for real-valued vectors.
 
 #pragma once
 
@@ -13,7 +11,6 @@
 
 #include <nytl/vec.hpp>
 #include <nytl/tmpUtil.hpp> // nytl::templatize
-#include <nytl/math.hpp> // nytl::accumulate
 
 #include <cmath> // std::acos
 #include <iosfwd> // std::ostream
@@ -116,7 +113,7 @@ constexpr Vec<D, T> mirror(const Vec<D, T>& mirror, const Vec<D, T>& point) {
 /// If this function is used, header <ostream> must be included.
 /// This function does not implement operator<< since this operator should only implemented
 /// for the Vector implementation types.
-/// \requires There must be an implementation of operator<<(std::ostream&, V::Value).
+/// There must be an implementation of operator<<(std::ostream&, V::Value).
 template<typename V>
 std::ostream& print(std::ostream& os, const V& vec,
 	const char* start = "(", const char* end = ")", const char* sep = ", ") {

@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2019 nyorain
+// Copyright (c) 2017-2020 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
@@ -11,33 +11,30 @@
 
 namespace nytl {
 
-/// \brief Can be used to clone a Cloneable object.
+/// Can be used to clone a Cloneable object.
 /// Will perform a copy of the actual type the interface reference references.
-/// \requires Type 'T' shall be Cloneable (i.e. derived from a nytl::Cloneable or
-/// nytl::AbstractCloneable class using nytl::DeriveCloneable).
-/// \module utility
+/// - Type 'T' shall be Cloneable (i.e. derived from a nytl::Cloneable or
+///   nytl::AbstractCloneable class using nytl::DeriveCloneable).
 template<typename T>
 std::unique_ptr<T> clone(const T& obj) {
 	return std::unique_ptr<T>(static_cast<T*>(obj.doClone()));
 }
 
-/// \brief Can be used to cloneMove a CloneMovable object.
+/// Can be used to cloneMove a CloneMovable object.
 /// Will move from the given object and return a moved copy of it preserving the actual
 /// implementation type the interface reference references.
-/// \requires Type 'T' shall be derived from a nytl::CloneMovable or
-/// nytl::AbstractCloneMovable class using nytl::DeriveCloneMovable.
-/// \module utility
+/// - Type 'T' shall be derived from a nytl::CloneMovable or
+///   nytl::AbstractCloneMovable class using nytl::DeriveCloneMovable.
 template<typename T>
 std::unique_ptr<T> cloneMove(T& obj) {
 	return std::unique_ptr<T>(static_cast<T*>(obj.doCloneMove()));
 }
 
-/// \brief Can be derived from to implement the cloneMove member function for 'Derived'.
-/// \requires Type 'Derived' shall derive from this class using the CRTP idiom.
+/// Can be derived from to implement the cloneMove member function for 'Derived'.
+/// Type 'Derived' shall derive from this class using the CRTP idiom.
 /// For this to work, Base must have defined a virtual cloneMove member function in its interface.
-/// Usually used together with [nytl::CloneMovable]() or [nytl::AbstractCloneMovable]()
+/// Usually used together with nytl::CloneMovable or nytl::AbstractCloneMovable
 /// in some class Derived is derived from (i.e. Base or ancestors).
-/// \module utility
 template<typename Derived, typename... Bases>
 class DeriveCloneMovable : public Bases... {
 protected:
@@ -53,12 +50,11 @@ protected:
 	template<typename O> friend std::unique_ptr<O> cloneMove(O&);
 };
 
-/// \brief Can be derived from to implement the clone/cloneMove member functions for 'Derived'.
-/// \requires Type 'Derived' shall derive from this class using the CRTP idiom.
+/// Can be derived from to implement the clone/cloneMove member functions for 'Derived'.
+/// Type 'Derived' shall derive from this class using the CRTP idiom.
 /// For this to work, Base must have defined virtual clone/cloneMove member functions in
-/// its interface. Usually used together with [nytl::Cloneable]() or [nytl::AbstractCloneable]()
+/// its interface. Usually used together with nytl::Cloneable or nytl::AbstractCloneable
 /// in some class Derived is derived from (i.e. Base or ancestors).
-/// \module utility
 template<typename Derived, typename... Bases>
 class DeriveCloneable : public DeriveCloneMovable<Derived, Bases...> {
 protected:
@@ -67,14 +63,13 @@ protected:
 	template<typename O> friend std::unique_ptr<O> clone(const O&);
 };
 
-/// \brief Can be derived from to make clone-moving for interfaces possible.
+/// Can be derived from to make clone-moving for interfaces possible.
 /// If some interface class derived from this type using the CRTP idiom (i.e. 'T' is the
 /// deriving class), objects of this interface will be able to be clone-moved, i.e. they can
 /// be move-copied into a new object without knowing their exact implementation type.
 /// Implementing classes usually use DeriveCloneMovable to implement it.
 /// To additionally enable normal cloning (i.e. copying without moving), see
-/// [nytl::AbstractCloneable]().
-/// \module utility
+/// nytl::AbstractCloneable.
 template<typename T>
 class AbstractCloneMovable {
 protected:
@@ -83,14 +78,13 @@ protected:
 	template<typename O> friend std::unique_ptr<O> cloneMove(O&);
 };
 
-/// \brief Can be derived from to make cloning for abstract classes possible.
+/// Can be derived from to make cloning for abstract classes possible.
 /// If some interface class derived from this type using the CRTP idiom (i.e. 'T' is the
 /// deriving class), objects of this interface will be able to be cloned, i.e. they can
 /// be duplicated to a new object without knowing their exact implementation type.
 /// Implementing classes usually use DeriveCloneable to implement it.
 /// To only enable clone-moving (i.e. don't require implementations to actually duplicate
-/// objects), see [nytl::AbstractCloneMovable]().
-/// \module utility
+/// objects), see nytl::AbstractCloneMovable.
 template<typename T>
 class AbstractCloneable : public AbstractCloneMovable<T> {
 protected:
@@ -99,8 +93,7 @@ protected:
 };
 
 
-/// \brief Can be used to add the clone-move interface to a class as well as already implement it.
-/// \module utility
+/// Can be used to add the clone-move interface to a class as well as already implement it.
 template<typename T>
 class CloneMovable : public AbstractCloneMovable<T> {
 protected:
@@ -108,8 +101,7 @@ protected:
 	template<typename O> friend std::unique_ptr<O> cloneMove(O&);
 };
 
-/// \brief Can be used to add the clone interface to a class as well as already implement it.
-/// \module utility
+/// Can be used to add the clone interface to a class as well as already implement it.
 template<typename T>
 class Cloneable : public AbstractCloneable<T> {
 protected:
@@ -136,9 +128,7 @@ void* DeriveCloneable<Derived, Bases...>::doClone() const
 
 #endif //header guard
 
-/// \file
-/// \brief Small utilities for defining/using Cloneable classes.
-/// \details Small (full copyable) example for using this header:
+/// Small (full copyable) example for using this header:
 ///
 /// ```cpp
 /// // We have to use nytl::AbstractCloneable sine Base is already abstract.

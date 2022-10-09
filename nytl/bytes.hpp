@@ -165,7 +165,7 @@ read(ReadBuf& src, T& obj) {
 
 // Example for writing a fixed-size data segment:
 //
-// WriteBuf dst;
+// WriteBuf dst = ...;
 // nytl::write(dst, 1.f);
 // nytl::write(dst, someStdLayoutStruct);
 // nytl::write(dst, nytl::Vec3f{5.f, 6.f, 1.f});

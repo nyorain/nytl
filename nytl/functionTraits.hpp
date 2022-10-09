@@ -2,7 +2,7 @@
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
-/// \file Defines utility templates to get information about callable types.
+/// Defines utility templates to get information about callable types.
 
 #pragma once
 
@@ -19,12 +19,10 @@ namespace detail {
 } // namespace detail
 
 /// Meta-programming template to check if a type can be called.
-/// \module function
 template<typename T>
 constexpr bool isCallable = detail::IsCallableImpl<T>::value;
 
 /// Meta-programming template to retrieve information about a function type.
-/// \module function
 template<typename F> struct FunctionTraits;
 
 /// Default FunctionTraits specializations for a raw signature.

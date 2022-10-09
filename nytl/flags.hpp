@@ -1,8 +1,16 @@
-// Copyright (c) 2017-2019 nyorain
+// Copyright (c) 2017-2020 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
-/// \file Defines binary operators for enums as well as the nytl::Flags class.
+/// The file defines binary operators for enums as well as the nytl::Flags class.
+/// Instead of simply defining bitwise operations for enumerations, e.g.
+/// 'Enum | Enum -> Enum', we add the 'Flags' wrapper class signalling that multiple
+/// bits might be set, resulting in operations like
+/// 'Enum | Enum -> nytl::Flags<Enum>'.
+/// This can be useful to differentiate for a function whether it expects
+/// one value from a bitmask enum or can accept multiple values.
+/// For a specific usecase see e.g. the Vulkan API that separates in
+/// functions/structs whether it wants one bit of a bitmask enum or 'flags'.
 
 #pragma once
 
@@ -13,21 +21,19 @@
 
 namespace nytl {
 
-/// \brief Can be used to invert the given value on Flags construction
+/// Can be used to invert the given value on Flags construction
 /// Can be used like this: `nytl::Flags<Enum>(nytl::invertFlags, Enum::value)`.
-/// \module utility
 struct InvertFlags {};
 constexpr InvertFlags invertFlags {};
 
-/// \brief Can be used to combine multiple values from the same enumeration.
-/// \details Use the [NYTL_FLAG_OPS]() macro to define binary operations on the
+/// Can be used to combine multiple values from the same enumeration.
+/// Use the NYTL_FLAG_OPS macro to define binary operations on the
 /// enumeration that result in a nytl::Flags object for it.
-/// \requires Each value in the enumerations should have exactly one bit set and
+/// Requires: Each value in the enumerations should have exactly one bit set and
 /// all values should have different bits set so they can be combined.
-/// \tparam T The enum type from which values should be combined.
-/// \tparam U The raw type to store the values in. By default the underlying type of
-/// the enum as reported by std::underlying_type<T>
-/// \module utility
+/// T: The enum type from which values should be combined.
+/// U: The raw type to store the values in. By default the underlying type of
+///    the enum as reported by std::underlying_type<T>
 template<typename T, typename U>
 class Flags {
 public:
@@ -50,9 +56,22 @@ public:
 	constexpr const U& value() const noexcept { return value_; }
 	constexpr operator U() const noexcept { return value_; }
 
+	bool any() const { return value_ != U{}; }
+	bool none() const { return value_ == U{}; }
+
+	bool allOf(const Flags<T, U>& b) const { return (*this & b) == b; }
+	bool anyOf(const Flags<T, U>& b) const { return (*this & b).any(); }
+	bool noneOf(const Flags<T, U>& b) const { return (*this & b).none(); }
+
 public: // public to make it a standard layout type
 	U value_ {};
 };
+
+// Can be used to explicitly set/unset flags.
+template<typename T, typename U>
+Flags<T, U> set(Flags<T, U> a, const Flags<T, U>& b, bool doSet) {
+	return doSet ? a |= b : a &= ~b;
+}
 
 // - binary flags operators -
 template<typename T> constexpr
@@ -69,11 +88,11 @@ Flags<T> operator^(T bit, const Flags<T>& flags) noexcept
 
 } // namespace nytl
 
-/// \brief Can be used for an enum to generate binary operations resulting in nytl::Flags.
+/// Can be used for an enum to generate binary operations resulting in nytl::Flags.
 /// Can be used like this: `enum class Enum {}; NYTL_FLAG_OPS(Enum)` which will
 /// make results like `Enum::value1 | Enum::value2` automatically result in a
 /// `nytl::Flags<Enum>` object holding the union of the given values.
-/// \note Inversion of flags or enum values will actually the underlaying value.
+/// Inversion of flags or enum values will actually inverse the underlaying value.
 /// Therefore equal comparisions with flags can be error prone and one should prefer to
 /// just check whether flags contain a specific value. The follwing static_assertion will fail:
 /// ```cpp

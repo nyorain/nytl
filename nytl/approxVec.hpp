@@ -1,8 +1,7 @@
-// Copyright (c) 2017-2019 nyorain
+// Copyright (c) 2017-2020 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
-// TODO: better name for the header would be appreciated
 /// Approx specialization for nytl math types like nytl::Vec or nytl::Mat.
 
 #pragma once

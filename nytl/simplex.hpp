@@ -1,8 +1,8 @@
-// Copyright (c) 2017-2019 nyorain
+// Copyright (c) 2017-2020 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
-/// \file Includes the unspecialized nytl::Simplex template class.
+/// Includes the unspecialized nytl::Simplex template class.
 
 #pragma once
 
@@ -18,8 +18,8 @@
 
 namespace nytl {
 
-/// \brief Templated abstraction of a simplex (the generalization of a triangle).
-/// \details The Simplex<D, P, A> template class defines an unique area with 'A' dimensions
+/// Templated abstraction of a simplex (the generalization of a triangle).
+/// The Simplex<D, P, A> template class defines an unique area with 'A' dimensions
 /// of 'P' precision in an 'D' dimensional space.
 /// So e.g. Simplex<3, float, 2> describes a Triangle in a 3-dimensional space.
 /// This template class does only work if 'D' >= 'A', since the dimension of the simplex
@@ -28,9 +28,9 @@ namespace nytl {
 /// The area described by a simplex is the most trivial space-filling unique and unambiguous
 /// geometrical figure in a space with the same dimensions as the simplex (e.g. a triangle
 /// in 2 dimensions).
-/// \requires 'P' must be a mathematical field over which the space is defined.
-/// \requires 'D' must be greater or equal than 'A'.
-/// \module simplex
+/// - 'P' must be a mathematical field over which the space is defined.
+/// - 'D' must be greater or equal than 'A', you can't e.g. have a tetrahedron
+///   (simplex A = 3) in two-dimensional space (D = 2).
 template<std::size_t D, typename P, std::size_t A>
 class Simplex {
 public:

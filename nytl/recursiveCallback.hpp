@@ -10,7 +10,6 @@
 #define NYTL_INCLUDE_RECURSIVE_CALLBACK
 
 #include <nytl/connection.hpp> // nytl::BasicConnection
-#include <nytl/nonCopyable.hpp> // nytl::NonCopyable
 #include <nytl/scope.hpp> // nytl::ScopeGuard
 
 #include <functional> // std::function
@@ -58,12 +57,14 @@ template<typename Signature> using TrackedRecursiveCallback =
 // Callback specialization to enable the Ret(Args...) Signature format.
 template<typename Ret, typename... Args, typename ID>
 class RecursiveCallback<Ret(Args...), ID>
-	: public ConnectableT<ID>, public NonCopyable {
+	: public ConnectableT<ID> {
 public:
 	using Signature = Ret(Args...);
 	using Connection = ConnectionT<ConnectableT<ID>, ID>;
 
 	RecursiveCallback() = default;
+	RecursiveCallback(const RecursiveCallback&) = delete;
+	RecursiveCallback& operator=(const RecursiveCallback&) = delete;
 	~RecursiveCallback();
 
 	/// \brief Registers a new Callback function.

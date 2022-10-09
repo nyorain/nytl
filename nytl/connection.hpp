@@ -2,7 +2,7 @@
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
-/// \file Defines the Connection and Connectable classes needed e.g. for callbacks.
+/// Defines the Connection and Connectable classes needed e.g. for callbacks.
 
 #pragma once
 
@@ -15,7 +15,7 @@
 
 namespace nytl {
 
-/// \brief Interface for classes that can be connected to in some way.
+/// Interface for classes that can be connected to in some way.
 /// An example (in nytl) is nytl::Callback.
 /// The way for obtaining such a connection if class-defined, this interface defines
 /// only a common way to disconnect again, which can then be used by the connection classes.
@@ -28,7 +28,7 @@ public:
 	virtual bool disconnect(const ID& id) = 0;
 };
 
-/// \brief Associates a BasicConnectable implementation with one of its connection ids.
+/// Associates a BasicConnectable implementation with one of its connection ids.
 /// Note that this does not automatically destroy the connection, nor does is
 /// track the lifetime of the BasicConnectable implementation object.
 template <typename C, typename ID>
@@ -69,7 +69,7 @@ protected:
 	ID id_ {};
 };
 
-/// \brief RAII wrapper around a connection id.
+/// RAII wrapper around a connection id.
 /// Note that this does not observe the lifetime of the object the connection id
 /// was received from. Destroying the associated Connectable object during the lifetime
 /// of the Connection object without then explicitly releasing the Connection id results
@@ -78,9 +78,9 @@ protected:
 /// BasicConnectionGuards for the same connection id. If there exists a connection guard
 /// for a connection this connection should not be disconnected in any other way than
 /// the destruction of the guard (except the guard is explicitly released).
-/// \reqruies Type 'C' shall be Disconnectable, i.e. implement disconnect() member function, e.g
-/// derived from ConnectableT<ID>
-/// \reqruies Type 'ID' shall fulfill the ConntectableID concept.
+/// - Type 'C' shall be Disconnectable, i.e. implement disconnect() member function, e.g
+///   derived from ConnectableT<ID>
+/// - Type 'ID' shall fulfill the ConntectableID concept.
 template<typename C, typename ID>
 class UniqueConnectionT {
 public:
@@ -189,18 +189,6 @@ using UniqueConnection = UniqueConnectionT<Connectable, ConnectionID>;
 using TrackedConnectable = ConnectableT<TrackedConnectionID>;
 using TrackedConnection = ConnectionT<TrackedConnectable, TrackedConnectionID>;
 using TrackedUniqueConnection = UniqueConnectionT<TrackedConnectable, TrackedConnectionID>;
-
-// TODO: remove
-/*
-constexpr inline bool operator==(ConnectionID a, ConnectionID b)
-	{ return a.value == b.value; }
-constexpr inline bool operator!=(ConnectionID a, ConnectionID b)
-	{ return a.value != b.value; }
-bool inline operator==(const TrackedConnectionID& a, const TrackedConnectionID& b)
-	{ return a.value == b.value; }
-bool inline operator!=(const TrackedConnectionID& a, const TrackedConnectionID& b)
-	{ return a.value != b.value; }
-*/
 
 } // namespace nytl
 

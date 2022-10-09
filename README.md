@@ -1,7 +1,7 @@
 # nytl
 
 A lightweight and generic header-only template library for C++17.
-Includes various utility of all kind that i needed across multiple projects:
+Includes various utility of all kind that I needed across multiple projects:
 
 - Extremely lightweight [vector](nytl/vec.hpp) and [matrix](nytl/mat.hpp) templates
 	- Basically just std::array with mathematical vector/matrix semantics
@@ -16,8 +16,7 @@ Includes various utility of all kind that i needed across multiple projects:
 
 All headers were written as modular, independent and generic as possible. Most
 utilities can be used indenpendently from each other. The only required
-dependency is a compiler supporting full C++17 and its stl (this means no suppport
-for msvc at the moment).
+dependency is a compiler supporting full C++17 and its STL.
 All files are licensed under the Boost License.
 
 ## Contributing
@@ -34,7 +33,7 @@ If you need just a few header files (or even just a few functions), just copy th
 your project folder.
 It can also be used as meson subproject.
 
-Remember that nytl requires a solid C++17 compiler, only recent versions of gcc and clang
+Remember that nytl requires a solid C++17 compiler, recent versions of gcc and clang
 are tested.
 Below some basic code examples for (only a) few nytl features to give you an idea.
 

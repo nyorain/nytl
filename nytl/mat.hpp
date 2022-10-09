@@ -1,8 +1,8 @@
-// Copyright (c) 2017-2019 nyorain
+// Copyright (c) 2017-2020 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
-/// Defines the nytl::Mat Matrix template class.
+/// Defines a lightweight POD Matrix class, std::array-like.
 
 #pragma once
 
@@ -62,6 +62,7 @@ public:
 };
 
 // - implementation/operators -
+// Conversion to matrix of different dimension/precision
 template<size_t R, size_t C, typename T>
 template<size_t OR, size_t OC, typename OT>
 constexpr Mat<R, C, T>::operator Mat<OR, OC, OT>() const {
@@ -170,6 +171,7 @@ constexpr auto operator-(Mat<R, C, T> a) {
 	return a;
 }
 
+// mat == mat
 template<typename T1, typename T2, size_t R, size_t C>
 constexpr auto operator==(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b) {
 	for(auto i = 0u; i < R; ++i)
@@ -178,6 +180,7 @@ constexpr auto operator==(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b) {
 	return true;
 }
 
+// mat != mat
 template<typename T1, typename T2, size_t R, size_t C>
 constexpr auto operator!=(const Mat<R, C, T1>& a, const Mat<R, C, T2>& b) {
 	return !(a == b);

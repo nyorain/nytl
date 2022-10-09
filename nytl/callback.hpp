@@ -1,8 +1,8 @@
-// Copyright (c) 2017-2019 nyorain
+// Copyright (c) 2017-2020 nyorain
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt
 
-/// \file Defines the Callback template class.
+/// Defines the Callback template class.
 
 #pragma once
 
@@ -10,7 +10,6 @@
 #define NYTL_INCLUDE_CALLBACK
 
 #include <nytl/connection.hpp> // nytl::BasicConnection
-#include <nytl/nonCopyable.hpp> // nytl::NonCopyable
 #include <nytl/scope.hpp> // nytl::ScopeGuard
 
 #include <functional> // std::function
@@ -40,10 +39,10 @@ namespace nytl {
 /// All exceptions from calls are just propagated.
 /// The class can not be copied or moved.
 ///
-/// \tparam Signature The signature of the registered functions.
-/// Uses the same syntax and semantics as std::function.
-/// \tparam ID A connectionID class, see nytl/connection.hpp for examples.
-/// See docs/callback.md for specification.
+/// - Signature: The signature of the registered functions.
+///   Uses the same syntax and semantics as std::function.
+/// - ID: A connectionID class, see nytl/connection.hpp for examples.
+///   See docs/callback.md for specification.
 template<typename Signature, typename ID = ConnectionID>
 class Callback;
 
@@ -55,8 +54,7 @@ template<typename Signature> using TrackedCallback =
 
 // Callback specialization to enable the Ret(Args...) Signature format.
 template<typename Ret, typename... Args, typename ID>
-class Callback<Ret(Args...), ID>
-	: public ConnectableT<ID>, public NonCopyable {
+class Callback<Ret(Args...), ID> : public ConnectableT<ID> {
 public:
 	/// ! Definition not present in RecursiveCallback
 	/// Represents one callback subscription entry.
@@ -74,12 +72,14 @@ public:
 
 public:
 	Callback() = default;
+	Callback(const Callback&) = delete;
+	Callback& operator=(const Callback&) = delete;
 	~Callback();
 
-	/// \brief Registers a new Callback function.
-	/// \returns A connection id for the registered function which can be used to
+	/// Registers a new Callback function.
+	/// Returns a connection id for the registered function which can be used to
 	/// unregister it.
-	/// \throws std::invalid_argument If an empty function target is registered.
+	/// Throws std::invalid_argument if an empty function target is registered.
 	Connection add(std::function<Ret(Args...)>);
 
 	/// Calls all registered functions and returns a vector with the returned objects,
@@ -168,14 +168,11 @@ add(std::function<Ret(Args...)> func) {
 }
 
 template<typename Ret, typename... Args, typename ID>
-auto Callback<Ret(Args...), ID>::call(Args... a)
-{
-	// the first continue check is needed to not call functions that were
-	// removed before this call started but call functions that were removed
-	// only by some other callback function
+auto Callback<Ret(Args...), ID>::call(Args... a) {
 	if constexpr(std::is_same<Ret, void>::value) {
-		for(auto& func : subs_)
+		for(auto& func : subs_) {
 			func.func(std::forward<Args>(a)...);
+		}
 	} else {
 		std::vector<Ret> ret;
 		ret.reserve(subs_.size());
@@ -189,8 +186,7 @@ auto Callback<Ret(Args...), ID>::call(Args... a)
 }
 
 template<typename Ret, typename... Args, typename ID>
-void Callback<Ret(Args...), ID>::clear() noexcept
-{
+void Callback<Ret(Args...), ID>::clear() noexcept {
 	// notify the ids of removal
 	for(auto& sub : subs_) {
 		sub.id.removed();
@@ -199,13 +195,14 @@ void Callback<Ret(Args...), ID>::clear() noexcept
 }
 
 template<typename Ret, typename... Args, typename ID>
-bool Callback<Ret(Args...), ID>::disconnect(const ID& id) noexcept
-{
+bool Callback<Ret(Args...), ID>::disconnect(const ID& id) noexcept {
 	constexpr auto pred = [](const auto& s1, const auto& s2) {
 		return s1.id.get() < s2.id.get();
 	};
 
 	// we know that id's are ordered
+	// TODO: not really, id might be wrapped. Will create issues in that case.
+	// Detect it by compairons of id and subID_?
 	auto ds = Subscription{{}, id}; // dummy
 	auto range = std::equal_range(subs_.begin(), subs_.end(), ds, pred);
 	if(range.first == range.second) {

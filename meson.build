@@ -37,7 +37,6 @@ headers = [
 	'nytl/mat.hpp',
 	'nytl/matOps.hpp',
 	'nytl/math.hpp',
-	'nytl/nonCopyable.hpp',
 	'nytl/rect.hpp',
 	'nytl/rectOps.hpp',
 	'nytl/recursiveCallback.hpp',
