@@ -10,7 +10,7 @@
 #include <cstdlib> // std::size_t
 
 namespace nytl {
-	constexpr const std::size_t dynamic_extent = -1;
+	constexpr const std::size_t dynamic_extent = std::size_t(-1);
 	template<typename T, std::size_t N = dynamic_extent> class span;
 	template<typename T, std::size_t N = dynamic_extent>
 	using Span = span<T, N>;
