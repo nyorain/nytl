@@ -73,12 +73,12 @@ public:
 	constexpr extent_type() noexcept {}
 
 	template <index_type Other>
-	constexpr extent_type(extent_type<Other> ext) {
+	constexpr extent_type([[maybe_unused]] extent_type<Other> ext) {
 		static_assert(Other == Ext || Other == dynamic_extent,
 			"Mismatch between fixed-size extent and size of initializing data.");
 	}
 
-	constexpr extent_type(index_type size) { }
+	constexpr extent_type([[maybe_unused]] index_type size) { }
 	constexpr index_type size() const noexcept { return Ext; }
 };
 
